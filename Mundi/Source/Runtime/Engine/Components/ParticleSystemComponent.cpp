@@ -446,7 +446,8 @@ void UParticleSystemComponent::BuildSpriteParticleBatch(TArray<FDynamicEmitterDa
         Batch.ObjectID = InternalIndex;
         Batch.SortPriority = Cmd.SortPriority;
         Batch.ScreenAlignment = Cmd.SpriteData->Alignment;
-        Batch.bIsDepthWrite = false;
+        Batch.ParticleBlendMode = Cmd.SpriteData ? Cmd.SpriteData->BlendMode : EMaterialBlendMode::Translucent;
+        Batch.bIsDepthWrite = (Batch.ParticleBlendMode == EMaterialBlendMode::Opaque);
 
         // SubUV 파라미터 설정
         const FDynamicSpriteEmitterReplayData* SrcData =
@@ -664,8 +665,8 @@ void UParticleSystemComponent::BuildMeshParticleBatch(TArray<FDynamicEmitterData
         Batch.WorldMatrix = FMatrix::Identity();
         Batch.ObjectID = InternalIndex;
         Batch.SortPriority = Cmd.SortPriority;
-
-        Batch.bIsDepthWrite = true;
+        Batch.ParticleBlendMode = Cmd.MeshData ? Cmd.MeshData->BlendMode : EMaterialBlendMode::Translucent;
+        Batch.bIsDepthWrite = (Batch.ParticleBlendMode == EMaterialBlendMode::Opaque);
         Batch.bInstancedDraw = true;
         Batch.InstanceVertexBuffer = MeshInstanceBuffer;
         Batch.InstanceStride = sizeof(FMeshParticleInstanceData);
@@ -977,7 +978,8 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         Batch.WorldMatrix = FMatrix::Identity(); // 리본은 월드 위치로 작성
         Batch.ObjectID = InternalIndex;
         Batch.SortPriority = Cmd.SortPriority;
-        Batch.bIsDepthWrite = false;
+        Batch.ParticleBlendMode = Cmd.RibbonData ? Cmd.RibbonData->BlendMode : EMaterialBlendMode::Translucent;
+        Batch.bIsDepthWrite = (Batch.ParticleBlendMode == EMaterialBlendMode::Opaque);
     }
 }
 
@@ -1588,7 +1590,8 @@ void UParticleSystemComponent::BuildBeamParticleBatch(TArray<FDynamicEmitterData
         Batch.PrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         Batch.WorldMatrix = FMatrix::Identity();
         Batch.SortPriority = BeamData->SortPriority;
-        Batch.bIsDepthWrite = false;
+        Batch.ParticleBlendMode = BeamData ? BeamData->BlendMode : EMaterialBlendMode::Translucent;
+        Batch.bIsDepthWrite = (Batch.ParticleBlendMode == EMaterialBlendMode::Opaque);
 
     } // End Emitter Loop
 }

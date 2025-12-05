@@ -62,6 +62,7 @@ struct FDynamicEmitterDataBase {
     EScreenAlignment Alignment = EScreenAlignment::None; 
     EParticleSortMode SortMode = EParticleSortMode::None; 
     int32 SortPriority = 0; // Emitter 우선순위
+    EMaterialBlendMode BlendMode = EMaterialBlendMode::Translucent; 
     TArray<int32> AsyncSortedIndices;
     
     virtual ~FDynamicEmitterDataBase() = default; 

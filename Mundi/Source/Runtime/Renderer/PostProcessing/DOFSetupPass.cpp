@@ -41,7 +41,7 @@ void FDOFSetupPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D
 
     // 4) Depth State: Depth Test/Write OFF
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false);
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
     // 5) 셰이더 로드
     UShader* FullScreenVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");

@@ -26,6 +26,8 @@ void FBloomPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D11R
         return;
     }
 
+    FSwapGuard SwapGuard(RHIDevice, 0, 2);
+
     const UINT fullWidth = std::max(1u, RHIDevice->GetSwapChainWidth());
     const UINT fullHeight = std::max(1u, RHIDevice->GetSwapChainHeight());
     const UINT bloomWidth = std::max(1u, fullWidth / 2);
@@ -76,7 +78,7 @@ void FBloomPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D11R
     Context->PSSetSamplers(0, 1, &LinearClamp);
 
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false);
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
     const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     const float threshold = M.Payload.Params0.X;
@@ -132,7 +134,6 @@ void FBloomPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D11R
     Context->RSSetViewports(1, &originalViewport);
     RHIDevice->SetAndUpdateConstantBuffer(OriginalViewportCB);
 
-    FSwapGuard SwapGuard(RHIDevice, 0, 2);
     RHIDevice->OMSetRenderTargets(ERTVMode::SceneColorTargetWithoutDepth);
 
     BloomCB.Params0.W = 2.0f;

@@ -16,7 +16,7 @@ void FGammaPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D11R
 
     // Depth State: Depth Test/Write 모두 OFF
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false); // 전화면 덮어쓰기. 필요 시 true + 알파 블렌딩도 가능
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque); // 전화면 덮어쓰기. 필요 시 true + 알파 블렌딩도 가능
 
     // 3) 셰이더
     UShader* FullScreenTriangleVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");

@@ -120,6 +120,8 @@ void UParticleLODLevel::Serialize(const bool bInIsLoading, JSON& InOutHandle)
                 int32 AlignVal = 0, SortVal = 0;
                 if (FJsonSerializer::ReadInt32(ReqJson, "ScreenAlignment", AlignVal)) Req->ScreenAlignment = (EScreenAlignment)AlignVal;
                 if (FJsonSerializer::ReadInt32(ReqJson, "SortMode", SortVal)) Req->SortMode = (EParticleSortMode)SortVal;
+                int32 BlendVal = static_cast<int32>(Req->MaterialBlendMode);
+                if (FJsonSerializer::ReadInt32(ReqJson, "BlendMode", BlendVal)) Req->MaterialBlendMode = static_cast<EMaterialBlendMode>(BlendVal);
 
                 // Material - 인스턴스 복제하여 파티클별 독립적인 텍스처 설정 지원
                 FString MatPath;
@@ -268,6 +270,7 @@ void UParticleLODLevel::Serialize(const bool bInIsLoading, JSON& InOutHandle)
             RequiredJson["bUseLocalSpace"] = RequiredModule->bUseLocalSpace;
             RequiredJson["ScreenAlignment"] = static_cast<int>(RequiredModule->ScreenAlignment);
             RequiredJson["SortMode"] = static_cast<int>(RequiredModule->SortMode);
+            RequiredJson["BlendMode"] = static_cast<int>(RequiredModule->MaterialBlendMode);
 
             // Material
             if (RequiredModule->Material)

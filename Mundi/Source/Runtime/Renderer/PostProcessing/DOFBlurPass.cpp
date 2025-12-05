@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "DOFBlurPass.h"
 #include "../SceneView.h"
 #include "../../RHI/ConstantBufferType.h"
@@ -47,7 +47,7 @@ void FDOFBlurPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3D1
 
     // Depth/Blend State
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false);
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
     // Viewport Constants (b10)
     // ScreenSize = DOF 텍스처 크기 (SwapChain/2)

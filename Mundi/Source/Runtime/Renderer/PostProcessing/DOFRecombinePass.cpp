@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "DOFRecombinePass.h"
 #include "../SceneView.h"
 #include "../../RHI/SwapGuard.h"
@@ -17,7 +17,7 @@ void FDOFRecombinePass::Execute(const FPostProcessModifier& M, FSceneView* View,
 
     // 2) Depth State: Depth Test/Write OFF
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false);
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
     // 3) 셰이더 로드
     UShader* FullScreenVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");

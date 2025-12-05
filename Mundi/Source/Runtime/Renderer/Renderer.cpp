@@ -351,10 +351,10 @@ void URenderer::EndLineBatchAlwaysOnTop(const FMatrix& ModelMatrix)
 
         // Disable depth test so lines render on top
         RHIDevice->OMSetDepthStencilState(EComparisonFunc::Disable);
-        RHIDevice->OMSetBlendState(true);
+        RHIDevice->OMSetBlendState(EMaterialBlendMode::Translucent);
         RHIDevice->GetDeviceContext()->DrawIndexed(DynamicLineMesh->GetCurrentIndexCount(), 0, 0);
         // Restore state
-        RHIDevice->OMSetBlendState(false);
+        RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
         RHIDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
     }
