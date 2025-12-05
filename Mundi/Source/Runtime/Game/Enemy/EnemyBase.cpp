@@ -5,6 +5,8 @@
 #include "HitboxComponent.h"
 #include "World.h"
 #include "PlayerController.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 
 
@@ -51,6 +53,18 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    // Only process AI when in Fighting state
+    if (AGameModeBase* GM = GWorld ? GWorld->GetGameMode() : nullptr)
+    {
+        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+        {
+            if (GS->GetGameFlowState() != EGameFlowState::Fighting)
+            {
+                return;
+            }
+        }
+    }
 
     if (AIState != EEnemyAIState::Dead)
     {

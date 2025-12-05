@@ -29,8 +29,13 @@ cbuffer SubUVBuffer : register(b2)
 cbuffer ParticleBuffer : register(b3)
 {
     uint ScreenAlignment;   // 0: PSA_Square, 1: PSA_Velocity
-    float3 Padding;         // 16바이트 정렬용 패딩
+    uint BlendMode;         // 0: Opaque, 1: Translucent, 2: Additive
+    float2 Padding;         // 16바이트 정렬용 패딩
 };
+
+#define PARTICLE_BLENDMODE_OPAQUE       0
+#define PARTICLE_BLENDMODE_TRANSLUCENT  1
+#define PARTICLE_BLENDMODE_ADDITIVE     2
 
 Texture2D ParticleTex : register(t0);
 SamplerState ParticleSampler : register(s0);
@@ -114,6 +119,7 @@ PSInput mainVS(VSInput In)
     return Out;
 }
 
+float AdditiveIntensity = 5.0f;
 float4 mainPS(PSInput In) : SV_TARGET
 {
     float2 uv = In.UV;
@@ -163,11 +169,20 @@ float4 mainPS(PSInput In) : SV_TARGET
             float4 tex = lerp(c0, c1, alpha);
             float4 finalColor = tex * In.Color;
 
-            // 알파가 0에 가까우면 discard
-            // 근데 굳이 해야할 필요 못느끼겠음 어차피 사라지는데 이게 뭐하는짓임?
-            if (finalColor.a < 0.01)
+            if (BlendMode == PARTICLE_BLENDMODE_ADDITIVE)
             {
-                discard;
+                float3 emissive = (finalColor.rgb * finalColor.a) * AdditiveIntensity;
+                return float4(emissive, 1.0f);
+            }
+
+            //if (finalColor.a < 0.01)
+            //{
+            //    discard;
+            //}
+
+            if (BlendMode == PARTICLE_BLENDMODE_OPAQUE)
+            {
+                finalColor.a = 1.0f;
             }
             
             return finalColor;
@@ -178,10 +193,22 @@ float4 mainPS(PSInput In) : SV_TARGET
     float4 tex = ParticleTex.Sample(ParticleSampler, uv);
     float4 color = tex * In.Color;
 
+    // Additive 모드는 알파를 밝기 가중치로 사용하고 discard 하지 않음
+    if (BlendMode == PARTICLE_BLENDMODE_ADDITIVE)
+    {
+        float3 emissive = color.rgb * color.a * AdditiveIntensity;
+        return float4(emissive, 1.0f);
+    }
+
     // 알파 또는 검은색에 가까우면 discard
     if (color.a < 0.01 || (color.r < 0.005 && color.g < 0.005 && color.b < 0.005))
     {
         discard;
+    }
+
+    if (BlendMode == PARTICLE_BLENDMODE_OPAQUE)
+    {
+        color.a = 1.0f;
     }
     
     return color;

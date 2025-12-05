@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_StandAlone|x64">
@@ -291,9 +291,12 @@
     <ClCompile Include="Source\Runtime\Core\Object\MyCar.cpp" />
     <ClCompile Include="Source\Editor\FBX\BlendSpace\BlendSpace2D.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Bloom.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\Animation\AnimMontage.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_DOF.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\SpringArmComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Gamma.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\GameFramework\GameState.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\GameFramework\GameStateBase.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleEventReceiverSpawn.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleRibbon.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\ParticleSystemComponent.cpp" />
@@ -680,6 +683,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_StandAlone|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Source\Slate\GameOverlayD2D.cpp" />
     <ClCompile Include="Source\Slate\ImGui\ImGuiHelper.cpp" />
     <ClCompile Include="Source\Slate\StatsOverlayD2D.cpp" />
     <ClCompile Include="Source\Slate\UIManager.cpp" />
@@ -713,7 +717,14 @@
     <ClCompile Include="Generated\UPawnMovementComponent.generated.cpp" />
     <ClCompile Include="Generated\UParticleSystemComponent.generated.cpp" />
     <ClCompile Include="Generated\AMyCar.generated.cpp" />
-    <ClCompile Include="Generated\USpringArmComponent.generated.cpp" /><ClCompile Include="Generated\UHitboxComponent.generated.cpp" /><ClCompile Include="Generated\UStatsComponent.generated.cpp" /><ClCompile Include="Generated\AEnemyBase.generated.cpp" /><ClCompile Include="Generated\APlayerCharacter.generated.cpp" /><ClCompile Include="Generated\AAIController.generated.cpp" /><ClCompile Include="Generated\AEnemyAIController.generated.cpp" /><ClCompile Include="Generated\ABossEnemy.generated.cpp" /></ItemGroup>
+    <ClCompile Include="Generated\USpringArmComponent.generated.cpp" />
+    <ClCompile Include="Generated\UHitboxComponent.generated.cpp" />
+    <ClCompile Include="Generated\UStatsComponent.generated.cpp" />
+    <ClCompile Include="Generated\AEnemyBase.generated.cpp" />
+    <ClCompile Include="Generated\APlayerCharacter.generated.cpp" />
+    <ClCompile Include="Generated\AGameState.generated.cpp" />
+    <ClCompile Include="Generated\AGameStateBase.generated.cpp" />
+  </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Common\LightingBuffers.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -923,6 +934,7 @@
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimationStateMachine.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimDateModel.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimInstance.h" />
+    <ClInclude Include="Source\Runtime\Engine\Animation\AnimMontage.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotifyState.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotifyState_Trail.h" />
@@ -960,6 +972,8 @@
     <ClInclude Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Shake.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\GameEngine.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\GameModeBase.h" />
+    <ClInclude Include="Source\Runtime\Engine\GameFramework\GameState.h" />
+    <ClInclude Include="Source\Runtime\Engine\GameFramework\GameStateBase.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\PlayerCameraManager.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\DirectionalLightActor.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\EmptyActor.h" />
@@ -1174,6 +1188,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_StandAlone|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Source\Slate\GameOverlayD2D.h" />
     <ClInclude Include="Source\Slate\ImGui\ImGuiHelper.h" />
     <ClInclude Include="Source\Slate\StatsOverlayD2D.h" />
     <ClInclude Include="Source\Slate\UIManager.h" />
@@ -1214,7 +1229,14 @@
     <ClInclude Include="Generated\UPawnMovementComponent.generated.h" />
     <ClInclude Include="Generated\UParticleSystemComponent.generated.h" />
     <ClInclude Include="Generated\AMyCar.generated.h" />
-    <ClInclude Include="Generated\USpringArmComponent.generated.h" /><ClInclude Include="Generated\UHitboxComponent.generated.h" /><ClInclude Include="Generated\UStatsComponent.generated.h" /><ClInclude Include="Generated\AEnemyBase.generated.h" /><ClInclude Include="Generated\APlayerCharacter.generated.h" /><ClInclude Include="Generated\AAIController.generated.h" /><ClInclude Include="Generated\AEnemyAIController.generated.h" /><ClInclude Include="Generated\ABossEnemy.generated.h" /></ItemGroup>
+    <ClInclude Include="Generated\USpringArmComponent.generated.h" />
+    <ClInclude Include="Generated\UHitboxComponent.generated.h" />
+    <ClInclude Include="Generated\UStatsComponent.generated.h" />
+    <ClInclude Include="Generated\AEnemyBase.generated.h" />
+    <ClInclude Include="Generated\APlayerCharacter.generated.h" />
+    <ClInclude Include="Generated\AGameState.generated.h" />
+    <ClInclude Include="Generated\AGameStateBase.generated.h" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Tools\CodeGenerator\generate.py" />

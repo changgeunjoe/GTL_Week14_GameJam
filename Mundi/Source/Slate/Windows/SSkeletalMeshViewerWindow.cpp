@@ -2892,6 +2892,11 @@ void SSkeletalMeshViewerWindow::DrawAssetBrowserPanel(ViewerState* State)
 
         TArray<UAnimSequence*> AnimSequences = UResourceManager::GetInstance().GetAll<UAnimSequence>();
 
+        // 검색 입력 필드
+        ImGui::SetNextItemWidth(-1);
+        ImGui::InputTextWithHint("##AnimSearch", "Search animations...", State->AnimSearchBuffer, sizeof(State->AnimSearchBuffer));
+        ImGui::Spacing();
+
         if (SkeletonBoneNames.Num() == 0)
         {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
@@ -2901,11 +2906,26 @@ void SSkeletalMeshViewerWindow::DrawAssetBrowserPanel(ViewerState* State)
         else
         {
             TArray<UAnimSequence*> CompatibleAnims;
+            FString SearchFilter = State->AnimSearchBuffer;
+
+            // 검색어 소문자 변환
+            std::transform(SearchFilter.begin(), SearchFilter.end(), SearchFilter.begin(), ::tolower);
+
             for (UAnimSequence* Anim : AnimSequences)
             {
                 if (!Anim) continue;
                 if (Anim->IsCompatibleWith(SkeletonBoneNames))
                 {
+                    // 검색어 필터링
+                    if (!SearchFilter.empty())
+                    {
+                        FString AnimName = Anim->GetFilePath();
+                        std::transform(AnimName.begin(), AnimName.end(), AnimName.begin(), ::tolower);
+                        if (AnimName.find(SearchFilter) == FString::npos)
+                        {
+                            continue;  // 검색어와 매칭되지 않으면 스킵
+                        }
+                    }
                     CompatibleAnims.Add(Anim);
                 }
             }
@@ -2913,11 +2933,21 @@ void SSkeletalMeshViewerWindow::DrawAssetBrowserPanel(ViewerState* State)
             if (CompatibleAnims.IsEmpty())
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
-                ImGui::TextWrapped("No compatible animations found for this skeleton.");
+                if (SearchFilter.empty())
+                {
+                    ImGui::TextWrapped("No compatible animations found for this skeleton.");
+                }
+                else
+                {
+                    ImGui::TextWrapped("No animations matching '%s'", State->AnimSearchBuffer);
+                }
                 ImGui::PopStyleColor();
             }
             else
             {
+                ImGui::Text("%d animations", CompatibleAnims.Num());
+                ImGui::Spacing();
+
                 for (UAnimSequence* Anim : CompatibleAnims)
                 {
                     if (!Anim) continue;

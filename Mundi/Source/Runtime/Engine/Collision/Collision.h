@@ -23,7 +23,7 @@ struct FHitResult
     FVector TraceStart = FVector::Zero();       // Sweep 시작점
     FVector TraceEnd = FVector::Zero();         // Sweep 끝점
     AActor* HitActor = nullptr;                 // 충돌한 액터
-    UPrimitiveComponent* HitComponent = nullptr; // 충돌한 컴포넌트
+    UPrimitiveComponent* HitComponent = nullptr; // 충돌한 컴포넌트    
 
     void Reset()
     {

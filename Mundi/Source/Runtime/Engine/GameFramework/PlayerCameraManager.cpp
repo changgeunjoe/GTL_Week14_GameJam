@@ -7,6 +7,7 @@
 #include "Camera/CamMod_Vignette.h"
 #include "Camera/CamMod_Gamma.h"
 #include "Camera/CamMod_DOF.h"
+#include "Camera/CamMod_Bloom.h"
 #include "SceneView.h"
 #include "CameraActor.h"
 #include "World.h"
@@ -73,6 +74,53 @@ void APlayerCameraManager::DuplicateSubObjects()
 
 	// Vignette 인덱스 초기화
 	LastVignetteIdx = 0;
+}
+
+void APlayerCameraManager::Serialize(bool bIsLoading, JSON& InOutJson)
+{
+	Super::Serialize(bIsLoading, InOutJson);
+
+	if (bIsLoading)
+	{
+		if (InOutJson.hasKey("Modifiers_Bloom"))
+		{
+			// 기존 Bloom 모디파이어 제거
+			for (int i = ActiveModifiers.Num() - 1; i >= 0; --i)
+			{
+				if (Cast<UCamMod_Bloom>(ActiveModifiers[i]))
+				{
+					DeleteObject(ActiveModifiers[i]);
+					ActiveModifiers.RemoveAt(i);
+				}
+			}
+
+			JSON& BloomModsJson = InOutJson["Modifiers_Bloom"];
+			for (int i = 0; i < BloomModsJson.length(); ++i)
+			{
+				UCamMod_Bloom* NewBloomMod = NewObject<UCamMod_Bloom>();
+				NewBloomMod->Serialize(true, BloomModsJson[i]);
+				ActiveModifiers.Add(NewBloomMod);
+			}
+		}
+	}
+	else
+	{
+		JSON BloomModsJson = JSON::Make(JSON::Class::Array);
+		for (UCameraModifierBase* Mod : ActiveModifiers)
+		{
+			if (UCamMod_Bloom* BloomMod = Cast<UCamMod_Bloom>(Mod))
+			{
+				JSON BloomModJson = JSON::Make(JSON::Class::Object);
+				BloomMod->Serialize(false, BloomModJson);
+				BloomModsJson.append(BloomModJson);
+			}
+		}
+
+		if (BloomModsJson.length() > 0)
+		{
+			InOutJson["Modifiers_Bloom"] = BloomModsJson;
+		}
+	}
 }
 
 void APlayerCameraManager::BeginPlay()
@@ -229,10 +277,19 @@ void APlayerCameraManager::StartCameraShake(float InDuration, float AmpLoc, floa
 void APlayerCameraManager::StartFade(float InDuration, float FromAlpha, float ToAlpha, const FLinearColor& InColor,
 	int32 InPriority)
 {
+	// Remove existing fade modifiers to avoid stacking
+	for (int32 i = ActiveModifiers.Num() - 1; i >= 0; --i)
+	{
+		if (Cast<UCamMod_Fade>(ActiveModifiers[i]))
+		{
+			DeleteObject(ActiveModifiers[i]);
+			ActiveModifiers.RemoveAt(i);
+		}
+	}
+
 	UCamMod_Fade* FadeModifier = NewObject<UCamMod_Fade>();
 	FadeModifier->Priority = InPriority;
 	FadeModifier->bEnabled = true;
-
 	FadeModifier->FadeColor = InColor;
 	FadeModifier->StartAlpha = FMath::Clamp(FromAlpha, 0.f, 1.f);
 	FadeModifier->EndAlpha = FMath::Clamp(ToAlpha, 0.f, 1.f);
@@ -240,8 +297,23 @@ void APlayerCameraManager::StartFade(float InDuration, float FromAlpha, float To
 	FadeModifier->Elapsed = 0.f;
 	FadeModifier->CurrentAlpha = FadeModifier->StartAlpha;
 
+	// If instantaneous, finalize immediately so it renders this frame
+	if (FadeModifier->Duration <= 0.f)
+	{
+		FadeModifier->Elapsed = FadeModifier->Duration;
+		FadeModifier->CurrentAlpha = FadeModifier->EndAlpha;
+		FadeModifier->bEnabled = (FadeModifier->EndAlpha > 0.f);
+	}
+
 	ActiveModifiers.Add(FadeModifier);
-	// ActiveModifiers.Sort([](UCameraModifierBase* A, UCameraModifierBase* B){ return *A < *B; });
+
+	// Ensure post-process list contains the fade this frame (even if not ticked)
+	Modifiers.clear();
+	for (UCameraModifierBase* M : ActiveModifiers)
+	{
+		if (!M || !M->bEnabled || M->Weight <= 0.f) continue;
+		M->CollectPostProcess(Modifiers);
+	}
 }
 
 void APlayerCameraManager::StartLetterBox(float InDuration, float Aspect, float BarHeight, const FLinearColor& InColor, int32 InPriority)

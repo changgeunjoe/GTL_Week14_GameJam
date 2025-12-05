@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "StatsOverlayD2D.h"
+#include "GameOverlayD2D.h"
 #include "Color.h"
 
 void D3D11RHI::Initialize(HWND hWindow)
@@ -18,8 +19,9 @@ void D3D11RHI::Initialize(HWND hWindow)
 	CreateSamplerState();
     UResourceManager::GetInstance().Initialize(Device,DeviceContext);
 
-    // Initialize Direct2D overlay after device/swapchain ready
+    // Initialize Direct2D overlays after device/swapchain ready
     UStatsOverlayD2D::Get().Initialize(Device, DeviceContext, SwapChain);
+    UGameOverlayD2D::Get().Initialize(Device, DeviceContext, SwapChain);
 }
 
 void D3D11RHI::Release()
@@ -29,6 +31,7 @@ void D3D11RHI::Release()
     bReleased = true;
 
     // Direct2D 오버레이를 먼저 정리하여 D3D 리소스에 대한 참조를 제거
+    UGameOverlayD2D::Get().Shutdown();
     UStatsOverlayD2D::Get().Shutdown();
 
     if (DeviceContext)
@@ -132,6 +135,24 @@ void D3D11RHI::CreateBlendState()
     BlendDesc = {};
     BlendDesc.IndependentBlendEnable = TRUE;
     Rt0 = BlendDesc.RenderTarget[0];
+    Rt0.BlendEnable = TRUE;
+    Rt0.SrcBlend = D3D11_BLEND_ONE;
+    Rt0.DestBlend = D3D11_BLEND_ONE;
+    Rt0.BlendOp = D3D11_BLEND_OP_ADD;
+    Rt0.SrcBlendAlpha = D3D11_BLEND_ONE;
+    Rt0.DestBlendAlpha = D3D11_BLEND_ONE;
+    Rt0.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    Rt0.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    Rt1 = BlendDesc.RenderTarget[1];
+    Rt1.BlendEnable = FALSE;
+    Rt1.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    Device->CreateBlendState(&BlendDesc, &BlendStateAdditive);
+
+    BlendDesc = {};
+    BlendDesc.IndependentBlendEnable = TRUE;
+    Rt0 = BlendDesc.RenderTarget[0];
     Rt0.BlendEnable = FALSE;
     Rt0.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
@@ -139,16 +160,6 @@ void D3D11RHI::CreateBlendState()
     Rt1.BlendEnable = FALSE;
     Rt1.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     Device->CreateBlendState(&BlendDesc, &BlendStateOpaque);
-    //auto& rt = bd.RenderTarget[0];
-    //rt.BlendEnable = TRUE;
-    //rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;      // 스트레이트 알파
-    //rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;  // (프리멀티면 ONE / INV_SRC_ALPHA)
-    //rt.BlendOp = D3D11_BLEND_OP_ADD;
-    //rt.SrcBlendAlpha = D3D11_BLEND_ONE;
-    //rt.DestBlendAlpha = D3D11_BLEND_ZERO;
-    //rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-    //rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-    //Device->CreateBlendState(&bd, &BlendState);
 }
 
 void D3D11RHI::CreateDepthStencilState()
@@ -493,16 +504,26 @@ void D3D11RHI::OMSetRenderTargets(ERTVMode RTVMode)
     }
 }
 
-void D3D11RHI::OMSetBlendState(bool bIsBlendMode)
+void D3D11RHI::OMSetBlendState(EMaterialBlendMode InBlendMode)
 {
-    if (bIsBlendMode == true)
+    switch (InBlendMode)
     {
-        float blendFactor[4] = { 0, 0, 0, 0 };
-        DeviceContext->OMSetBlendState(BlendStateTransparent, blendFactor, 0xffffffff);
+    case EMaterialBlendMode::Translucent:
+    {
+        float BlendFactor[4] = { 0, 0, 0, 0 };
+        DeviceContext->OMSetBlendState(BlendStateTransparent, BlendFactor, 0xffffffff);
+        break;
     }
-    else
+    case EMaterialBlendMode::Additive:
     {
+        float BlendFactor[4] = { 0, 0, 0, 0 };
+        DeviceContext->OMSetBlendState(BlendStateAdditive, BlendFactor, 0xffffffff);
+        break;
+    }
+    case EMaterialBlendMode::Opaque:
+    default:
         DeviceContext->OMSetBlendState(BlendStateOpaque, nullptr, 0xffffffff);
+        break;
     }
 }
 
@@ -523,6 +544,7 @@ void D3D11RHI::DrawFullScreenQuad()
 void D3D11RHI::Present()
 {
     // Draw any Direct2D overlays before present
+    UGameOverlayD2D::Get().Draw();
     UStatsOverlayD2D::Get().Draw();
     SwapChain->Present(0, 0); // vsync on
 }
@@ -946,6 +968,11 @@ void D3D11RHI::ReleaseBlendState()
     {
         BlendStateTransparent->Release();
         BlendStateTransparent = nullptr;
+    }
+    if (BlendStateAdditive)
+    {
+        BlendStateAdditive->Release();
+        BlendStateAdditive = nullptr;
     }
 }
 

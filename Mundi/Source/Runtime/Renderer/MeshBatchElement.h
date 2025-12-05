@@ -79,6 +79,7 @@ struct FMeshBatchElement
 	int SortPriority = -1;
 	
 	// RenderParticlePass에서 Sprite / Mesh 구분을 위해 쓴다
+	EMaterialBlendMode ParticleBlendMode = EMaterialBlendMode::Translucent;
 	bool bIsDepthWrite = false;
 
 	// --- 4. GPU Instancing 여부 ---

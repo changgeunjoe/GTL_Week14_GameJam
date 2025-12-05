@@ -7,6 +7,8 @@
 #include "InputManager.h"
 #include "SkeletalMeshComponent.h"
 #include "World.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 
 
@@ -31,9 +33,9 @@ void APlayerCharacter::BeginPlay()
     // 델리게이트 바인딩
     if (StatsComponent)
     {
-        StatsComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::HandleHealthChanged);
-        StatsComponent->OnStaminaChanged.AddDynamic(this, &APlayerCharacter::HandleStaminaChanged);
-        StatsComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleDeath);
+        // StatsComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::HandleHealthChanged);
+        // StatsComponent->OnStaminaChanged.AddDynamic(this, &APlayerCharacter::HandleStaminaChanged);
+        // StatsComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleDeath);
     }
 
     // 히트박스 소유자 설정
@@ -46,6 +48,18 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    // Only process gameplay when in Fighting state
+    if (AGameModeBase* GM = GWorld ? GWorld->GetGameMode() : nullptr)
+    {
+        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+        {
+            if (GS->GetGameFlowState() != EGameFlowState::Fighting)
+            {
+                return;
+            }
+        }
+    }
 
     // 사망 상태면 입력 무시
     if (CombatState == ECombatState::Dead)

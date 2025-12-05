@@ -6,7 +6,8 @@ struct FMaterialInfo
 {
     int32 IlluminationModel = 2;  // illum. Default illumination model to Phong for non-Pbr materials
 
-    FVector DiffuseColor = FVector(0.8f, 0.8f, 0.8f);   // Kd - 표준: 0.8
+    // FVector DiffuseColor = FVector(0.8f, 0.8f, 0.8f);   // Kd - 표준: 0.8
+    FVector DiffuseColor = FVector(1.0f, 1.0f, 1.0f);   // Kd - 표준: 0.8
     FVector AmbientColor = FVector(0.2f, 0.2f, 0.2f);   // Ka - 표준: 0.2
     FVector SpecularColor = FVector::One();             // Ks - 표준: 1.0 (유지)
     FVector EmissiveColor = FVector::Zero();            // Ke - 표준: 0.0 (중요!)

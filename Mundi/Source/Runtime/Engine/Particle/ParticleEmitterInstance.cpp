@@ -498,6 +498,8 @@ FDynamicEmitterDataBase* FParticleEmitterInstance::CreateDynamicData()
     if (ActiveParticles <= 0) return nullptr;
 
     const EParticleType Type = GetDynamicType();
+    const EMaterialBlendMode RequiredBlendMode =
+        CachedRequiredModule ? CachedRequiredModule->MaterialBlendMode : EMaterialBlendMode::Translucent;
     FDynamicEmitterDataBase* NewData = nullptr;
 
     if (Type == EParticleType::Sprite)
@@ -508,6 +510,7 @@ FDynamicEmitterDataBase* FParticleEmitterInstance::CreateDynamicData()
         SpriteData->Alignment = CachedRequiredModule->ScreenAlignment;
         SpriteData->SortPriority = 0;
         SpriteData->bUseLocalSpace = CachedRequiredModule->bUseLocalSpace;
+        SpriteData->BlendMode = RequiredBlendMode;
         
         // 데이터 채우기 (Memcpy)
         BuildReplayData(SpriteData->Source);
@@ -520,6 +523,7 @@ FDynamicEmitterDataBase* FParticleEmitterInstance::CreateDynamicData()
         MeshData->SortMode = CachedRequiredModule->SortMode;
         MeshData->Alignment = CachedRequiredModule->ScreenAlignment;
         MeshData->SortPriority = 0;
+        MeshData->BlendMode = RequiredBlendMode;
 
         // 데이터 채우기
         BuildReplayData(MeshData->Source);
@@ -541,6 +545,7 @@ FDynamicEmitterDataBase* FParticleEmitterInstance::CreateDynamicData()
         BeamData->SortMode = CachedRequiredModule->SortMode;
         BeamData->SortPriority = 0;
         BeamData->bUseLocalSpace = CachedRequiredModule->bUseLocalSpace;
+        BeamData->BlendMode = RequiredBlendMode;
         BuildReplayData(BeamData->Source);
         NewData = BeamData;
     }
@@ -549,6 +554,7 @@ FDynamicEmitterDataBase* FParticleEmitterInstance::CreateDynamicData()
         // RIBBON
         auto* RibbonData = new FDynamicRibbonEmitterData();
         RibbonData->EmitterType = Type;
+        RibbonData->BlendMode = RequiredBlendMode;
 
         // 데이터 채우기
         BuildReplayData(RibbonData->Source);

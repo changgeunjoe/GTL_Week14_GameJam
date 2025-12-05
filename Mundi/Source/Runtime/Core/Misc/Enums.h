@@ -279,6 +279,14 @@ enum class EParticleSortMode : uint8
     ByViewDepth    // 뷰 깊이순, 정면일수록 우선순위
 };
 
+// Particle material blend type for renderer/shader selection
+enum class EMaterialBlendMode : uint8
+{
+    Opaque,
+    Translucent,
+    Additive
+};
+
 enum class EAggCollisionShapeType : int32
 {
     Sphere,
