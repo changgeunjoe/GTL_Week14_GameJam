@@ -1,9 +1,12 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "EnemyBase.h"
+#include "EnemyAIController.h"
 #include "StatsComponent.h"
 #include "HitboxComponent.h"
 #include "World.h"
 #include "PlayerController.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 
 
@@ -26,7 +29,7 @@ void AEnemyBase::BeginPlay()
     // 델리게이트 바인딩
     if (StatsComponent)
     {
-        //StatsComponent->OnDeath.AddDynamic(this, &AEnemyBase::HandleDeath);
+      //  StatsComponent->OnDeath.AddDynamic(this, &AEnemyBase::HandleDeath);
     }
 
     // 히트박스 소유자 설정
@@ -34,11 +37,34 @@ void AEnemyBase::BeginPlay()
     {
         HitboxComponent->SetOwnerActor(this);
     }
+
+    // AI 컨트롤러 생성 및 빙의
+    UWorld* World = GetWorld();
+    if (World)
+    {
+        AIController = World->SpawnActor<AEnemyAIController>();
+        if (AIController)
+        {
+            AIController->Possess(this);
+        }
+    }
 }
 
 void AEnemyBase::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+    // Only process AI when in Fighting state
+    if (AGameModeBase* GM = GWorld ? GWorld->GetGameMode() : nullptr)
+    {
+        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+        {
+            if (GS->GetGameFlowState() != EGameFlowState::Fighting)
+            {
+                return;
+            }
+        }
+    }
 
     if (AIState != EEnemyAIState::Dead)
     {
@@ -331,6 +357,12 @@ void AEnemyBase::OnHitReaction(EHitReaction Reaction, const FDamageInfo& DamageI
     SetAIState(EEnemyAIState::Stagger);
     StaggerTimer = DamageInfo.StaggerDuration;
 
+    // AI 컨트롤러에 경직 알림
+    if (AIController)
+    {
+        AIController->EnterStagger(DamageInfo.StaggerDuration);
+    }
+
     // TODO: 피격 애니메이션 재생
 
     // 넉백
@@ -346,6 +378,12 @@ void AEnemyBase::OnDeath()
     SetAIState(EEnemyAIState::Dead);
     HitboxComponent->DisableHitbox();
 
+    // AI 컨트롤러에 사망 알림
+    if (AIController)
+    {
+        AIController->OnPawnDeath();
+    }
+
     // TODO: 사망 애니메이션/래그돌
     // TODO: 일정 시간 후 Destroy
 }
@@ -353,4 +391,70 @@ void AEnemyBase::OnDeath()
 void AEnemyBase::HandleDeath()
 {
     OnDeath();
+}
+
+void AEnemyBase::NotifyAttackFinished()
+{
+    bIsAttacking = false;
+    bHasSuperArmor = false;
+    HitboxComponent->DisableHitbox();
+
+    // AI 컨트롤러에 공격 완료 알림
+    if (AIController)
+    {
+        AIController->OnAttackFinished();
+    }
+}
+
+// ============================================================================
+// 프리팹 관련
+// ============================================================================
+
+void AEnemyBase::LoadMeshFromPrefab()
+{
+    if (MeshPrefabPath.empty())
+    {
+        return;
+    }
+
+    // 프리팹에서 메시 로드
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        return;
+    }
+
+    FWideString FullPath = UTF8ToWide(GDataDir) + L"/" + UTF8ToWide(MeshPrefabPath);
+    AActor* PrefabActor = World->SpawnPrefabActor(FullPath);
+
+    if (PrefabActor)
+    {
+        // 프리팹 액터의 메시 컴포넌트를 이 액터로 복사
+        // TODO: SkeletalMeshComponent 복사 로직
+
+        // 임시로 프리팹 액터 제거
+        World->AddPendingKillActor(PrefabActor);
+    }
+}
+
+AEnemyBase* AEnemyBase::SpawnFromPrefab(UWorld* World, const FString& PrefabPath, const FVector& Location)
+{
+    if (!World || PrefabPath.empty())
+    {
+        return nullptr;
+    }
+
+    FWideString FullPath = UTF8ToWide(GDataDir) + L"/" + UTF8ToWide(PrefabPath);
+    AActor* SpawnedActor = World->SpawnPrefabActor(FullPath);
+
+    if (SpawnedActor)
+    {
+        SpawnedActor->SetActorLocation(Location);
+
+        // AEnemyBase로 캐스팅 시도
+        AEnemyBase* Enemy = dynamic_cast<AEnemyBase*>(SpawnedActor);
+        return Enemy;
+    }
+
+    return nullptr;
 }

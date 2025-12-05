@@ -7,6 +7,8 @@
 #include "InputManager.h"
 #include "SkeletalMeshComponent.h"
 #include "World.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 
 
@@ -47,6 +49,18 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    // Only process gameplay when in Fighting state
+    if (AGameModeBase* GM = GWorld ? GWorld->GetGameMode() : nullptr)
+    {
+        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+        {
+            if (GS->GetGameFlowState() != EGameFlowState::Fighting)
+            {
+                return;
+            }
+        }
+    }
+
     // 사망 상태면 입력 무시
     if (CombatState == ECombatState::Dead)
     {
@@ -72,7 +86,7 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 
 void APlayerCharacter::ProcessInput(float DeltaTime)
 {
-    //ProcessMovementInput(DeltaTime);
+  //  ProcessMovementInput(DeltaTime);
     ProcessCombatInput();
 }
 
