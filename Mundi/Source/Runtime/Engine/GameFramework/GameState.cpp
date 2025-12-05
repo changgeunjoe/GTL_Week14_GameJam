@@ -179,6 +179,18 @@ void AGameState::HandleStateTick(float DeltaTime)
         {
             EnterVictory();
         }
+        // Debug key to test boss health bar - P to decrease health by 10%
+        if (Input.IsKeyPressed('P'))
+        {
+            // Register a test boss if none is active
+            if (!bBossActive)
+            {
+                RegisterBoss("Test Boss", 100.0f);
+            }
+            // Decrease health by 10% of max
+            float NewHealth = BossHealth.Current - (BossHealth.Max * 0.1f);
+            OnBossHealthChanged(NewHealth);
+        }
     }
 }
 

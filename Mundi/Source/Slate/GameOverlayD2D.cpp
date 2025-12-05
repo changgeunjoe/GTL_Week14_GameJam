@@ -150,6 +150,23 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
             DeathTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             DeathTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         }
+
+        // Boss name text format - above health bar
+        DWriteFactory->CreateTextFormat(
+            FontName,
+            nullptr,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            28.0f,
+            L"en-us",
+            &BossNameFormat);
+
+        if (BossNameFormat)
+        {
+            BossNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+            BossNameFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+        }
     }
 
     // Load logo image
@@ -173,6 +190,68 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
                             D2D1_SIZE_F Size = LogoBitmap->GetSize();
                             LogoWidth = Size.width;
                             LogoHeight = Size.height;
+                        }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
+    // Load boss health bar frame image
+    if (WICFactory && D2DContext)
+    {
+        FWideString FramePath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Bar_Frame_Enemy.PNG";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(FramePath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        if (SUCCEEDED(D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &BossFrameBitmap)))
+                        {
+                            D2D1_SIZE_F Size = BossFrameBitmap->GetSize();
+                            BossFrameWidth = Size.width;
+                            BossFrameHeight = Size.height;
+                        }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
+    // Load boss health bar fill image
+    if (WICFactory && D2DContext)
+    {
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_EnemyHP_Bar.PNG";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        if (SUCCEEDED(D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &BossBarBitmap)))
+                        {
+                            D2D1_SIZE_F Size = BossBarBitmap->GetSize();
+                            BossBarWidth = Size.width;
+                            BossBarHeight = Size.height;
                         }
                     }
                     SafeRelease(Converter);
@@ -232,10 +311,13 @@ void UGameOverlayD2D::EnsureInitialized()
 void UGameOverlayD2D::ReleaseD2DResources()
 {
     SafeRelease(LogoBitmap);
+    SafeRelease(BossFrameBitmap);
+    SafeRelease(BossBarBitmap);
     SafeRelease(TextBrush);
     SafeRelease(SubtitleBrush);
     SafeRelease(DeathTextBrush);
     SafeRelease(VictoryTextBrush);
+    SafeRelease(BossNameFormat);
     SafeRelease(DeathTextFormat);
     SafeRelease(SubtitleFormat);
     SafeRelease(TitleFormat);
@@ -413,6 +495,90 @@ void UGameOverlayD2D::DrawDeathScreen(float ScreenW, float ScreenH, const wchar_
         ColoredBrush ? ColoredBrush : TextBrush);
 }
 
+void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float DeltaTime)
+{
+    // Check if we have valid boss bar resources
+    if (!BossFrameBitmap || !BossBarBitmap || !BossNameFormat)
+    {
+        return;
+    }
+
+    // Get boss health from GameState
+    if (!GWorld)
+    {
+        return;
+    }
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    AGameState* GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
+
+    // Get target health - default to 100% if no boss registered
+    float TargetHealth = GS->HasActiveBoss() ? GS->GetBossHealth().GetPercent() : 1.0f;
+
+    // Smooth lerp animation
+    if (DisplayedBossHealth != TargetHealth)
+    {
+        float LerpAmount = HealthLerpSpeed * DeltaTime;
+        if (DisplayedBossHealth > TargetHealth)
+        {
+            DisplayedBossHealth = (DisplayedBossHealth - LerpAmount < TargetHealth)
+                ? TargetHealth : DisplayedBossHealth - LerpAmount;
+        }
+        else
+        {
+            DisplayedBossHealth = (DisplayedBossHealth + LerpAmount > TargetHealth)
+                ? TargetHealth : DisplayedBossHealth + LerpAmount;
+        }
+    }
+
+    // Calculate bar position (bottom center, 50% of viewport width)
+    float BarW = ScreenW * 0.5f;
+    float BarScale = BarW / BossFrameWidth;  // Scale to fit 50% of screen width
+    float BarH = BossFrameHeight * BarScale;
+    float BarX = (ScreenW - BarW) * 0.5f;
+    float BarY = (ScreenH - BarH) * 0.85f;
+
+    // 1. Draw frame first (background)
+    D2D1_RECT_F FrameRect = D2D1::RectF(BarX, BarY, BarX + BarW, BarY + BarH);
+    D2DContext->DrawBitmap(BossFrameBitmap, FrameRect, 1.0f);
+
+    // 2. Draw fill bar on top (scaled by health percentage)
+    // Use additive blending to make it brighter
+    if (DisplayedBossHealth > 0.0f)
+    {
+        float FillW = BossBarWidth * BarScale * DisplayedBossHealth;
+        D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
+        D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, BossBarWidth * DisplayedBossHealth, BossBarHeight);
+
+        // Switch to additive blending for brighter appearance
+        D2DContext->SetPrimitiveBlend(D2D1_PRIMITIVE_BLEND_ADD);
+
+        D2DContext->DrawBitmap(BossBarBitmap, FillDestRect, 1.0f,
+            D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &FillSrcRect);
+
+        // Restore normal blending
+        D2DContext->SetPrimitiveBlend(D2D1_PRIMITIVE_BLEND_SOURCE_OVER);
+    }
+
+    // 3. Draw boss name above bar (only if boss is registered)
+    if (GS->HasActiveBoss())
+    {
+        FWideString BossName = UTF8ToWide(GS->GetBossName());
+        D2D1_RECT_F NameRect = D2D1::RectF(BarX, BarY - 40.0f, BarX + BarW, BarY);
+        D2DContext->DrawTextW(BossName.c_str(), static_cast<UINT32>(BossName.length()),
+            BossNameFormat, NameRect, SubtitleBrush);  // Use white subtitle brush for boss name
+    }
+}
+
 void UGameOverlayD2D::Draw()
 {
     if (!bInitialized || !SwapChain || !D2DContext || !TitleFormat || !SubtitleFormat || !TextBrush)
@@ -441,6 +607,7 @@ void UGameOverlayD2D::Draw()
 
     // Only draw for specific states
     bool bShouldDraw = (FlowState == EGameFlowState::StartMenu ||
+                        FlowState == EGameFlowState::Fighting ||
                         FlowState == EGameFlowState::Victory ||
                         FlowState == EGameFlowState::Defeat);
 
@@ -508,11 +675,18 @@ void UGameOverlayD2D::Draw()
         D2D1::RectF(0, 0, ScreenW, ScreenH),
         D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
+    // Get delta time for animations
+    float DeltaTime = UUIManager::GetInstance().GetDeltaTime();
+
     // Draw based on current state
     switch (FlowState)
     {
     case EGameFlowState::StartMenu:
         DrawStartMenu(ScreenW, ScreenH);
+        break;
+
+    case EGameFlowState::Fighting:
+        DrawBossHealthBar(ScreenW, ScreenH, DeltaTime);
         break;
 
     case EGameFlowState::Defeat:
