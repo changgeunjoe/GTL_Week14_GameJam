@@ -36,6 +36,9 @@ public:
     /** @todo UPROPERTY 시스템 통합 */
     UAnimSequence* Value = nullptr;
 
+    /** 애니메이션 검색 버퍼 */
+    char AnimSearchBuffer[128] = {0};
+
     virtual void Serialize(const bool bInIsLoading, JSON& InOutHandle) override;
 
     // --- UEdGraphNode 인터페이스 ---
@@ -165,6 +168,9 @@ public:
     TArray<UAnimSequence*> SampleAnimations;
     TArray<float> SamplePositions;
 
+    /** 애니메이션 검색 버퍼 */
+    char AnimSearchBuffer[128] = {0};
+
     virtual void Serialize(const bool bInIsLoading, JSON& InOutHandle) override;
 
     // --- UEdGraphNode 인터페이스 ---
@@ -220,6 +226,9 @@ public:
 
     /** 현재 선택된 점 인덱스 (삼각형 생성용) */
     TArray<int32> SelectedIndices;
+
+    /** 애니메이션 검색 버퍼 */
+    char AnimSearchBuffer[128] = {0};
 
     virtual void Serialize(const bool bInIsLoading, JSON& InOutHandle) override;
 

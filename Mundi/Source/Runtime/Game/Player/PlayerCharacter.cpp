@@ -33,9 +33,9 @@ void APlayerCharacter::BeginPlay()
     // 델리게이트 바인딩
     if (StatsComponent)
     {
-        StatsComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::HandleHealthChanged);
-        StatsComponent->OnStaminaChanged.AddDynamic(this, &APlayerCharacter::HandleStaminaChanged);
-        StatsComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleDeath);
+        // StatsComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::HandleHealthChanged);
+        // StatsComponent->OnStaminaChanged.AddDynamic(this, &APlayerCharacter::HandleStaminaChanged);
+        // StatsComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleDeath);
     }
 
     // 히트박스 소유자 설정
@@ -86,7 +86,7 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 
 void APlayerCharacter::ProcessInput(float DeltaTime)
 {
-    ProcessMovementInput(DeltaTime);
+    //ProcessMovementInput(DeltaTime);
     ProcessCombatInput();
 }
 

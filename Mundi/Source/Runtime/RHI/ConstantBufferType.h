@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 // b0 in VS    
 #include "Color.h"
 #include "LightManager.h"
@@ -280,7 +280,8 @@ struct FSubUVBufferType
 struct FParticleEmitterType
 {
     uint32 ScreenAlignment;  // Screen Alignment (0 - Camera, 1 - Velocity)
-    FVector Padding0;        // 16바이트 정렬
+    uint32 BlendMode;        // EMaterialBlendMode
+    FVector2D Padding0;      // 16바이트 정렬
 };
 
 #define CONSTANT_BUFFER_INFO(TYPE, SLOT, VS, PS) \
@@ -343,7 +344,7 @@ CONSTANT_BUFFER_INFO(FViewportConstants, 10, true, true)   // 뷰 포트 크기�
 CONSTANT_BUFFER_INFO(FTileCullingBufferType, 11, false, true)  // b11, PS only (UberLit.hlsl과 일치)
 CONSTANT_BUFFER_INFO(FPointLightShadowBufferType, 12, true, true)  // b12, VS+PS
 CONSTANT_BUFFER_INFO(FSubUVBufferType, 2, true, true)  // b2, VS+PS (ParticleSprite.hlsl용)
-CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, false)  // b3, VS (ParticleSprite.hlsl용)
+CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlsl용)
 
 
 

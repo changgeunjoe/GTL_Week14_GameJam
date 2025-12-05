@@ -33,8 +33,10 @@ public:
     bool bUseLocalSpace    = false;
 
     // ---- 렌더 기본 ----
-    UMaterialInterface* Material = nullptr;  // UMaterial 또는 UMaterialInstanceDynamic
+    UMaterialInterface* Material = nullptr;  // UMaterial ?? UMaterialInstanceDynamic
 
+    UPROPERTY(EditAnywhere, Category = "Particle")
+    EMaterialBlendMode MaterialBlendMode = EMaterialBlendMode::Translucent;
     EScreenAlignment ScreenAlignment = EScreenAlignment::CameraFacing;
     EParticleSortMode SortMode = EParticleSortMode::ByDistance;
     int SortPriority = -1;

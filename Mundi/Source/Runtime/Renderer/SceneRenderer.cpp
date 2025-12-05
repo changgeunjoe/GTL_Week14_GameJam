@@ -968,7 +968,6 @@ void FSceneRenderer::RenderParticlePass()
 
 	RHIDevice->OMSetRenderTargets(ERTVMode::SceneColorTargetWithId); // Scene+Depth
 	RHIDevice->RSSetState(ERasterizerMode::Solid);
-	RHIDevice->OMSetBlendState(true);
 
 	// ParticleMesh 라이팅을 위한 상수버퍼 바인딩
 	FLightManager* LightManager = World->GetLightManager();
@@ -1008,37 +1007,55 @@ void FSceneRenderer::RenderParticlePass()
 		ParticleComp->CollectMeshBatches(MeshBatchElements, View);
 	}
 
-	TArray<FMeshBatchElement> MeshParticleBatchElements;
-	TArray<FMeshBatchElement> SpriteParticleBatchElements;
+	TArray<FMeshBatchElement> OpaqueParticleBatches;
+	TArray<FMeshBatchElement> TranslucentParticleBatches;
+	TArray<FMeshBatchElement> AdditiveParticleBatches;
 
 	for (const FMeshBatchElement& Batch : MeshBatchElements)
 	{
-		if (Batch.bIsDepthWrite)
+		switch (Batch.ParticleBlendMode)
 		{
-			MeshParticleBatchElements.Add(Batch);
-		}
-		else
-		{
-			SpriteParticleBatchElements.Add(Batch);
+		case EMaterialBlendMode::Opaque:
+			OpaqueParticleBatches.Add(Batch);
+			break;
+		case EMaterialBlendMode::Additive:
+			AdditiveParticleBatches.Add(Batch);
+			break;
+		case EMaterialBlendMode::Translucent:
+		default:
+			TranslucentParticleBatches.Add(Batch);
+			break;
 		}
 	}
 
 	MeshBatchElements.Empty();
 
-	FParticleStatManager::GetInstance().AddDrawCalls(SpriteParticleBatchElements.Num());
-	FParticleStatManager::GetInstance().AddDrawCalls(MeshParticleBatchElements.Num());
-	SpriteParticleBatchElements.Sort();
-	if (!SpriteParticleBatchElements.IsEmpty())
-	{
-		RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqualReadOnly);
-		DrawMeshBatches(SpriteParticleBatchElements, true);
-	}
-	
-	MeshParticleBatchElements.Sort();
-	if (!MeshParticleBatchElements.IsEmpty())
+	FParticleStatManager::GetInstance().AddDrawCalls(TranslucentParticleBatches.Num());
+	FParticleStatManager::GetInstance().AddDrawCalls(OpaqueParticleBatches.Num());
+	FParticleStatManager::GetInstance().AddDrawCalls(AdditiveParticleBatches.Num());
+
+	OpaqueParticleBatches.Sort();
+	if (!OpaqueParticleBatches.IsEmpty())
 	{
 		RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
-		DrawMeshBatches(MeshParticleBatchElements, true);
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
+		DrawMeshBatches(OpaqueParticleBatches, true);
+	}
+
+	TranslucentParticleBatches.Sort();
+	if (!TranslucentParticleBatches.IsEmpty())
+	{
+		RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqualReadOnly);
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Translucent);
+		DrawMeshBatches(TranslucentParticleBatches, true);
+	}
+
+	AdditiveParticleBatches.Sort();
+	if (!AdditiveParticleBatches.IsEmpty())
+	{
+		RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqualReadOnly);
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Additive);
+		DrawMeshBatches(AdditiveParticleBatches, true);
 	}
 
 	// Renderer 복구
@@ -1049,7 +1066,7 @@ void FSceneRenderer::RenderParticlePass()
 	RHIDevice->GetDeviceContext()->PSSetSamplers(2, 1, NullSampler);
 
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
-	RHIDevice->OMSetBlendState(false);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 }
 
 void FSceneRenderer::RenderDecalPass()
@@ -1087,7 +1104,7 @@ void FSceneRenderer::RenderDecalPass()
 	// 데칼 렌더 설정
 	RHIDevice->RSSetState(ERasterizerMode::Decal);
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqualReadOnly); // 깊이 쓰기 OFF
-	RHIDevice->OMSetBlendState(true);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Translucent);
 
 	for (UDecalComponent* Decal : Proxies.Decals)
 	{
@@ -1153,7 +1170,7 @@ void FSceneRenderer::RenderDecalPass()
 	// 상태 복구
 	RHIDevice->RSSetState(ERasterizerMode::Solid);
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
-	RHIDevice->OMSetBlendState(false);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 }
 
 void FSceneRenderer::RenderPostProcessingPasses()
@@ -1228,7 +1245,7 @@ void FSceneRenderer::RenderSceneDepthPostProcess()
 
 	// Depth State: Depth Test/Write 모두 OFF
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-	RHIDevice->OMSetBlendState(false);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
 	// 쉐이더 설정
 	UShader* FullScreenTriangleVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");
@@ -1289,7 +1306,7 @@ void FSceneRenderer::RenderTileCullingDebug()
 
 	// Depth State: Depth Test/Write 모두 OFF
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-	RHIDevice->OMSetBlendState(false);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
 	// 셰이더 설정
 	UShader* FullScreenTriangleVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");
@@ -1665,6 +1682,8 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 		{
 			FParticleEmitterType ParticleEmitterType;
 			ParticleEmitterType.ScreenAlignment = static_cast<uint32>(Batch.ScreenAlignment);
+			ParticleEmitterType.BlendMode = static_cast<uint32>(Batch.ParticleBlendMode);
+			ParticleEmitterType.Padding0 = FVector2D::Zero();
 			RHIDevice->SetAndUpdateConstantBuffer(ParticleEmitterType);
 		}
 		

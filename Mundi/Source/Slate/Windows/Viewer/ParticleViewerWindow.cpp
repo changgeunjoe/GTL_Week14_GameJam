@@ -612,6 +612,41 @@ void SParticleViewerWindow::OnRender()
 
 					ImGui::Spacing();
 
+                    // Blend Mode
+                    {
+                        ImGui::Text("Blend Mode");
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::SetTooltip("파티클 렌더링 블렌드 모드\nOpaque: 깊이 기록, 불투명 파티클\nTranslucent: 일반 알파 블렌딩\nAdditive: 밝기를 더하는 발광 효과");
+                        }
+                        ImGui::NextColumn();
+
+                        const char* blendModes[] = { "Opaque", "Translucent", "Additive" };
+                        int currentBlend = static_cast<int>(RequiredModule->MaterialBlendMode);
+                        currentBlend = FMath::Clamp(currentBlend, 0, (int)IM_ARRAYSIZE(blendModes) - 1);
+
+                        ImGui::SetNextItemWidth(-1);
+                        if (ImGui::BeginCombo("##BlendModeCombo", blendModes[currentBlend]))
+                        {
+                            for (int i = 0; i < IM_ARRAYSIZE(blendModes); ++i)
+                            {
+                                bool isSelected = (currentBlend == i);
+                                if (ImGui::Selectable(blendModes[i], isSelected))
+                                {
+                                    RequiredModule->MaterialBlendMode = static_cast<EMaterialBlendMode>(i);
+                                }
+                                if (isSelected)
+                                {
+                                    ImGui::SetItemDefaultFocus();
+                                }
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        ImGui::NextColumn();
+                    }
+
+				ImGui::Spacing();
                     // Sort Mode
                     {
                         ImGui::Text("Sort Mode");

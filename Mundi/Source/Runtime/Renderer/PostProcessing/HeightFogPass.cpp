@@ -14,7 +14,7 @@ void FHeightFogPass::Execute(const FPostProcessModifier& M, FSceneView* View, D3
 
     // Depth State: Depth Test/Write 모두 OFF
     RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
-    RHIDevice->OMSetBlendState(false);
+    RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 
     // 3) 셰이더
     UShader* FullScreenTriangleVS = UResourceManager::GetInstance().Load<UShader>("Shaders/Utility/FullScreenTriangle_VS.hlsl");
