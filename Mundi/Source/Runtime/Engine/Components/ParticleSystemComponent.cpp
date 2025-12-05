@@ -1458,7 +1458,7 @@ void UParticleSystemComponent::BuildBeamParticleBatch(TArray<FDynamicEmitterData
         TArray<uint32> EmitterIndices;
 
         const int32 TessellationFactor = Src->TessellationFactor;
-        const float BeamWidth = 1.0f; 
+        const float BeamWidth = FMath::Max(0.01f, Src->BeamWidth); 
 
         // 파티클 루프 (Accumulate)
         for (int32 LocalIdx = 0; LocalIdx < Src->ActiveParticleCount; ++LocalIdx)
@@ -1595,3 +1595,4 @@ void UParticleSystemComponent::BuildBeamParticleBatch(TArray<FDynamicEmitterData
 
     } // End Emitter Loop
 }
+
