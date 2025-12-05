@@ -1,18 +1,24 @@
 {
-  "AnimationCutEndTime" : 0.500000,
+  "AnimationCutEndTime" : 0.010000,
   "ComboCount" : 0,
   "LightAttackAnimPath" : "Data/FBX/Combo_Attack_01_01_Seq.fbx_Unreal Take",
   "MaxComboCount" : 3,
-  "MoveSpeed" : 500.000000,
+  "MoveSpeed" : 250.000000,
   "ObjectName" : "플레이어 캐릭터_0",
   "OwnedComponents" : [{
+      "ObjectName" : "UCharacterMovementComponent_1",
+      "Type" : "UCharacterMovementComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
+    }, {
       "CapsuleHalfHeight" : 0.900000,
       "CapsuleRadius" : 0.300000,
       "CollisionEnabled_Internal" : 2,
       "Id" : 6393,
       "ObjectName" : "UCapsuleComponent_1",
       "ParentId" : 0,
-      "RelativeLocation" : [-2.962979, -4.691790, 6.815227],
+      "RelativeLocation" : [-2.962979, -4.691790, 6.795575],
       "RelativeRotationEuler" : [0.000000, -0.004071, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
       "Type" : "UCapsuleComponent",
@@ -238,12 +244,6 @@
       "bShapeHiddenInGame" : true,
       "bShapeIsVisible" : true,
       "bTickEnabled" : true
-    }, {
-      "ObjectName" : "UCharacterMovementComponent_1",
-      "Type" : "UCharacterMovementComponent",
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bTickEnabled" : true
     }],
   "ParryWindowDuration" : 0.200000,
   "RootComponentId" : 6393,
@@ -257,6 +257,6 @@
   "bActorIsActive" : true,
   "bEnableAttackRootMotion" : true,
   "bIsBlocking" : false,
-  "bIsInvincible" : true,
+  "bIsInvincible" : false,
   "bIsParrying" : false
 }
