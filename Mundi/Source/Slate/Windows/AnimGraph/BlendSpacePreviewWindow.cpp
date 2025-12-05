@@ -93,7 +93,7 @@ void BlendSpacePreviewWindow::CreateViewerState()
 {
     if (!World || !Device) return;
 
-    PreviewState = SkeletalViewerBootstrap::CreateViewerState("BlendSpacePreview", World, Device);
+    PreviewState = SkeletalViewerBootstrap::CreateViewerState("BlendSpacePreview", World, Device, false);  // 물리 비활성화
     if (PreviewState && PreviewState->Viewport)
     {
         PreviewState->Viewport->Resize(0, 0, 400, 300);
