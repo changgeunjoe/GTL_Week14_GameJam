@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_StandAlone|x64">
@@ -294,6 +294,8 @@
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_DOF.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\SpringArmComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Gamma.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\GameFramework\GameState.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\GameFramework\GameStateBase.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleEventReceiverSpawn.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleRibbon.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\ParticleSystemComponent.cpp" />
@@ -707,7 +709,7 @@
     <ClCompile Include="Generated\UParticleSystemComponent.generated.cpp" />
     <ClCompile Include="Generated\AMyCar.generated.cpp" />
     <ClCompile Include="Generated\USpringArmComponent.generated.cpp" />
-  </ItemGroup>
+  <ClCompile Include="Generated\AGameState.generated.cpp" /><ClCompile Include="Generated\AGameStateBase.generated.cpp" /></ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Common\LightingBuffers.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -952,6 +954,8 @@
     <ClInclude Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Shake.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\GameEngine.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\GameModeBase.h" />
+    <ClInclude Include="Source\Runtime\Engine\GameFramework\GameState.h" />
+    <ClInclude Include="Source\Runtime\Engine\GameFramework\GameStateBase.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\PlayerCameraManager.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\DirectionalLightActor.h" />
     <ClInclude Include="Source\Runtime\Engine\GameFramework\EmptyActor.h" />
@@ -1200,7 +1204,7 @@
     <ClInclude Include="Generated\UParticleSystemComponent.generated.h" />
     <ClInclude Include="Generated\AMyCar.generated.h" />
     <ClInclude Include="Generated\USpringArmComponent.generated.h" />
-  </ItemGroup>
+  <ClInclude Include="Generated\AGameState.generated.h" /><ClInclude Include="Generated\AGameStateBase.generated.h" /></ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Tools\CodeGenerator\generate.py" />

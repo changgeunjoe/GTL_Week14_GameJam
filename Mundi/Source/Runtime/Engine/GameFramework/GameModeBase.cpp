@@ -8,12 +8,14 @@
 #include "PlayerCameraManager.h"
 #include "Character.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
+#include "GameState.h"
 
 AGameModeBase::AGameModeBase()
 {
 	//DefaultPawnClass = APawn::StaticClass();
 	DefaultPawnClass = ACharacter::StaticClass();
 	PlayerControllerClass = APlayerController::StaticClass();
+    GameStateClass = AGameState::StaticClass();
 }
 
 AGameModeBase::~AGameModeBase()
@@ -22,10 +24,36 @@ AGameModeBase::~AGameModeBase()
 
 void AGameModeBase::StartPlay()
 {
-	//TODO 
-	//GameState 세팅 
+	// Ensure GameState exists (spawn using configured class)
+	if (!GameStateClass)
+	{
+		GameStateClass = AGameState::StaticClass();
+	}
+	if (!GameState)
+	{
+		if (AActor* GSActor = GetWorld()->SpawnActor(GameStateClass, FTransform()))
+		{
+			GameState = Cast<AGameStateBase>(GSActor);
+			if (GameState)
+			{
+				GameState->Initialize(GetWorld(), this);
+			}
+		}
+	}
+
+	// Player login + spawn/pawn possession
 	Login();
 	PostLogin(PlayerController);
+
+	// Notify GameState of initial controller/pawn
+	if (GameState && PlayerController)
+	{
+		GameState->OnPlayerLogin(PlayerController);
+		if (APawn* P = PlayerController->GetPawn())
+		{
+			GameState->OnPawnPossessed(P);
+		}
+	}
 }
 
 APlayerController* AGameModeBase::Login()
@@ -115,7 +143,16 @@ void AGameModeBase::PostLogin(APlayerController* NewPlayer)
 	if (NewPlayer)
 	{
 		NewPlayer->Possess(NewPlayer->GetPawn());
-	} 
+	}
+
+	// Inform GameState of the possessed pawn
+	if (GameState && NewPlayer)
+	{
+		if (APawn* P = NewPlayer->GetPawn())
+		{
+			GameState->OnPawnPossessed(P);
+		}
+	}
 }
 
 APawn* AGameModeBase::SpawnDefaultPawnFor(AController* NewPlayer, AActor* StartSpot)
