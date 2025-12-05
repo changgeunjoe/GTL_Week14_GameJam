@@ -7,6 +7,6 @@ struct ID3D11Device;
 class SkeletalViewerBootstrap
 {
 public:
-    static ViewerState* CreateViewerState(const char* Name, UWorld* InWorld, ID3D11Device* InDevice);
+    static ViewerState* CreateViewerState(const char* Name, UWorld* InWorld, ID3D11Device* InDevice, bool bEnablePhysics = true);
     static void DestroyViewerState(ViewerState*& State);
 };

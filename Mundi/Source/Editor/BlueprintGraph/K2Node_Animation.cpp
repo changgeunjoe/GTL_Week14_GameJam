@@ -75,18 +75,43 @@ void UK2Node_AnimSequence::RenderBody()
     if (ImGui::IsPopupOpen(PopupID.c_str()))
     {
         ed::Suspend();
-        
+
         if (ImGui::BeginPopup(PopupID.c_str()))
         {
+            ImGui::Text("Select Animation");
+            ImGui::Separator();
+
+            // 검색 입력 필드
+            ImGui::SetNextItemWidth(200.0f);
+            ImGui::InputTextWithHint("##AnimSearchSeq", "Search...", AnimSearchBuffer, sizeof(AnimSearchBuffer));
+            ImGui::Separator();
+
             TArray<UAnimSequence*> AnimSequences = RESOURCE.GetAll<UAnimSequence>();
 
+            // 검색어를 소문자로 변환
+            FString SearchLower = AnimSearchBuffer;
+            std::transform(SearchLower.begin(), SearchLower.end(), SearchLower.begin(), ::tolower);
+
+            ImGui::BeginChild("AnimListSeq", ImVec2(300, 200), true);
             for (UAnimSequence* Anim : AnimSequences)
             {
                 if (!Anim) continue;
 
                 const FString AssetName = Anim->GetFilePath();
+
+                // 검색 필터링
+                if (!SearchLower.empty())
+                {
+                    FString PathLower = AssetName;
+                    std::transform(PathLower.begin(), PathLower.end(), PathLower.begin(), ::tolower);
+                    if (PathLower.find(SearchLower) == FString::npos)
+                    {
+                        continue;
+                    }
+                }
+
                 bool bIsSelected = (Value == Anim);
-                  
+
                 if (ImGui::Selectable(AssetName.c_str(), bIsSelected))
                 {
                     Value = Anim;
@@ -100,7 +125,8 @@ void UK2Node_AnimSequence::RenderBody()
                     ImGui::SetItemDefaultFocus();
                 }
             }
-            
+            ImGui::EndChild();
+
             ImGui::EndPopup();
         }
         ed::Resume();
@@ -507,12 +533,37 @@ void UK2Node_BlendSpace1D::RenderBody()
                 ImGui::Text("Select Animation");
                 ImGui::Separator();
 
+                // 검색 입력 필드
+                ImGui::SetNextItemWidth(200.0f);
+                ImGui::InputTextWithHint("##AnimSearch1D", "Search...", AnimSearchBuffer, sizeof(AnimSearchBuffer));
+                ImGui::Separator();
+
                 TArray<UAnimSequence*> AllAnims = RESOURCE.GetAll<UAnimSequence>();
+
+                // 검색어를 소문자로 변환
+                FString SearchLower = AnimSearchBuffer;
+                std::transform(SearchLower.begin(), SearchLower.end(), SearchLower.begin(), ::tolower);
+
+                ImGui::BeginChild("AnimList1D", ImVec2(300, 200), true);
                 for (UAnimSequence* Anim : AllAnims)
                 {
                     if (!Anim) continue;
+
+                    FString AnimPath = Anim->GetFilePath();
+
+                    // 검색 필터링
+                    if (!SearchLower.empty())
+                    {
+                        FString PathLower = AnimPath;
+                        std::transform(PathLower.begin(), PathLower.end(), PathLower.begin(), ::tolower);
+                        if (PathLower.find(SearchLower) == FString::npos)
+                        {
+                            continue;
+                        }
+                    }
+
                     bool bSelected = (SampleAnimations[i] == Anim);
-                    if (ImGui::Selectable(Anim->GetFilePath().c_str(), bSelected))
+                    if (ImGui::Selectable(AnimPath.c_str(), bSelected))
                     {
                         SampleAnimations[i] = Anim;
                         bNeedRebuild = true;
@@ -520,6 +571,7 @@ void UK2Node_BlendSpace1D::RenderBody()
                     }
                     if (bSelected) ImGui::SetItemDefaultFocus();
                 }
+                ImGui::EndChild();
                 ImGui::EndPopup();
             }
             ed::Resume(); // [복구]
@@ -995,12 +1047,37 @@ void UK2Node_BlendSpace2D::RenderBody()
                 ImGui::Text("Select Animation");
                 ImGui::Separator();
 
+                // 검색 입력 필드
+                ImGui::SetNextItemWidth(200.0f);
+                ImGui::InputTextWithHint("##AnimSearch2D", "Search...", AnimSearchBuffer, sizeof(AnimSearchBuffer));
+                ImGui::Separator();
+
                 TArray<UAnimSequence*> AllAnims = RESOURCE.GetAll<UAnimSequence>();
+
+                // 검색어를 소문자로 변환
+                FString SearchLower = AnimSearchBuffer;
+                std::transform(SearchLower.begin(), SearchLower.end(), SearchLower.begin(), ::tolower);
+
+                ImGui::BeginChild("AnimList2D", ImVec2(300, 200), true);
                 for (UAnimSequence* Anim : AllAnims)
                 {
                     if (!Anim) continue;
+
+                    FString AnimPath = Anim->GetFilePath();
+
+                    // 검색 필터링
+                    if (!SearchLower.empty())
+                    {
+                        FString PathLower = AnimPath;
+                        std::transform(PathLower.begin(), PathLower.end(), PathLower.begin(), ::tolower);
+                        if (PathLower.find(SearchLower) == FString::npos)
+                        {
+                            continue;
+                        }
+                    }
+
                     bool bSelected = (SampleAnimations[i] == Anim);
-                    if (ImGui::Selectable(Anim->GetFilePath().c_str(), bSelected))
+                    if (ImGui::Selectable(AnimPath.c_str(), bSelected))
                     {
                         SampleAnimations[i] = Anim;
                         bNeedRebuild = true;
@@ -1008,6 +1085,7 @@ void UK2Node_BlendSpace2D::RenderBody()
                     }
                     if (bSelected) ImGui::SetItemDefaultFocus();
                 }
+                ImGui::EndChild();
                 ImGui::EndPopup();
             }
             ed::Resume();

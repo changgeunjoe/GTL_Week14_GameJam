@@ -46,6 +46,7 @@ public:
 
     // 애니메이션 관련
     UAnimSequence* CurrentAnimation = nullptr;
+    char AnimSearchBuffer[128] = {0};  // 애니메이션 검색어
     
     float CurrentAnimTime = 0.0f;
     int32 CurrentAnimFrames = 0;
