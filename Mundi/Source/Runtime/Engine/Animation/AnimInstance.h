@@ -63,6 +63,9 @@ struct FMontagePlayState
     /** 블렌드 아웃 시작 시간 (PlayLength - BlendOutTime) */
     float BlendOutStartTime = 0.0f;
 
+    /** 실제 재생 길이 (끝 프레임 자르기 적용됨) */
+    float EffectivePlayLength = 0.0f;
+
     /** 강제 블렌드 아웃 중인지 (Montage_Stop 호출됨) */
     bool bIsBlendingOut = false;
 };
@@ -307,6 +310,16 @@ public:
     bool IsRootMotionEnabled() const { return bEnableRootMotion; }
 
     /**
+     * @brief 애니메이션 끝에서 자를 시간 설정 (초 단위)
+     */
+    void SetAnimationCutEndTime(float InSeconds) { AnimationCutEndTime = InSeconds; }
+
+    /**
+     * @brief 애니메이션 끝에서 자를 시간 반환 (초 단위)
+     */
+    float GetAnimationCutEndTime() const { return AnimationCutEndTime; }
+
+    /**
      * @brief 루트 모션 이동 델타를 가져오고 리셋
      * @return 이번 프레임의 루트 본 이동량 (월드 스페이스)
      */
@@ -372,6 +385,12 @@ public:
      */
     UAnimMontage* Montage_GetCurrentMontage() const;
 
+    /**
+     * @brief 몽타주가 블렌드 아웃 중인지 확인
+     * @return true면 블렌드 아웃 중
+     */
+    bool Montage_IsBlendingOut() const;
+
     // ============================================================
     // Getters
     // ============================================================
@@ -418,6 +437,7 @@ protected:
     FQuat RootMotionRotation = FQuat::Identity();
     FTransform PreviousRootBoneTransform;
     bool bHasPreviousRootTransform = false;
+    float AnimationCutEndTime = 0.0f;  // 애니메이션 끝에서 자를 시간 (초 단위)
 
     // 레이어별 상태 관리
     // Layer[0] = Base, Layer[1] = Upper

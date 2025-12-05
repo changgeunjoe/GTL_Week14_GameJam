@@ -50,6 +50,8 @@ private:
 	static bool RenderSoundSelectionCombo(const char* Label, USound* CurrentSound, USound*& OutNewSound);
 	// Simplified sound combo without thumbnails
 	static bool RenderSoundSelectionComboSimple(const char* Label, USound* CurrentSound, USound*& OutNewSound);
+	// AnimSequence selection combo
+	static bool RenderAnimSequenceSelectionCombo(const char* Label, FString* AnimPathPtr);
 
 
 	// Transform 프로퍼티 렌더링 헬퍼 함수
@@ -79,4 +81,6 @@ private:
 	static TArray<const char*> CachedSoundItems;
 	static TArray<FString> CachedScriptPaths;
 	static TArray<const char*> CachedScriptItems;
+	static TArray<FString> CachedAnimSequencePaths;
+	static TArray<FString> CachedAnimSequenceItems;
 };

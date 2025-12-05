@@ -44,6 +44,7 @@ void UAnimationStateMachine::SetInitialState(const FName& StateName)
     {
         // 루트 모션 설정
         Owner->SetRootMotionEnabled(State->bEnableRootMotion);
+        Owner->SetAnimationCutEndTime(State->AnimationCutEndTime);
 
         if (State->Sequence)
         {
@@ -151,6 +152,7 @@ void UAnimationStateMachine::ChangeState(const FName& NewStateName, float BlendT
     {
         // 루트 모션 설정 (상태 전환 시 즉시 적용)
         Owner->SetRootMotionEnabled(NewState->bEnableRootMotion);
+        Owner->SetAnimationCutEndTime(NewState->AnimationCutEndTime);
 
         // 루트 모션이 꺼지면 이전 프레임 정보 리셋
         if (!NewState->bEnableRootMotion)

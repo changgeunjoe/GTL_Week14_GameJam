@@ -645,6 +645,16 @@ void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float Ble
         return;
     }
 
+    // 끝에서 자를 시간 계산 (EffectivePlayLength) - 초 단위
+    float EffectivePlayLength = PlayLength;
+    UE_LOG("Montage_Play: AnimationCutEndTime=%.3f, PlayLength=%.3f", AnimationCutEndTime, PlayLength);
+    if (AnimationCutEndTime > 0.0f)
+    {
+        EffectivePlayLength = FMath::Max(PlayLength - AnimationCutEndTime, 0.1f);  // 최소 0.1초
+        UE_LOG("Montage_Play: Trimming %.3fs, PlayLength: %.3f -> EffectivePlayLength: %.3f",
+            AnimationCutEndTime, PlayLength, EffectivePlayLength);
+    }
+
     // 몽타주 상태 설정
     MontageState.Montage = Montage;
     MontageState.CurrentTime = 0.0f;
@@ -654,8 +664,9 @@ void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float Ble
     MontageState.BlendInTime = FMath::Max(BlendIn, 0.001f);
     MontageState.BlendOutTime = FMath::Max(BlendOut, 0.001f);
     MontageState.CurrentWeight = 0.0f;
-    MontageState.BlendOutStartTime = PlayLength - MontageState.BlendOutTime;
+    MontageState.BlendOutStartTime = EffectivePlayLength - MontageState.BlendOutTime;  // 잘린 길이 기준
     MontageState.bIsBlendingOut = false;
+    MontageState.EffectivePlayLength = EffectivePlayLength;  // 저장
 
     bMontageActive = true;
 
@@ -695,6 +706,18 @@ UAnimMontage* UAnimInstance::Montage_GetCurrentMontage() const
         return MontageState.Montage;
     }
     return nullptr;
+}
+
+bool UAnimInstance::Montage_IsBlendingOut() const
+{
+    if (!bMontageActive || !MontageState.bIsPlaying)
+    {
+        return false;
+    }
+
+    // 강제 블렌드 아웃 중이거나 자연 블렌드 아웃 구간에 진입한 경우
+    return MontageState.bIsBlendingOut ||
+           (MontageState.CurrentTime >= MontageState.BlendOutStartTime);
 }
 
 TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BasePose, float DeltaSeconds)
@@ -810,7 +833,10 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
         const int32 NumBones = DataModel->GetNumBoneTracks();
         MontagePose.SetNum(NumBones);
 
-        FAnimExtractContext Context(MontageState.CurrentTime, false);  // 루프 안 함
+        // 포즈 평가 시간을 EffectivePlayLength로 클램프 (제자리 복귀 방지)
+        float MaxEvalTime = (MontageState.EffectivePlayLength > 0.0f) ? MontageState.EffectivePlayLength : PlayLength;
+        float PoseEvalTime = FMath::Min(MontageState.CurrentTime, MaxEvalTime);
+        FAnimExtractContext Context(PoseEvalTime, false);  // 루프 안 함
         FPoseContext PoseContext(NumBones);
         SourceSequence->GetAnimationPose(PoseContext, Context);
         MontagePose = PoseContext.Pose;
@@ -818,6 +844,7 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
 
     // ============================================================
     // 블렌딩 (BasePose + MontagePose)
+    // 루트 모션은 SkeletalMeshComponent::SetAnimationPose에서 최종 포즈로부터 추출됨
     // ============================================================
     if (MontagePose.Num() > 0 && MontageState.CurrentWeight > 0.0f)
     {
@@ -829,8 +856,8 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     // ============================================================
     bool bShouldEnd = false;
 
-    // 자연 종료: 재생 시간 초과
-    if (MontageState.CurrentTime >= PlayLength)
+    // 자연 종료: 재생 시간 초과 (EffectivePlayLength는 끝 프레임 자르기 적용됨)
+    if (MontageState.CurrentTime >= MontageState.EffectivePlayLength)
     {
         bShouldEnd = true;
     }
@@ -844,7 +871,12 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     {
         MontageState.bIsPlaying = false;
         bMontageActive = false;
-        UE_LOG("Montage finished: %s", MontageState.Montage->ObjectName.ToString().c_str());
+
+        // 몽타주 종료 시 루트 모션 자동 OFF
+        //bEnableRootMotion = false;
+        bHasPreviousRootTransform = false;  // 이전 루트 트랜스폼 리셋
+
+        UE_LOG("Montage finished: %s (RootMotion disabled)", MontageState.Montage->ObjectName.ToString().c_str());
     }
 
     return Result;

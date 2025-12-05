@@ -21,8 +21,11 @@ void UAnimMontage::SetSourceSequence(UAnimSequence* InSequence)
 
     if (SourceSequence)
     {
-        UE_LOG("UAnimMontage::SetSourceSequence - Set source: %s",
-            SourceSequence->ObjectName.ToString().c_str());
+        // SourceSequence의 노티파이를 몽타주에 복사
+        MontageNotifies = SourceSequence->GetAnimNotifyEvents();
+
+        UE_LOG("UAnimMontage::SetSourceSequence - Set source: %s (Notifies: %d)",
+            SourceSequence->ObjectName.ToString().c_str(), MontageNotifies.Num());
     }
 }
 

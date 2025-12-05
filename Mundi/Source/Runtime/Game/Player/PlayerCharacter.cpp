@@ -9,6 +9,10 @@
 #include "World.h"
 #include "GameModeBase.h"
 #include "GameState.h"
+#include "Source/Runtime/Engine/Animation/AnimMontage.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Animation/AnimSequence.h"
+#include "Source/Runtime/AssetManagement/ResourceManager.h"
 
 
 
@@ -43,6 +47,23 @@ void APlayerCharacter::BeginPlay()
     {
         HitboxComponent->SetOwnerActor(this);
     }
+
+    // 공격 몽타주 초기화
+    if (!LightAttackAnimPath.empty())
+    {
+        // AnimSequence는 FBXLoader에서 미리 로드되어 ResourceManager에 등록됨
+        UAnimSequence* AttackAnim = UResourceManager::GetInstance().Get<UAnimSequence>(LightAttackAnimPath);
+        if (AttackAnim)
+        {
+            LightAttackMontage = NewObject<UAnimMontage>();
+            LightAttackMontage->SetSourceSequence(AttackAnim);
+            UE_LOG("[PlayerCharacter] LightAttackMontage initialized: %s", LightAttackAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find animation: %s", LightAttackAnimPath.c_str());
+        }
+    }
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -66,6 +87,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     {
         return;
     }
+
+    // 공격 상태일 때 몽타주 종료 체크
+    UpdateAttackState(DeltaSeconds);
 
     // 경직 상태 업데이트
     UpdateStagger(DeltaSeconds);
@@ -189,8 +213,23 @@ void APlayerCharacter::LightAttack()
     FDamageInfo DamageInfo(this, 10.f + ComboCount * 5.f, EDamageType::Light);
     HitboxComponent->EnableHitbox(DamageInfo);
 
-    // TODO: 공격 애니메이션 재생
-    // PlayAttackAnimation(ComboCount);
+    // 공격 애니메이션 재생 (몽타주)
+    if (LightAttackMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                // 루트 모션 활성화 및 애니메이션 끝 자르기 시간 설정
+                AnimInst->SetRootMotionEnabled(bEnableAttackRootMotion);
+                AnimInst->SetAnimationCutEndTime(AnimationCutEndTime);
+
+                AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.01f, 1.0f);  // BlendOut 최소화
+                UE_LOG("[PlayerCharacter] Playing LightAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
+                    bEnableAttackRootMotion ? "ON" : "OFF", AnimationCutEndTime);
+            }
+        }
+    }
 
     bCanCombo = false;
 }
@@ -388,6 +427,29 @@ void APlayerCharacter::UpdateParryWindow(float DeltaTime)
         if (ParryWindowTimer <= 0.f)
         {
             bIsParrying = false;
+        }
+    }
+}
+
+void APlayerCharacter::UpdateAttackState(float DeltaTime)
+{
+    // 공격 상태일 때만 체크
+    if (CombatState != ECombatState::Attacking)
+    {
+        return;
+    }
+
+    // 몽타주가 끝났는지 확인
+    if (USkeletalMeshComponent* Mesh = GetMesh())
+    {
+        if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+        {
+            // 몽타주가 재생 중이 아니면 공격 종료
+            if (!AnimInst->Montage_IsPlaying())
+            {
+                SetCombatState(ECombatState::Idle);
+                UE_LOG("[PlayerCharacter] Attack finished, returning to Idle");
+            }
         }
     }
 }

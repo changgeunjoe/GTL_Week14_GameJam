@@ -25,6 +25,7 @@
 #include "Source/Runtime/Engine/Animation/AnimationStateMachine.h"
 #include"Source/Runtime/Engine/Particle/ParticleSystem.h"
 #include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Animation/AnimSequence.h"
 
 // 정적 멤버 변수 초기화
 TArray<FString> UPropertyRenderer::CachedSkeletalMeshPaths;
@@ -41,6 +42,8 @@ TArray<FString> UPropertyRenderer::CachedSoundPaths;
 TArray<const char*> UPropertyRenderer::CachedSoundItems;
 TArray<FString> UPropertyRenderer::CachedScriptPaths;
 TArray<const char*> UPropertyRenderer::CachedScriptItems;
+TArray<FString> UPropertyRenderer::CachedAnimSequencePaths;
+TArray<FString> UPropertyRenderer::CachedAnimSequenceItems;
 
 static bool ItemsGetter(void* Data, int Index, const char** CItem)
 {
@@ -438,6 +441,22 @@ void UPropertyRenderer::CacheResources()
             CachedSoundItems.push_back(path.c_str());
         }
     }
+
+    // 6. AnimSequence
+    if (CachedAnimSequencePaths.IsEmpty() && CachedAnimSequenceItems.IsEmpty())
+    {
+        CachedAnimSequencePaths.Add("");  // None 항목
+        CachedAnimSequenceItems.Add("None");
+
+        TArray<FString> AllAnimPaths = ResMgr.GetAllFilePaths<UAnimSequence>();
+        for (const FString& path : AllAnimPaths)
+        {
+            CachedAnimSequencePaths.Add(path);
+            // 파일명만 추출해서 표시
+            std::filesystem::path fsPath(path);
+            CachedAnimSequenceItems.Add(fsPath.filename().string());
+        }
+    }
 }
 
 void UPropertyRenderer::ClearResourcesCache()
@@ -456,6 +475,8 @@ void UPropertyRenderer::ClearResourcesCache()
 	CachedSoundItems.Empty();
 	CachedScriptPaths.Empty();
 	CachedScriptItems.Empty();
+	CachedAnimSequencePaths.Empty();
+	CachedAnimSequenceItems.Empty();
 }
 
 // ===== 타입별 렌더링 구현 =====
@@ -550,6 +571,13 @@ bool UPropertyRenderer::RenderColorProperty(const FProperty& Prop, void* Instanc
 bool UPropertyRenderer::RenderStringProperty(const FProperty& Prop, void* Instance)
 {
 	FString* Value = Prop.GetValuePtr<FString>(Instance);
+
+	// AnimPath가 포함된 프로퍼티는 AnimSequence 드롭다운 표시
+	FString PropName = Prop.Name;
+	if (PropName.find("AnimPath") != FString::npos)
+	{
+		return RenderAnimSequenceSelectionCombo(Prop.Name, Value);
+	}
 
 	// ImGui::InputText는 char 버퍼를 사용하므로 변환 필요
 	char Buffer[256];
@@ -1912,6 +1940,67 @@ bool UPropertyRenderer::RenderSoundSelectionComboSimple(const char* Label, USoun
     return bChanged;
 }
 
+bool UPropertyRenderer::RenderAnimSequenceSelectionCombo(const char* Label, FString* AnimPathPtr)
+{
+    if (CachedAnimSequenceItems.IsEmpty())
+    {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No AnimSequence available in cache.");
+        return false;
+    }
+
+    bool bChanged = false;
+
+    // 현재 선택된 인덱스 찾기
+    int SelectedIdx = 0;
+    for (int i = 0; i < CachedAnimSequencePaths.Num(); ++i)
+    {
+        if (CachedAnimSequencePaths[i] == *AnimPathPtr)
+        {
+            SelectedIdx = i;
+            break;
+        }
+    }
+
+    const char* PreviewText = CachedAnimSequenceItems[SelectedIdx].c_str();
+    ImGui::SetNextItemWidth(220.0f);
+    if (ImGui::BeginCombo(Label, PreviewText))
+    {
+        // 검색 필터
+        static char SearchBuffer[128] = "";
+        ImGui::InputText("##AnimSearch", SearchBuffer, sizeof(SearchBuffer));
+        FString SearchLower = SearchBuffer;
+        std::transform(SearchLower.begin(), SearchLower.end(), SearchLower.begin(), ::tolower);
+
+        for (int i = 0; i < CachedAnimSequenceItems.Num(); ++i)
+        {
+            // 검색 필터 적용
+            if (!SearchLower.empty() && i > 0)
+            {
+                FString ItemLower = CachedAnimSequenceItems[i];
+                std::transform(ItemLower.begin(), ItemLower.end(), ItemLower.begin(), ::tolower);
+                if (ItemLower.find(SearchLower) == FString::npos)
+                {
+                    continue;
+                }
+            }
+
+            bool bIsSelected = (SelectedIdx == i);
+            if (ImGui::Selectable(CachedAnimSequenceItems[i].c_str(), bIsSelected))
+            {
+                *AnimPathPtr = CachedAnimSequencePaths[i];
+                bChanged = true;
+            }
+
+            if (bIsSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    return bChanged;
+}
 
 bool UPropertyRenderer::RenderTransformProperty(const FProperty& Prop, void* Instance)
 {

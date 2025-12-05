@@ -10,7 +10,7 @@
       "ToNodeID" : 48,
       "ToPinName" : "Execute"
     }, {
-      "FromNodeID" : 40,
+      "FromNodeID" : 0,
       "FromPinName" : "Value",
       "ToNodeID" : 11,
       "ToPinName" : "PlayRate"
@@ -141,7 +141,7 @@
       "StateName" : "Locomotion"
     }, {
       "ClassName" : "UK2Node_Literal_Float",
-      "NodeID" : 40,
+      "NodeID" : 0,
       "NodePosX" : 1953.000000,
       "NodePosY" : 672.000000,
       "Pins" : [{
