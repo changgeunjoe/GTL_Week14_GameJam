@@ -5,6 +5,8 @@
 #include "World.h"
 #include "PlayerController.h"
 #include "Pawn.h"
+#include "PlayerCameraManager.h"
+#include "Source/Runtime/InputCore/InputManager.h"
 
 void AGameState::SetGameFlowState(EGameFlowState NewState)
 {
@@ -23,6 +25,12 @@ void AGameState::EnterStartMenu()
     ShowStartScreen(true);
     SetPaused(true);
     SetGameFlowState(EGameFlowState::StartMenu);
+
+    // Immediate black screen using camera fade (PIE only desired behavior)
+    if (GWorld && GWorld->GetPlayerCameraManager())
+    {
+        GWorld->GetPlayerCameraManager()->FadeOut(0.0f, FLinearColor(0,0,0,1.0f));
+    }
 }
 
 void AGameState::StartFight()
@@ -38,6 +46,12 @@ void AGameState::EnterBossIntro()
     ShowStartScreen(false);
     SetPaused(false);
     SetGameFlowState(EGameFlowState::BossIntro);
+
+    // Fade in from black
+    if (GWorld && GWorld->GetPlayerCameraManager())
+    {
+        GWorld->GetPlayerCameraManager()->FadeIn(0.5f, FLinearColor(0,0,0,1.0f));
+    }
 }
 
 void AGameState::EnterVictory()
@@ -128,6 +142,22 @@ void AGameState::HandleStateTick(float DeltaTime)
         if (StateTimeSeconds >= BossIntroBannerTime)
         {
             StartFight();
+        }
+    }
+
+    // StartMenu: in PIE, continue on any key press
+    if (GameFlowState == EGameFlowState::StartMenu && GWorld && GWorld->bPie)
+    {
+        UInputManager& Input = UInputManager::GetInstance();
+        bool bAnyPressed = false;
+        for (int key = 0; key < 256; ++key)
+        {
+            if (Input.IsKeyPressed(key)) { bAnyPressed = true; break; }
+        }
+        if (bAnyPressed)
+        {
+            EnterBossIntro();
+            return;
         }
     }
 

@@ -54,6 +54,25 @@ void AGameModeBase::StartPlay()
 			GameState->OnPawnPossessed(P);
 		}
 	}
+
+	// Initialize flow: PIE shows StartMenu; non-PIE goes straight to intro/fight
+	if (GameState)
+	{
+		if (GWorld && GWorld->bPie)
+		{
+			if (AGameState* GS = Cast<AGameState>(GameState))
+			{
+				GS->EnterStartMenu();
+			}
+		}
+		else
+		{
+			if (AGameState* GS = Cast<AGameState>(GameState))
+			{
+				GS->EnterBossIntro();
+			}
+		}
+	}
 }
 
 APlayerController* AGameModeBase::Login()
