@@ -457,7 +457,7 @@
     </ClCompile>
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Bloom.cpp" />
     <ClCompile Include="Source\Runtime\Renderer\PostProcessing\BloomPass.cpp" />
-  <ClCompile Include="Generated\UHitboxComponent.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\UStatsComponent.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\AEnemyBase.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\APlayerCharacter.generated.cpp"><Filter>Generated</Filter></ClCompile></ItemGroup>
+  <ClCompile Include="Generated\UHitboxComponent.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\UStatsComponent.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\AEnemyBase.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\APlayerCharacter.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\AAIController.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\AEnemyAIController.generated.cpp"><Filter>Generated</Filter></ClCompile><ClCompile Include="Generated\ABossEnemy.generated.cpp"><Filter>Generated</Filter></ClCompile></ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generated\AActor.generated.h">
       <Filter>Generated</Filter>
@@ -935,7 +935,7 @@
     </ClInclude>
     <ClInclude Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Bloom.h" />
     <ClInclude Include="Source\Runtime\Renderer\PostProcessing\BloomPass.h" />
-  <ClInclude Include="Generated\UHitboxComponent.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\UStatsComponent.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\AEnemyBase.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\APlayerCharacter.generated.h"><Filter>Generated</Filter></ClInclude></ItemGroup>
+  <ClInclude Include="Generated\UHitboxComponent.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\UStatsComponent.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\AEnemyBase.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\APlayerCharacter.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\AAIController.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\AEnemyAIController.generated.h"><Filter>Generated</Filter></ClInclude><ClInclude Include="Generated\ABossEnemy.generated.h"><Filter>Generated</Filter></ClInclude></ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Tools\CodeGenerator\generate.py" />

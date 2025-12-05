@@ -72,7 +72,7 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 
 void APlayerCharacter::ProcessInput(float DeltaTime)
 {
-    ProcessMovementInput(DeltaTime);
+  //  ProcessMovementInput(DeltaTime);
     ProcessCombatInput();
 }
 
