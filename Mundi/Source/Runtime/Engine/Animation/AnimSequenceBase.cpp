@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "AnimSequenceBase.h"
 #include "ObjectFactory.h"
 #include "AnimSequence.h"
@@ -267,7 +267,7 @@ void UAnimSequenceBase::AddPlaySoundNotify(float Time, UAnimNotify* Notify, floa
     if (!Notify)
     {
         return;
-    } 
+    }
 
     FAnimNotifyEvent NewEvent;
     NewEvent.TriggerTime = Time;
@@ -275,7 +275,12 @@ void UAnimSequenceBase::AddPlaySoundNotify(float Time, UAnimNotify* Notify, floa
     NewEvent.Notify = Notify;
     NewEvent.NotifyState = nullptr;
 
-    Notifies.Add(NewEvent); 
+    Notifies.Add(NewEvent);
+}
+
+void UAnimSequenceBase::AddPlayParticleNotify(float Time, UAnimNotify* Notify, float Duration)
+{
+    AddPlaySoundNotify(Time, Notify, Duration);
 }
 
 bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
