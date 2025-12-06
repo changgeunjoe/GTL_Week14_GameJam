@@ -30,6 +30,8 @@ namespace
         case ECameraNotifyEffect::Vignette: return "Vignette";
         case ECameraNotifyEffect::Gamma: return "Gamma";
         case ECameraNotifyEffect::DOF: return "DOF";
+        case ECameraNotifyEffect::HitStop: return "HitStop";
+        case ECameraNotifyEffect::Slomo: return "Slomo";
         default: return "Shake";
         }
     }
@@ -41,6 +43,8 @@ namespace
         if (Str == "Vignette") return ECameraNotifyEffect::Vignette;
         if (Str == "Gamma") return ECameraNotifyEffect::Gamma;
         if (Str == "DOF") return ECameraNotifyEffect::DOF;
+        if (Str == "HitStop") return ECameraNotifyEffect::HitStop;
+        if (Str == "Slomo") return ECameraNotifyEffect::Slomo;
         return ECameraNotifyEffect::Shake;
     }
 }
@@ -450,6 +454,14 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
                 CameraData["MaxFarBlur"] = CameraNotify->DOFSettings.MaxFarBlur;
                 CameraData["Priority"] = CameraNotify->DOFSettings.Priority;
                 break;
+            case ECameraNotifyEffect::HitStop:
+                CameraData["Duration"] = CameraNotify->HitStopSettings.Duration;
+                CameraData["Dilation"] = CameraNotify->HitStopSettings.Dilation;
+                break;
+            case ECameraNotifyEffect::Slomo:
+                CameraData["Duration"] = CameraNotify->SlomoSettings.Duration;
+                CameraData["Dilation"] = CameraNotify->SlomoSettings.Dilation;
+                break;
             default:
                 break;
             }
@@ -686,6 +698,14 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                         FJsonSerializer::ReadFloat(*CameraJson, "MaxNearBlur", CameraNotify->DOFSettings.MaxNearBlur, CameraNotify->DOFSettings.MaxNearBlur, false);
                         FJsonSerializer::ReadFloat(*CameraJson, "MaxFarBlur", CameraNotify->DOFSettings.MaxFarBlur, CameraNotify->DOFSettings.MaxFarBlur, false);
                         { float TempPriority = static_cast<float>(CameraNotify->DOFSettings.Priority); FJsonSerializer::ReadFloat(*CameraJson, "Priority", TempPriority, TempPriority, false); CameraNotify->DOFSettings.Priority = static_cast<int32>(TempPriority); }
+                        break;
+                    case ECameraNotifyEffect::HitStop:
+                        FJsonSerializer::ReadFloat(*CameraJson, "Duration", CameraNotify->HitStopSettings.Duration, CameraNotify->HitStopSettings.Duration, false);
+                        FJsonSerializer::ReadFloat(*CameraJson, "Dilation", CameraNotify->HitStopSettings.Dilation, CameraNotify->HitStopSettings.Dilation, false);
+                        break;
+                    case ECameraNotifyEffect::Slomo:
+                        FJsonSerializer::ReadFloat(*CameraJson, "Duration", CameraNotify->SlomoSettings.Duration, CameraNotify->SlomoSettings.Duration, false);
+                        FJsonSerializer::ReadFloat(*CameraJson, "Dilation", CameraNotify->SlomoSettings.Dilation, CameraNotify->SlomoSettings.Dilation, false);
                         break;
                     default:
                         break;

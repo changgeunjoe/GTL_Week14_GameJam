@@ -2366,6 +2366,25 @@ void SParticleViewerWindow::OnRender()
 					ImGui::NextColumn();
 
 					// ─────────────────────────────────────
+					// Tessellation
+					// ─────────────────────────────────────
+					ImGui::Text("Tessellation");
+					ImGui::NextColumn();
+					{
+						ImGui::SetNextItemWidth(-1);
+						int Tess = RibbonModule->TessellationFactor;
+						if (ImGui::DragInt("##RibbonTessellation", &Tess, 1, 1, 32))
+						{
+							RibbonModule->TessellationFactor = FMath::Max(1, Tess);
+						}
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::SetTooltip("세그먼트를 세분화하여 곡선을 부드럽게 만듭니다.");
+						}
+					}
+					ImGui::NextColumn();
+
+					// ─────────────────────────────────────
 					// Camera Facing
 					// ─────────────────────────────────────
 					ImGui::Text("Camera Facing");

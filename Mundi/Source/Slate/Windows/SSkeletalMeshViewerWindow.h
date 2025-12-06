@@ -43,6 +43,8 @@ public:
     // Initialize viewer preview using an existing component's mesh and materials
     void LoadFromComponent(class USkeletalMeshComponent* SourceComponent);
 
+    void MarkNotifiesDirty(ViewerState* State);
+    void FlushPendingNotifySaves(ViewerState* State);
 private:
     // Tabs
     void OpenNewTab(const char* Name = "Viewer");
@@ -140,6 +142,9 @@ private:
 
     void PreviewParticleNotify(ViewerState* State, int32 NotifyIndex);
     void StopParticlePreview(ViewerState* State);
+    void ShowParticleDebugMarker(ViewerState* State, int32 NotifyIndex);
+    void HideParticleDebugMarker(ViewerState* State);
+    void UpdateParticleDebugMarker(ViewerState* State);
 
     static constexpr float IconSize = 20.0f;
 

@@ -40,6 +40,7 @@ struct FDynamicRibbonEmitterReplayData : public FDynamicEmitterReplayDataBase
     float TilingDistance = 0.0f;     // 텍스처 타일링 거리 (0이면 Stretch)
     float TrailLifetime = 1.0f;    // 전체 트레일 수명
     bool bUseCameraFacing = true;    // 카메라를 바라볼지 여부
+    int32 TessellationFactor = 1;
 
     int32 TrailCount = 0;
     TArray<int32> TrailHeads;
