@@ -11,7 +11,7 @@ ACharacter::ACharacter()
 {
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	//CapsuleComponent->SetSize();
-    WeaponMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComponent");
+    WeaponMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMeshComponent");
     WeaponCollider = CreateDefaultSubobject<UCapsuleComponent>("WeaponCollider");
 	SetRootComponent(CapsuleComponent);
 
@@ -84,21 +84,10 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
         SubWeaponMeshComp = nullptr;
         SkeletalMeshComp = nullptr;
 
+        // 1차 패스: 기본 컴포넌트들 찾기 (CapsuleComponent, CharacterMovement, SkeletalMeshComp)
         for (UActorComponent* Comp : GetOwnedComponents())
         {
-            if (auto* Cap = Cast<UCapsuleComponent>(Comp))
-            {
-                // WeaponCollider와 CapsuleComponent 구분 (이름으로)
-                if (Cap->GetName().find("WeaponCollider") != FString::npos)
-                {
-                    WeaponCollider = Cap;
-                }
-                else
-                {
-                    CapsuleComponent = Cap;
-                }
-            }
-            else if (auto* Move = Cast<UCharacterMovementComponent>(Comp))
+            if (auto* Move = Cast<UCharacterMovementComponent>(Comp))
             {
                 CharacterMovement = Move;
             }
@@ -106,17 +95,43 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
             {
                 SkeletalMeshComp = Skel;
             }
-            else if (auto* StaticMesh = Cast<UStaticMeshComponent>(Comp))
+            else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
             {
-                // 이름으로 구분
-                FString CompName = StaticMesh->GetName();
-                if (CompName.find("SubWeapon") != FString::npos)
+                // 부모가 없는 캡슐 = 루트 캡슐
+                if (!Cap->GetAttachParent())
                 {
-                    SubWeaponMeshComp = StaticMesh;
+                    CapsuleComponent = Cap;
                 }
-                else if (CompName.find("Weapon") != FString::npos)
+            }
+        }
+
+        // 2차 패스: 부모-자식 관계로 무기 관련 컴포넌트 찾기
+        for (UActorComponent* Comp : GetOwnedComponents())
+        {
+            if (auto* StaticMesh = Cast<UStaticMeshComponent>(Comp))
+            {
+                // SkeletalMeshComp의 자식 StaticMeshComponent = 무기
+                USceneComponent* Parent = StaticMesh->GetAttachParent();
+                if (Parent == SkeletalMeshComp)
                 {
-                    WeaponMeshComp = StaticMesh;
+                    // 첫 번째는 WeaponMeshComp, 두 번째는 SubWeaponMeshComp
+                    if (!WeaponMeshComp)
+                    {
+                        WeaponMeshComp = StaticMesh;
+                    }
+                    else if (!SubWeaponMeshComp)
+                    {
+                        SubWeaponMeshComp = StaticMesh;
+                    }
+                }
+            }
+            else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
+            {
+                // WeaponMeshComp의 자식 캡슐 = WeaponCollider
+                USceneComponent* Parent = Cap->GetAttachParent();
+                if (Parent == WeaponMeshComp)
+                {
+                    WeaponCollider = Cap;
                 }
             }
         }
@@ -141,21 +156,10 @@ void ACharacter::DuplicateSubObjects()
     SubWeaponMeshComp = nullptr;
     SkeletalMeshComp = nullptr;
 
+    // 1차 패스: 기본 컴포넌트들 찾기
     for (UActorComponent* Comp : GetOwnedComponents())
     {
-        if (auto* Cap = Cast<UCapsuleComponent>(Comp))
-        {
-            // WeaponCollider와 CapsuleComponent 구분 (이름으로)
-            if (Cap->GetName().find("WeaponCollider") != FString::npos)
-            {
-                WeaponCollider = Cap;
-            }
-            else
-            {
-                CapsuleComponent = Cap;
-            }
-        }
-        else if (auto* Move = Cast<UCharacterMovementComponent>(Comp))
+        if (auto* Move = Cast<UCharacterMovementComponent>(Comp))
         {
             CharacterMovement = Move;
         }
@@ -163,17 +167,42 @@ void ACharacter::DuplicateSubObjects()
         {
             SkeletalMeshComp = Skel;
         }
-        else if (auto* StaticMesh = Cast<UStaticMeshComponent>(Comp))
+        else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
         {
-            // 이름으로 구분
-            FString CompName = StaticMesh->GetName();
-            if (CompName.find("SubWeapon") != FString::npos)
+            // 부모가 없는 캡슐 = 루트 캡슐
+            if (!Cap->GetAttachParent())
             {
-                SubWeaponMeshComp = StaticMesh;
+                CapsuleComponent = Cap;
             }
-            else if (CompName.find("Weapon") != FString::npos)
+        }
+    }
+
+    // 2차 패스: 부모-자식 관계로 무기 관련 컴포넌트 찾기
+    for (UActorComponent* Comp : GetOwnedComponents())
+    {
+        if (auto* StaticMesh = Cast<UStaticMeshComponent>(Comp))
+        {
+            // SkeletalMeshComp의 자식 StaticMeshComponent = 무기
+            USceneComponent* Parent = StaticMesh->GetAttachParent();
+            if (Parent == SkeletalMeshComp)
             {
-                WeaponMeshComp = StaticMesh;
+                if (!WeaponMeshComp)
+                {
+                    WeaponMeshComp = StaticMesh;
+                }
+                else if (!SubWeaponMeshComp)
+                {
+                    SubWeaponMeshComp = StaticMesh;
+                }
+            }
+        }
+        else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
+        {
+            // WeaponMeshComp의 자식 캡슐 = WeaponCollider
+            USceneComponent* Parent = Cap->GetAttachParent();
+            if (Parent == WeaponMeshComp)
+            {
+                WeaponCollider = Cap;
             }
         }
     }
