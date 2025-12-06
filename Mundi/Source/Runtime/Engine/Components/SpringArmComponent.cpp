@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "SpringArmComponent.h"
 #include "World.h"
+#include "Actor.h"
 #include "Source/Runtime/Engine/Collision/Collision.h"
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
+#include <cmath>
 
 USpringArmComponent::USpringArmComponent()
     : TargetArmLength(300.0f)
@@ -32,6 +34,18 @@ void USpringArmComponent::OnRegister(UWorld* InWorld)
 void USpringArmComponent::TickComponent(float DeltaTime)
 {
     Super::TickComponent(DeltaTime);
+
+    // Lock-on 타겟이 있으면 카메라를 타겟 방향으로 회전
+    if (LockOnTarget)
+    {
+        FQuat DesiredRotation = CalculateLockOnRotation();
+        FQuat CurrentRotation = GetWorldRotation();
+
+        // 부드러운 회전 보간
+        FQuat NewRotation = FQuat::Slerp(CurrentRotation, DesiredRotation,
+                                          FMath::Clamp(DeltaTime * LockOnRotationSpeed, 0.0f, 1.0f));
+        SetWorldRotation(NewRotation);
+    }
 
     // 매 프레임 암 위치 업데이트 (보간 포함)
     UpdateDesiredArmLocation(DeltaTime);
@@ -134,6 +148,63 @@ FVector USpringArmComponent::GetSocketLocalLocation() const
     // 로컬 좌표계에서 암 끝 위치 계산
     // -X 방향(뒤쪽)으로 CurrentArmLength만큼 + SocketOffset
     return FVector(-CurrentArmLength, 0, 0) + SocketOffset;
+}
+
+FQuat USpringArmComponent::CalculateLockOnRotation() const
+{
+    if (!LockOnTarget)
+    {
+        return GetWorldRotation();
+    }
+
+    AActor* Owner = GetOwner();
+    if (!Owner)
+    {
+        return GetWorldRotation();
+    }
+
+    // Player and target positions
+    FVector PlayerPos = Owner->GetActorLocation();
+    FVector TargetPos = LockOnTarget->GetActorLocation() + LockOnTargetOffset;
+
+    // Horizontal direction to target (for yaw only)
+    FVector ToTarget = TargetPos - PlayerPos;
+    ToTarget.Z = 0;
+
+    if (ToTarget.IsZero())
+    {
+        return GetWorldRotation();
+    }
+
+    ToTarget.Normalize();
+
+    // Yaw: rotate horizontally to face target
+    float TargetYaw = std::atan2(ToTarget.Y, ToTarget.X) * (180.0f / PI);
+
+    // Pitch: Dark Souls style - mostly fixed angle, only slight adjustment for very tall/short enemies
+    // Use LockOnPitchOffset as the base pitch (default: looking slightly down at action)
+    float TargetPitch = LockOnPitchOffset;
+
+    // Optional: subtle pitch adjustment for extreme height differences (e.g., giant bosses)
+    if (bAdjustPitchForTargetHeight)
+    {
+        FVector FullToTarget = TargetPos - (PlayerPos + FVector(0, 0, TargetOffset.Z));
+        float HorizontalDist = FVector(FullToTarget.X, FullToTarget.Y, 0).Size();
+        float HeightDiff = FullToTarget.Z;
+
+        if (HorizontalDist > 0.01f)
+        {
+            // Very subtle adjustment - only 20% of the actual angle, clamped tightly
+            float HeightAngle = std::atan2(HeightDiff, HorizontalDist) * (180.0f / PI);
+            float PitchAdjustment = HeightAngle * 0.2f;
+            PitchAdjustment = FMath::Clamp(PitchAdjustment, -15.0f, 15.0f);
+            TargetPitch += PitchAdjustment;
+        }
+    }
+
+    TargetPitch = FMath::Clamp(TargetPitch, -45.0f, 30.0f);
+
+    return FQuat::MakeFromEulerZYX(FVector(0.0f, TargetPitch, TargetYaw));
 }
 
 void USpringArmComponent::Serialize(const bool bInIsLoading, JSON& InOutHandle)
