@@ -778,6 +778,19 @@ void UTargetActorTransformWidget::RenderBloomSettings(APlayerCameraManager* CamM
             {
                 ImGui::SetTooltip("Controls the spread of the bloom blur in pixels");
             }
+
+            if (CamMgr)
+            {
+                CamMgr->bBloomSettingsEnabled = true;
+                CamMgr->BloomThresholdSetting = Bloom->Threshold;
+                CamMgr->BloomSoftKneeSetting = Bloom->SoftKnee;
+                CamMgr->BloomIntensitySetting = Bloom->Intensity;
+                CamMgr->BloomBlurRadiusSetting = Bloom->BlurRadius;
+            }
+        }
+        else if (CamMgr)
+        {
+            CamMgr->bBloomSettingsEnabled = false;
         }
 
         ImGui::Unindent(10.0f);

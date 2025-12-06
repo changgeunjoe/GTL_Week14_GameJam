@@ -35,8 +35,12 @@ const bool APlayerCameraManager::bPropertiesRegistered = []() {
 
 BEGIN_PROPERTIES(APlayerCameraManager)
     MARK_AS_SPAWNABLE("APlayerCameraManager", "APlayerCameraManager 액터")
+    ADD_PROPERTY(bool, bBloomSettingsEnabled, "Bloom", true)
+    ADD_PROPERTY(float, BloomThresholdSetting, "Bloom", true)
+    ADD_PROPERTY(float, BloomSoftKneeSetting, "Bloom", true)
+    ADD_PROPERTY(float, BloomIntensitySetting, "Bloom", true)
+    ADD_PROPERTY(float, BloomBlurRadiusSetting, "Bloom", true)
 END_PROPERTIES()
-
 
 // ===== Lua Binding =====
 
