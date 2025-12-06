@@ -3,6 +3,9 @@
 #include "StatsComponent.h"
 #include "HitboxComponent.h"
 #include "World.h"
+#include "SkeletalMeshComponent.h"
+#include "AnimInstance.h"
+#include "AnimMontage.h"
 
 ABossEnemy::ABossEnemy()
 {
@@ -84,7 +87,14 @@ void ABossEnemy::Attack_LightCombo()
 
     HitboxComponent->EnableHitbox(DamageInfo);
 
-    // TODO: 콤보 애니메이션 재생
+    // 콤보 애니메이션 재생
+    if (LightComboMontage && GetMesh())
+    {
+        if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+        {
+            AnimInst->Montage_Play(LightComboMontage, 0.1f, 0.1f, 1.0f);
+        }
+    }
 }
 
 void ABossEnemy::Attack_HeavySlam()
@@ -100,7 +110,14 @@ void ABossEnemy::Attack_HeavySlam()
     bHasSuperArmor = true;  // 강공격 중 슈퍼아머
     HitboxComponent->EnableHitbox(DamageInfo);
 
-    // TODO: 내려찍기 애니메이션 재생
+    // 내려찍기 애니메이션 재생
+    if (HeavySlamMontage && GetMesh())
+    {
+        if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+        {
+            AnimInst->Montage_Play(HeavySlamMontage, 0.1f, 0.1f, 1.0f);
+        }
+    }
 }
 
 void ABossEnemy::Attack_ChargeAttack()
@@ -124,7 +141,14 @@ void ABossEnemy::Attack_ChargeAttack()
         SetActorLocation(GetActorLocation() + Direction * 500.f);
     }
 
-    // TODO: 돌진 애니메이션 재생
+    // 돌진 애니메이션 재생
+    if (ChargeAttackMontage && GetMesh())
+    {
+        if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+        {
+            AnimInst->Montage_Play(ChargeAttackMontage, 0.05f, 0.1f, 1.2f);
+        }
+    }
 }
 
 void ABossEnemy::Attack_SpinAttack()
@@ -140,7 +164,14 @@ void ABossEnemy::Attack_SpinAttack()
     bHasSuperArmor = true;
     HitboxComponent->EnableHitbox(DamageInfo);
 
-    // TODO: 회전 공격 애니메이션 재생
+    // 회전 공격 애니메이션 재생
+    if (SpinAttackMontage && GetMesh())
+    {
+        if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+        {
+            AnimInst->Montage_Play(SpinAttackMontage, 0.1f, 0.1f, 1.0f);
+        }
+    }
 }
 
 // ============================================================================

@@ -3,6 +3,8 @@
 #include "EnemyBase.h"
 #include "ABossEnemy.generated.h"
 
+class UAnimMontage;
+
 // ============================================================================
 // ABossEnemy - 보스 적 클래스
 // ============================================================================
@@ -56,4 +58,17 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Boss", Tooltip = "페이즈 2 진입 HP 비율")
     float Phase2HealthThreshold = 0.5f;
+
+    // ========== 공격 애니메이션 몽타주 ==========
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    UAnimMontage* LightComboMontage = nullptr;
+
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    UAnimMontage* HeavySlamMontage = nullptr;
+
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    UAnimMontage* ChargeAttackMontage = nullptr;
+
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    UAnimMontage* SpinAttackMontage = nullptr;
 };
