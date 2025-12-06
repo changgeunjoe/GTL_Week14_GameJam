@@ -8,6 +8,7 @@ class UStatsComponent;
 class UHitboxComponent;
 class USpringArmComponent;
 class UCameraComponent;
+class UAnimMontage;
 
 // ============================================================================
 // APlayerCharacter - 플레이어 캐릭터 예시
@@ -88,6 +89,7 @@ protected:
     // 내부 함수
     // ========================================================================
     void SetCombatState(ECombatState NewState);
+    void UpdateAttackState(float DeltaTime);
     void UpdateParryWindow(float DeltaTime);
     void UpdateStagger(float DeltaTime);
 
@@ -127,6 +129,22 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Combat")
     int32 MaxComboCount = 3;
+
+    // ========== 몽타주 ==========
+    /** 공격 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    FString LightAttackAnimPath;
+
+    /** 공격 몽타주 */
+    UAnimMontage* LightAttackMontage = nullptr;
+
+    /** 공격 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    bool bEnableAttackRootMotion = true;
+
+    /** 애니메이션 끝에서 자를 시간 (초 단위) - 제자리 복귀 애니메이션 자르기용 */
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    float AnimationCutEndTime = 0.0f;
 
     // ========== 이동 ==========
     UPROPERTY(EditAnywhere, Category = "Movement")

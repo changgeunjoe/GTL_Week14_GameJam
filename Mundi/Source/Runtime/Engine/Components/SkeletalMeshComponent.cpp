@@ -3,6 +3,7 @@
 #include "Source/Runtime/Engine/Animation/AnimDateModel.h"
 #include "Source/Runtime/Engine/Animation/AnimSequence.h"
 #include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Animation/AnimMontage.h"
 #include "Source/Runtime/Engine/Animation/AnimationStateMachine.h"
 #include "Source/Runtime/Engine/Animation/AnimSingleNodeInstance.h"
 #include "Source/Runtime/Engine/Animation/AnimTypes.h"
@@ -1396,17 +1397,42 @@ void USkeletalMeshComponent::SetAnimationPose(const TArray<FTransform>& InPose)
     {
         const FTransform& CurrentRootTransform = InPose[0];
 
-        // 애니메이션 끝부분(마지막 4프레임)인지 확인 - 원점 복귀 프레임 무시
+        // 애니메이션 끝부분인지 확인 - 원점 복귀 구간 무시
         bool bShouldApplyRootMotion = true;
-        if (AnimInstance->CurrentPlayState.PoseProvider)
+        float CutEndTime = AnimInstance->GetAnimationCutEndTime();
+
+        // 몽타주가 재생 중이면 몽타주 시간 사용
+        if (AnimInstance->Montage_IsPlaying())
+        {
+            // 블렌드 아웃 중이면 루트 모션 적용 중단 (원점 복귀 방지)
+            if (AnimInstance->Montage_IsBlendingOut())
+            {
+                bShouldApplyRootMotion = false;
+            }
+            else
+            {
+                UAnimMontage* CurrentMontage = AnimInstance->Montage_GetCurrentMontage();
+                if (CurrentMontage)
+                {
+                    float PlayLength = CurrentMontage->GetPlayLength();
+                    float CurrentTime = AnimInstance->Montage_GetPosition();
+
+                    // 초 단위로 바로 비교
+                    if (CutEndTime > 0.0f && PlayLength > 0.0f && CurrentTime > (PlayLength - CutEndTime))
+                    {
+                        bShouldApplyRootMotion = false;
+                    }
+                }
+            }
+        }
+        // 상태머신 애니메이션
+        else if (AnimInstance->CurrentPlayState.PoseProvider)
         {
             float PlayLength = AnimInstance->CurrentPlayState.PoseProvider->GetPlayLength();
             float CurrentTime = AnimInstance->CurrentPlayState.CurrentTime;
 
-            // 프레임레이트 가정 (30fps 기준, 4프레임 = 약 0.133초)
-            float IgnoreEndTime = 4.0f / 30.0f;  // 마지막 4프레임
-
-            if (PlayLength > 0.0f && CurrentTime > (PlayLength - IgnoreEndTime))
+            // 초 단위로 바로 비교
+            if (CutEndTime > 0.0f && PlayLength > 0.0f && CurrentTime > (PlayLength - CutEndTime))
             {
                 bShouldApplyRootMotion = false;
             }
@@ -1443,7 +1469,6 @@ void USkeletalMeshComponent::SetAnimationPose(const TArray<FTransform>& InPose)
     // 루트 모션이 활성화되어 있으면 루트 본을 원점에 고정
     if (AnimInstance && AnimInstance->IsRootMotionEnabled() && NumBones > 0)
     {
-        // 루트 본의 위치를 원점으로 고정 (회전은 유지)
         CurrentLocalSpacePose[0].Translation = FVector::Zero();
     }
 

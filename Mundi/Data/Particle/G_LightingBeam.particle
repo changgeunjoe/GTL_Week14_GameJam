@@ -22,11 +22,12 @@
                     "Type" : "Velocity",
                     "bEnabled" : true
                   }, {
+                    "BeamWidth" : 0.200000,
                     "NoiseAmplitude" : 19.200001,
                     "NoiseFrequency" : 1.630000,
-                    "SourceOffset" : [33.000000, 26.000000, 13.000000],
+                    "SourceOffset" : [8.000000, 8.000000, 8.000000],
                     "SourcePoint" : [0.000000, 0.000000, 0.000000],
-                    "TargetOffset" : [18.000000, 14.000000, 42.000000],
+                    "TargetOffset" : [8.000000, 8.000000, 8.000000],
                     "TargetPoint" : [100.000000, 0.000000, 0.000000],
                     "TessellationFactor" : 10,
                     "Type" : "Beam",
@@ -34,7 +35,7 @@
                     "bUseRandomOffset" : true
                   }, {
                     "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
-                    "StartColor_Min" : [0.505792, 0.505792, 0.505792, 1.000000],
+                    "StartColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
                     "StartColor_bUseRange" : false,
                     "Type" : "Color",
                     "bEnabled" : true

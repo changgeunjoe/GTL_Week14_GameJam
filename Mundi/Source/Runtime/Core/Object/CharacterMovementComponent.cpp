@@ -10,7 +10,7 @@
 UCharacterMovementComponent::UCharacterMovementComponent()
 {
 	// 캐릭터 전용 설정 값
- 	MaxWalkSpeed = 6.0f;
+ 	MaxWalkSpeed = 3.0f;
 	MaxAcceleration = 20.0f;
 	JumpZVelocity = 4.0;
 
