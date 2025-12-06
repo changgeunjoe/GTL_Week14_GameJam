@@ -25,6 +25,7 @@ private:
     void DrawStartMenu(float ScreenW, float ScreenH);
     void DrawDeathScreen(float ScreenW, float ScreenH, const wchar_t* Text, bool bIsVictory);
     void DrawBossHealthBar(float ScreenW, float ScreenH, float DeltaTime);
+    void DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTime);
 
     // Create gradient brush for the banner (recreated per-frame due to screen size changes)
     ID2D1LinearGradientBrush* CreateBannerGradientBrush(float ScreenW, float ScreenH, float Opacity);
@@ -60,6 +61,17 @@ private:
     float BossBarWidth = 0.f;
     float BossBarHeight = 0.f;
 
+    // Player bar images
+    ID2D1Bitmap* PlayerFrameBitmap = nullptr;    // TX_Bar_Frame_M.png
+    ID2D1Bitmap* PlayerHPBarBitmap = nullptr;    // TX_Gauge_HP_Bar_red.png
+    ID2D1Bitmap* PlayerFocusBarBitmap = nullptr; // TX_Gauge_Focus_Bar.png
+    ID2D1Bitmap* PlayerStaminaBarBitmap = nullptr; // TX_Gauge_Stamina_Bar.png
+    ID2D1Bitmap* PlayerBarYellowBitmap = nullptr;  // TX_Gauge_Bar_yellow.png
+    float PlayerFrameWidth = 0.f;
+    float PlayerFrameHeight = 0.f;
+    float PlayerBarWidth = 0.f;
+    float PlayerBarHeight = 0.f;
+
     // Text formats
     IDWriteTextFormat* TitleFormat = nullptr;     // Large font for game title
     IDWriteTextFormat* SubtitleFormat = nullptr;  // Smaller font for "Press any key"
@@ -88,6 +100,25 @@ private:
     float DelayedHealthTimer = 0.0f;    // Timer before yellow bar starts moving
     float DelayedHealthDelay = 0.5f;    // How long to wait before yellow bar moves (seconds)
     float DelayedHealthLerpSpeed = 0.8f; // How fast yellow bar catches up
+
+    // Player HP bar animation (Dark Souls style)
+    float CurrentPlayerHP = 1.0f;
+    float DelayedPlayerHP = 1.0f;
+    float DelayedPlayerHPTimer = 0.0f;
+
+    // Player Focus bar animation (Dark Souls style)
+    float CurrentPlayerFocus = 1.0f;
+    float DelayedPlayerFocus = 1.0f;
+    float DelayedPlayerFocusTimer = 0.0f;
+
+    // Player Stamina bar animation (Dark Souls style)
+    float CurrentPlayerStamina = 1.0f;
+    float DelayedPlayerStamina = 1.0f;
+    float DelayedPlayerStaminaTimer = 0.0f;
+
+    // Shared player bar animation settings
+    float PlayerBarDelayTime = 0.5f;     // How long to wait before yellow bar moves
+    float PlayerBarLerpSpeed = 0.8f;     // How fast yellow bar catches up
 
     // Custom font
     bool bFontLoaded = false;
