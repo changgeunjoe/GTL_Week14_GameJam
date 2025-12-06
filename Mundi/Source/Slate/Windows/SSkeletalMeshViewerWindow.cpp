@@ -2391,7 +2391,6 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-
                     else if (ImGui::MenuItem("Camera Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
