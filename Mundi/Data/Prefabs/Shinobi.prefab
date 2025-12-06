@@ -17,7 +17,7 @@
   "OwnedComponents" : [{
       "AnimGraphPath" : "Data/Graphs/Shinobi.graph",
       "CollisionEnabled_Internal" : 2,
-      "Id" : 6981,
+      "Id" : 8133,
       "MaterialSlots" : [{
           "Type" : "None"
         }, {
@@ -174,7 +174,7 @@
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "USkeletalMeshComponent_3",
-      "ParentId" : 6977,
+      "ParentId" : 8198,
       "PhysicsAssetOverridePath" : "Data/Physics/Shinobi.phys",
       "RelativeLocation" : [0.000000, 0.000000, -0.900000],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -190,30 +190,13 @@
       "bOverrideCollisionSetting" : false,
       "bTickEnabled" : true
     }, {
-      "BlockCostPerHit" : 20.000000,
-      "CurrentHealth" : 100.000000,
-      "CurrentStamina" : 85.000000,
-      "DodgeCost" : 0.000000,
-      "HeavyAttackCost" : 30.000000,
-      "LightAttackCost" : 0.000000,
-      "MaxHealth" : 100.000000,
-      "MaxStamina" : 100.000000,
-      "ObjectName" : "UStatsComponent_1",
-      "ParryCost" : 10.000000,
-      "StaminaRegenDelay" : 1.000000,
-      "StaminaRegenRate" : 20.000000,
-      "Type" : "UStatsComponent",
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bTickEnabled" : true
-    }, {
       "CapsuleHalfHeight" : 0.900000,
       "CapsuleRadius" : 0.300000,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 6977,
+      "Id" : 8198,
       "ObjectName" : "UCapsuleComponent_1",
       "ParentId" : 0,
-      "RelativeLocation" : [-6.667856, -3.625289, 3.941308],
+      "RelativeLocation" : [-3.254713, -1.777745, 0.535449],
       "RelativeRotationEuler" : [0.000000, -0.004071, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
       "Type" : "UCapsuleComponent",
@@ -233,9 +216,26 @@
       "bHiddenInGame" : false,
       "bIsActive" : true,
       "bTickEnabled" : true
+    }, {
+      "BlockCostPerHit" : 20.000000,
+      "CurrentHealth" : 100.000000,
+      "CurrentStamina" : 85.000000,
+      "DodgeCost" : 0.000000,
+      "HeavyAttackCost" : 30.000000,
+      "LightAttackCost" : 0.000000,
+      "MaxHealth" : 100.000000,
+      "MaxStamina" : 100.000000,
+      "ObjectName" : "UStatsComponent_1",
+      "ParryCost" : 10.000000,
+      "StaminaRegenDelay" : 1.000000,
+      "StaminaRegenRate" : 20.000000,
+      "Type" : "UStatsComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
     }],
   "ParryWindowDuration" : 0.200000,
-  "RootComponentId" : 6977,
+  "RootComponentId" : 8198,
   "RotationSpeed" : 10.000000,
   "Tag" : "",
   "Type" : "APlayerCharacter",

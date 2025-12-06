@@ -88,12 +88,12 @@
       "FromNodeID" : 69,
       "FromPinName" : "X",
       "ToNodeID" : 63,
-      "ToPinName" : "Y"
+      "ToPinName" : "X"
     }, {
       "FromNodeID" : 69,
       "FromPinName" : "Y",
       "ToNodeID" : 63,
-      "ToPinName" : "X"
+      "ToPinName" : "Y"
     }],
   "Nodes" : [{
       "ClassName" : "UK2Node_AnimStateEntry",
@@ -481,8 +481,8 @@
     }, {
       "ClassName" : "UK2Node_GetLocalVelocity",
       "NodeID" : 69,
-      "NodePosX" : 1408.000000,
-      "NodePosY" : 904.000000,
+      "NodePosX" : 1280.000000,
+      "NodePosY" : 864.000000,
       "Pins" : [{
           "DefaultValue" : "",
           "Direction" : 1,
