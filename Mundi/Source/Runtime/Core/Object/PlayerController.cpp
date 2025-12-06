@@ -262,8 +262,8 @@ void APlayerController::ProcessLockOnInput()
 
     UInputManager& InputManager = UInputManager::GetInstance();
 
-    // Ctrl: Lock-on 토글
-    if (InputManager.IsKeyPressed(VK_CONTROL))
+    // Mouse wheel: Lock-on 토글
+	if (InputManager.IsMouseButtonPressed(MiddleButton))
     {
         bool bWasLockedOn = TargetingComponent->IsLockedOn();
 
