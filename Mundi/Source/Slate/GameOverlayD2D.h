@@ -101,6 +101,12 @@ private:
     float DelayedHealthDelay = 0.5f;    // How long to wait before yellow bar moves (seconds)
     float DelayedHealthLerpSpeed = 0.8f; // How fast yellow bar catches up
 
+    // Boss health bar fade-in animation
+    float BossBarFadeTimer = 0.0f;
+    float BossBarFadeDuration = 2.0f;   // Same as player bars
+    float BossBarOpacity = 0.0f;
+    bool bBossBarFadingIn = false;
+
     // Player HP bar animation (Dark Souls style)
     float CurrentPlayerHP = 1.0f;
     float DelayedPlayerHP = 1.0f;
@@ -119,6 +125,12 @@ private:
     // Shared player bar animation settings
     float PlayerBarDelayTime = 0.5f;     // How long to wait before yellow bar moves
     float PlayerBarLerpSpeed = 0.8f;     // How fast yellow bar catches up
+
+    // Player bar fade-in animation
+    float PlayerBarFadeTimer = 0.0f;     // Timer for fade-in
+    float PlayerBarFadeDuration = 1.0f;  // How long to fade in (seconds)
+    float PlayerBarOpacity = 0.0f;       // Current opacity (0 to 1)
+    bool bPlayerBarsFadingIn = false;    // Whether we're currently fading in
 
     // Custom font
     bool bFontLoaded = false;
