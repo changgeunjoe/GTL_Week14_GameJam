@@ -696,6 +696,24 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
     // Get target health - default to 100% if no boss registered
     float TargetHealth = GS->HasActiveBoss() ? GS->GetBossHealth().GetPercent() : 1.0f;
 
+    // ========== Fade-in Animation ==========
+    if (!bBossBarFadingIn && BossBarOpacity < 1.0f)
+    {
+        bBossBarFadingIn = true;
+        BossBarFadeTimer = 0.0f;
+    }
+
+    if (bBossBarFadingIn)
+    {
+        BossBarFadeTimer += DeltaTime;
+        BossBarOpacity = BossBarFadeTimer / BossBarFadeDuration;
+        if (BossBarOpacity >= 1.0f)
+        {
+            BossBarOpacity = 1.0f;
+            bBossBarFadingIn = false;
+        }
+    }
+
     // Dark Souls style health bar animation:
     // - Red bar (CurrentBossHealth) snaps immediately to actual health
     // - Yellow bar (DelayedBossHealth) waits, then slowly catches up
@@ -742,7 +760,7 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
 
     // 1. Draw frame first (background)
     D2D1_RECT_F FrameRect = D2D1::RectF(BarX, BarY, BarX + BarW, BarY + BarH);
-    D2DContext->DrawBitmap(BossFrameBitmap, FrameRect, 1.0f);
+    D2DContext->DrawBitmap(BossFrameBitmap, FrameRect, BossBarOpacity);
 
     // 2. Draw yellow bar (delayed damage indicator) - behind red bar
     if (BossBarYellowBitmap && DelayedBossHealth > 0.0f && DelayedBossHealth > CurrentBossHealth)
@@ -751,7 +769,7 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
         D2D1_RECT_F YellowDestRect = D2D1::RectF(BarX, BarY, BarX + YellowFillW, BarY + BarH);
         D2D1_RECT_F YellowSrcRect = D2D1::RectF(0, 0, BossBarWidth * DelayedBossHealth, BossBarHeight);
 
-        D2DContext->DrawBitmap(BossBarYellowBitmap, YellowDestRect, 1.0f,
+        D2DContext->DrawBitmap(BossBarYellowBitmap, YellowDestRect, BossBarOpacity,
             D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &YellowSrcRect);
     }
 
@@ -762,17 +780,19 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
         D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
         D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, BossBarWidth * CurrentBossHealth, BossBarHeight);
 
-        D2DContext->DrawBitmap(BossBarBitmap, FillDestRect, 1.0f,
+        D2DContext->DrawBitmap(BossBarBitmap, FillDestRect, BossBarOpacity,
             D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &FillSrcRect);
     }
 
     // 4. Draw boss name above bar (only if boss is registered)
     if (GS->HasActiveBoss())
     {
+        SubtitleBrush->SetOpacity(BossBarOpacity);
         FWideString BossName = UTF8ToWide(GS->GetBossName());
         D2D1_RECT_F NameRect = D2D1::RectF(BarX, BarY - 40.0f, BarX + BarW, BarY);
         D2DContext->DrawTextW(BossName.c_str(), static_cast<UINT32>(BossName.length()),
-            BossNameFormat, NameRect, SubtitleBrush);  // Use white subtitle brush for boss name
+            BossNameFormat, NameRect, SubtitleBrush);
+        SubtitleBrush->SetOpacity(1.0f);  // Reset opacity
     }
 }
 
@@ -811,6 +831,25 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     if (GS->GetPlayerHealth().Max <= 0.0f) TargetHP = 1.0f;
     if (GS->GetPlayerFocus().Max <= 0.0f) TargetFocus = 1.0f;
     if (GS->GetPlayerStamina().Max <= 0.0f) TargetStamina = 1.0f;
+
+    // ========== Fade-in Animation ==========
+    // Start fade-in when bars first appear
+    if (!bPlayerBarsFadingIn && PlayerBarOpacity < 1.0f)
+    {
+        bPlayerBarsFadingIn = true;
+        PlayerBarFadeTimer = 0.0f;
+    }
+
+    if (bPlayerBarsFadingIn)
+    {
+        PlayerBarFadeTimer += DeltaTime;
+        PlayerBarOpacity = PlayerBarFadeTimer / PlayerBarFadeDuration;
+        if (PlayerBarOpacity >= 1.0f)
+        {
+            PlayerBarOpacity = 1.0f;
+            bPlayerBarsFadingIn = false;
+        }
+    }
 
     // ========== HP Bar Animation ==========
     if (TargetHP < CurrentPlayerHP)
@@ -905,7 +944,7 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     {
         // 1. Draw frame
         D2D1_RECT_F FrameRect = D2D1::RectF(BarX, BarY, BarX + BarW, BarY + BarH);
-        D2DContext->DrawBitmap(PlayerFrameBitmap, FrameRect, 1.0f);
+        D2DContext->DrawBitmap(PlayerFrameBitmap, FrameRect, PlayerBarOpacity);
 
         // 2. Draw yellow bar (delayed) - behind colored bar
         if (PlayerBarYellowBitmap && DelayedValue > 0.0f && DelayedValue > CurrentValue)
@@ -913,7 +952,7 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
             float YellowFillW = PlayerBarWidth * BarScale * DelayedValue;
             D2D1_RECT_F YellowDestRect = D2D1::RectF(BarX, BarY, BarX + YellowFillW, BarY + BarH);
             D2D1_RECT_F YellowSrcRect = D2D1::RectF(0, 0, PlayerBarWidth * DelayedValue, PlayerBarHeight);
-            D2DContext->DrawBitmap(PlayerBarYellowBitmap, YellowDestRect, 1.0f,
+            D2DContext->DrawBitmap(PlayerBarYellowBitmap, YellowDestRect, PlayerBarOpacity,
                 D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &YellowSrcRect);
         }
 
@@ -923,7 +962,7 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
             float FillW = PlayerBarWidth * BarScale * CurrentValue;
             D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
             D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, PlayerBarWidth * CurrentValue, PlayerBarHeight);
-            D2DContext->DrawBitmap(BarBitmap, FillDestRect, 1.0f,
+            D2DContext->DrawBitmap(BarBitmap, FillDestRect, PlayerBarOpacity,
                 D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &FillSrcRect);
         }
     };
@@ -1032,6 +1071,15 @@ void UGameOverlayD2D::Draw()
 
     // Get delta time for animations
     float DeltaTime = UUIManager::GetInstance().GetDeltaTime();
+
+    // Reset bar fade when not fighting
+    if (FlowState != EGameFlowState::Fighting)
+    {
+        PlayerBarOpacity = 0.0f;
+        bPlayerBarsFadingIn = false;
+        BossBarOpacity = 0.0f;
+        bBossBarFadingIn = false;
+    }
 
     // Draw based on current state
     switch (FlowState)
