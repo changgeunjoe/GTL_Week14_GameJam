@@ -8,6 +8,8 @@
 #include "Character.h"
 #include "CharacterMovementComponent.h"
 #include "Source/Runtime/Game/Player/PlayerCharacter.h"
+#include "SkeletalMeshComponent.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
 
 APlayerController::APlayerController()
 {
@@ -78,57 +80,74 @@ void APlayerController::ProcessMovementInput(float DeltaTime)
 		}
 	}
 
-	FVector InputDir = FVector::Zero();
-
-	if (InputManager.IsKeyDown('W'))
+	// 몽타주 재생 중이면 이동 입력 무시
+	bool bIsMontaguePlaying = false;
+	if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
 	{
-		InputDir.X += 1.0f;
-	}
-	if (InputManager.IsKeyDown('S'))
-	{
-		InputDir.X -= 1.0f;
-	}
-	if (InputManager.IsKeyDown('D'))
-	{
-		InputDir.Y += 1.0f;
-	}
-	if (InputManager.IsKeyDown('A'))
-	{
-		InputDir.Y -= 1.0f;
-	}
-
-	if (!InputDir.IsZero())
-	{
-		InputDir.Normalize();
-
-		// 카메라(ControlRotation) 기준으로 월드 이동 방향 계산
-		FVector ControlEuler = GetControlRotation().ToEulerZYXDeg();
-		FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, ControlEuler.Z));
-		FVector WorldDir = YawOnlyRotation.RotateVector(InputDir);
-		WorldDir.Z = 0.0f; // 수평 이동만
-		WorldDir.Normalize();
-
-		// Lock-on 상태에 따라 회전 처리
-		if (!bIsLockOn)
+		if (USkeletalMeshComponent* Mesh = PlayerChar->GetMesh())
 		{
-			// 이동 방향으로 캐릭터 회전 (목표 방향까지만)
-			float TargetYaw = std::atan2(WorldDir.Y, WorldDir.X) * (180.0f / PI);
-			FQuat TargetRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, TargetYaw));
-
-			// 부드러운 회전 (보간) - 목표에 도달하면 멈춤
-			FQuat CurrentRotation = Pawn->GetActorRotation();
-			FQuat NewRotation = FQuat::Slerp(CurrentRotation, TargetRotation, FMath::Clamp(DeltaTime * 3.0f, 0.0f, 1.0f));
-			Pawn->SetActorRotation(NewRotation);
+			if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+			{
+				bIsMontaguePlaying = AnimInst->Montage_IsPlaying();
+			}
 		}
-		else
+	}
+
+	// 몽타주 재생 중이 아닐 때만 WASD 이동 처리
+	if (!bIsMontaguePlaying)
+	{
+		FVector InputDir = FVector::Zero();
+
+		if (InputManager.IsKeyDown('W'))
 		{
-			// Lock-on 상태: 고정된 방향 유지
-			FQuat LockedRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, LockedYaw));
-			Pawn->SetActorRotation(LockedRotation);
+			InputDir.X += 1.0f;
+		}
+		if (InputManager.IsKeyDown('S'))
+		{
+			InputDir.X -= 1.0f;
+		}
+		if (InputManager.IsKeyDown('D'))
+		{
+			InputDir.Y += 1.0f;
+		}
+		if (InputManager.IsKeyDown('A'))
+		{
+			InputDir.Y -= 1.0f;
 		}
 
-		// 이동 적용
-		Pawn->AddMovementInput(WorldDir * (Pawn->GetVelocity() * DeltaTime));
+		if (!InputDir.IsZero())
+		{
+			InputDir.Normalize();
+
+			// 카메라(ControlRotation) 기준으로 월드 이동 방향 계산
+			FVector ControlEuler = GetControlRotation().ToEulerZYXDeg();
+			FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, ControlEuler.Z));
+			FVector WorldDir = YawOnlyRotation.RotateVector(InputDir);
+			WorldDir.Z = 0.0f; // 수평 이동만
+			WorldDir.Normalize();
+
+			// Lock-on 상태에 따라 회전 처리
+			if (!bIsLockOn)
+			{
+				// 이동 방향으로 캐릭터 회전 (목표 방향까지만)
+				float TargetYaw = std::atan2(WorldDir.Y, WorldDir.X) * (180.0f / PI);
+				FQuat TargetRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, TargetYaw));
+
+				// 부드러운 회전 (보간) - 목표에 도달하면 멈춤
+				FQuat CurrentRotation = Pawn->GetActorRotation();
+				FQuat NewRotation = FQuat::Slerp(CurrentRotation, TargetRotation, FMath::Clamp(DeltaTime * 3.0f, 0.0f, 1.0f));
+				Pawn->SetActorRotation(NewRotation);
+			}
+			else
+			{
+				// Lock-on 상태: 고정된 방향 유지
+				FQuat LockedRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, LockedYaw));
+				Pawn->SetActorRotation(LockedRotation);
+			}
+
+			// 이동 적용
+			Pawn->AddMovementInput(WorldDir * (Pawn->GetVelocity() * DeltaTime));
+		}
 	}
 
     // 점프 처리 (F키)
