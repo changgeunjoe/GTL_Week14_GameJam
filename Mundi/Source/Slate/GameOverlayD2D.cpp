@@ -231,10 +231,10 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         }
     }
 
-    // Load boss health bar fill image
+    // Load boss health bar fill image (red)
     if (WICFactory && D2DContext)
     {
-        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_EnemyHP_Bar.PNG";
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_EnemyHP_Bar1.PNG";
 
         IWICBitmapDecoder* Decoder = nullptr;
         if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
@@ -253,6 +253,32 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
                             BossBarWidth = Size.width;
                             BossBarHeight = Size.height;
                         }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
+    // Load boss health bar delayed damage image (yellow)
+    if (WICFactory && D2DContext)
+    {
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_EnemyHP_Bar_yellow.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &BossBarYellowBitmap);
                     }
                     SafeRelease(Converter);
                 }
@@ -313,6 +339,7 @@ void UGameOverlayD2D::ReleaseD2DResources()
     SafeRelease(LogoBitmap);
     SafeRelease(BossFrameBitmap);
     SafeRelease(BossBarBitmap);
+    SafeRelease(BossBarYellowBitmap);
     SafeRelease(TextBrush);
     SafeRelease(SubtitleBrush);
     SafeRelease(DeathTextBrush);
@@ -524,20 +551,41 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
     // Get target health - default to 100% if no boss registered
     float TargetHealth = GS->HasActiveBoss() ? GS->GetBossHealth().GetPercent() : 1.0f;
 
-    // Smooth lerp animation
-    if (DisplayedBossHealth != TargetHealth)
+    // Dark Souls style health bar animation:
+    // - Red bar (CurrentBossHealth) snaps immediately to actual health
+    // - Yellow bar (DelayedBossHealth) waits, then slowly catches up
+
+    // Detect if damage was taken (health decreased)
+    if (TargetHealth < CurrentBossHealth)
     {
-        float LerpAmount = HealthLerpSpeed * DeltaTime;
-        if (DisplayedBossHealth > TargetHealth)
+        // Reset the delay timer when new damage is taken
+        DelayedHealthTimer = 0.0f;
+    }
+
+    // Red bar snaps immediately
+    CurrentBossHealth = TargetHealth;
+
+    // Yellow bar logic: wait for delay, then lerp
+    if (DelayedBossHealth > CurrentBossHealth)
+    {
+        DelayedHealthTimer += DeltaTime;
+
+        // After delay, start lerping the yellow bar down
+        if (DelayedHealthTimer >= DelayedHealthDelay)
         {
-            DisplayedBossHealth = (DisplayedBossHealth - LerpAmount < TargetHealth)
-                ? TargetHealth : DisplayedBossHealth - LerpAmount;
+            float LerpAmount = DelayedHealthLerpSpeed * DeltaTime;
+            DelayedBossHealth -= LerpAmount;
+            if (DelayedBossHealth < CurrentBossHealth)
+            {
+                DelayedBossHealth = CurrentBossHealth;
+            }
         }
-        else
-        {
-            DisplayedBossHealth = (DisplayedBossHealth + LerpAmount > TargetHealth)
-                ? TargetHealth : DisplayedBossHealth + LerpAmount;
-        }
+    }
+    else
+    {
+        // If healing or initialization, sync yellow bar immediately
+        DelayedBossHealth = CurrentBossHealth;
+        DelayedHealthTimer = 0.0f;
     }
 
     // Calculate bar position (bottom center, 50% of viewport width)
@@ -551,25 +599,29 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
     D2D1_RECT_F FrameRect = D2D1::RectF(BarX, BarY, BarX + BarW, BarY + BarH);
     D2DContext->DrawBitmap(BossFrameBitmap, FrameRect, 1.0f);
 
-    // 2. Draw fill bar on top (scaled by health percentage)
-    // Use additive blending to make it brighter
-    if (DisplayedBossHealth > 0.0f)
+    // 2. Draw yellow bar (delayed damage indicator) - behind red bar
+    if (BossBarYellowBitmap && DelayedBossHealth > 0.0f && DelayedBossHealth > CurrentBossHealth)
     {
-        float FillW = BossBarWidth * BarScale * DisplayedBossHealth;
-        D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
-        D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, BossBarWidth * DisplayedBossHealth, BossBarHeight);
+        float YellowFillW = BossBarWidth * BarScale * DelayedBossHealth;
+        D2D1_RECT_F YellowDestRect = D2D1::RectF(BarX, BarY, BarX + YellowFillW, BarY + BarH);
+        D2D1_RECT_F YellowSrcRect = D2D1::RectF(0, 0, BossBarWidth * DelayedBossHealth, BossBarHeight);
 
-        // Switch to additive blending for brighter appearance
-        D2DContext->SetPrimitiveBlend(D2D1_PRIMITIVE_BLEND_ADD);
+        D2DContext->DrawBitmap(BossBarYellowBitmap, YellowDestRect, 1.0f,
+            D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &YellowSrcRect);
+    }
+
+    // 3. Draw red bar on top (current health - snaps immediately)
+    if (CurrentBossHealth > 0.0f)
+    {
+        float FillW = BossBarWidth * BarScale * CurrentBossHealth;
+        D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
+        D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, BossBarWidth * CurrentBossHealth, BossBarHeight);
 
         D2DContext->DrawBitmap(BossBarBitmap, FillDestRect, 1.0f,
             D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &FillSrcRect);
-
-        // Restore normal blending
-        D2DContext->SetPrimitiveBlend(D2D1_PRIMITIVE_BLEND_SOURCE_OVER);
     }
 
-    // 3. Draw boss name above bar (only if boss is registered)
+    // 4. Draw boss name above bar (only if boss is registered)
     if (GS->HasActiveBoss())
     {
         FWideString BossName = UTF8ToWide(GS->GetBossName());

@@ -53,7 +53,8 @@ private:
 
     // Boss health bar images
     ID2D1Bitmap* BossFrameBitmap = nullptr;   // TX_Bar_Frame_Enemy.PNG
-    ID2D1Bitmap* BossBarBitmap = nullptr;     // TX_Gauge_EnemyHP_Bar.PNG
+    ID2D1Bitmap* BossBarBitmap = nullptr;     // TX_Gauge_EnemyHP_Bar.PNG (red)
+    ID2D1Bitmap* BossBarYellowBitmap = nullptr; // TX_Gauge_EnemyHP_Bar_yellow.png (delayed damage)
     float BossFrameWidth = 0.f;
     float BossFrameHeight = 0.f;
     float BossBarWidth = 0.f;
@@ -81,9 +82,12 @@ private:
     float DeathHoldDuration = 3.0f;     // Time to hold at full opacity
     float DeathFadeOutDuration = 1.0f;  // Time to fade out
 
-    // Boss health bar animation
-    float DisplayedBossHealth = 1.0f;   // Lerps toward actual health
-    float HealthLerpSpeed = 1.0f;       // How fast to lerp (1.0 = 1 second for full bar)
+    // Boss health bar animation (Dark Souls style)
+    float CurrentBossHealth = 1.0f;     // Red bar - snaps immediately to actual health
+    float DelayedBossHealth = 1.0f;     // Yellow bar - lerps slowly after delay
+    float DelayedHealthTimer = 0.0f;    // Timer before yellow bar starts moving
+    float DelayedHealthDelay = 0.5f;    // How long to wait before yellow bar moves (seconds)
+    float DelayedHealthLerpSpeed = 0.8f; // How fast yellow bar catches up
 
     // Custom font
     bool bFontLoaded = false;
