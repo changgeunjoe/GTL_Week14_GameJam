@@ -7,6 +7,10 @@
 #include <windows.h>
 #include <cmath>
 #include "Character.h"
+#include "CharacterMovementComponent.h"
+#include "Source/Runtime/Game/Player/PlayerCharacter.h"
+#include "SkeletalMeshComponent.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
 
 APlayerController::APlayerController()
 {
@@ -67,46 +71,68 @@ void APlayerController::SetupInput()
 
 void APlayerController::ProcessMovementInput(float DeltaTime)
 {
+	// InputManager 사용
 	UInputManager& InputManager = UInputManager::GetInstance();
-
-	FVector InputDir = FVector::Zero();
-
-	if (InputManager.IsKeyDown('W'))
+	
+	// 몽타주 재생 중이면 이동 입력 무시
+	bool bIsMontaguePlaying = false;
+	if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
 	{
-		InputDir.X += 1.0f;
-	}
-	if (InputManager.IsKeyDown('S'))
-	{
-		InputDir.X -= 1.0f;
-	}
-	if (InputManager.IsKeyDown('D'))
-	{
-		InputDir.Y += 1.0f;
-	}
-	if (InputManager.IsKeyDown('A'))
-	{
-		InputDir.Y -= 1.0f;
-	}
-
-	if (!InputDir.IsZero())
-	{
-		InputDir.Normalize();
-
-		// Calculate world movement direction based on camera
-		FVector WorldDir;
-		bool bIsLockedOn = TargetingComponent && TargetingComponent->IsLockedOn();
-
-		if (bIsLockedOn)
+		if (USkeletalMeshComponent* Mesh = PlayerChar->GetMesh())
 		{
-			// When locked on, use SpringArm rotation (actual camera facing target)
-			// This makes A/D strafe relative to the lock-on camera
-			if (UActorComponent* C = Pawn->GetComponent(USpringArmComponent::StaticClass()))
+			if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
 			{
-				if (USpringArmComponent* SpringArm = Cast<USpringArmComponent>(C))
+				bIsMontaguePlaying = AnimInst->Montage_IsPlaying();
+			}
+		}
+	}
+
+	// 몽타주 재생 중이 아닐 때만 WASD 이동 처리
+	if (!bIsMontaguePlaying)
+	{
+		FVector InputDir = FVector::Zero();
+
+		if (InputManager.IsKeyDown('W'))
+		{
+			InputDir.X += 1.0f;
+		}
+		if (InputManager.IsKeyDown('S'))
+		{
+			InputDir.X -= 1.0f;
+		}
+		if (InputManager.IsKeyDown('D'))
+		{
+			InputDir.Y += 1.0f;
+		}
+		if (InputManager.IsKeyDown('A'))
+		{
+			InputDir.Y -= 1.0f;
+		}
+
+		if (!InputDir.IsZero())
+		{
+			InputDir.Normalize();
+
+			// Calculate world movement direction based on camera
+			FVector WorldDir;
+			bool bIsLockedOn = TargetingComponent && TargetingComponent->IsLockedOn();
+
+			if (bIsLockedOn)
+			{
+				// When locked on, use SpringArm rotation (actual camera facing target)
+				// This makes A/D strafe relative to the lock-on camera
+				if (UActorComponent* C = Pawn->GetComponent(USpringArmComponent::StaticClass()))
 				{
-					FVector SpringArmEuler = SpringArm->GetWorldRotation().ToEulerZYXDeg();
-					FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, SpringArmEuler.Z));
-					WorldDir = YawOnlyRotation.RotateVector(InputDir);
+					if (USpringArmComponent* SpringArm = Cast<USpringArmComponent>(C))
+					{
+						FVector SpringArmEuler = SpringArm->GetWorldRotation().ToEulerZYXDeg();
+						FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, SpringArmEuler.Z));
+						WorldDir = YawOnlyRotation.RotateVector(InputDir);
+					}
+					else
+					{
+						WorldDir = InputDir;
+					}
 				}
 				else
 				{
@@ -115,51 +141,61 @@ void APlayerController::ProcessMovementInput(float DeltaTime)
 			}
 			else
 			{
-				WorldDir = InputDir;
+				// Normal movement: use ControlRotation
+				FVector ControlEuler = GetControlRotation().ToEulerZYXDeg();
+				FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, ControlEuler.Z));
+				WorldDir = YawOnlyRotation.RotateVector(InputDir);
 			}
-		}
-		else
-		{
-			// Normal movement: use ControlRotation
-			FVector ControlEuler = GetControlRotation().ToEulerZYXDeg();
-			FQuat YawOnlyRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, ControlEuler.Z));
-			WorldDir = YawOnlyRotation.RotateVector(InputDir);
-		}
 
-		WorldDir.Z = 0.0f; // 수평 이동만
-		WorldDir.Normalize();
+			WorldDir.Z = 0.0f; // 수평 이동만
+			WorldDir.Normalize();
 
-		// Lock-on 상태에 따라 회전 처리
-		if (bIsLockedOn)
-		{
-			// Strafing: 타겟을 바라보면서 이동
-			ProcessLockedMovement(DeltaTime, WorldDir);
+			// Lock-on 상태에 따라 회전 처리
+			if (bIsLockedOn)
+			{
+				// Strafing: 타겟을 바라보면서 이동
+				ProcessLockedMovement(DeltaTime, WorldDir);
+			}
+			else
+			{
+				// 일반 이동: 이동 방향으로 캐릭터 회전
+				float TargetYaw = std::atan2(WorldDir.Y, WorldDir.X) * (180.0f / PI);
+				FQuat TargetRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, TargetYaw));
+
+				// 부드러운 회전 (보간)
+				FQuat CurrentRotation = Pawn->GetActorRotation();
+				FQuat NewRotation = FQuat::Slerp(CurrentRotation, TargetRotation, FMath::Clamp(DeltaTime * 3.0f, 0.0f, 1.0f));
+				Pawn->SetActorRotation(NewRotation);
+			}
+
+			// 이동 적용
+			Pawn->AddMovementInput(WorldDir * (Pawn->GetVelocity() * DeltaTime));
 		}
-		else
-		{
-			// 일반 이동: 이동 방향으로 캐릭터 회전
-			float TargetYaw = std::atan2(WorldDir.Y, WorldDir.X) * (180.0f / PI);
-			FQuat TargetRotation = FQuat::MakeFromEulerZYX(FVector(0.0f, 0.0f, TargetYaw));
-
-			// 부드러운 회전 (보간)
-			FQuat CurrentRotation = Pawn->GetActorRotation();
-			FQuat NewRotation = FQuat::Slerp(CurrentRotation, TargetRotation, FMath::Clamp(DeltaTime * 3.0f, 0.0f, 1.0f));
-			Pawn->SetActorRotation(NewRotation);
-		}
-
-		// 이동 적용
-		Pawn->AddMovementInput(WorldDir * (Pawn->GetVelocity() * DeltaTime));
 	}
 
-    // 점프 처리
-    if (InputManager.IsKeyPressed(VK_SPACE)) {
+    // 점프 처리 (F키)
+    if (InputManager.IsKeyPressed('F')) {               // 눌린 순간 1회
         if (auto* Character = Cast<ACharacter>(Pawn)) {
             Character->Jump();
         }
     }
-    if (InputManager.IsKeyReleased(VK_SPACE)) {
+    if (InputManager.IsKeyReleased('F')) {              // 뗀 순간 1회 (있다면)
         if (auto* Character = Cast<ACharacter>(Pawn)) {
             Character->StopJumping();
+        }
+    }
+
+    // 회피 처리 (Space키)
+    if (InputManager.IsKeyPressed(VK_SPACE)) {
+        if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn)) {
+            PlayerChar->Dodge();
+        }
+    }
+
+    // Shift 키로 달리기 (속도 변경)
+    if (auto* Character = Cast<ACharacter>(Pawn)) {
+        if (UCharacterMovementComponent* Movement = Character->GetCharacterMovement()) {
+            Movement->SetSprinting(InputManager.IsKeyDown(VK_SHIFT));
         }
     }
 }
