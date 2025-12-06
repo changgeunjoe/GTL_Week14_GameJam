@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "AnimationAsset.h"
 #include "AnimDateModel.h" 
 #include "AnimTypes.h"
@@ -34,6 +34,7 @@ public:
     TArray<FAnimNotifyEvent>& GetAnimNotifyEvents();
     const TArray<FAnimNotifyEvent>& GetAnimNotifyEvents() const;
     void AddPlaySoundNotify(float Time, UAnimNotify* Notify, float Duration = 0.0f);
+    void AddPlayParticleNotify(float Time, UAnimNotify* Notify, float Duration = 0.0f);
 
     // Save/Load notify metadata as a sidecar JSON (e.g., .anim.json)
     bool SaveMeta(const FString& MetaPathUTF8) const;
