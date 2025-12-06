@@ -13,8 +13,9 @@
 #include "SkinningStats.h"
 #include "Source/Runtime/Engine/Animation/AnimSequence.h"
 #include "Source/Runtime/Engine/Collision/Picking.h"
-#include "Source/Runtime/Engine/Animation/AnimNotify_PlaySound.h"
-#include "Source/Runtime/Engine/Animation/AnimNotify_EnableHitbox.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_EnableHitbox.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlaySound.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayParticle.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -29,6 +30,7 @@
 #include <cstring>
 #include "RenderManager.h"
 #include "Source/Runtime/Renderer/Material.h"
+#include "Source/Runtime/Engine/Components/AnimNotifyParticleComponent.h"
 
 namespace
 {
@@ -2377,6 +2379,20 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+                    else if (ImGui::MenuItem("Particle Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            // Particle Notify 추가
+                            UAnimNotify_PlayParticle* NewNotify = NewObject<UAnimNotify_PlayParticle>();
+                            if (NewNotify)
+                            {
+                                State->CurrentAnimation->AddPlayParticleNotify(TimeSec, NewNotify, 0.0f);
+                            }
+                        }
+                    }
                     if (ImGui::MenuItem("Hitbox Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
@@ -2489,17 +2505,25 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             LineCol
                         );
                         
-                        ImGui::PushClipRect(ImVec2(ViewXStart, P.y), ImVec2(ViewXEnd, P.y + Size.y), true);
-                        // Label: use NotifyName if set, otherwise fallback based on type
                         FString Label = Notify.NotifyName.ToString();
                         if (Label.empty())
                         {
                             if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlaySound>())
+                            {
                                 Label = "PlaySound";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayParticle>())
+                            {
+                                Label = "PlayParticle";
+                            }
                             else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_EnableHitbox>())
+                            {
                                 Label = "Hitbox";
+                            }
                             else
+                            {
                                 Label = "Notify";
+                            }
                         }
                         DrawList->AddText(ImVec2(XStart + 2, P.y + 2), IM_COL32_WHITE, Label.c_str());
                         ImGui::PopClipRect();
@@ -2657,6 +2681,146 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             HB->HitboxOffset = FVector(Offset[0], Offset[1], Offset[2]);
                         }
                         ImGui::TextDisabled("X: Forward, Y: Right, Z: Up");
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayParticle>())
+                    {
+                        UAnimNotify_PlayParticle* ParticleNotify = static_cast<UAnimNotify_PlayParticle*>(Evt.Notify);
+
+                        UResourceManager& ResMgr = UResourceManager::GetInstance();
+                        TArray<FString> ParticlePaths = ResMgr.GetAllFilePaths<UParticleSystem>();
+
+                        FString CurrentPath = (ParticleNotify->ParticleSystem) ? ParticleNotify->ParticleSystem->GetFilePath() : "None";
+                        int CurrentIndex = 0; // 0 = None
+                        for (int idx = 0; idx < ParticlePaths.Num(); ++idx)
+                        {
+                            if (ParticlePaths[idx] == CurrentPath)
+                            {
+                                CurrentIndex = idx + 1;
+                                break;
+                            }
+                        }
+
+                        FString Preview = (CurrentIndex == 0) ? FString("None") : ParticlePaths[CurrentIndex - 1];
+                        if (ImGui::BeginCombo("Particle", Preview.c_str()))
+                        {
+                            bool selNone = (CurrentIndex == 0);
+                            if (ImGui::Selectable("None", selNone))
+                            {
+                                ParticleNotify->ParticleSystem = nullptr;
+                                Evt.NotifyName = FName("PlayParticle");
+                                if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
+                                {
+                                    StopParticlePreview(State);
+                                }
+                            }
+                            if (selNone) ImGui::SetItemDefaultFocus();
+
+                            for (int i = 0; i < ParticlePaths.Num(); ++i)
+                            {
+                                bool selected = (CurrentIndex == i + 1);
+                                const FString& Item = ParticlePaths[i];
+                                if (ImGui::Selectable(Item.c_str(), selected))
+                                {
+                                    UParticleSystem* NewTemplate = ResMgr.Load<UParticleSystem>(Item);
+                                    ParticleNotify->ParticleSystem = NewTemplate;
+                                    std::filesystem::path P(Item);
+                                    FString Base = P.filename().string();
+                                    Evt.NotifyName = FName((FString("PlayParticle: ") + Base).c_str());
+                                    if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
+                                    {
+                                        StopParticlePreview(State);
+                                    }
+                                }
+                                if (selected) ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+
+                        if (ImGui::Button("Load .particle..."))
+                        {
+                            std::filesystem::path Sel = FPlatformProcess::OpenLoadFileDialog(UTF8ToWide(GDataDir) + L"/Particle", L"particle", L"Particle Files");
+                            if (!Sel.empty())
+                            {
+                                FString PathUtf8 = WideToUTF8(Sel.generic_wstring());
+                                UParticleSystem* NewTemplate = UResourceManager::GetInstance().Load<UParticleSystem>(PathUtf8);
+                                if (NewTemplate)
+                                {
+                                    ParticleNotify->ParticleSystem = NewTemplate;
+                                    std::filesystem::path P2(PathUtf8);
+                                    FString Base = P2.filename().string();
+                                    Evt.NotifyName = FName((FString("PlayParticle: ") + Base).c_str());
+                                    if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
+                                    {
+                                        StopParticlePreview(State);
+                                    }
+                                }
+                            }
+                        }
+
+                        ImGui::Separator();
+
+                        bool bIsPreviewingParticle = (State->PreviewParticleComponent && State->PreviewParticleNotifyIndex == SelectedNotifyIndex);
+                        if (ImGui::Button(bIsPreviewingParticle ? "Stop Preview" : "Preview In Viewport"))
+                        {
+                            if (bIsPreviewingParticle)
+                            {
+                                StopParticlePreview(State);
+                            }
+                            else
+                            {
+                                PreviewParticleNotify(State, SelectedNotifyIndex);
+                            }
+                        }
+                        if (!ParticleNotify->ParticleSystem)
+                        {
+                            ImGui::SameLine();
+                            ImGui::TextDisabled("Select a particle asset first.");
+                        }
+
+                        ImGui::Separator();
+                        ImGui::TextUnformatted("Transform Offsets");
+                        ImGui::DragFloat3("Location Offset", &ParticleNotify->LocationOffset.X, 0.1f, -10000.0f, 10000.0f, "%.2f");
+                        ImGui::DragFloat3("Rotation Offset (deg)", &ParticleNotify->RotationOffset.X, 1.0f, -360.0f, 360.0f, "%.1f");
+                        if (ImGui::DragFloat3("Scale Offset", &ParticleNotify->ScaleOffset.X, 0.01f, 0.01f, 1000.0f, "%.2f"))
+                        {
+                            ParticleNotify->ScaleOffset.X = FMath::Max(0.01f, ParticleNotify->ScaleOffset.X);
+                            ParticleNotify->ScaleOffset.Y = FMath::Max(0.01f, ParticleNotify->ScaleOffset.Y);
+                            ParticleNotify->ScaleOffset.Z = FMath::Max(0.01f, ParticleNotify->ScaleOffset.Z);
+                        }
+
+                        float LifeTimeValue = ParticleNotify->LifeTime;
+                        if (ImGui::DragFloat("Life Time (sec)", &LifeTimeValue, 0.05f, -10.0f, 60.0f, "%.2f"))
+                        {
+                            ParticleNotify->LifeTime = LifeTimeValue;
+                        }
+                        ImGui::TextDisabled("<= 0 : Use notify duration / particle setting");
+
+                        ImGui::Checkbox("Attach To Owner", &ParticleNotify->bAttachToOwner);
+
+                        static char AttachBoneBuffer[64];
+                        static UAnimNotify_PlayParticle* LastParticleEdit = nullptr;
+                        if (LastParticleEdit != ParticleNotify)
+                        {
+                            std::memset(AttachBoneBuffer, 0, sizeof(AttachBoneBuffer));
+                            FString BoneStr = ParticleNotify->AttachBoneName.ToString();
+                            const size_t CopyLen = FMath::Min<size_t>(BoneStr.length(), sizeof(AttachBoneBuffer) - 1);
+                            if (CopyLen > 0)
+                            {
+                                std::memcpy(AttachBoneBuffer, BoneStr.c_str(), CopyLen);
+                            }
+                            AttachBoneBuffer[CopyLen] = '\0';
+                            LastParticleEdit = ParticleNotify;
+                        }
+                        if (ImGui::InputTextWithHint("Attach Bone", "Optional bone name", AttachBoneBuffer, sizeof(AttachBoneBuffer)))
+                        {
+                            ParticleNotify->AttachBoneName = (AttachBoneBuffer[0] == '\0') ? FName() : FName(AttachBoneBuffer);
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Clear Bone"))
+                        {
+                            AttachBoneBuffer[0] = '\0';
+                            ParticleNotify->AttachBoneName = FName();
+                        }
                     }
                     else
                     {
@@ -3729,4 +3893,110 @@ void SSkeletalMeshViewerWindow::DrawPhysicsConstraintGraph(ViewerState* State)
 
     ed::End();
     ed::SetCurrentEditor(nullptr);
+}
+
+void SSkeletalMeshViewerWindow::StopParticlePreview(ViewerState* State)
+{
+    if (!State || !State->PreviewParticleComponent)
+    {
+        return;
+    }
+
+    UParticleSystemComponent* PreviewComp = State->PreviewParticleComponent;
+    if (State->PreviewActor)
+    {
+        State->PreviewActor->RemoveOwnedComponent(PreviewComp);
+    }
+    else
+    {
+        PreviewComp->DestroyComponent();
+    }
+
+    State->PreviewParticleComponent = nullptr;
+    State->PreviewParticleNotifyIndex = -1;
+}
+
+void SSkeletalMeshViewerWindow::PreviewParticleNotify(ViewerState* State, int32 NotifyIndex)
+{
+    if (!State || !State->PreviewActor || !State->CurrentAnimation)
+    {
+        return;
+    }
+
+    TArray<FAnimNotifyEvent>& Events = State->CurrentAnimation->GetAnimNotifyEvents();
+    if (Events.size() <= NotifyIndex)
+    {
+        return;
+    }
+
+    FAnimNotifyEvent& Event = Events[NotifyIndex];
+    UAnimNotify_PlayParticle* ParticleNotify = (Event.Notify && Event.Notify->IsA<UAnimNotify_PlayParticle>())
+        ? static_cast<UAnimNotify_PlayParticle*>(Event.Notify)
+        : nullptr;
+
+    if (!ParticleNotify || !ParticleNotify->ParticleSystem)
+    {
+        return;
+    }
+
+    StopParticlePreview(State);
+
+    USkeletalMeshComponent* MeshComp = State->PreviewActor->GetSkeletalMeshComponent();
+    if (!MeshComp)
+    {
+        return;
+    }
+
+    FTransform BaseTransform = MeshComp->GetWorldTransform();
+    if (ParticleNotify->AttachBoneName.IsValid())
+    {
+        int32 BoneIndex = MeshComp->GetBoneIndexByName(ParticleNotify->AttachBoneName);
+        if (BoneIndex >= 0)
+        {
+            BaseTransform = MeshComp->GetBoneWorldTransform(BoneIndex);
+        }
+    }
+
+    FQuat OffsetRotation = FQuat::MakeFromEulerZYX(ParticleNotify->RotationOffset);
+    FTransform OffsetTransform(ParticleNotify->LocationOffset, OffsetRotation, ParticleNotify->ScaleOffset);
+    FTransform SpawnTransform = BaseTransform.GetWorldTransform(OffsetTransform);
+
+    USceneComponent* ParentToAttach = ParticleNotify->bAttachToOwner ? MeshComp : State->PreviewActor->GetRootComponent();
+    UAnimNotifyParticleComponent* PreviewComp = Cast<UAnimNotifyParticleComponent>(
+        State->PreviewActor->AddNewComponent(UAnimNotifyParticleComponent::StaticClass(), ParentToAttach));
+    if (!PreviewComp)
+    {
+        return;
+    }
+
+    PreviewComp->SetTemplate(ParticleNotify->ParticleSystem);
+    PreviewComp->SetWorldTransform(SpawnTransform);
+    PreviewComp->ResetAndActivate();
+
+    PreviewComp->SetForcedLifeTime(ParticleNotify->GetResolvedLifetime());
+
+    State->PreviewParticleComponent = PreviewComp;
+    State->PreviewParticleNotifyIndex = NotifyIndex;
+
+    ViewerState* CapturedState = State;
+    PreviewComp->OnParticleSystemFinished.Add([this, CapturedState](UParticleSystemComponent* FinishedComp)
+    {
+        if (!CapturedState)
+        {
+            return;
+        }
+        if (CapturedState->PreviewParticleComponent == FinishedComp)
+        {
+            if (CapturedState->PreviewActor)
+            {
+                CapturedState->PreviewActor->RemoveOwnedComponent(FinishedComp);
+            }
+            else
+            {
+                FinishedComp->DestroyComponent();
+            }
+            CapturedState->PreviewParticleComponent = nullptr;
+            CapturedState->PreviewParticleNotifyIndex = -1;
+        }
+    });
 }

@@ -80,7 +80,7 @@ public:
     void SetDebugDraw(bool bEnable) { bDrawDebug = bEnable; }
 
     /** 히트 시 호출되는 콜백 설정 */
-    using FOnHitCallback = std::function<void(AActor* /*HitActor*/, const FHitResult& /*Result*/)>;
+    using FOnHitCallback = std::function<void(AActor* /*HitActor*/, const FCombatHitResult& /*Result*/)>;
     void SetOnHitCallback(FOnHitCallback Callback) { OnHitCallback = Callback; }
 
     // ========================================================================
@@ -98,7 +98,7 @@ protected:
     /**
      * 실제 데미지 처리를 수행합니다.
      */
-    FHitResult ProcessHit(AActor* TargetActor, IDamageable* Target);
+    FCombatHitResult ProcessHit(AActor* TargetActor, IDamageable* Target);
 
 private:
     // 현재 공격 정보

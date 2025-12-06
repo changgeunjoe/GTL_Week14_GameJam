@@ -393,6 +393,34 @@ void AEnemyBase::HandleDeath()
     OnDeath();
 }
 
+// ============================================================================
+// ITargetable 구현
+// ============================================================================
+
+bool AEnemyBase::CanBeTargeted() const
+{
+    // TODO TEMP
+    return true;
+    return IsAlive() && AIState != EEnemyAIState::Dead;
+}
+
+FVector AEnemyBase::GetTargetLocation() const
+{
+    FVector Location = GetActorLocation();
+    Location.Z += TargetHeight;
+    return Location;
+}
+
+void AEnemyBase::OnTargetLocked()
+{
+    bIsCurrentlyTargeted = true;
+}
+
+void AEnemyBase::OnTargetUnlocked()
+{
+    bIsCurrentlyTargeted = false;
+}
+
 void AEnemyBase::NotifyAttackFinished()
 {
     bIsAttacking = false;

@@ -164,7 +164,7 @@ void UHitboxComponent::OnOverlapDetected(AActor* OtherActor)
     }
 
     // 히트 처리
-    FHitResult Result = ProcessHit(OtherActor, Target);
+    FCombatHitResult Result = ProcessHit(OtherActor, Target);
 
     // 히트 목록에 추가
     AddHitActor(OtherActor);
@@ -176,9 +176,9 @@ void UHitboxComponent::OnOverlapDetected(AActor* OtherActor)
     }
 }
 
-FHitResult UHitboxComponent::ProcessHit(AActor* TargetActor, IDamageable* Target)
+FCombatHitResult UHitboxComponent::ProcessHit(AActor* TargetActor, IDamageable* Target)
 {
-    FHitResult Result;
+    FCombatHitResult Result;
     Result.bWasHit = true;
 
     // 히트 위치/방향 계산

@@ -102,9 +102,9 @@ struct FDamageInfo
 };
 
 // ============================================================================
-// 히트 결과 (TakeDamage 반환값으로 사용 가능)
+// 전투 히트 결과 (TakeDamage 반환값으로 사용 가능)
 // ============================================================================
-struct FHitResult
+struct FCombatHitResult
 {
     bool bWasHit = false;           // 실제로 맞았는지
     bool bWasBlocked = false;       // 가드로 막았는지
