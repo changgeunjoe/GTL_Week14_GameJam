@@ -15,6 +15,7 @@
 #include "Source/Runtime/Engine/Collision/Picking.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlaySound.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayParticle.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayCamera.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -2390,6 +2391,20 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+
+                    else if (ImGui::MenuItem("Camera Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_PlayCamera* NewNotify = NewObject<UAnimNotify_PlayCamera>();
+                            if (NewNotify)
+                            {
+                                State->CurrentAnimation->AddPlayCameraNotify(TimeSec, NewNotify, 0.0f);
+                            }
+                        }
+                    }
                     ImGui::EndMenu();
                 }
 
@@ -2497,6 +2512,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayParticle>())
                             {
                                 Label = "PlayParticle";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayCamera>())
+                            {
+                                Label = "PlayCamera";
                             }
                             else
                             {
