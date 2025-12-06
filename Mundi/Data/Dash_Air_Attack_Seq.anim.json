@@ -1,0 +1,34 @@
+{
+  "Notifies" : [{
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.100000,
+          "Duration" : 0.210000,
+          "Type" : "Slomo"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.000000
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "AmpLoc" : 0.450000,
+          "AmpRot" : 0.600000,
+          "Duration" : 0.070000,
+          "Frequency" : 20.000000,
+          "Priority" : 0,
+          "Type" : "Shake"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.372358
+    }],
+  "Type" : "AnimSequenceMeta",
+  "Version" : 1
+}
