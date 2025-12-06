@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "SSkeletalMeshViewerWindow.h"
 #include "FViewport.h"
 #include "FViewportClient.h"
@@ -14,6 +14,7 @@
 #include "Source/Runtime/Engine/Animation/AnimSequence.h"
 #include "Source/Runtime/Engine/Collision/Picking.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_EnableHitbox.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_EnableWeaponCollision.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlaySound.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayParticle.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayCamera.h"
@@ -2424,6 +2425,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+                    else if (ImGui::MenuItem("Weapon Collision Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            // Weapon Collision Notify 추가
+                            UAnimNotify_EnableWeaponCollision* NewNotify = NewObject<UAnimNotify_EnableWeaponCollision>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("WeaponCollision");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                            }
+                        }
+                    }
                     else if (ImGui::MenuItem("Camera Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
@@ -2438,7 +2457,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    if (ImGui::MenuItem("Hitbox Notify"))
+                    else if (ImGui::MenuItem("Hitbox Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2580,13 +2599,9 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             {
                                 Label = "PlayParticle";
                             }
-                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayCamera>())
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_EnableWeaponCollision>())
                             {
-                                Label = "PlayCamera";
-                            }
-                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_EnableHitbox>())
-                            {
-                                Label = "Hitbox";
+                                Label = "WeaponCollision";
                             }
                             else
                             {
@@ -3132,6 +3147,19 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         default:
                             break;
                         }
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_EnableWeaponCollision>())
+                    {
+                        UAnimNotify_EnableWeaponCollision* WeaponNotify = static_cast<UAnimNotify_EnableWeaponCollision*>(Evt.Notify);
+
+                        ImGui::Text("Weapon Collision Notify");
+                        ImGui::Separator();
+
+                        // Enable/Disable 토글
+                        ImGui::Checkbox("Enable Collision", &WeaponNotify->bEnable);
+
+                        // 라벨 업데이트
+                        Evt.NotifyName = FName(WeaponNotify->bEnable ? "WeaponCollision: Enable" : "WeaponCollision: Disable");
                     }
                     else
                     {
