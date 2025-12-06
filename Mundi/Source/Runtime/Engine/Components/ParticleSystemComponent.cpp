@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "ParticleSystemComponent.h"
 
 #include "BoxComponent.h"
@@ -680,7 +680,8 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
     if (EmitterRenderData.IsEmpty())
         return;
 
-    // 1) 전체 spine point 개수 집계 (capacity 확보용)
+    const FMatrix ComponentWorld = GetWorldMatrix();
+
     uint32 TotalSpinePoints = 0;
     for (FDynamicEmitterDataBase* Base : EmitterRenderData)
     {
@@ -690,7 +691,8 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         const auto* Src = static_cast<const FDynamicRibbonEmitterReplayData*>(Base->GetSource());
         if (Src && Src->ActiveParticleCount >= 2)
         {
-            TotalSpinePoints += static_cast<uint32>(Src->ActiveParticleCount);
+            const uint32 Tess = FMath::Max(1, static_cast<uint32>(Src->TessellationFactor));
+            TotalSpinePoints += static_cast<uint32>(Src->ActiveParticleCount) * Tess;
         }
     }
 
@@ -710,7 +712,7 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
     D3D11_MAPPED_SUBRESOURCE VMap = {};
     if (FAILED(Context->Map(RibbonVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &VMap)))
         return;
-    
+
     FParticleSpriteVertex* Vertices = reinterpret_cast<FParticleSpriteVertex*>(VMap.pData);
 
     D3D11_MAPPED_SUBRESOURCE IMap = {};
@@ -731,11 +733,48 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         FDynamicRibbonEmitterData* RibbonData = nullptr;
         uint32 StartIndex = 0;
         uint32 IndexCount = 0;
-        int32  SortPriority = 0;
+        int32 SortPriority = 0;
     };
     TArray<FRibbonBatchCommand> RibbonCommands;
 
-    // 4) 리본 지오메트리 생성 (trail 체인 기반)
+    auto SampleCatmullPosition = [](const FVector& P0, const FVector& P1, const FVector& P2, const FVector& P3, float T)
+    {
+        const float T2 = T * T;
+        const float T3 = T2 * T;
+        return  ( (P1* 2.0f) +
+            (-P0 + P2) * T +
+            (P0* 2.0f - P1* 5.0f + P2* 4.0f - P3) * T2 +
+            (-P0 + P1 * 3.0f - P2 * 3.0f + P3) * T3) * 0.5f;
+    };
+
+    auto SampleCatmullTangent = [](const FVector& P0, const FVector& P1, const FVector& P2, const FVector& P3, float T)
+    {
+        const float T2 = T * T;
+        return ((-P0 + P2) +
+            ((P0 * 2.0f - P1* 5.0f + P2* 4.0f - P3)* 2.0f) * T +
+            ((-P0 + P1* 3.0f - P2* 3.0f + P3)* 3.0f) * T2) * 0.5f;
+    };
+
+    auto ComputeRightVector = [&](const FVector& SamplePos, const FVector& Tangent, bool bUseCameraFacing)
+    {
+        FVector RightVector;
+        if (bUseCameraFacing)
+        {
+            FVector ToCam = (ViewOrigin - SamplePos).GetSafeNormal();
+            RightVector = FVector::Cross(ToCam, Tangent).GetSafeNormal();
+        }
+        else
+        {
+            RightVector = FVector::Cross(FVector(0, 0, 1), Tangent).GetSafeNormal();
+        }
+        
+        if (RightVector.Size() < KINDA_SMALL_NUMBER)
+        {
+            RightVector = FVector::Cross(FVector(0, 1, 0), Tangent).GetSafeNormal();
+        }
+        return RightVector;
+    };
+
     for (FDynamicEmitterDataBase* Base : EmitterRenderData)
     {
         if (!Base || Base->EmitterType != EParticleType::Ribbon)
@@ -748,10 +787,44 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         const TArray<int32>& TrailHeads = Src->TrailHeads;
         const float Width = Src->Width;
         const float TilingDistance = Src->TilingDistance;
-        const bool  bUseCameraFacing = Src->bUseCameraFacing;
+        const bool bUseCameraFacing = Src->bUseCameraFacing;
+        const int32 TessFactor = FMath::Max(1, Src->TessellationFactor);
 
-        if (!Src->DataContainer.ParticleData ||
-            TrailCount <= 0)
+        auto GetWorldPosFromParticle = [&](int32 ParticleIndex) -> FVector
+        {
+            FVector LocalPos = RibbonData->GetParticlePosition(ParticleIndex);
+            return RibbonData->bUseLocalSpace ? ComponentWorld.TransformPosition(LocalPos) : LocalPos;
+        };
+
+        auto GetParticleColor = [&](int32 ParticleIndex) -> FLinearColor
+        {
+            if (const FBaseParticle* Particle = RibbonData->GetParticle(ParticleIndex))
+            {
+                return Particle->Color;
+            }
+            return FLinearColor(1.0, 1.0, 1.0, 1.0);
+        };
+
+        auto GetParticleSubImage = [&](int32 ParticleIndex) -> float
+        {
+            if (Src->SubUVModule && Src->SubUVPayloadOffset >= 0)
+            {
+                if (const FBaseParticle* Particle = RibbonData->GetParticle(ParticleIndex))
+                {
+                    const uint8* ParticleBase = reinterpret_cast<const uint8*>(Particle);
+                    return *reinterpret_cast<const float*>(ParticleBase + Src->SubUVPayloadOffset);
+                }
+            }
+            return 0.0f;
+        };
+
+        auto GetClampedWorldPos = [&](const TArray<int32>& Chain, int32 Index) -> FVector
+        {
+            const int32 ClampedIndex = FMath::Clamp(Index, 0, Chain.Num() - 1);
+            return GetWorldPosFromParticle(Chain[ClampedIndex]);
+        };
+
+        if (!Src->DataContainer.ParticleData || TrailCount <= 0)
         {
             continue;
         }
@@ -763,28 +836,22 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         for (int32 TrailIdx = 0; TrailIdx < TrailCount; ++TrailIdx)
         {
             // 4-1) 이 trail의 head부터 NextIndex 따라가며 체인 구성
-            TArray<int32> Chain;
             // TODO : TrailIdx && TrailHeads 생명주기 제대로 관리
             if (TrailIdx < 0 || TrailIdx >= static_cast<int32>(TrailHeads.size()))
             {
-                return;
+                continue;
             }
-            int32 Current = TrailHeads[TrailIdx];
 
-            // Safety guard: 무한루프 방지
+            TArray<int32> Chain;
+            int32 Current = TrailHeads[TrailIdx];
             int32 Safety = 0;
             while (Current != INDEX_NONE && Safety < Src->ActiveParticleCount)
             {
                 ++Safety;
                 Chain.Add(Current);
 
-                const uint8* BasePtr =
-                    Src->DataContainer.ParticleData +
-                    Src->ParticleStride * Current;
-
-                const FBaseParticle* ChainParticle =
-                    reinterpret_cast<const FBaseParticle*>(BasePtr);
-
+                const uint8* BasePtr = Src->DataContainer.ParticleData + Src->ParticleStride * Current;
+                const FBaseParticle* ChainParticle = reinterpret_cast<const FBaseParticle*>(BasePtr);
                 if (!ChainParticle)
                     break;
 
@@ -793,116 +860,144 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
 
             if (Chain.Num() < 2)
             {
-                continue; // 한 점짜리는 무시
+                continue;
+            }
+
+            struct FRibbonSample
+            {
+                FVector Position;
+                FVector Tangent;
+                FLinearColor Color;
+                float Age = 0.0f;
+                float SubImage = 0.0f;
+            };
+            TArray<FRibbonSample> Samples;
+            Samples.Reserve(Chain.Num() * TessFactor);
+
+            for (int32 ci = 0; ci < Chain.Num(); ++ci)
+            {
+                const int32 ParticleIndex = Chain[ci];
+                const FVector ParticleWorldPos = GetWorldPosFromParticle(ParticleIndex);
+                // Tangent: 체인 기준 이전/다음 점으로 계산
+                FVector Tangent;
+                if (ci == 0)
+                {
+                    const FVector NextPos = GetWorldPosFromParticle(Chain[ci + 1]);
+                    Tangent = (NextPos - ParticleWorldPos).GetSafeNormal();
+                }
+                else if (ci == Chain.Num() - 1)
+                {
+                    const FVector PrevPos = GetWorldPosFromParticle(Chain[ci - 1]);
+                    Tangent = (ParticleWorldPos - PrevPos).GetSafeNormal();
+                }
+                else
+                {
+                    const FVector PrevPos = GetWorldPosFromParticle(Chain[ci - 1]);
+                    const FVector NextPos = GetWorldPosFromParticle(Chain[ci + 1]);
+                    Tangent = (NextPos - PrevPos).GetSafeNormal();
+                }
+
+                FRibbonSample Sample;
+                Sample.Position = ParticleWorldPos;
+                Sample.Tangent = Tangent;
+                Sample.Color = GetParticleColor(ParticleIndex);
+                Sample.Age = RibbonData->GetParticleAge(ParticleIndex);
+                Sample.SubImage = GetParticleSubImage(ParticleIndex);
+                Samples.Add(Sample);
+
+                if (TessFactor > 1 && ci < Chain.Num() - 1)
+                {
+                    const FVector P0 = GetClampedWorldPos(Chain, ci - 1);
+                    const FVector P1 = ParticleWorldPos;
+                    const FVector P2 = GetWorldPosFromParticle(Chain[ci + 1]);
+                    const FVector P3 = GetClampedWorldPos(Chain, ci + 2);
+
+                    const FLinearColor ColorNext = GetParticleColor(Chain[ci + 1]);
+                    const float AgeNext = RibbonData->GetParticleAge(Chain[ci + 1]);
+                    const float SubNext = GetParticleSubImage(Chain[ci + 1]);
+
+                    for (int32 tess = 1; tess < TessFactor; ++tess)
+                    {
+                        const float Alpha = static_cast<float>(tess) / static_cast<float>(TessFactor);
+                        FRibbonSample SubSample;
+                        SubSample.Position = SampleCatmullPosition(P0, P1, P2, P3, Alpha);
+                        SubSample.Tangent = SampleCatmullTangent(P0, P1, P2, P3, Alpha).GetSafeNormal();
+                        SubSample.Color = FMath::Lerp(Sample.Color, ColorNext, Alpha);
+                        SubSample.Age = FMath::Lerp(Sample.Age, AgeNext, Alpha);
+                        SubSample.SubImage = FMath::Lerp(Sample.SubImage, SubNext, Alpha);
+                        Samples.Add(SubSample);
+                    }
+                }
+            }
+
+            if (Samples.Num() < 2)
+            {
+                continue;
             }
 
             const uint32 BaseVertexIndex = VertexCursor;
             const uint32 BaseIndexIndex = IndexCursor;
 
-            // 4-2) 체인 순서대로 정점 생성
             float CurrentDistance = 0.0f;
-
-            for (int32 ci = 0; ci < Chain.Num(); ++ci)
+            for (int32 sampleIdx = 0; sampleIdx < Samples.Num(); ++sampleIdx)
             {
-                const int32 ParticleIndex = Chain[ci];
-                const FBaseParticle* Particle = RibbonData->GetParticle(ParticleIndex);
-                if (!Particle)
-                    continue;
-
-                const FVector ParticleWorldPos = RibbonData->bUseLocalSpace
-                    ? GetWorldMatrix().TransformPosition(Particle->Location)
-                    : Particle->Location;
-
-                // Tangent: 체인 기준 이전/다음 점으로 계산
-                FVector Tangent;
-                if (ci == 0)
+                FRibbonSample& Sample = Samples[sampleIdx];
+                if (sampleIdx > 0)
                 {
-                    const FVector NextPos = RibbonData->GetParticlePosition(Chain[ci + 1]);
-                    Tangent = (NextPos - ParticleWorldPos).GetSafeNormal();
-                }
-                else if (ci == Chain.Num() - 1)
-                {
-                    const FVector PrevPos = RibbonData->GetParticlePosition(Chain[ci - 1]);
-                    Tangent = (ParticleWorldPos - PrevPos).GetSafeNormal();
-                }
-                else
-                {
-                    const FVector PrevPos = RibbonData->GetParticlePosition(Chain[ci - 1]);
-                    const FVector NextPos = RibbonData->GetParticlePosition(Chain[ci + 1]);
-                    Tangent = (NextPos - PrevPos).GetSafeNormal();
+                    CurrentDistance += FVector::Distance(Sample.Position, Samples[sampleIdx - 1].Position);
                 }
 
-                // Right vector: 카메라 기반 또는 월드 업 기반
-                FVector RightVector;
-                if (bUseCameraFacing)
+                FVector Tangent = Sample.Tangent;
+                if (Tangent.Size() < KINDA_SMALL_NUMBER && sampleIdx + 1 < Samples.Num())
                 {
-                    FVector ToCam = (ViewOrigin - ParticleWorldPos).GetSafeNormal();
-                    RightVector = FVector::Cross(ToCam, Tangent).GetSafeNormal();
+                    Tangent = (Samples[sampleIdx + 1].Position - Sample.Position).GetSafeNormal();
                 }
-                else
+                if (Tangent.Size() < KINDA_SMALL_NUMBER)
                 {
-                    RightVector = FVector::Cross(FVector(0, 0, 1), Tangent).GetSafeNormal();
+                    Tangent = FVector(1, 0, 0);
                 }
+                const FVector RightVector = ComputeRightVector(Sample.Position, Tangent, bUseCameraFacing);
 
-                const float Age = FMath::Clamp(RibbonData->GetParticleAge(ParticleIndex), 0.0f, 1.0f);
-                const float FadeFactor = 1.0f - Age;
+                const float FadeFactor = 1.0f - FMath::Clamp(Sample.Age, 0.0f, 1.0f);
                 const float WidthScale = FMath::Max(0.01f, Width * FadeFactor);
+                FLinearColor FinalColor = Sample.Color;
+                FinalColor.A *= FadeFactor;
 
-                FLinearColor Color = Particle->Color;
-                Color.A *= FadeFactor;
-
-                // 거리 누적 (segment 길이)
-                if (ci > 0)
-                {
-                    const FVector PrevPos = RibbonData->GetParticlePosition(Chain[ci - 1]);
-                    CurrentDistance += FVector::Distance(ParticleWorldPos, PrevPos);
-                }
-
-                float V_Coord;
+                float VCoord = 0.0f;
                 if (TilingDistance > 0.0f)
                 {
-                    V_Coord = CurrentDistance / TilingDistance;
+                    VCoord = CurrentDistance / TilingDistance;
                 }
                 else
                 {
-                    V_Coord = static_cast<float>(ci) /
-                        static_cast<float>(Chain.Num() - 1);
-                }
-
-                // SubImageIndex (있으면)
-                float SubImageIndex = 0.0f;
-                if (Src->SubUVModule && Src->SubUVPayloadOffset >= 0)
-                {
-                    const uint8* ParticleBase = reinterpret_cast<const uint8*>(Particle);
-                    SubImageIndex = *reinterpret_cast<const float*>(ParticleBase + Src->SubUVPayloadOffset);
+                    VCoord = static_cast<float>(sampleIdx) / static_cast<float>(Samples.Num() - 1);
                 }
 
                 // Top vertex (U = 0)
                 FParticleSpriteVertex& V0 = Vertices[VertexCursor++];
-                V0.Position = ParticleWorldPos + (RightVector * WidthScale * 0.5f);
-                V0.Corner = FVector2D(0.0f, V_Coord);
-                V0.Color = Color;
+                V0.Position = Sample.Position + (RightVector * WidthScale * 0.5f);
+                V0.Corner = FVector2D(0.0f, VCoord);
+                V0.Color = FinalColor;
                 V0.Size = FVector2D(WidthScale, 0.0f);
                 V0.Rotation = 0.0f;
-                V0.SubImageIndex = SubImageIndex;
+                V0.SubImageIndex = Sample.SubImage;
 
                 // Bottom vertex (U = 1)
                 FParticleSpriteVertex& V1 = Vertices[VertexCursor++];
-                V1.Position = ParticleWorldPos - (RightVector * WidthScale * 0.5f);
-                V1.Corner = FVector2D(1.0f, V_Coord);
-                V1.Color = Color;
+                V1.Position = Sample.Position - (RightVector * WidthScale * 0.5f);
+                V1.Corner = FVector2D(1.0f, VCoord);
+                V1.Color = FinalColor;
                 V1.Size = FVector2D(WidthScale, 0.0f);
                 V1.Rotation = 0.0f;
-                V1.SubImageIndex = SubImageIndex;
+                V1.SubImageIndex = Sample.SubImage;
             }
 
-            // 4-3) 체인 기반 인덱스 생성
-            for (int32 ci = 0; ci < Chain.Num() - 1; ++ci)
+            for (int32 sampleIdx = 0; sampleIdx < Samples.Num() - 1; ++sampleIdx)
             {
-                const uint32 V_TopLeft     = BaseVertexIndex + (ci * 2);
-                const uint32 V_BottomLeft  = BaseVertexIndex + (ci * 2) + 1;
-                const uint32 V_TopRight    = BaseVertexIndex + ((ci + 1) * 2);
-                const uint32 V_BottomRight = BaseVertexIndex + ((ci + 1) * 2) + 1;
+                const uint32 V_TopLeft = BaseVertexIndex + (sampleIdx * 2);
+                const uint32 V_BottomLeft = BaseVertexIndex + (sampleIdx * 2) + 1;
+                const uint32 V_TopRight = BaseVertexIndex + ((sampleIdx + 1) * 2);
+                const uint32 V_BottomRight = BaseVertexIndex + ((sampleIdx + 1) * 2) + 1;
 
                 // 삼각형 1: TL - BL - TR  (CCW)
                 IndicesPtr[IndexCursor++] = V_TopLeft;
@@ -915,20 +1010,14 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
                 IndicesPtr[IndexCursor++] = V_TopRight;
             }
 
-            // trail 하나가 만든 index 수는 (Chain.Num() - 1) * 6
-            const uint32 TrailIndexCount = (Chain.Num() - 1) * 6;
-
             FRibbonBatchCommand Cmd;
             Cmd.RibbonData = RibbonData;
             Cmd.StartIndex = BaseIndexIndex;
-            Cmd.IndexCount = TrailIndexCount;
-            Cmd.SortPriority = 0;
+            Cmd.IndexCount = (Samples.Num() - 1) * 6;
+            Cmd.SortPriority = RibbonData->SortPriority;
             RibbonCommands.Add(Cmd);
         }
 
-        // emitter 단위로 묶고 싶으면 위에서 trail별이 아니라
-        // EmitterBaseIndexStart / (IndexCursor - EmitterBaseIndexStart) 기반으로
-        // 한 번만 Cmd를 추가해도 된다.
         (void)EmitterBaseIndexStart;
     }
 
@@ -953,14 +1042,16 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
     FShaderVariant* ShaderVariant = RibbonMaterial->GetShader()->GetOrCompileShaderVariant(ShaderMacros);
     if (!ShaderVariant)
         return;
-
+        
     // 6) Batch 생성 (trail 단위로 draw call)
     for (const FRibbonBatchCommand& Cmd : RibbonCommands)
     {
         if (!Cmd.RibbonData || Cmd.IndexCount == 0)
+        {
             continue;
+        }
 
-        FMeshBatchElement& Batch = OutMeshBatchElements[OutMeshBatchElements.Add(FMeshBatchElement())];
+        FMeshBatchElement Batch = {};
 
         Batch.VertexShader = ShaderVariant->VertexShader;
         Batch.PixelShader = ShaderVariant->PixelShader;
@@ -974,12 +1065,13 @@ void UParticleSystemComponent::BuildRibbonParticleBatch(TArray<FDynamicEmitterDa
         Batch.StartIndex = Cmd.StartIndex;
         Batch.BaseVertexIndex = 0;
         Batch.PrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-        Batch.WorldMatrix = FMatrix::Identity(); // 리본은 월드 위치로 작성
+        Batch.WorldMatrix = ComponentWorld;
         Batch.ObjectID = InternalIndex;
         Batch.SortPriority = Cmd.SortPriority;
         Batch.ParticleBlendMode = Cmd.RibbonData ? Cmd.RibbonData->BlendMode : EMaterialBlendMode::Translucent;
         Batch.bIsDepthWrite = (Batch.ParticleBlendMode == EMaterialBlendMode::Opaque);
+
+        OutMeshBatchElements.Add(Batch);
     }
 }
 

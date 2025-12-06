@@ -1002,7 +1002,7 @@ void FSceneRenderer::RenderParticlePass()
 		return;
 
 	RHIDevice->OMSetRenderTargets(ERTVMode::SceneColorTargetWithId); // Scene+Depth
-	RHIDevice->RSSetState(ERasterizerMode::Solid);
+	RHIDevice->RSSetState(ERasterizerMode::Solid_NoCull);
 
 	// ParticleMesh 라이팅을 위한 상수버퍼 바인딩
 	FLightManager* LightManager = World->GetLightManager();

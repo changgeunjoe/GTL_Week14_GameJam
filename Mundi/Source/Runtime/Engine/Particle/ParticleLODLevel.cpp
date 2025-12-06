@@ -649,6 +649,7 @@ void UParticleLODLevel::ParseAndAddModule(JSON& ModuleJson)
             FJsonSerializer::ReadFloat(ModuleJson, "TilingDistance", Ribbon->TilingDistance);
             FJsonSerializer::ReadFloat(ModuleJson, "TrailLifetime", Ribbon->TrailLifetime);
             FJsonSerializer::ReadBool(ModuleJson, "bUseCameraFacing", Ribbon->bUseCameraFacing);
+            FJsonSerializer::ReadInt32(ModuleJson, "TessellationFactor", Ribbon->TessellationFactor);
         }
         NewModule = Ribbon;
     }
@@ -863,6 +864,7 @@ JSON UParticleLODLevel::SerializeModule(UParticleModule* Module)
         ModuleJson["TilingDistance"] = Ribbon->TilingDistance;
         ModuleJson["TrailLifetime"] = Ribbon->TrailLifetime;
         ModuleJson["bUseCameraFacing"] = Ribbon->bUseCameraFacing;
+        ModuleJson["TessellationFactor"] = Ribbon->TessellationFactor;
     }
     else if (auto* SubUV = Cast<UParticleModuleSubUV>(Module))
     {
