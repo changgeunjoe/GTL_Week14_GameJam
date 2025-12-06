@@ -8,7 +8,9 @@ enum class ECameraNotifyEffect : uint8
     LetterBox,
     Vignette,
     Gamma,
-    DOF
+    DOF,
+    HitStop,
+    Slomo
 };
 
 struct FCameraShakeSettings
@@ -65,6 +67,18 @@ struct FCameraDOFSettings
     int32 Priority = 0;
 };
 
+struct FCameraHitStopSettings
+{
+    float Duration = 0.1f;
+    float Dilation = 0.01f;
+};
+
+struct FCameraSlomoSettings
+{
+    float Duration = 0.5f;
+    float Dilation = 0.25f;
+};
+
 class UAnimNotify_PlayCamera : public UAnimNotify
 {
 public:
@@ -79,4 +93,6 @@ public:
     FCameraVignetteSettings VignetteSettings;
     FCameraGammaSettings GammaSettings;
     FCameraDOFSettings DOFSettings;
+    FCameraHitStopSettings HitStopSettings;
+    FCameraSlomoSettings SlomoSettings;
 };

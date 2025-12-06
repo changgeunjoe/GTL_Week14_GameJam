@@ -32,6 +32,7 @@
 #include "RenderManager.h"
 #include "Source/Runtime/Renderer/Material.h"
 #include "Source/Runtime/Engine/Components/AnimNotifyParticleComponent.h"
+#include "Source/Runtime/Engine/Components/BillboardComponent.h"
 
 namespace
 {
@@ -210,8 +211,31 @@ void SSkeletalMeshViewerWindow::SaveAllNotifiesOnClose()
         {
             const FString OutPath = MakeDefaultMetaPath(State->CurrentAnimation);
             State->CurrentAnimation->SaveMeta(OutPath);
+            State->bPendingNotifySave = false;
         }
     }
+}
+
+void SSkeletalMeshViewerWindow::MarkNotifiesDirty(ViewerState* State)
+{
+    if (!State)
+    {
+        return;
+    }
+
+    State->bPendingNotifySave = true;
+}
+
+void SSkeletalMeshViewerWindow::FlushPendingNotifySaves(ViewerState* State)
+{
+    if (!State || !State->bPendingNotifySave || !State->CurrentAnimation)
+    {
+        return;
+    }
+
+    const FString OutPath = MakeDefaultMetaPath(State->CurrentAnimation);
+    State->CurrentAnimation->SaveMeta(OutPath);
+    State->bPendingNotifySave = false;
 }
 
 bool SSkeletalMeshViewerWindow::Initialize(float StartX, float StartY, float Width, float Height, UWorld* InWorld, ID3D11Device* InDevice)
@@ -2202,6 +2226,7 @@ void SSkeletalMeshViewerWindow::ExpandToSelectedBone(ViewerState* State, int32 B
 void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
 {
     bool bHasAnimation = !!(State->CurrentAnimation);
+    UpdateParticleDebugMarker(State);
     
     UAnimDataModel* DataModel = nullptr;
     if (bHasAnimation)
@@ -2377,6 +2402,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                 // 기본 SoundNotify는 sound 없음
                                 NewNotify->Sound = nullptr;
                                 State->CurrentAnimation->AddPlaySoundNotify(TimeSec, NewNotify, 0.0f);
+                                MarkNotifiesDirty(State);
                             }
                         }
                     }
@@ -2391,6 +2417,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             if (NewNotify)
                             {
                                 State->CurrentAnimation->AddPlayParticleNotify(TimeSec, NewNotify, 0.0f);
+                                MarkNotifiesDirty(State);
+                                TArray<FAnimNotifyEvent>& Events = State->CurrentAnimation->GetAnimNotifyEvents();
+                                SelectedNotifyIndex = Events.Num() - 1;
+                                ShowParticleDebugMarker(State, SelectedNotifyIndex);
                             }
                         }
                     }
@@ -2404,6 +2434,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             if (NewNotify)
                             {
                                 State->CurrentAnimation->AddPlayCameraNotify(TimeSec, NewNotify, 0.0f);
+                                MarkNotifiesDirty(State);
                             }
                         }
                     }
@@ -2419,6 +2450,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             {
                                 // 기본값 설정됨 (Damage=10, Duration=0.2s)
                                 State->CurrentAnimation->AddPlaySoundNotify(TimeSec, NewNotify, 0.0f);
+                                MarkNotifiesDirty(State);
                             }
                         }
                     }
@@ -2471,6 +2503,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         if (DeleteIndex >= 0)
                         {
                             Events.RemoveAt(DeleteIndex);
+                            MarkNotifiesDirty(State);
+                            if (State->ParticleDebugNotifyIndex == DeleteIndex)
+                            {
+                                HideParticleDebugMarker(State);
+                            }
+                            else if (State->ParticleDebugNotifyIndex > DeleteIndex)
+                            {
+                                State->ParticleDebugNotifyIndex -= 1;
+                            }
+
+                            if (SelectedNotifyIndex == DeleteIndex)
+                            {
+                                SelectedNotifyIndex = -1;
+                            }
+                            else if (SelectedNotifyIndex > DeleteIndex)
+                            {
+                                SelectedNotifyIndex -= 1;
+                            }
                         }
                     }
                 }
@@ -2559,6 +2609,14 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             DraggingStartMouseX = ImGui::GetIO().MousePos.x;
                             DraggingOrigTriggerTime = Notify.TriggerTime;
                             SelectedNotifyIndex = i;
+                            if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayParticle>())
+                            {
+                                ShowParticleDebugMarker(State, i);
+                            }
+                            else
+                            {
+                                HideParticleDebugMarker(State);
+                            }
                         }
                     }
                 }
@@ -2576,6 +2634,14 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                     }
                     if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
                     {
+                        if (DraggingNotifyIndex >= 0 && DraggingNotifyIndex < Events.Num())
+                        {
+                            float UpdatedTime = Events[DraggingNotifyIndex].TriggerTime;
+                            if (!FMath::IsNearlyEqual(UpdatedTime, DraggingOrigTriggerTime))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                        }
                         bDraggingNotify = false;
                         DraggingNotifyIndex = -1;
                     }
@@ -2600,6 +2666,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
 
                     if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlaySound>())
                     {
+                        HideParticleDebugMarker(State);
                         UAnimNotify_PlaySound* PS = static_cast<UAnimNotify_PlaySound*>(Evt.Notify);
 
                         // Simple selection combo from ResourceManager
@@ -2623,6 +2690,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             {
                                 PS->Sound = nullptr;
                                 Evt.NotifyName = FName("PlaySound");
+                                MarkNotifiesDirty(State);
                             }
                             if (selNone) ImGui::SetItemDefaultFocus();
 
@@ -2638,6 +2706,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                     std::filesystem::path p(Item);
                                     FString Base = p.filename().string();
                                     Evt.NotifyName = FName((FString("PlaySound: ") + Base).c_str());
+                                    MarkNotifiesDirty(State);
                                 }
                                 if (selected) ImGui::SetItemDefaultFocus();
                             }
@@ -2658,19 +2727,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                     std::filesystem::path p2(PathUtf8);
                                     FString Base = p2.filename().string();
                                     Evt.NotifyName = FName((FString("PlaySound: ") + Base).c_str());
+                                    MarkNotifiesDirty(State);
                                 }
                             }
                         }
                     }
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_EnableHitbox>())
                     {
+                        HideParticleDebugMarker(State);
                         UAnimNotify_EnableHitbox* HB = static_cast<UAnimNotify_EnableHitbox*>(Evt.Notify);
 
                         ImGui::Text("Hitbox Notify");
                         ImGui::Separator();
 
                         // Damage
-                        ImGui::DragFloat("Damage", &HB->Damage, 1.0f, 0.0f, 1000.0f);
+                        if (ImGui::DragFloat("Damage", &HB->Damage, 1.0f, 0.0f, 1000.0f))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
 
                         // Damage Type
                         const char* DamageTypes[] = { "Light", "Heavy", "Special" };
@@ -2680,16 +2754,21 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         if (ImGui::Combo("Damage Type", &CurrentType, DamageTypes, 3))
                         {
                             HB->DamageType = DamageTypes[CurrentType];
+                            MarkNotifiesDirty(State);
                         }
 
                         // Duration
-                        ImGui::DragFloat("Duration (s)", &HB->Duration, 0.01f, 0.01f, 2.0f);
+                        if (ImGui::DragFloat("Duration (s)", &HB->Duration, 0.01f, 0.01f, 2.0f))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
 
                         // Hitbox Extent
                         float Extent[3] = { HB->HitboxExtent.X, HB->HitboxExtent.Y, HB->HitboxExtent.Z };
                         if (ImGui::DragFloat3("Extent (m)", Extent, 0.1f, 0.1f, 10.0f))
                         {
                             HB->HitboxExtent = FVector(Extent[0], Extent[1], Extent[2]);
+                            MarkNotifiesDirty(State);
                         }
 
                         // Hitbox Offset
@@ -2697,6 +2776,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         if (ImGui::DragFloat3("Offset (m)", Offset, 0.1f, -10.0f, 10.0f))
                         {
                             HB->HitboxOffset = FVector(Offset[0], Offset[1], Offset[2]);
+                            MarkNotifiesDirty(State);
                         }
                         ImGui::TextDisabled("X: Forward, Y: Right, Z: Up");
                     }
@@ -2726,6 +2806,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             {
                                 ParticleNotify->ParticleSystem = nullptr;
                                 Evt.NotifyName = FName("PlayParticle");
+                                MarkNotifiesDirty(State);
                                 if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
                                 {
                                     StopParticlePreview(State);
@@ -2744,6 +2825,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                     std::filesystem::path P(Item);
                                     FString Base = P.filename().string();
                                     Evt.NotifyName = FName((FString("PlayParticle: ") + Base).c_str());
+                                    MarkNotifiesDirty(State);
                                     if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
                                     {
                                         StopParticlePreview(State);
@@ -2767,6 +2849,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                     std::filesystem::path P2(PathUtf8);
                                     FString Base = P2.filename().string();
                                     Evt.NotifyName = FName((FString("PlayParticle: ") + Base).c_str());
+                                    MarkNotifiesDirty(State);
                                     if (State->PreviewParticleNotifyIndex == SelectedNotifyIndex)
                                     {
                                         StopParticlePreview(State);
@@ -2797,23 +2880,34 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
 
                         ImGui::Separator();
                         ImGui::TextUnformatted("Transform Offsets");
-                        ImGui::DragFloat3("Location Offset", &ParticleNotify->LocationOffset.X, 0.1f, -10000.0f, 10000.0f, "%.2f");
-                        ImGui::DragFloat3("Rotation Offset (deg)", &ParticleNotify->RotationOffset.X, 1.0f, -360.0f, 360.0f, "%.1f");
+                        if (ImGui::DragFloat3("Location Offset", &ParticleNotify->LocationOffset.X, 0.1f, -10000.0f, 10000.0f, "%.2f"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        if (ImGui::DragFloat3("Rotation Offset (deg)", &ParticleNotify->RotationOffset.X, 1.0f, -360.0f, 360.0f, "%.1f"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
                         if (ImGui::DragFloat3("Scale Offset", &ParticleNotify->ScaleOffset.X, 0.01f, 0.01f, 1000.0f, "%.2f"))
                         {
                             ParticleNotify->ScaleOffset.X = FMath::Max(0.01f, ParticleNotify->ScaleOffset.X);
                             ParticleNotify->ScaleOffset.Y = FMath::Max(0.01f, ParticleNotify->ScaleOffset.Y);
                             ParticleNotify->ScaleOffset.Z = FMath::Max(0.01f, ParticleNotify->ScaleOffset.Z);
+                            MarkNotifiesDirty(State);
                         }
 
                         float LifeTimeValue = ParticleNotify->LifeTime;
                         if (ImGui::DragFloat("Life Time (sec)", &LifeTimeValue, 0.05f, -10.0f, 60.0f, "%.2f"))
                         {
                             ParticleNotify->LifeTime = LifeTimeValue;
+                            MarkNotifiesDirty(State);
                         }
                         ImGui::TextDisabled("<= 0 : Use notify duration / particle setting");
 
-                        ImGui::Checkbox("Attach To Owner", &ParticleNotify->bAttachToOwner);
+                        if (ImGui::Checkbox("Attach To Owner", &ParticleNotify->bAttachToOwner))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
 
                         static char AttachBoneBuffer[64];
                         static UAnimNotify_PlayParticle* LastParticleEdit = nullptr;
@@ -2832,23 +2926,30 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         if (ImGui::InputTextWithHint("Attach Bone", "Optional bone name", AttachBoneBuffer, sizeof(AttachBoneBuffer)))
                         {
                             ParticleNotify->AttachBoneName = (AttachBoneBuffer[0] == '\0') ? FName() : FName(AttachBoneBuffer);
+                            MarkNotifiesDirty(State);
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Clear Bone"))
                         {
                             AttachBoneBuffer[0] = '\0';
                             ParticleNotify->AttachBoneName = FName();
+                            MarkNotifiesDirty(State);
                         }
+
+                        ShowParticleDebugMarker(State, SelectedNotifyIndex);
                     }
+
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayCamera>())
                     {
+                        HideParticleDebugMarker(State);
                         UAnimNotify_PlayCamera* CameraNotify = static_cast<UAnimNotify_PlayCamera*>(Evt.Notify);
 
-                        static const char* CameraEffectNames[] = { "Shake", "Fade", "LetterBox", "Vignette", "Gamma", "DOF" };
+                        static const char* CameraEffectNames[] = { "Shake", "Fade", "LetterBox", "Vignette", "Gamma", "DOF", "HitStop", "Slomo" };
                         int EffectIndex = static_cast<int>(CameraNotify->EffectType);
                         if (ImGui::Combo("Camera Effect", &EffectIndex, CameraEffectNames, IM_ARRAYSIZE(CameraEffectNames)))
                         {
                             CameraNotify->EffectType = static_cast<ECameraNotifyEffect>(EffectIndex);
+                            MarkNotifiesDirty(State);
                         }
 
                         ImGui::Separator();
@@ -2856,69 +2957,177 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                         case ECameraNotifyEffect::Shake:
                             ImGui::TextUnformatted("Shake Settings");
-                            ImGui::DragFloat("Duration##Shake", &CameraNotify->ShakeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f");
-                            ImGui::DragFloat("Amplitude Loc", &CameraNotify->ShakeSettings.AmplitudeLocation, 0.01f, 0.0f, 10.0f, "%.2f");
-                            ImGui::DragFloat("Amplitude Rot (deg)", &CameraNotify->ShakeSettings.AmplitudeRotationDeg, 0.01f, 0.0f, 45.0f, "%.2f");
-                            ImGui::DragFloat("Frequency", &CameraNotify->ShakeSettings.Frequency, 0.5f, 0.0f, 200.0f, "%.1f");
-                            ImGui::InputInt("Priority##Shake", &CameraNotify->ShakeSettings.Priority);
+                            if (ImGui::DragFloat("Duration##Shake", &CameraNotify->ShakeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Amplitude Loc", &CameraNotify->ShakeSettings.AmplitudeLocation, 0.01f, 0.0f, 10.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Amplitude Rot (deg)", &CameraNotify->ShakeSettings.AmplitudeRotationDeg, 0.01f, 0.0f, 45.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Frequency", &CameraNotify->ShakeSettings.Frequency, 0.5f, 0.0f, 200.0f, "%.1f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::InputInt("Priority##Shake", &CameraNotify->ShakeSettings.Priority))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             break;
                         case ECameraNotifyEffect::Fade:
                         {
                             ImGui::TextUnformatted("Fade Settings");
-                            ImGui::DragFloat("Duration##Fade", &CameraNotify->FadeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f");
-                            ImGui::DragFloat("From Alpha", &CameraNotify->FadeSettings.FromAlpha, 0.01f, 0.0f, 1.0f, "%.2f");
-                            ImGui::DragFloat("To Alpha", &CameraNotify->FadeSettings.ToAlpha, 0.01f, 0.0f, 1.0f, "%.2f");
+                            if (ImGui::DragFloat("Duration##Fade", &CameraNotify->FadeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("From Alpha", &CameraNotify->FadeSettings.FromAlpha, 0.01f, 0.0f, 1.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("To Alpha", &CameraNotify->FadeSettings.ToAlpha, 0.01f, 0.0f, 1.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             float FadeColor[4] = { CameraNotify->FadeSettings.Color.R, CameraNotify->FadeSettings.Color.G, CameraNotify->FadeSettings.Color.B, CameraNotify->FadeSettings.Color.A };
                             if (ImGui::ColorEdit4("Fade Color", FadeColor))
                             {
                                 CameraNotify->FadeSettings.Color = FLinearColor(FadeColor[0], FadeColor[1], FadeColor[2], FadeColor[3]);
+                                MarkNotifiesDirty(State);
                             }
-                            ImGui::InputInt("Priority##Fade", &CameraNotify->FadeSettings.Priority);
+                            if (ImGui::InputInt("Priority##Fade", &CameraNotify->FadeSettings.Priority))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             break;
                         }
                         case ECameraNotifyEffect::LetterBox:
                         {
                             ImGui::TextUnformatted("LetterBox Settings");
-                            ImGui::DragFloat("Duration##Letter", &CameraNotify->LetterBoxSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f");
-                            ImGui::DragFloat("Aspect Ratio", &CameraNotify->LetterBoxSettings.Aspect, 0.01f, 0.5f, 4.0f, "%.2f");
-                            ImGui::DragFloat("Bar Height", &CameraNotify->LetterBoxSettings.BarHeight, 0.01f, 0.0f, 1.0f, "%.2f");
+                            if (ImGui::DragFloat("Duration##Letter", &CameraNotify->LetterBoxSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Aspect Ratio", &CameraNotify->LetterBoxSettings.Aspect, 0.01f, 0.5f, 4.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Bar Height", &CameraNotify->LetterBoxSettings.BarHeight, 0.01f, 0.0f, 1.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             float BoxColor[4] = { CameraNotify->LetterBoxSettings.Color.R, CameraNotify->LetterBoxSettings.Color.G, CameraNotify->LetterBoxSettings.Color.B, CameraNotify->LetterBoxSettings.Color.A };
                             if (ImGui::ColorEdit4("Bar Color", BoxColor))
                             {
                                 CameraNotify->LetterBoxSettings.Color = FLinearColor(BoxColor[0], BoxColor[1], BoxColor[2], BoxColor[3]);
+                                MarkNotifiesDirty(State);
                             }
-                            ImGui::InputInt("Priority##Letter", &CameraNotify->LetterBoxSettings.Priority);
+                            if (ImGui::InputInt("Priority##Letter", &CameraNotify->LetterBoxSettings.Priority))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             break;
                         }
                         case ECameraNotifyEffect::Vignette:
                         {
                             ImGui::TextUnformatted("Vignette Settings");
-                            ImGui::DragFloat("Duration##Vignette", &CameraNotify->VignetteSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f");
-                            ImGui::DragFloat("Radius", &CameraNotify->VignetteSettings.Radius, 0.01f, 0.0f, 5.0f, "%.2f");
-                            ImGui::DragFloat("Softness", &CameraNotify->VignetteSettings.Softness, 0.01f, 0.0f, 5.0f, "%.2f");
-                            ImGui::DragFloat("Intensity", &CameraNotify->VignetteSettings.Intensity, 0.01f, 0.0f, 5.0f, "%.2f");
-                            ImGui::DragFloat("Roundness", &CameraNotify->VignetteSettings.Roundness, 0.01f, 0.0f, 5.0f, "%.2f");
+                            if (ImGui::DragFloat("Duration##Vignette", &CameraNotify->VignetteSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Radius", &CameraNotify->VignetteSettings.Radius, 0.01f, 0.0f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Softness", &CameraNotify->VignetteSettings.Softness, 0.01f, 0.0f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Intensity", &CameraNotify->VignetteSettings.Intensity, 0.01f, 0.0f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Roundness", &CameraNotify->VignetteSettings.Roundness, 0.01f, 0.0f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             float VignetteColor[4] = { CameraNotify->VignetteSettings.Color.R, CameraNotify->VignetteSettings.Color.G, CameraNotify->VignetteSettings.Color.B, CameraNotify->VignetteSettings.Color.A };
                             if (ImGui::ColorEdit4("Vignette Color", VignetteColor))
                             {
                                 CameraNotify->VignetteSettings.Color = FLinearColor(VignetteColor[0], VignetteColor[1], VignetteColor[2], VignetteColor[3]);
+                                MarkNotifiesDirty(State);
                             }
-                            ImGui::InputInt("Priority##Vignette", &CameraNotify->VignetteSettings.Priority);
+                            if (ImGui::InputInt("Priority##Vignette", &CameraNotify->VignetteSettings.Priority))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             break;
                         }
                         case ECameraNotifyEffect::Gamma:
                             ImGui::TextUnformatted("Gamma Settings");
-                            ImGui::DragFloat("Gamma", &CameraNotify->GammaSettings.Gamma, 0.01f, 0.1f, 5.0f, "%.2f");
+                            if (ImGui::DragFloat("Gamma", &CameraNotify->GammaSettings.Gamma, 0.01f, 0.1f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
                             break;
                         case ECameraNotifyEffect::DOF:
                             ImGui::TextUnformatted("Depth of Field Settings");
-                            ImGui::DragFloat("Focal Distance", &CameraNotify->DOFSettings.FocalDistance, 0.01f, 0.0f, 100.0f, "%.2f");
-                            ImGui::DragFloat("Focal Region", &CameraNotify->DOFSettings.FocalRegion, 0.01f, 0.0f, 50.0f, "%.2f");
-                            ImGui::DragFloat("Near Transition", &CameraNotify->DOFSettings.NearTransition, 0.01f, 0.0f, 50.0f, "%.2f");
-                            ImGui::DragFloat("Far Transition", &CameraNotify->DOFSettings.FarTransition, 0.01f, 0.0f, 50.0f, "%.2f");
-                            ImGui::DragFloat("Max Near Blur", &CameraNotify->DOFSettings.MaxNearBlur, 0.1f, 0.0f, 256.0f, "%.1f");
-                            ImGui::DragFloat("Max Far Blur", &CameraNotify->DOFSettings.MaxFarBlur, 0.1f, 0.0f, 256.0f, "%.1f");
-                            ImGui::InputInt("Priority##DOF", &CameraNotify->DOFSettings.Priority);
+                            if (ImGui::DragFloat("Focal Distance", &CameraNotify->DOFSettings.FocalDistance, 0.01f, 0.0f, 100.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Focal Region", &CameraNotify->DOFSettings.FocalRegion, 0.01f, 0.0f, 50.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Near Transition", &CameraNotify->DOFSettings.NearTransition, 0.01f, 0.0f, 50.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Far Transition", &CameraNotify->DOFSettings.FarTransition, 0.01f, 0.0f, 50.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Max Near Blur", &CameraNotify->DOFSettings.MaxNearBlur, 0.1f, 0.0f, 256.0f, "%.1f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Max Far Blur", &CameraNotify->DOFSettings.MaxFarBlur, 0.1f, 0.0f, 256.0f, "%.1f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::InputInt("Priority##DOF", &CameraNotify->DOFSettings.Priority))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            break;
+                        case ECameraNotifyEffect::HitStop:
+                            ImGui::TextUnformatted("Hit Stop Settings");
+                            if (ImGui::DragFloat("Duration##HitStop", &CameraNotify->HitStopSettings.Duration, 0.01f, 0.0f, 5.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Dilation##HitStop", &CameraNotify->HitStopSettings.Dilation, 0.001f, 0.0f, 1.0f, "%.3f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            ImGui::TextDisabled("Duration: effect length, Dilation: time scale");
+                            break;
+                        case ECameraNotifyEffect::Slomo:
+                            ImGui::TextUnformatted("Slomo Settings");
+                            if (ImGui::DragFloat("Duration##Slomo", &CameraNotify->SlomoSettings.Duration, 0.01f, 0.0f, 10.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            if (ImGui::DragFloat("Dilation##Slomo", &CameraNotify->SlomoSettings.Dilation, 0.01f, 0.01f, 1.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            ImGui::TextDisabled("Lower dilation = slower time");
                             break;
                         default:
                             break;
@@ -2926,6 +3135,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                     }
                     else
                     {
+                        HideParticleDebugMarker(State);
                         ImGui::TextDisabled("This notify type is not editable.");
                     }
                 }
@@ -3155,6 +3365,124 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
         ImGui::TextDisabled("(%.2f / %.2f)", State->CurrentAnimTime, PlayLength);
     }
     ImGui::EndChild();
+
+    FlushPendingNotifySaves(State);
+}
+
+void SSkeletalMeshViewerWindow::HideParticleDebugMarker(ViewerState* State)
+{
+    if (!State)
+    {
+        return;
+    }
+
+    State->ParticleDebugNotifyIndex = -1;
+    if (State->ParticleDebugBillboard && !State->ParticleDebugBillboard->IsPendingDestroy())
+    {
+        State->ParticleDebugBillboard->SetHiddenInGame(true);
+        State->ParticleDebugBillboard->SetVisibility(false);
+    }
+}
+
+void SSkeletalMeshViewerWindow::UpdateParticleDebugMarker(ViewerState* State)
+{
+    if (!State)
+    {
+        return;
+    }
+
+    if (State->ParticleDebugNotifyIndex < 0)
+    {
+        if (State->ParticleDebugBillboard)
+        {
+            State->ParticleDebugBillboard->SetHiddenInGame(true);
+            State->ParticleDebugBillboard->SetVisibility(true);
+        }
+        return;
+    }
+
+    if (!State->PreviewActor || !State->CurrentAnimation)
+    {
+        HideParticleDebugMarker(State);
+        return;
+    }
+
+    TArray<FAnimNotifyEvent>& Events = State->CurrentAnimation->GetAnimNotifyEvents();
+    const int32 MarkerIndex = State->ParticleDebugNotifyIndex;
+    if (MarkerIndex < 0 || MarkerIndex >= Events.Num())
+    {
+        HideParticleDebugMarker(State);
+        return;
+    }
+
+    FAnimNotifyEvent& Event = Events[MarkerIndex];
+    UAnimNotify_PlayParticle* ParticleNotify = (Event.Notify && Event.Notify->IsA<UAnimNotify_PlayParticle>())
+        ? static_cast<UAnimNotify_PlayParticle*>(Event.Notify)
+        : nullptr;
+    if (!ParticleNotify)
+    {
+        HideParticleDebugMarker(State);
+        return;
+    }
+
+    USkeletalMeshComponent* MeshComp = State->PreviewActor->GetSkeletalMeshComponent();
+    if (!MeshComp)
+    {
+        HideParticleDebugMarker(State);
+        return;
+    }
+
+    FTransform BaseTransform = MeshComp->GetWorldTransform();
+    if (ParticleNotify->AttachBoneName.IsValid())
+    {
+        int32 BoneIndex = MeshComp->GetBoneIndexByName(ParticleNotify->AttachBoneName);
+        if (BoneIndex >= 0)
+        {
+            BaseTransform = MeshComp->GetBoneWorldTransform(BoneIndex);
+        }
+    }
+
+    FQuat OffsetRotation = FQuat::MakeFromEulerZYX(ParticleNotify->RotationOffset);
+    FTransform OffsetTransform(ParticleNotify->LocationOffset, OffsetRotation, ParticleNotify->ScaleOffset);
+    FTransform MarkerTransform = BaseTransform.GetWorldTransform(OffsetTransform);
+
+    UBillboardComponent* Marker = State->ParticleDebugBillboard;
+    if (!Marker || Marker->IsPendingDestroy())
+    {
+        USceneComponent* Parent = State->PreviewActor->GetRootComponent();
+        Marker = Cast<UBillboardComponent>(State->PreviewActor->AddNewComponent(UBillboardComponent::StaticClass(), Parent));
+        if (!Marker)
+        {
+            return;
+        }
+        Marker->SetTexture(GDataDir + "/UI/Icons/WhiteSpot.png");
+        Marker->SetRenderInPIE(true);
+        Marker->SetAlwaysOnTop(true);
+    }
+
+    Marker->SetWorldTransform(MarkerTransform);
+    Marker->SetWorldScale(FVector(0.2f));
+    Marker->SetHiddenInGame(false);
+    Marker->SetVisibility(true);
+
+    State->ParticleDebugBillboard = Marker;
+}
+
+void SSkeletalMeshViewerWindow::ShowParticleDebugMarker(ViewerState* State, int32 NotifyIndex)
+{
+    if (!State)
+    {
+        return;
+    }
+
+    if (NotifyIndex < 0)
+    {
+        HideParticleDebugMarker(State);
+        return;
+    }
+
+    State->ParticleDebugNotifyIndex = NotifyIndex;
+    UpdateParticleDebugMarker(State);
 }
 
 void SSkeletalMeshViewerWindow::DrawAssetBrowserPanel(ViewerState* State)
