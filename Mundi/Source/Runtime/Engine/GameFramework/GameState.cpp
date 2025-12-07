@@ -88,7 +88,17 @@ void AGameState::OnPlayerDied()
 
 void AGameState::OnPlayerHealthChanged(float Current, float Max)
 {
+    // Only trigger vignette if health actually decreased (player took damage)
+    const bool bTookDamage = Current < PlayerHealth.Current;
+
     PlayerHealth.Set(Current, Max);
+
+    if (bTookDamage)
+    {
+        // Duration=3.0s, Radius=0.1, Softness=1.0, Intensity=1.0, Roundness=2.0, Color=Black, Priority=0, FadeIn=0.5s, FadeOut=0.5s
+        World->GetPlayerCameraManager()->StartVignette(3.0f, 0.1f, 1.0f, 0.4f, 2.0f, FLinearColor(133.0f/255.0f,21.0f/255.0f,13.0f/255.0f,1.0f), 0, 0.5f, 0.5f);
+    }
+
     bPlayerAlive = (Current > 0.0f);
     if (!bPlayerAlive)
     {

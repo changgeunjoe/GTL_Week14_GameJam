@@ -309,8 +309,33 @@ void APlayerCameraManager::StartLetterBox(float InDuration, float Aspect, float 
 	ActiveModifiers.Add(LetterBoxModifier);
 }
 
-int APlayerCameraManager::StartVignette(float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority)
+int APlayerCameraManager::StartVignette(float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority, float FadeInTime, float FadeOutTime)
 {
+	// TODO TEMP!! FOR THE GAME JAM
+	// Check for existing vignette - if found, just reset its timer to persist longer
+	for (int32 i = 0; i < ActiveModifiers.Num(); ++i)
+	{
+		if (UCamMod_Vignette* ExistingVignette = Cast<UCamMod_Vignette>(ActiveModifiers[i]))
+		{
+			// Reset to hold phase so vignette persists at full intensity
+			ExistingVignette->Duration = InDuration;
+			ExistingVignette->FadeInTime = FadeInTime;
+			ExistingVignette->FadeOutTime = FadeOutTime;
+			ExistingVignette->Elapsed = FadeInTime; // Skip to hold phase
+			ExistingVignette->CurrentIntensity = Intensity; // Ensure full intensity
+			ExistingVignette->Radius = Radius;
+			ExistingVignette->Softness = Softness;
+			ExistingVignette->Intensity = Intensity;
+			ExistingVignette->Roundness = Roundness;
+			ExistingVignette->Color = InColor;
+			ExistingVignette->Priority = InPriority;
+			ExistingVignette->bEnabled = true;
+			LastVignetteIdx = i;
+			return i;
+		}
+	}
+
+	// No existing vignette, create a new one
 	UCamMod_Vignette* VignetteModifier = NewObject<UCamMod_Vignette>();
 	VignetteModifier->Duration = InDuration;
 	VignetteModifier->Priority = InPriority;
@@ -319,12 +344,16 @@ int APlayerCameraManager::StartVignette(float InDuration, float Radius, float So
 	VignetteModifier->Intensity = Intensity;
 	VignetteModifier->Roundness = Roundness;
 	VignetteModifier->Color = InColor;
+	VignetteModifier->FadeInTime = FadeInTime;
+	VignetteModifier->FadeOutTime = FadeOutTime;
+	VignetteModifier->CurrentIntensity = (FadeInTime <= 0.0f) ? Intensity : 0.0f;
 
 	ActiveModifiers.Add(VignetteModifier);
-	return (ActiveModifiers.Num() - 1);
+	LastVignetteIdx = ActiveModifiers.Num() - 1;
+	return LastVignetteIdx;
 }
 
-int APlayerCameraManager::UpdateVignette(int Idx, float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority)
+int APlayerCameraManager::UpdateVignette(int Idx, float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority, float FadeInTime, float FadeOutTime)
 {
 	if (ActiveModifiers.Num() <= Idx || !ActiveModifiers[Idx] || !Cast<UCamMod_Vignette>(ActiveModifiers[Idx]))
 	{
@@ -339,21 +368,23 @@ int APlayerCameraManager::UpdateVignette(int Idx, float InDuration, float Radius
 	VignetteModifier->Intensity = Intensity;
 	VignetteModifier->Roundness = Roundness;
 	VignetteModifier->Color = InColor;
+	VignetteModifier->FadeInTime = FadeInTime;
+	VignetteModifier->FadeOutTime = FadeOutTime;
 
 	ActiveModifiers[Idx] = VignetteModifier;
 
 	return Idx;
 }
 
-void APlayerCameraManager::AdjustVignette(float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority)
+void APlayerCameraManager::AdjustVignette(float InDuration, float Radius, float Softness, float Intensity, float Roundness, const FLinearColor& InColor, int32 InPriority, float FadeInTime, float FadeOutTime)
 {
 	if (LastVignetteIdx == -1)
 	{
-		LastVignetteIdx = StartVignette(InDuration, Radius, Softness, Intensity, Roundness, InColor, InPriority);
+		LastVignetteIdx = StartVignette(InDuration, Radius, Softness, Intensity, Roundness, InColor, InPriority, FadeInTime, FadeOutTime);
 	}
 	else
 	{
-		LastVignetteIdx = UpdateVignette(LastVignetteIdx, InDuration, Radius, Softness, Intensity, Roundness, InColor, InPriority);
+		LastVignetteIdx = UpdateVignette(LastVignetteIdx, InDuration, Radius, Softness, Intensity, Roundness, InColor, InPriority, FadeInTime, FadeOutTime);
 	}
 }
 
