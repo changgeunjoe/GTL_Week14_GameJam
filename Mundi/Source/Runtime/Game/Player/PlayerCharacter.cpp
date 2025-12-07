@@ -822,6 +822,15 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
         return;
     }
 
+    // 대쉬 공격/궁극기 사용 중에는 피격 몽타주 스킵 (슈퍼아머)
+    EDamageType CurrentAttackType = GetWeaponDamageInfo().DamageType;
+    if (CurrentAttackType == EDamageType::DashAttack || CurrentAttackType == EDamageType::UltimateAttack)
+    {
+        UE_LOG("[PlayerCharacter] Hit reaction skipped - %s has super armor",
+            CurrentAttackType == EDamageType::DashAttack ? "DashAttack" : "UltimateAttack");
+        return;
+    }
+
     // 현재 공격/회피 중단
     EndWeaponTrace();
     bIsInvincible = false;
@@ -914,6 +923,14 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
     {
         // 무기 Sweep 종료
         EndWeaponTrace();
+        // 무적 해제
+        bIsInvincible = false;
+    }
+
+    // 닷지 종료 시 무적 해제
+    if (OldState == ECombatState::Dodging && NewState != ECombatState::Dodging)
+    {
+        bIsInvincible = false;
     }
 }
 
@@ -1145,6 +1162,7 @@ void APlayerCharacter::ExecutePendingSkill()
 
         SetCombatState(ECombatState::Attacking);
         ComboCount = 0;
+        bIsInvincible = true;  // 대쉬 공격 중 무적
 
         // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
         FDamageInfo DamageInfo(this, 40.f, EDamageType::DashAttack);
@@ -1181,6 +1199,7 @@ void APlayerCharacter::ExecutePendingSkill()
 
         SetCombatState(ECombatState::Attacking);
         ComboCount = 0;
+        bIsInvincible = true;  // 궁극기 사용 중 무적
 
         // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
         FDamageInfo DamageInfo(this, 80.f, EDamageType::UltimateAttack);
