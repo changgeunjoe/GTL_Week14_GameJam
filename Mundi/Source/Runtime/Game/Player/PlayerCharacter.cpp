@@ -101,6 +101,40 @@ void APlayerCharacter::BeginPlay()
             }
         }
     }
+
+    // 가드 몽타주 초기화 (루프)
+    if (!BlockAnimPath.empty())
+    {
+        UAnimSequence* BlockAnim = UResourceManager::GetInstance().Get<UAnimSequence>(BlockAnimPath);
+        if (BlockAnim)
+        {
+            BlockMontage = NewObject<UAnimMontage>();
+            BlockMontage->SetSourceSequence(BlockAnim);
+            BlockMontage->bLoop = true;  // 루프 설정
+            UE_LOG("[PlayerCharacter] BlockMontage initialized (Loop): %s", BlockAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find block animation: %s", BlockAnimPath.c_str());
+        }
+    }
+
+    // 차징 몽타주 초기화 (루프)
+    if (!ChargingAnimPath.empty())
+    {
+        UAnimSequence* ChargingAnim = UResourceManager::GetInstance().Get<UAnimSequence>(ChargingAnimPath);
+        if (ChargingAnim)
+        {
+            ChargingMontage = NewObject<UAnimMontage>();
+            ChargingMontage->SetSourceSequence(ChargingAnim);
+            ChargingMontage->bLoop = true;  // 루프 설정
+            UE_LOG("[PlayerCharacter] ChargingMontage initialized (Loop): %s", ChargingAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find charging animation: %s", ChargingAnimPath.c_str());
+        }
+    }
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -208,30 +242,11 @@ void APlayerCharacter::ProcessMovementInput(float DeltaTime)
 
 void APlayerCharacter::ProcessCombatInput()
 {
-    // 마우스 좌클릭 - 약공격
-    if (INPUT.IsMouseButtonPressed(LeftButton))
-    {
-        UE_LOG("[PlayerCharacter] ProcessCombatInput - Left click detected, calling LightAttack()");
-        LightAttack();
-    }
-
-    // 마우스 우클릭 - 가드
-    if (INPUT.IsMouseButtonPressed(RightButton))
-    {
-        StartBlock();
-    }
-    if (INPUT.IsMouseButtonReleased(RightButton))
-    {
-        StopBlock();
-    }
-
-    // 스페이스 - 회피는 PlayerController에서 처리
-
-    // Shift + 좌클릭 - 강공격
-    if (INPUT.IsKeyDown(VK_SHIFT) && INPUT.IsMouseButtonPressed(LeftButton))
-    {
-        HeavyAttack();
-    }
+    // 입력은 PlayerController에서 InputComponent를 통해 처리됨
+    // - 마우스 좌클릭: Attack -> OnAttack -> LightAttack
+    // - 마우스 우클릭: Block -> OnStartBlock/OnStopBlock -> StartBlock/StopBlock
+    // - 스페이스: Dodge -> OnDodge -> Dodge
+    // - Y키: Charging -> OnStartCharging/OnStopCharging -> StartCharging/StopCharging
 }
 
 // ============================================================================
@@ -410,6 +425,12 @@ void APlayerCharacter::StartBlock()
         return;
     }
 
+    // 이미 가드 중이면 무시
+    if (bIsBlocking)
+    {
+        return;
+    }
+
     bIsBlocking = true;
     SetCombatState(ECombatState::Blocking);
 
@@ -417,7 +438,18 @@ void APlayerCharacter::StartBlock()
     bIsParrying = true;
     ParryWindowTimer = ParryWindowDuration;
 
-    // TODO: 가드 애니메이션 재생
+    // 가드 몽타주 재생 (루프)
+    if (BlockMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->Montage_Play(BlockMontage, 0.1f, 0.1f, 1.0f, true);  // bLoop = true
+                UE_LOG("[PlayerCharacter] Playing Block montage (Loop)");
+            }
+        }
+    }
 }
 
 void APlayerCharacter::StopBlock()
@@ -431,9 +463,76 @@ void APlayerCharacter::StopBlock()
     bIsParrying = false;
     ParryWindowTimer = 0.f;
 
+    // 가드 몽타주 정지
+    if (USkeletalMeshComponent* Mesh = GetMesh())
+    {
+        if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+        {
+            AnimInst->Montage_Stop(0.1f);  // 블렌드 아웃
+            UE_LOG("[PlayerCharacter] Stopping Block montage");
+        }
+    }
+
     if (CombatState == ECombatState::Blocking)
     {
         SetCombatState(ECombatState::Idle);
+    }
+}
+
+void APlayerCharacter::StartCharging()
+{
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Dodging ||
+        CombatState == ECombatState::Dead)
+    {
+        return;
+    }
+
+    // 이미 차징 중이면 무시
+    if (bIsCharging)
+    {
+        return;
+    }
+
+    // 가드 중이면 해제
+    if (bIsBlocking)
+    {
+        StopBlock();
+    }
+
+    bIsCharging = true;
+
+    // 차징 몽타주 재생 (루프)
+    if (ChargingMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->Montage_Play(ChargingMontage, 0.1f, 0.1f, 1.0f, true);  // bLoop = true
+                UE_LOG("[PlayerCharacter] Playing Charging montage (Loop)");
+            }
+        }
+    }
+}
+
+void APlayerCharacter::StopCharging()
+{
+    if (!bIsCharging)
+    {
+        return;
+    }
+
+    bIsCharging = false;
+
+    // 차징 몽타주 정지
+    if (USkeletalMeshComponent* Mesh = GetMesh())
+    {
+        if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+        {
+            AnimInst->Montage_Stop(0.1f);  // 블렌드 아웃
+            UE_LOG("[PlayerCharacter] Stopping Charging montage");
+        }
     }
 }
 

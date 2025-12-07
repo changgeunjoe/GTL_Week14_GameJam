@@ -68,6 +68,9 @@ struct FMontagePlayState
 
     /** 강제 블렌드 아웃 중인지 (Montage_Stop 호출됨) */
     bool bIsBlendingOut = false;
+
+    /** 루프 재생 여부 */
+    bool bIsLooping = false;
 };
 
 /**
@@ -352,14 +355,19 @@ public:
      * @param BlendOut 블렌드 아웃 시간 (기본 0.1초)
      * @param PlayRate 재생 속도 (기본 1.0)
      *
+     * @param bLoop 루프 재생 여부 (기본 false, 미지정시 몽타주의 bLoop 사용)
+     *
      * @example
      * // 피격 시
      * AnimInstance->Montage_Play(HitMontage, 0.1f, 0.2f);
      *
      * // 공격 시
      * AnimInstance->Montage_Play(AttackMontage, 0.05f, 0.1f, 1.2f);
+     *
+     * // 가드 (루프)
+     * AnimInstance->Montage_Play(GuardMontage, 0.1f, 0.1f, 1.0f, true);
      */
-    void Montage_Play(UAnimMontage* Montage, float BlendIn = 0.1f, float BlendOut = 0.1f, float PlayRate = 1.0f);
+    void Montage_Play(UAnimMontage* Montage, float BlendIn = 0.1f, float BlendOut = 0.1f, float PlayRate = 1.0f, bool bLoop = false);
 
     /**
      * @brief 현재 재생 중인 몽타주 정지

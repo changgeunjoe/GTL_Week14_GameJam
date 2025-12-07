@@ -47,6 +47,10 @@ protected:
 	void OnAttack();
 	void OnStartSprint();
 	void OnStopSprint();
+	void OnStartBlock();
+	void OnStopBlock();
+	void OnStartCharging();
+	void OnStopCharging();
 
     void ProcessRotationInput(float DeltaTime);
     void ProcessLockedMovement(float DeltaTime, const FVector& WorldMoveDir);

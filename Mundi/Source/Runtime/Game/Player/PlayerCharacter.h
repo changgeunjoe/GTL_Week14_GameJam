@@ -59,6 +59,12 @@ public:
     /** 가드 종료 */
     void StopBlock();
 
+    /** 차징 시작 */
+    void StartCharging();
+
+    /** 차징 종료 */
+    void StopCharging();
+
     // ========================================================================
     // 상태 확인
     // ========================================================================
@@ -181,6 +187,25 @@ protected:
     /** 구르기 시 루트 모션 활성화 여부 */
     UPROPERTY(EditAnywhere, Category = "Animation|Dodge")
     bool bEnableDodgeRootMotion = true;
+
+    // ========== 가드 몽타주 ==========
+    /** 가드 애니메이션 경로 (루프) */
+    UPROPERTY(EditAnywhere, Category = "Animation|Block")
+    FString BlockAnimPath;
+
+    /** 가드 몽타주 */
+    UAnimMontage* BlockMontage = nullptr;
+
+    // ========== 차징 몽타주 ==========
+    /** 차징 애니메이션 경로 (루프) */
+    UPROPERTY(EditAnywhere, Category = "Animation|Charging")
+    FString ChargingAnimPath;
+
+    /** 차징 몽타주 */
+    UAnimMontage* ChargingMontage = nullptr;
+
+    /** 차징 중 여부 */
+    bool bIsCharging = false;
 
     /** 구르기 애니메이션 끝에서 자를 시간 (초 단위) */
     UPROPERTY(EditAnywhere, Category = "Animation|Dodge")

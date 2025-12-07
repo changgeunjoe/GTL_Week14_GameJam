@@ -89,6 +89,8 @@ void APlayerController::SetupInput()
     InputComponent->MapActionToKey(FName("ToggleMouseLook"), VK_F11);
     InputComponent->MapActionToKey(FName("Attack"), VK_LBUTTON);
     InputComponent->MapActionToKey(FName("Sprint"), VK_SHIFT);
+    InputComponent->MapActionToKey(FName("Block"), VK_RBUTTON);
+    InputComponent->MapActionToKey(FName("Charging"), 'Y');
 
     // ========================================================================
     // 바인딩 설정
@@ -111,6 +113,10 @@ void APlayerController::SetupInput()
     InputComponent->BindAction(FName("Attack"), EInputEvent::Pressed, this, &APlayerController::OnAttack);
     InputComponent->BindAction(FName("Sprint"), EInputEvent::Pressed, this, &APlayerController::OnStartSprint);
     InputComponent->BindAction(FName("Sprint"), EInputEvent::Released, this, &APlayerController::OnStopSprint);
+    InputComponent->BindAction(FName("Block"), EInputEvent::Pressed, this, &APlayerController::OnStartBlock);
+    InputComponent->BindAction(FName("Block"), EInputEvent::Released, this, &APlayerController::OnStopBlock);
+    InputComponent->BindAction(FName("Charging"), EInputEvent::Pressed, this, &APlayerController::OnStartCharging);
+    InputComponent->BindAction(FName("Charging"), EInputEvent::Released, this, &APlayerController::OnStopCharging);
 }
 
 // ============================================================================
@@ -248,6 +254,38 @@ void APlayerController::OnStopSprint()
         {
             MovementComp->SetSprinting(false);
         }
+    }
+}
+
+void APlayerController::OnStartBlock()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->StartBlock();
+    }
+}
+
+void APlayerController::OnStopBlock()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->StopBlock();
+    }
+}
+
+void APlayerController::OnStartCharging()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->StartCharging();
+    }
+}
+
+void APlayerController::OnStopCharging()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->StopCharging();
     }
 }
 

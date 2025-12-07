@@ -865,8 +865,8 @@ void USlateManager::OnMouseDown(FVector2D MousePos, uint32 Button)
             {
                 ActiveViewport = VP; // 고정
 
-                // 우클릭인 경우 커서 숨김 및 잠금
-                if (Button == 1)
+                // 우클릭인 경우 커서 숨김 및 잠금 (PIE 모드가 아닐 때만)
+                if (Button == 1 && !GEngine.IsPIEActive())
                 {
                     INPUT.SetCursorVisible(false);
                     INPUT.LockCursor();
@@ -879,8 +879,8 @@ void USlateManager::OnMouseDown(FVector2D MousePos, uint32 Button)
 
 void USlateManager::OnMouseUp(FVector2D MousePos, uint32 Button)
 {
-    // 우클릭 해제 시 커서 복원 (ActiveViewport와 무관하게 처리)
-    if (Button == 1 && INPUT.IsCursorLocked())
+    // 우클릭 해제 시 커서 복원 (PIE 모드가 아닐 때만)
+    if (Button == 1 && INPUT.IsCursorLocked() && !GEngine.IsPIEActive())
     {
         INPUT.SetCursorVisible(true);
         INPUT.ReleaseCursor();
