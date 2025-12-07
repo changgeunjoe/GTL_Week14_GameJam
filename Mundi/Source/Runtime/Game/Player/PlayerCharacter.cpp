@@ -60,6 +60,17 @@ void APlayerCharacter::BeginPlay()
         HitboxComponent->SetOwnerActor(this);
     }
 
+    // 무기 충돌 시 데미지 처리 등록
+    OnWeaponHit.Add([this](AActor* HitActor, const FDamageInfo& DamageInfo) {
+        if (IDamageable* Target = GetDamageable(HitActor))
+        {
+            if (Target->CanBeHit())
+            {
+                Target->TakeDamage(DamageInfo);
+            }
+        }
+    });
+
     // 공격 몽타주 초기화
     if (!LightAttackAnimPath.empty())
     {
@@ -322,9 +333,10 @@ void APlayerCharacter::LightAttack()
         ComboCount = 0;
     }
 
-    // 히트박스 활성화 (임시 주석처리)
-    // FDamageInfo DamageInfo(this, 10.f + ComboCount * 5.f, EDamageType::Light);
-    // HitboxComponent->EnableHitbox(DamageInfo);
+    // 무기 Sweep으로 공격 판정 시작
+    FDamageInfo DamageInfo(this, 10.f + ComboCount * 5.f, EDamageType::Light);
+    DamageInfo.StaggerDuration = 0.2f + ComboCount * 0.1f;  // 콤보가 높을수록 경직 증가
+    StartWeaponTrace(DamageInfo);
 
     // 공격 애니메이션 재생 (몽타주)
     if (LightAttackMontage)
@@ -366,10 +378,12 @@ void APlayerCharacter::HeavyAttack()
     SetCombatState(ECombatState::Attacking);
     ComboCount = 0;
 
+    // 무기 Sweep으로 강공격 판정 시작
     FDamageInfo DamageInfo(this, 30.f, EDamageType::Heavy);
     DamageInfo.HitReaction = EHitReaction::Stagger;
     DamageInfo.StaggerDuration = 0.5f;
-    //HitboxComponent->EnableHitbox(DamageInfo);
+    DamageInfo.KnockbackForce = 200.f;
+    StartWeaponTrace(DamageInfo);
 
     // TODO: 강공격 애니메이션 재생
 }
@@ -641,7 +655,7 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
     }
 
     // 현재 공격/회피 중단
-    //HitboxComponent->DisableHitbox();
+    EndWeaponTrace();
     bIsInvincible = false;
 
     SetCombatState(ECombatState::Staggered);
@@ -661,7 +675,7 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
 void APlayerCharacter::OnDeath()
 {
     SetCombatState(ECombatState::Dead);
-    //HitboxComponent->DisableHitbox();
+    EndWeaponTrace();
 
     // TODO: 사망 애니메이션/래그돌
 }
@@ -678,8 +692,8 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
     // 상태 변경 시 처리
     if (OldState == ECombatState::Attacking && NewState != ECombatState::Attacking)
     {
-        //HitboxComponent->DisableHitbox();
-        //HitboxComponent->ClearHitActors();
+        // 무기 Sweep 종료
+        EndWeaponTrace();
     }
 }
 
