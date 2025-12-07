@@ -64,6 +64,7 @@ cbuffer PixelConstBuffer : register(b4)
     uint bHasMaterial;          // 4 bytes (HLSL)
     uint bHasTexture;           // 4 bytes (HLSL)
     uint bHasNormalTexture;
+    uint bHasORMTexture;        // ORM 텍스처 유무 (Occlusion, Roughness, Metallic)
 };
 
 cbuffer FLightShadowmBufferType : register(b5)
@@ -84,11 +85,15 @@ cbuffer FLightShadowmBufferType : register(b5)
 // --- 텍스처 및 샘플러 리소스 ---
 Texture2D g_DiffuseTexColor : register(t0);
 Texture2D g_NormalTexColor : register(t1);
+// Note: t2 is reserved for tile light indices (StructuredBuffer) via LightingBuffers.hlsl.
+// Bind ORM to a non-conflicting slot.
+Texture2D g_ORMTexColor : register(t6);     // ORM: R=AO, G=Roughness, B=Metallic (moved from t2 -> t6)
 Texture2D g_DirectionalShadowMap : register(t5);
 TextureCubeArray g_ShadowAtlasCube : register(t8);
 Texture2D g_ShadowAtlas2D : register(t9);
 Texture2D<float2> g_VSMShadowAtlas : register(t10);
 TextureCubeArray<float2> g_VSMShadowCube : register(t11);   // TODO: 지금은 전달 안 되고, 안 쓰는 중
+// (IBL removed)
 
 #if USE_GPU_SKINNING
 StructuredBuffer<float4x4> g_SkinnedMatrices : register(t12);
@@ -470,9 +475,9 @@ PS_OUTPUT mainPS(PS_INPUT Input)
             }
             else if (lightType == 1)  // Spot Light
             {
-                litColor +=  CalculateSpotLight(g_SpotLightList[lightIdx], Input.WorldPos, normal,
-                    float3(0, 0, 0), baseColor, false,
-                    0.0f, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler);
+                litColor +=  CalculateSpotLightPBR(g_SpotLightList[lightIdx], Input.WorldPos, normal,
+                    viewDir, float4(diffuseColor, baseColor.a), true,
+                    specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler, specularColorPBR);
             }
         }
     }
@@ -524,6 +529,22 @@ PS_OUTPUT mainPS(PS_INPUT Input)
     float3 viewDir = normalize(CameraPosition - Input.WorldPos);
     float4 baseColor = Input.Color;
 
+    // ORM 텍스처 샘플링 (R=AO, G=Roughness, B=Metallic)
+    float ao = 1.0f;
+    float roughness = 0.5f;
+    float metallic = 0.0f;
+    if (bHasORMTexture)
+    {
+        float3 orm = g_ORMTexColor.Sample(g_Sample, uv).rgb;
+        ao = saturate(orm.r);
+        roughness = saturate(orm.g);
+        metallic = saturate(orm.b);
+
+        // Stable roughness -> Blinn-Phong exponent mapping to produce visible highlights
+        // Roughness 0 -> ~64, Roughness 1 -> ~8 (tunable)
+        specPower = lerp(64.0f, 8.0f, roughness);
+    }
+
     // 텍스처가 있으면 텍스처로 시작
     if (bHasTexture)
     {
@@ -540,22 +561,47 @@ PS_OUTPUT mainPS(PS_INPUT Input)
         baseColor.rgb = lerp(baseColor.rgb, LerpColor.rgb, LerpColor.a);
     }
 
+    // Metallic 워크플로우: metallic이 높을수록 diffuse는 줄고 specular가 커짐
+    // Add a small diffuse floor to avoid pitch-black metals when albedo is authored black
+    float3 diffuseColor = baseColor.rgb * (1.0f - metallic) + 0.02f * metallic;
+    float3 F0Dielectric = bHasMaterial ? Material.SpecularColor : float3(0.04f, 0.04f, 0.04f);
+    float3 specularColorPBR = lerp(F0Dielectric, baseColor.rgb, metallic);
+    // Ensure a minimum F0 so highlights don’t disappear for black albedo metals
+    specularColorPBR = max(specularColorPBR, float3(0.04f, 0.04f, 0.04f));
+    // Heuristic: if asset authoring uses black baseColor for metals, fallback to bright metal F0
+    float luma = dot(baseColor.rgb, float3(0.2126f, 0.7152f, 0.0722f));
+    float3 defaultMetalF0 = float3(0.90f, 0.90f, 0.90f);
+    if (metallic > 0.5f && luma < 0.05f)
+    {
+        specularColorPBR = lerp(F0Dielectric, defaultMetalF0, metallic);
+    }
+
     float3 litColor = float3(0.0f, 0.0f, 0.0f);
 
     // Ambient light (OBJ/MTL 표준: La × Ka)
     // 하이브리드 접근: Ka가 (0,0,0) 또는 (1,1,1)이면 Kd(baseColor) 사용
-    float3 Ka = bHasMaterial ? Material.AmbientColor : baseColor.rgb;
+    float3 Ka = bHasMaterial ? Material.AmbientColor : diffuseColor;
     bool bIsDefaultKa = all(abs(Ka) < 0.01f) || all(abs(Ka - 1.0f) < 0.01f);
     if (bIsDefaultKa)
     {
-        Ka = baseColor.rgb;
+        Ka = diffuseColor;
     }
-    litColor += CalculateAmbientLight(AmbientLight, Ka);
+    // AO 적용 (Ambient Occlusion)
+    litColor += CalculateAmbientLight(AmbientLight, Ka) * ao;
 
     // Directional light (diffuse + specular)
-    float3 DirectionalLightColor = CalculateDirectionalLight(DirectionalLight, Input.WorldPos, ViewPos.xyz, normal, viewDir, baseColor, true, specPower, g_ShadowAtlas2D, g_ShadowSample);
-   
-    
+    float3 DirectionalLightColor;
+    if (bHasORMTexture)
+    {
+        DirectionalLightColor = CalculateDirectionalLightPBR(DirectionalLight, Input.WorldPos, ViewPos.xyz, normal, viewDir, float4(diffuseColor, baseColor.a), true, specPower, g_ShadowAtlas2D, g_ShadowSample, specularColorPBR, roughness);
+    }
+    else
+    {
+        DirectionalLightColor = CalculateDirectionalLight(DirectionalLight, Input.WorldPos, ViewPos.xyz, normal, viewDir, baseColor, true, specPower, g_ShadowAtlas2D, g_ShadowSample);
+    }
+
+    // (IBL removed)
+
     litColor += DirectionalLightColor;
 
     // 타일 기반 라이트 컬링 적용 (활성화된 경우)
@@ -578,13 +624,29 @@ PS_OUTPUT mainPS(PS_INPUT Input)
 
             if (lightType == 0)  // Point Light
             {
-                litColor += CalculatePointLight(g_PointLightList[lightIdx], Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlasCube, g_ShadowSample);
+                if (bHasORMTexture)
+                {
+                    litColor += CalculatePointLightPBR(g_PointLightList[lightIdx], Input.WorldPos, normal, viewDir, float4(diffuseColor, baseColor.a), true, specPower, g_ShadowAtlasCube, g_ShadowSample, specularColorPBR, roughness);
+                }
+                else
+                {
+                    litColor += CalculatePointLight(g_PointLightList[lightIdx], Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlasCube, g_ShadowSample);
+                }
             }
             else if (lightType == 1)  // Spot Light
             {
-                litColor +=  CalculateSpotLight(g_SpotLightList[lightIdx], Input.WorldPos, normal,
-                    float3(0, 0, 0), baseColor, false,
-                    0.0f, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler);
+                if (bHasORMTexture)
+                {
+                    litColor +=  CalculateSpotLightPBR(g_SpotLightList[lightIdx], Input.WorldPos, normal,
+                        viewDir, float4(diffuseColor, baseColor.a), true,
+                        specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler, specularColorPBR, roughness);
+                }
+                else
+                {
+                    litColor +=  CalculateSpotLight(g_SpotLightList[lightIdx], Input.WorldPos, normal,
+                        viewDir, baseColor, true,
+                        specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler);
+                }
             }
         }
     }
@@ -593,13 +655,27 @@ PS_OUTPUT mainPS(PS_INPUT Input)
         // 타일 컴링 비활성화: 모든 라이트 순회 (기존 방식)
         for (int i = 0; i < PointLightCount; i++)
         {
-            litColor += CalculatePointLight(g_PointLightList[i], Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlasCube, g_ShadowSample);
+            if (bHasORMTexture)
+            {
+                litColor += CalculatePointLightPBR(g_PointLightList[i], Input.WorldPos, normal, viewDir, float4(diffuseColor, baseColor.a), true, specPower, g_ShadowAtlasCube, g_ShadowSample, specularColorPBR, roughness);
+            }
+            else
+            {
+                litColor += CalculatePointLight(g_PointLightList[i], Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlasCube, g_ShadowSample);
+            }
         }
         
         [loop]
         for (int j = 0; j < SpotLightCount; j++)
         {
-            litColor +=  CalculateSpotLight(g_SpotLightList[j],Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler);
+            if (bHasORMTexture)
+            {
+                litColor +=  CalculateSpotLightPBR(g_SpotLightList[j],Input.WorldPos, normal, viewDir, float4(diffuseColor, baseColor.a), true, specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler, specularColorPBR, roughness);
+            }
+            else
+            {
+                litColor +=  CalculateSpotLight(g_SpotLightList[j],Input.WorldPos, normal, viewDir, baseColor, true, specPower, g_ShadowAtlas2D, g_ShadowSample, g_VSMShadowAtlas, g_VSMSampler);
+            }
         }
     }
 

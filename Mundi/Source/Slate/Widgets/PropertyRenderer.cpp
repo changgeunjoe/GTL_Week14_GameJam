@@ -1697,6 +1697,7 @@ bool UPropertyRenderer::RenderSingleMaterialSlot(const char* Label, UMaterialInt
 			{
 			case EMaterialTextureSlot::Diffuse: SlotName = "Diffuse Texture"; break;
 			case EMaterialTextureSlot::Normal: SlotName = "Normal Texture"; break;
+			case EMaterialTextureSlot::ORM: SlotName = "ORM Texture"; break;  // Occlusion(R), Roughness(G), Metallic(B)
 			}
 			FString TextureLabel = FString(SlotName) + "##" + Label;
 

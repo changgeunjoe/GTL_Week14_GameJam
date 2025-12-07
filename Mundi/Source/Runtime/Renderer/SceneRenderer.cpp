@@ -1581,6 +1581,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 		{
 			ID3D11ShaderResourceView* DiffuseTextureSRV = nullptr; // t0
 			ID3D11ShaderResourceView* NormalTextureSRV = nullptr;  // t1
+			ID3D11ShaderResourceView* ORMTextureSRV = nullptr;     // t2 (Occlusion, Roughness, Metallic)
 			FPixelConstBufferType PixelConst{};
 
 			if (Batch.Material)
@@ -1595,6 +1596,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 				PixelConst.bHasMaterial = false;
 				PixelConst.bHasDiffuseTexture = false;
 				PixelConst.bHasNormalTexture = false;
+				PixelConst.bHasORMTexture = false;
 			}
 
 			// 1순위: 인스턴스 텍스처 (빌보드/데칼)
@@ -1613,6 +1615,8 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 				{
 					PixelConst.bHasNormalTexture = false;
 				}
+				// 인스턴스 텍스처는 ORM을 지원하지 않음
+				PixelConst.bHasORMTexture = false;
 			}
 			// 2순위: 머티리얼 텍스처 (스태틱 메시)
 			else if (Batch.Material)
@@ -1643,12 +1647,29 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 						PixelConst.bHasNormalTexture = (NormalTextureSRV != nullptr);
 					}
 				}
+				// ORM 텍스처 (Occlusion, Roughness, Metallic)
+				if (!MaterialInfo.ORMTextureFileName.empty())
+				{
+					if (UTexture* TextureData = Batch.Material->GetTexture(EMaterialTextureSlot::ORM))
+					{
+						ORMTextureSRV = TextureData->GetShaderResourceView();
+						PixelConst.bHasORMTexture = (ORMTextureSRV != nullptr);
+					}
+				}
+
+				// no env map
 			}
-			
+
 			// --- RHI 상태 업데이트 ---
 			// 1. 텍스처(SRV) 바인딩
-			ID3D11ShaderResourceView* Srvs[2] = { DiffuseTextureSRV, NormalTextureSRV };
-			RHIDevice->GetDeviceContext()->PSSetShaderResources(0, 2, Srvs);
+			//    - t0 = Diffuse
+            //    - t1 = Normal
+            //    - t6 = ORM (Occlusion, Roughness, Metallic) [avoid conflict with t2 tile indices]
+			ID3D11ShaderResourceView* BaseSrvs[2] = { DiffuseTextureSRV, NormalTextureSRV };
+			RHIDevice->GetDeviceContext()->PSSetShaderResources(0, 2, BaseSrvs);
+			// Bind ORM separately at slot 6 to avoid register conflicts (t2 is used by tile culling indices)
+			RHIDevice->GetDeviceContext()->PSSetShaderResources(6, 1, &ORMTextureSRV);
+			// no env map binding
 
 			// 2. 샘플러 바인딩
 			ID3D11SamplerState* Samplers[4] = { DefaultSampler, DefaultSampler, ShadowSampler, VSMSampler };

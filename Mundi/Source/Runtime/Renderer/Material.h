@@ -10,6 +10,7 @@ enum class EMaterialTextureSlot : uint8
 {
 	Diffuse = 0,
 	Normal,
+	ORM,	// Occlusion (R), Roughness (G), Metallic (B) 패킹 텍스처
 	//Specular,
 	//Emissive,
 	// ... 기타 슬롯 ...
