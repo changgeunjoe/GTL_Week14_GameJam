@@ -2450,8 +2450,8 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                             float ClickFrame = RightClickFrame;
                             float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
-                            // Weapon Collision Notify 추가
-                            UAnimNotify_EnableWeaponCollision* NewNotify = NewObject<UAnimNotify_EnableWeaponCollision>();
+                            // Camera Notify 추가
+                            UAnimNotify_PlayCamera* NewNotify = NewObject<UAnimNotify_PlayCamera>();
                             if (NewNotify)
                             {
                                 State->CurrentAnimation->AddPlayCameraNotify(TimeSec, NewNotify, 0.0f);
