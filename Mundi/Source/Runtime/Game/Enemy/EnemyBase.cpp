@@ -57,6 +57,17 @@ void AEnemyBase::BeginPlay()
         HitboxComponent->SetOwnerActor(this);
     }
 
+    // 무기 충돌 시 데미지 처리 등록
+    OnWeaponHit.Add([this](AActor* HitActor, const FDamageInfo& DamageInfo) {
+        if (IDamageable* Target = GetDamageable(HitActor))
+        {
+            if (Target->CanBeHit())
+            {
+                Target->TakeDamage(DamageInfo);
+            }
+        }
+    });
+
     // AI 컨트롤러 생성 및 빙의
     UWorld* World = GetWorld();
     if (World)

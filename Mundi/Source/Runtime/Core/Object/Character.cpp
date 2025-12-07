@@ -256,6 +256,13 @@ void ACharacter::UpdateWeaponTransform()
 
 void ACharacter::StartWeaponTrace()
 {
+	// 기본 데미지 정보로 시작
+	FDamageInfo DefaultDamage(this, 10.0f, EDamageType::Light);
+	StartWeaponTrace(DefaultDamage);
+}
+
+void ACharacter::StartWeaponTrace(const FDamageInfo& InDamageInfo)
+{
 	if (!WeaponMeshComp)
 	{
 		return;
@@ -263,6 +270,13 @@ void ACharacter::StartWeaponTrace()
 
 	bWeaponTraceActive = true;
 	HitActorsThisSwing.Empty();
+
+	// 데미지 정보 설정
+	CurrentWeaponDamageInfo = InDamageInfo;
+	if (!CurrentWeaponDamageInfo.Instigator)
+	{
+		CurrentWeaponDamageInfo.Instigator = this;
+	}
 
 	// 현재 무기 위치를 이전 위치로 초기화
 	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
@@ -330,7 +344,7 @@ void ACharacter::PerformWeaponTrace()
 		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
 		{
 			HitActorsThisSwing.Add(HitResult.HitActor);
-			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint);
+			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint, HitResult.ImpactNormal);
 		}
 	}
 
@@ -340,7 +354,7 @@ void ACharacter::PerformWeaponTrace()
 		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
 		{
 			HitActorsThisSwing.Add(HitResult.HitActor);
-			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint);
+			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint, HitResult.ImpactNormal);
 		}
 	}
 
@@ -349,11 +363,20 @@ void ACharacter::PerformWeaponTrace()
 	PrevWeaponTipPos = CurrentTipPos;
 }
 
-void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation)
+void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
 {
+	// 데미지 정보에 충돌 정보 추가
+	FDamageInfo DamageInfo = CurrentWeaponDamageInfo;
+	DamageInfo.HitLocation = HitLocation;
+	DamageInfo.DamageCauser = WeaponMeshComp ? WeaponMeshComp->GetOwner() : this;
+
+	// 공격 방향 계산 (공격자 → 피격자)
+	FVector AttackerPos = GetActorLocation();
+	DamageInfo.HitDirection = (HitLocation - AttackerPos).GetNormalized();
+
 	// 충돌 위치에 StaticMeshActor 스폰 (디버그용)
 	UWorld* World = GetWorld();
-	if (World)
+	if (World && bDrawWeaponDebug)
 	{
 		FTransform SpawnTransform;
 		SpawnTransform.Translation = HitLocation;
@@ -365,11 +388,11 @@ void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocatio
 		}
 	}
 
-	UE_LOG("[Character] Weapon hit: %s at (%.2f, %.2f, %.2f)",
-		   HitActor->GetName().c_str(), HitLocation.X, HitLocation.Y, HitLocation.Z);
+	UE_LOG("[Character] Weapon hit: %s at (%.2f, %.2f, %.2f) - Damage: %.1f",
+		   HitActor->GetName().c_str(), HitLocation.X, HitLocation.Y, HitLocation.Z, DamageInfo.Damage);
 
-	// 델리게이트 브로드캐스트
-	OnWeaponHit.Broadcast(HitActor, HitLocation);
+	// 델리게이트 브로드캐스트 (FDamageInfo 전달)
+	OnWeaponHit.Broadcast(HitActor, DamageInfo);
 }
 
 void ACharacter::UpdateSubWeaponTransform()

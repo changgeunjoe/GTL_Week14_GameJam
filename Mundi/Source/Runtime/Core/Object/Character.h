@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Pawn.h"
+#include "Source/Runtime/Game/Combat/CombatTypes.h"
 #include "ACharacter.generated.h"
 
 class UCapsuleComponent;
@@ -76,10 +77,17 @@ public:
 	void UpdateSubWeaponTransform();
 
 	/** 무기 충돌 델리게이트 */
-	DECLARE_DELEGATE(OnWeaponHit, AActor* /*HitActor*/, const FVector& /*HitLocation*/);
+	DECLARE_DELEGATE(OnWeaponHit, AActor* /*HitActor*/, const FDamageInfo& /*DamageInfo*/);
+
+	/** 현재 무기 공격의 데미지 정보 설정 */
+	void SetWeaponDamageInfo(const FDamageInfo& InDamageInfo) { CurrentWeaponDamageInfo = InDamageInfo; }
+	const FDamageInfo& GetWeaponDamageInfo() const { return CurrentWeaponDamageInfo; }
 
 	/** 무기 Sweep 시작 (AnimNotify에서 호출) */
 	void StartWeaponTrace();
+
+	/** 데미지 정보와 함께 무기 Sweep 시작 */
+	void StartWeaponTrace(const FDamageInfo& InDamageInfo);
 
 	/** 무기 Sweep 종료 (AnimNotify에서 호출) */
 	void EndWeaponTrace();
@@ -123,7 +131,7 @@ public:
 
 protected:
 	/** 무기 충돌 시 호출 */
-	void OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation);
+	void OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal);
 
 	/** 이전 프레임 무기 위치 (Sweep용) */
 	FVector PrevWeaponTipPos = FVector::Zero();
@@ -132,6 +140,9 @@ protected:
 
 	/** 이번 공격에서 이미 맞은 액터들 (중복 히트 방지) */
 	TArray<AActor*> HitActorsThisSwing;
+
+	/** 현재 무기 공격의 데미지 정보 */
+	FDamageInfo CurrentWeaponDamageInfo;
 
     UCapsuleComponent* CapsuleComponent;
     UCharacterMovementComponent* CharacterMovement;
