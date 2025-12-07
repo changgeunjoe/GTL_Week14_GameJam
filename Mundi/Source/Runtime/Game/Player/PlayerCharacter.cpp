@@ -1250,15 +1250,17 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
     const bool bShouldEvaluateCharging = bIsCharging && Stats && CameraManager;
 
     int32 DesiredStage = 0;
+    
+    if (!GS) return;
 
+    const float Focus = GS->GetPlayerFocus().GetFocus();
     if (bShouldEvaluateCharging)
     {
-        if (PlayerParticles["Charging"].size() < 3 || !GS ||!PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
+        if (PlayerParticles["Charging"].size() < 3 || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
             return;
 
         if (!bWasCharging) bWasCharging = true;
 
-        const float Focus = GS->GetPlayerFocus().GetFocus();
         UE_LOG("%f", Focus);
         if (Focus < 50.0f)
         {
@@ -1290,8 +1292,27 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         CameraManager->StopCameraShake();
         for (auto& Charge : PlayerParticles["Charging"])
         {
-            if(Charge)
+            if (Charge)
                 Charge->PauseSpawning();
+        }
+    }
+    else
+    {
+        // TODO : Update말고 Event로 주면 얼마나 좋을까..
+        if (Focus < 50.0f) 
+        {
+            if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
+            if (PlayerParticles["Charged"][1] && PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->PauseSpawning();
+        }
+        else if (Focus < 99.0f)
+        {
+            if (PlayerParticles["Charged"][1] && PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->PauseSpawning();
+            if(PlayerParticles["Charged"][0] && !PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->ResumeSpawning();
+        }
+        else
+        {
+            if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
+            if (PlayerParticles["Charged"][1] && !PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->ResumeSpawning();
         }
     }
 }
@@ -1308,6 +1329,7 @@ void APlayerCharacter::GatherParticles()
 
     PlayerParticles["Charging"].SetNum(5);
     PlayerParticles["WeaponRibbon"].SetNum(5);
+    PlayerParticles["Charged"].SetNum(5);
     for (UActorComponent* Component : OwnedComponents)
     {
         if (!Component)
@@ -1340,6 +1362,11 @@ void APlayerCharacter::GatherParticles()
         else if (ParticleName.find("WeaponRibbon") != FString::npos)
         {
             PlayerParticles["WeaponRibbon"][ParticleComp->GetParticleIndex()] = ParticleComp;
+            continue;
+        }
+        else if (ParticleName.find("Charged") != FString::npos)
+        {
+            PlayerParticles["Charged"][ParticleComp->GetParticleIndex()] = ParticleComp;
             continue;
         }
         PlayerParticles[ParticleName].Add(ParticleComp);
