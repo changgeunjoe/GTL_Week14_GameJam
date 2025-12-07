@@ -954,12 +954,26 @@ void FSceneRenderer::RenderOpaquePass(EViewMode InRenderViewMode)
 		MeshComponent->CollectMeshBatches(MeshBatchElements, View);
 	}
 
-	// Collect normal billboards (not always-on-top)
+	// Collect normal billboards (not always-on-top, not LockOnIndicator)
+	TArray<FMeshBatchElement> LockOnBillboardBatches;
 	for (UBillboardComponent* BillboardComponent : Proxies.Billboards)
 	{
-		if (!BillboardComponent->IsAlwaysOnTop())
+		FString Name = BillboardComponent->GetName();
+		bool bIsAlwaysOnTop = BillboardComponent->IsAlwaysOnTop();
+		UE_LOG("[SceneRenderer] Billboard: %s, AlwaysOnTop: %d", Name.c_str(), bIsAlwaysOnTop);
+
+		if (!bIsAlwaysOnTop)
 		{
-			BillboardComponent->CollectMeshBatches(MeshBatchElements, View);
+			// LockOnIndicator는 별도로 Translucent 렌더링
+			if (Name == "LockOnIndicator")
+			{
+				UE_LOG("[SceneRenderer] Found LockOnIndicator billboard (not AlwaysOnTop)!");
+				BillboardComponent->CollectMeshBatches(LockOnBillboardBatches, View);
+			}
+			else
+			{
+				BillboardComponent->CollectMeshBatches(MeshBatchElements, View);
+			}
 		}
 	}
 
@@ -978,21 +992,47 @@ void FSceneRenderer::RenderOpaquePass(EViewMode InRenderViewMode)
 		DrawMeshBatches(MeshBatchElements, true);
 	}
 
+	// --- 3.5 LockOnIndicator 빌보드 (Translucent) ---
+	if (!LockOnBillboardBatches.empty())
+	{
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Translucent);
+		DrawMeshBatches(LockOnBillboardBatches, true);
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
+	}
+
 	// --- 4. Always-on-top billboards (depth test disabled) ---
 	MeshBatchElements.Empty();
+	TArray<FMeshBatchElement> AlwaysOnTopLockOnBatches;
 	for (UBillboardComponent* BillboardComponent : Proxies.Billboards)
 	{
 		if (BillboardComponent->IsAlwaysOnTop())
 		{
-			BillboardComponent->CollectMeshBatches(MeshBatchElements, View);
+			FString Name = BillboardComponent->GetName();
+			UE_LOG("[SceneRenderer] AlwaysOnTop Billboard Name: %s", Name.c_str());
+			if (Name == "LockOnIndicator")
+			{
+				UE_LOG("[SceneRenderer] Found LockOnIndicator!");
+				BillboardComponent->CollectMeshBatches(AlwaysOnTopLockOnBatches, View);
+			}
+			else
+			{
+				BillboardComponent->CollectMeshBatches(MeshBatchElements, View);
+			}
 		}
 	}
+	RHIDevice->OMSetDepthStencilState(EComparisonFunc::Disable);
 	if (!MeshBatchElements.empty())
 	{
-		RHIDevice->OMSetDepthStencilState(EComparisonFunc::Disable);
 		DrawMeshBatches(MeshBatchElements, true);
-		RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
 	}
+	// LockOnIndicator는 Translucent로 렌더링
+	if (!AlwaysOnTopLockOnBatches.empty())
+	{
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Translucent);
+		DrawMeshBatches(AlwaysOnTopLockOnBatches, true);
+		RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
+	}
+	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
 }
 
 void FSceneRenderer::RenderParticlePass()

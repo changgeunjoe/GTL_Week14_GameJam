@@ -69,9 +69,11 @@ void AEnemyBase::BeginPlay()
     LockOnIndicator = Cast<UBillboardComponent>(GetComponent(UBillboardComponent::StaticClass()));
     if (LockOnIndicator)
     {
+        LockOnIndicator->SetName("LockOnIndicator");
         LockOnIndicator->SetHiddenInGame(true);
         LockOnIndicator->SetRenderInPIE(true);
         LockOnIndicator->SetAlwaysOnTop(true);
+        LockOnIndicator->SetEditability(true);  // Required for rendering in PIE
     }
 
     // 델리게이트 바인딩

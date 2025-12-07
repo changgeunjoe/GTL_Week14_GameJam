@@ -59,12 +59,21 @@ PS_INPUT mainVS(VS_INPUT input)
     return o;
 }
 
-PS_OUTPUT mainPS(PS_INPUT i) 
+PS_OUTPUT mainPS(PS_INPUT i)
 {
     PS_OUTPUT Output;
-    
+
     float4 c = BillboardTex.Sample(LinearSamp, i.uv);
-    if (c.a < 0.1f)
+
+    // DEBUG: 텍스처 알파값 확인 - 알파를 RGB로 출력
+    // 흰색 = 알파 1.0, 검은색 = 알파 0.0
+    // Output.Color = float4(c.a, c.a, c.a, 1.0);
+    // Output.UUID = UUID;
+    // return Output;
+
+    // 알파 블렌딩을 위해 discard 대신 알파값 그대로 출력
+    // 완전히 투명한 픽셀만 discard (ID 버퍼 오염 방지)
+    if (c.a < 0.01f)
         discard;
     c = c * Color;
     Output.Color = c;
