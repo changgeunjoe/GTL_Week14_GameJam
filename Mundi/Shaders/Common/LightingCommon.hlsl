@@ -1024,9 +1024,11 @@ float3 SpecularGGX(float3 N, float3 V, float3 L, float roughness, float3 F0, flo
     float G = GeometrySmith(N, V, L, k);
     float3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
 
+    // Cook-Torrance BRDF: (D * G * F) / (4 * NdotV * NdotL)
+    // 렌더링 방정식에서 NdotL을 곱해야 함: BRDF * Li * NdotL
     float denom = max(4.0f * NdotV * NdotL, 1e-4f);
     float3 spec = (D * G) * F / denom;
-    return lightColor.rgb * spec;
+    return lightColor.rgb * spec * NdotL;
 }
 
 // Convert direction to equirectangular UV
