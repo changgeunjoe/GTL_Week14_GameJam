@@ -190,12 +190,12 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_LBUTTONDOWN:
-        UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s",
+        //UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s",
                IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
         if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(LeftButton, true);
-            UE_LOG("[InputManager] Left Mouse Down - MouseButtons[Left] = true");
+            //UE_LOG("[InputManager] Left Mouse Down - MouseButtons[Left] = true");
         }
         break;
 
@@ -226,12 +226,11 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_MBUTTONDOWN:
-        UE_LOG("[InputManager] WM_MBUTTONDOWN received - IsUIHover: %s, PIE: %s",
-               IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
+        //UE_LOG("[InputManager] WM_MBUTTONDOWN received - IsUIHover: %s, PIE: %s", IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
         if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(MiddleButton, true);
-            UE_LOG("[InputManager] Middle Mouse Down - MouseButtons[Middle] = true");
+            //UE_LOG("[InputManager] Middle Mouse Down - MouseButtons[Middle] = true");
         }
         break;
 

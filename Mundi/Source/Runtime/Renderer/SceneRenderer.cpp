@@ -960,14 +960,14 @@ void FSceneRenderer::RenderOpaquePass(EViewMode InRenderViewMode)
 	{
 		FString Name = BillboardComponent->GetName();
 		bool bIsAlwaysOnTop = BillboardComponent->IsAlwaysOnTop();
-		UE_LOG("[SceneRenderer] Billboard: %s, AlwaysOnTop: %d", Name.c_str(), bIsAlwaysOnTop);
+		//UE_LOG("[SceneRenderer] Billboard: %s, AlwaysOnTop: %d", Name.c_str(), bIsAlwaysOnTop);
 
 		if (!bIsAlwaysOnTop)
 		{
 			// LockOnIndicator는 별도로 Translucent 렌더링
 			if (Name == "LockOnIndicator")
 			{
-				UE_LOG("[SceneRenderer] Found LockOnIndicator billboard (not AlwaysOnTop)!");
+				//UE_LOG("[SceneRenderer] Found LockOnIndicator billboard (not AlwaysOnTop)!");
 				BillboardComponent->CollectMeshBatches(LockOnBillboardBatches, View);
 			}
 			else
@@ -1008,10 +1008,10 @@ void FSceneRenderer::RenderOpaquePass(EViewMode InRenderViewMode)
 		if (BillboardComponent->IsAlwaysOnTop())
 		{
 			FString Name = BillboardComponent->GetName();
-			UE_LOG("[SceneRenderer] AlwaysOnTop Billboard Name: %s", Name.c_str());
+			//UE_LOG("[SceneRenderer] AlwaysOnTop Billboard Name: %s", Name.c_str());
 			if (Name == "LockOnIndicator")
 			{
-				UE_LOG("[SceneRenderer] Found LockOnIndicator!");
+				//UE_LOG("[SceneRenderer] Found LockOnIndicator!");
 				BillboardComponent->CollectMeshBatches(AlwaysOnTopLockOnBatches, View);
 			}
 			else

@@ -1215,7 +1215,7 @@ local function CheckPhaseTransition(c)
     local maxHP = GetMaxHealth(Obj)
     local healthPercent = GetHealthPercent(Obj)
 
-    print("[Phase] HP: " .. currentHP .. "/" .. maxHP .. " = " .. string.format("%.1f%%", healthPercent * 100))
+    --print("[Phase] HP: " .. currentHP .. "/" .. maxHP .. " = " .. string.format("%.1f%%", healthPercent * 100))
     if healthPercent <= Config.Phase2HealthThreshold then
         c.phase = 2
         print("*** PHASE TRANSITION: 1 -> 2 ***")
@@ -1515,7 +1515,7 @@ function Tick(Delta)
     -- 매 틱마다 stats 갱신 (Lua 캐싱 문제 방지)
     ctx.stats = GetComponent(Obj, "UStatsComponent")
 
-    print("[BossAI] Phase: " .. ctx.phase)
+    --print("[BossAI] Phase: " .. ctx.phase)
 
     -- 플레이어 상태 추적 업데이트
     UpdatePlayerState(ctx)

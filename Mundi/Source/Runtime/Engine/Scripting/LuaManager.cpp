@@ -596,12 +596,12 @@ FLuaManager::FLuaManager()
                 if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
                 {
                     float hp = Stats->GetCurrentHealth();
-                    UE_LOG("[Lua] GetCurrentHealth: %.1f (Owner: %s)", hp, Owner->GetName().c_str());
+                    //UE_LOG("[Lua] GetCurrentHealth: %.1f (Owner: %s)", hp, Owner->GetName().c_str());
                     return hp;
                 }
-                UE_LOG("[Lua] GetCurrentHealth: StatsComponent not found on %s", Owner->GetName().c_str());
+                //UE_LOG("[Lua] GetCurrentHealth: StatsComponent not found on %s", Owner->GetName().c_str());
             }
-            UE_LOG("[Lua] GetCurrentHealth: Owner is null");
+            //UE_LOG("[Lua] GetCurrentHealth: Owner is null");
             return 0.f;
         });
 
