@@ -64,7 +64,12 @@ void APlayerController::Tick(float DeltaSeconds)
 
 void APlayerController::SetupInput()
 {
+    UE_LOG("[PlayerController] SetupInput() called!");
+
     if (!InputComponent) return;
+
+    // 기존 바인딩 클리어 (중복 방지)
+    InputComponent->ClearAllBindings();
 
     // ========================================================================
     // 키 매핑 설정

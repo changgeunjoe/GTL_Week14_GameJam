@@ -393,10 +393,10 @@ void APlayerCharacter::LightAttack()
         ComboCount = 0;
     }
 
-    // 무기 Sweep으로 공격 판정 시작
+    // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
     FDamageInfo DamageInfo(this, 10.f + ComboCount * 5.f, EDamageType::Light);
     DamageInfo.StaggerDuration = 0.2f + ComboCount * 0.1f;  // 콤보가 높을수록 경직 증가
-    StartWeaponTrace(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 공격 애니메이션 재생 (몽타주)
     if (LightAttackMontage)
@@ -438,12 +438,12 @@ void APlayerCharacter::HeavyAttack()
     SetCombatState(ECombatState::Attacking);
     ComboCount = 0;
 
-    // 무기 Sweep으로 강공격 판정 시작
+    // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
     FDamageInfo DamageInfo(this, 30.f, EDamageType::Heavy);
     DamageInfo.HitReaction = EHitReaction::Stagger;
     DamageInfo.StaggerDuration = 0.5f;
     DamageInfo.KnockbackForce = 200.f;
-    StartWeaponTrace(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 강공격 애니메이션 재생 (몽타주)
     if (HeavyAttackMontage)
@@ -763,11 +763,12 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
     float ActualDamage = DamageInfo.Damage;
 
-    // 가드 중이면 데미지 감소
+    // 가드 중이면 데미지 완전 막기
     if (bIsBlocking && DamageInfo.bCanBeBlocked)
     {
-        ActualDamage *= 0.2f; // 80% 감소
         Stats->ConsumeStamina(Stats->BlockCostPerHit);
+        UE_LOG("[PlayerCharacter] Attack blocked! Damage negated.");
+        return 0.f;  // 데미지 0
     }
 
     Stats->ApplyDamage(ActualDamage);
@@ -1140,12 +1141,12 @@ void APlayerCharacter::ExecutePendingSkill()
         SetCombatState(ECombatState::Attacking);
         ComboCount = 0;
 
-        // 무기 Sweep으로 대시공격 판정 시작
-        FDamageInfo DamageInfo(this, 40.f, EDamageType::Heavy);
+        // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
+        FDamageInfo DamageInfo(this, 40.f, EDamageType::DashAttack);
         DamageInfo.HitReaction = EHitReaction::Stagger;
         DamageInfo.StaggerDuration = 0.6f;
         DamageInfo.KnockbackForce = 300.f;
-        StartWeaponTrace(DamageInfo);
+        SetWeaponDamageInfo(DamageInfo);
 
         // 대시공격 애니메이션 재생
         if (DashAttackMontage)
@@ -1176,13 +1177,13 @@ void APlayerCharacter::ExecutePendingSkill()
         SetCombatState(ECombatState::Attacking);
         ComboCount = 0;
 
-        // 무기 Sweep으로 궁극기 판정 시작
-        FDamageInfo DamageInfo(this, 80.f, EDamageType::Special);
+        // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
+        FDamageInfo DamageInfo(this, 80.f, EDamageType::UltimateAttack);
         DamageInfo.HitReaction = EHitReaction::Knockback;
         DamageInfo.StaggerDuration = 1.0f;
         DamageInfo.KnockbackForce = 500.f;
         DamageInfo.bCanBeBlocked = false;
-        StartWeaponTrace(DamageInfo);
+        SetWeaponDamageInfo(DamageInfo);
 
         // 궁극기 애니메이션 재생
         if (UltimateAttackMontage)

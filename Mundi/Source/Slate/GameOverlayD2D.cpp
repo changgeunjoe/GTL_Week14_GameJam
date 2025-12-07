@@ -1015,6 +1015,7 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
     // 플레이어 상태 수집
     // ========================================================================
     FString PlayerStateStr = "Unknown";
+    FString PlayerAttackStr = "None";
     float PlayerHP = 0.f;
     float PlayerMaxHP = 100.f;
     bool bPlayerBlocking = false;
@@ -1039,6 +1040,19 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
             case ECombatState::Knockback: PlayerStateStr = "Knockback"; break;
             case ECombatState::Dead:      PlayerStateStr = "Dead"; break;
             default:                      PlayerStateStr = "Unknown"; break;
+            }
+
+            // 현재 무기 데미지 타입 (스킬) 가져오기
+            EDamageType DmgType = Player->GetWeaponDamageInfo().DamageType;
+            switch (DmgType)
+            {
+            case EDamageType::Light:          PlayerAttackStr = "Light"; break;
+            case EDamageType::Heavy:          PlayerAttackStr = "Heavy"; break;
+            case EDamageType::Special:        PlayerAttackStr = "Special"; break;
+            case EDamageType::Parried:        PlayerAttackStr = "Parried"; break;
+            case EDamageType::DashAttack:     PlayerAttackStr = "DashAttack"; break;
+            case EDamageType::UltimateAttack: PlayerAttackStr = "UltimateAttack"; break;
+            default:                          PlayerAttackStr = "Unknown"; break;
             }
 
             bPlayerBlocking = Player->IsBlocking();
@@ -1107,7 +1121,7 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
     float BoxX = 10.f;
     float BoxY = 60.f;  // FPS 아래로 이동
     float BoxW = 280.f;
-    float BoxH = 260.f;  // 높이 증가
+    float BoxH = 280.f;  // Attack 라인 추가로 높이 증가
 
     if (BgBrush)
     {
@@ -1121,6 +1135,7 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
     swprintf_s(DebugText, 1024,
         L"=== PLAYER ===\n"
         L"State: %hs\n"
+        L"Attack: %hs\n"
         L"HP: %.0f / %.0f\n"
         L"Blocking: %hs\n"
         L"Invincible: %hs\n"
@@ -1134,6 +1149,7 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
         L"HP: %.0f / %.0f\n"
         L"SuperArmor: %hs",
         PlayerStateStr.c_str(),
+        PlayerAttackStr.c_str(),
         PlayerHP, PlayerMaxHP,
         bPlayerBlocking ? "Yes" : "No",
         bPlayerInvincible ? "Yes" : "No",
