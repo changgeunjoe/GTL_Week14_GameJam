@@ -95,6 +95,44 @@ void APlayerCharacter::BeginPlay()
     InitAttackMontage(DashAttackMontage, DashAttackAnimPath, "DashAttackMontage");
     InitAttackMontage(UltimateAttackMontage, UltimateAttackAnimPath, "UltimateAttackMontage");
 
+    // 피격 몽타주 초기화 (4방향: F, B, R, L)
+    FString* HitPaths[4] = { &HitAnimPath_F, &HitAnimPath_B, &HitAnimPath_R, &HitAnimPath_L };
+    const char* HitNames[4] = { "F", "B", "R", "L" };
+
+    for (int32 i = 0; i < 4; ++i)
+    {
+        if (!HitPaths[i]->empty())
+        {
+            UAnimSequence* HitAnim = UResourceManager::GetInstance().Get<UAnimSequence>(*HitPaths[i]);
+            if (HitAnim)
+            {
+                HitMontages[i] = NewObject<UAnimMontage>();
+                HitMontages[i]->SetSourceSequence(HitAnim);
+                UE_LOG("[PlayerCharacter] HitMontage[%s] initialized: %s", HitNames[i], HitPaths[i]->c_str());
+            }
+            else
+            {
+                UE_LOG("[PlayerCharacter] Failed to find hit animation: %s", HitPaths[i]->c_str());
+            }
+        }
+    }
+
+    // 사망 몽타주 초기화
+    if (!DeathAnimPath.empty())
+    {
+        UAnimSequence* DeathAnim = UResourceManager::GetInstance().Get<UAnimSequence>(DeathAnimPath);
+        if (DeathAnim)
+        {
+            DeathMontage = NewObject<UAnimMontage>();
+            DeathMontage->SetSourceSequence(DeathAnim);
+            UE_LOG("[PlayerCharacter] DeathMontage initialized: %s", DeathAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find death animation: %s", DeathAnimPath.c_str());
+        }
+    }
+
     // 구르기 몽타주 초기화 (8방향)
     FString* DodgePaths[8] = {
         &DodgeAnimPath_F, &DodgeAnimPath_FR, &DodgeAnimPath_R, &DodgeAnimPath_BR,
@@ -722,6 +760,13 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
     Stats->ApplyDamage(ActualDamage);
 
+    // 사망 체크
+    if (!Stats->IsAlive())
+    {
+        OnDeath();
+        return ActualDamage;
+    }
+
     // 피격 반응 (가드 중이 아니거나 슈퍼아머가 아니면)
     if (!bIsBlocking)
     {
@@ -766,8 +811,47 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
     SetCombatState(ECombatState::Staggered);
     StaggerTimer = DamageInfo.StaggerDuration;
 
-    // TODO: 피격 애니메이션 재생
-    // PlayHitReactionAnimation(Reaction);
+    // 피격 방향 계산 (0=F, 1=B, 2=R, 3=L)
+    int32 HitDirIndex = 0;  // 기본값: Forward
+    if (!DamageInfo.HitDirection.IsZero())
+    {
+        // HitDirection을 캐릭터 로컬 좌표계로 변환
+        FQuat ActorRot = GetActorRotation();
+        FVector LocalHitDir = ActorRot.Inverse().RotateVector(DamageInfo.HitDirection);
+        LocalHitDir.Z = 0.f;
+        LocalHitDir.Normalize();
+
+        // 방향 결정
+        float ForwardDot = LocalHitDir.X;  // Forward = +X
+        float RightDot = LocalHitDir.Y;    // Right = +Y
+
+        if (FMath::Abs(ForwardDot) > FMath::Abs(RightDot))
+        {
+            // 앞/뒤
+            HitDirIndex = (ForwardDot > 0.f) ? 0 : 1;  // F or B
+        }
+        else
+        {
+            // 좌/우
+            HitDirIndex = (RightDot > 0.f) ? 2 : 3;  // R or L
+        }
+    }
+
+    // 피격 애니메이션 재생
+    if (HitMontages[HitDirIndex])
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableHitRootMotion);
+                AnimInst->SetAnimationCutEndTime(HitCutEndTime);
+                AnimInst->Montage_Play(HitMontages[HitDirIndex], 0.05f, 0.1f, 1.0f);
+                const char* DirNames[4] = { "F", "B", "R", "L" };
+                UE_LOG("[PlayerCharacter] Playing Hit montage: %s", DirNames[HitDirIndex]);
+            }
+        }
+    }
 
     // 넉백 적용
     if (Reaction == EHitReaction::Knockback && DamageInfo.KnockbackForce > 0.f)
@@ -782,7 +866,20 @@ void APlayerCharacter::OnDeath()
     SetCombatState(ECombatState::Dead);
     EndWeaponTrace();
 
-    // TODO: 사망 애니메이션/래그돌
+    // 사망 애니메이션 재생
+    if (DeathMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableDeathRootMotion);
+                AnimInst->SetAnimationCutEndTime(DeathCutEndTime);
+                AnimInst->Montage_Play(DeathMontage, 0.1f, 0.0f, 1.0f);  // BlendOut 없음
+                UE_LOG("[PlayerCharacter] Playing Death montage");
+            }
+        }
+    }
 }
 
 // ============================================================================

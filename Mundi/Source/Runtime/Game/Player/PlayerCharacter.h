@@ -216,6 +216,50 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Animation|Attack")
     float UltimateAttackCutEndTime = 0.0f;
 
+    // ========== 피격 몽타주 (4방향) ==========
+    /** 피격 애니메이션 경로 - Forward */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_F;
+
+    /** 피격 애니메이션 경로 - Backward */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_B;
+
+    /** 피격 애니메이션 경로 - Right */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_R;
+
+    /** 피격 애니메이션 경로 - Left */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_L;
+
+    /** 피격 몽타주 배열 (4방향) - 인덱스: 0=F, 1=B, 2=R, 3=L */
+    UAnimMontage* HitMontages[4] = { nullptr };
+
+    /** 피격 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    bool bEnableHitRootMotion = false;
+
+    /** 피격 애니메이션 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    float HitCutEndTime = 0.0f;
+
+    // ========== 사망 몽타주 ==========
+    /** 사망 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    FString DeathAnimPath;
+
+    /** 사망 몽타주 */
+    UAnimMontage* DeathMontage = nullptr;
+
+    /** 사망 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    bool bEnableDeathRootMotion = false;
+
+    /** 사망 애니메이션 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    float DeathCutEndTime = 0.0f;
+
     // ========== 구르기 몽타주 (8방향) ==========
     /** 구르기 애니메이션 경로 - Forward */
     UPROPERTY(EditAnywhere, Category = "Animation|Dodge")

@@ -151,6 +151,15 @@ void APlayerController::OnLookRight(float Value)
 
 void APlayerController::OnJump()
 {
+    // 사망 시 점프 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
+
     if (auto* Character = Cast<ACharacter>(Pawn))
     {
         Character->Jump();
@@ -255,6 +264,15 @@ void APlayerController::OnUltimateAttack()
 
 void APlayerController::OnStartSprint()
 {
+    // 사망 시 스프린트 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
+
     if (auto* Character = Cast<ACharacter>(Pawn))
     {
         if (auto* MovementComp = Character->GetCharacterMovement())
@@ -314,6 +332,15 @@ void APlayerController::OnStopCharging()
 void APlayerController::ApplyMovement(float DeltaTime)
 {
     if (!Pawn) return;
+
+    // 사망 시 이동 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
 
     // 몽타주 재생 중이면 이동 입력 무시
     bool bIsMontaguePlaying = false;
