@@ -437,6 +437,7 @@
     <ClCompile Include="Source\Runtime\Engine\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\LightComponentBase.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\LocalLightComponent.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\Components\InputComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\LuaScriptComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\MovementComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\PointLightComponent.cpp" />
@@ -968,6 +969,7 @@
     <ClInclude Include="Source\Runtime\Engine\Audio\Sound.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\AudioComponent.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\CapsuleComponent.h" />
+    <ClInclude Include="Source\Runtime\Engine\Components\InputComponent.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\LuaScriptComponent.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\MovementComponent.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\ParticleSystemComponent.h" />

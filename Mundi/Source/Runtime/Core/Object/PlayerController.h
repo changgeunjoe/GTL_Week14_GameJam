@@ -3,6 +3,7 @@
 #include "APlayerController.generated.h"
 
 class UTargetingComponent;
+class UInputComponent;
 
 class APlayerController : public AController
 {
@@ -18,6 +19,11 @@ public:
 	virtual void SetupInput();
 
 	// ========================================================================
+	// Input Component
+	// ========================================================================
+	UInputComponent* GetInputComponent() const { return InputComponent; }
+
+	// ========================================================================
 	// Targeting System
 	// ========================================================================
 	UTargetingComponent* GetTargetingComponent() const { return TargetingComponent; }
@@ -26,13 +32,31 @@ public:
 	bool bIsLockOn = false;
 
 protected:
-    void ProcessMovementInput(float DeltaTime);
+	// 입력 콜백 함수들
+	void OnMoveForward(float Value);
+	void OnMoveRight(float Value);
+	void OnLookUp(float Value);
+	void OnLookRight(float Value);
+	void OnJump();
+	void OnStopJump();
+	void OnDodge();
+	void OnToggleLockOn();
+	void OnSwitchTargetLeft();
+	void OnSwitchTargetRight();
+	void OnToggleMouseLook();
+	void OnAttack();
+	void OnStartSprint();
+	void OnStopSprint();
+
     void ProcessRotationInput(float DeltaTime);
-    void ProcessLockOnInput();
     void ProcessLockedMovement(float DeltaTime, const FVector& WorldMoveDir);
+	void ApplyMovement(float DeltaTime);
 
 protected:
     bool bMouseLookEnabled = true;
+
+	// Input Component
+	UInputComponent* InputComponent = nullptr;
 
     // Targeting Component (replaces old bIsLockOn/LockedYaw)
     UTargetingComponent* TargetingComponent = nullptr;
@@ -40,6 +64,12 @@ protected:
     // Smooth rotation speed when locked on
     float CharacterRotationSpeed = 10.0f;
 
+	// 축 입력 값 저장
+	float MoveForwardValue = 0.0f;
+	float MoveRightValue = 0.0f;
+	float LookUpValue = 0.0f;
+	float LookRightValue = 0.0f;
+
 private:
-	float Sensitivity = 0.1;
+	float Sensitivity = 0.1f;
 };

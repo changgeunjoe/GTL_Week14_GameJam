@@ -228,7 +228,7 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
             UpdateMouseButton(MiddleButton, true);
         }
         break;
-        
+
     case WM_MBUTTONUP:
         if (!IsUIHover)
         {
