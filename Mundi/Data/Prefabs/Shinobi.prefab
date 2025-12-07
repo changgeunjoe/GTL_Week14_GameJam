@@ -15,6 +15,27 @@
   "MoveSpeed" : 500.000000,
   "ObjectName" : "플레이어 캐릭터_0",
   "OwnedComponents" : [{
+      "CapsuleHalfHeight" : 0.900000,
+      "CapsuleRadius" : 0.300000,
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 7740,
+      "ObjectName" : "UCapsuleComponent_1",
+      "ParentId" : 0,
+      "RelativeLocation" : [-0.954277, -3.716386, 3.622365],
+      "RelativeRotationEuler" : [0.000000, -0.004071, 0.000448],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UCapsuleComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bRegisterToPhysX" : true,
+      "bShapeHiddenInGame" : true,
+      "bShapeIsVisible" : true,
+      "bTickEnabled" : true
+    }, {
       "BlockCostPerHit" : 20.000000,
       "CurrentHealth" : 100.000000,
       "CurrentStamina" : 85.000000,
@@ -40,7 +61,7 @@
     }, {
       "AnimGraphPath" : "Data/Graphs/Shinobi.graph",
       "CollisionEnabled_Internal" : 2,
-      "Id" : 7648,
+      "Id" : 7743,
       "MaterialSlots" : [{
           "Type" : "None"
         }, {
@@ -197,7 +218,7 @@
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "USkeletalMeshComponent_3",
-      "ParentId" : 7647,
+      "ParentId" : 7740,
       "PhysicsAssetOverridePath" : "Data/Physics/Shinobi.phys",
       "RelativeLocation" : [0.000000, 0.000000, -0.900000],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -213,27 +234,6 @@
       "bOverrideCollisionSetting" : false,
       "bTickEnabled" : true
     }, {
-      "CapsuleHalfHeight" : 0.900000,
-      "CapsuleRadius" : 0.300000,
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 7647,
-      "ObjectName" : "UCapsuleComponent_1",
-      "ParentId" : 0,
-      "RelativeLocation" : [6.982664, -6.817757, 1.010680],
-      "RelativeRotationEuler" : [0.000000, -0.004071, 0.000448],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UCapsuleComponent",
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bRegisterToPhysX" : true,
-      "bShapeHiddenInGame" : true,
-      "bShapeIsVisible" : true,
-      "bTickEnabled" : true
-    }, {
       "AngularDampingOverride" : 0.050000,
       "BoxExtent" : [50.000000, 0.000000, 0.000000],
       "CapsuleHalfHeight" : 44.000000,
@@ -243,7 +243,7 @@
       "CollisionRotation" : [0.000000, 0.000000, 0.000000],
       "CollisionType" : 1,
       "FrictionCombineModeOverride" : 2,
-      "Id" : 7711,
+      "Id" : 7806,
       "LinearDampingOverride" : 0.010000,
       "MassOverride" : 10.000000,
       "MaterialSlots" : [{
@@ -263,7 +263,7 @@
           "Type" : "UMaterial"
         }],
       "ObjectName" : "SubWeaponMeshComponent",
-      "ParentId" : 7648,
+      "ParentId" : 7743,
       "PhysMaterialPreset" : 0,
       "RelativeLocation" : [-0.126157, -0.424431, 1.140013],
       "RelativeRotationEuler" : [-165.859161, -1.739906, 179.597656],
@@ -292,12 +292,23 @@
       "CollisionRotation" : [0.000000, 0.000000, 0.000000],
       "CollisionType" : 1,
       "FrictionCombineModeOverride" : 2,
-      "Id" : 7714,
+      "Id" : 7809,
       "LinearDampingOverride" : 0.010000,
       "MassOverride" : 10.000000,
       "MaterialSlots" : [{
-          "AssetPath" : "silver",
-          "Type" : "UMaterial"
+          "Overrides" : {
+            "Scalars" : {
+
+            },
+            "Textures" : {
+
+            },
+            "Vectors" : {
+              "EmissiveColor" : [1.000000, 0.599067, 0.362934, 1.000000]
+            }
+          },
+          "ParentPath" : "silver",
+          "Type" : "UMaterialInstanceDynamic"
         }, {
           "AssetPath" : "handle",
           "Type" : "UMaterial"
@@ -318,9 +329,9 @@
           "Type" : "UMaterial"
         }],
       "ObjectName" : "WeaponMeshComponent",
-      "ParentId" : 7648,
+      "ParentId" : 7743,
       "PhysMaterialPreset" : 0,
-      "RelativeLocation" : [0.394519, 0.434058, 1.103885],
+      "RelativeLocation" : [0.394518, 0.434058, 1.103885],
       "RelativeRotationEuler" : [2.060881, -12.279352, -1.706857],
       "RelativeScale" : [0.130000, 0.100000, 0.170000],
       "RestitutionCombineModeOverride" : 2,
@@ -339,7 +350,7 @@
       "bTickEnabled" : true
     }],
   "ParryWindowDuration" : 0.200000,
-  "RootComponentId" : 7647,
+  "RootComponentId" : 7740,
   "RotationSpeed" : 10.000000,
   "SubWeaponBoneName" : "hand_l",
   "SubWeaponOffset" : [0.040000, 0.040000, 0.100000],

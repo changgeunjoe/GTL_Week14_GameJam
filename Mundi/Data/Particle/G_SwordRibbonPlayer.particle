@@ -15,19 +15,34 @@
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "TessellationFactor" : 14,
+                    "TessellationFactor" : 16,
                     "TilingDistance" : 1.000000,
                     "TrailLifetime" : 2.000000,
                     "Type" : "Ribbon",
-                    "Width" : 0.300000,
+                    "Width" : 0.500000,
                     "bEnabled" : true,
-                    "bUseCameraFacing" : true
+                    "bUseCameraFacing" : false
                   }, {
                     "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
-                    "StartColor_Min" : [0.420849, 0.537127, 1.000000, 1.000000],
+                    "StartColor_Min" : [1.000000, 0.420849, 0.420849, 1.000000],
                     "StartColor_bUseRange" : false,
                     "Type" : "Color",
                     "bEnabled" : true
+                  }, {
+                    "AlphaOverLife_Max" : 1.000000,
+                    "AlphaOverLife_Min" : 1.000000,
+                    "AlphaOverLife_bUseRange" : false,
+                    "AlphaPoint1Time" : 0.000000,
+                    "AlphaPoint1Value" : 0.000000,
+                    "AlphaPoint2Time" : 0.579515,
+                    "AlphaPoint2Value" : 1.000000,
+                    "ColorOverLife_Max" : [1.000000, 0.000000, 0.000000, 1.000000],
+                    "ColorOverLife_Min" : [1.000000, 0.324324, 0.000000, 1.000000],
+                    "ColorOverLife_bUseRange" : true,
+                    "Type" : "ColorOverLife",
+                    "bEnabled" : true,
+                    "bUseAlphaOverLife" : false,
+                    "bUseColorOverLife" : true
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 2,
@@ -77,15 +92,15 @@
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
-                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
-                    "StartSize_Min" : [1.000000, 10.000000, 10.000000],
-                    "StartSize_bUseRange" : false,
+                    "StartSize_Max" : [0.100000, 0.100000, 0.100000],
+                    "StartSize_Min" : [0.500000, 0.500000, 0.500000],
+                    "StartSize_bUseRange" : true,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "Gravity" : [0.000000, 0.000000, 0.000000],
-                    "StartVelocity_Max" : [-1.000000, -1.000000, -1.000000],
-                    "StartVelocity_Min" : [1.000000, 1.000000, 1.000000],
+                    "Gravity" : [0.000000, 0.000000, -0.100000],
+                    "StartVelocity_Max" : [-0.500000, -0.500000, 0.000000],
+                    "StartVelocity_Min" : [0.500000, 0.500000, 0.000000],
                     "StartVelocity_bUseRange" : true,
                     "Type" : "Velocity",
                     "bEnabled" : true
@@ -98,12 +113,12 @@
                     "AlphaPoint2Time" : 1.000000,
                     "AlphaPoint2Value" : 0.000000,
                     "ColorOverLife_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
-                    "ColorOverLife_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "ColorOverLife_Min" : [1.000000, 0.787645, 0.000000, 1.000000],
                     "ColorOverLife_bUseRange" : false,
                     "Type" : "ColorOverLife",
                     "bEnabled" : true,
                     "bUseAlphaOverLife" : true,
-                    "bUseColorOverLife" : false
+                    "bUseColorOverLife" : true
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [1.000000, 1.000000, 1.000000],
@@ -126,7 +141,7 @@
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 1,
-                  "DiffuseTexture" : "Data/Textures/A_Flare_D.PNG",
+                  "DiffuseTexture" : "Data/Textures/A_Flare_D2.PNG",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,

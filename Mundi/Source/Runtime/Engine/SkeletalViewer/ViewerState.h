@@ -60,6 +60,7 @@ public:
     bool bTimeChanged = false;
     bool bIsRecording = false;
     bool bIsLooping = true;
+    bool bPendingNotifySave = false;
 
 	// ======== 피직스 애셋 관련 ==========
     
@@ -90,7 +91,9 @@ public:
 
 	// Particle preview state
 	UParticleSystemComponent* PreviewParticleComponent = nullptr;
-	int32 PreviewParticleNotifyIndex = -1;
+    UBillboardComponent* ParticleDebugBillboard = nullptr;
+    int32 ParticleDebugNotifyIndex = -1;
+    int32 PreviewParticleNotifyIndex = -1;
 	// ======== 래그돌 시뮬레이션 관련 ==========
 	bool bSimulatePhysics = false;  // 물리 시뮬레이션 활성화 여부 (래그돌 토글)
 };

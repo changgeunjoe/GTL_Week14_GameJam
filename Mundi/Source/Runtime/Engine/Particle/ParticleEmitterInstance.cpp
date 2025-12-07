@@ -654,6 +654,7 @@ void FParticleEmitterInstance::BuildReplayData(FDynamicEmitterReplayDataBase& Ou
             RibbonOut.TilingDistance = CachedRibbonModule ? CachedRibbonModule->TilingDistance : 0.0f;
             RibbonOut.TrailLifetime = CachedRibbonModule ? CachedRibbonModule->TrailLifetime : 1.0f;
             RibbonOut.bUseCameraFacing = CachedRibbonModule ? CachedRibbonModule->bUseCameraFacing : true;
+            RibbonOut.TessellationFactor = CachedRibbonModule ? FMath::Max(1, CachedRibbonModule->TessellationFactor) : 1;
             RibbonOut.TrailPayloadOffset = RibbonPayloadOffset;
             RibbonOut.TrailCount = RibbonTrailCount;
             RibbonOut.TrailHeads = RibbonTrailHeads;

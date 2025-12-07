@@ -9,6 +9,7 @@ class UCameraModifierBase;
 class FViewport;
 class URenderSettings;
 class UCamMod_Fade;
+class UCamMod_Bloom;
 
 UCLASS(DisplayName="APlayerCameraManager", Description="APlayerCameraManager 액터")
 class APlayerCameraManager : public AActor
@@ -23,6 +24,7 @@ protected:
 	~APlayerCameraManager() override;
 
 public:
+	void Serialize(const bool bInIsLoading, JSON& InOutHandle) override;
 	void BeginPlay() override;
 	void Destroy() override;
 	void Tick(float DeltaTime) override;
@@ -76,6 +78,21 @@ public:
 	void UpdateViewInfo(float DeltaTime);
 	TArray<FPostProcessModifier> GetModifiers() { return Modifiers; };
 
+	UPROPERTY(EditAnywhere, Category = "Bloom")
+	bool bBloomSettingsEnabled = false;
+
+	UPROPERTY(EditAnywhere, Category = "Bloom")
+	float BloomThresholdSetting = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Bloom")
+	float BloomSoftKneeSetting = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Bloom")
+	float BloomIntensitySetting = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Bloom")
+	float BloomBlurRadiusSetting = 1.0f;
+
 protected:
 	void AddModifier(UCameraModifierBase* Modifier)
 	{
@@ -102,4 +119,8 @@ private:
 	// TODO : 감싸기 or 배열로 관리, 현재 vignette 1개만 Update 가능
 	// Vignette 연속 효과를 위한 IDX
 	int LastVignetteIdx = 0;
+
+	void CacheBloomSettingsFromModifier();
+	void ApplyBloomSettingsFromSerializedData();
+	UCamMod_Bloom* FindBloomModifier(int32* OutIndex = nullptr) const;
 };

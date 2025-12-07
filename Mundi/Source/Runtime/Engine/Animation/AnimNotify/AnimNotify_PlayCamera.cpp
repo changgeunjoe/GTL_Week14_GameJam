@@ -16,15 +16,20 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
     }
 
     UWorld* World = MeshComp->GetWorld();
-    APlayerCameraManager* CameraManager = World ? World->GetPlayerCameraManager() : nullptr;
-    if (!CameraManager)
+    if (!World)
     {
         return;
     }
 
+    APlayerCameraManager* CameraManager = World->GetPlayerCameraManager();
+
     switch (EffectType)
     {
     case ECameraNotifyEffect::Shake:
+        if (!CameraManager)
+        {
+            return;
+        }
         CameraManager->StartCameraShake(
             ShakeSettings.Duration,
             ShakeSettings.AmplitudeLocation,
@@ -33,6 +38,7 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             ShakeSettings.Priority);
         break;
     case ECameraNotifyEffect::Fade:
+        if (!CameraManager) { return; }
         CameraManager->StartFade(
             FadeSettings.Duration,
             FadeSettings.FromAlpha,
@@ -41,6 +47,7 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             FadeSettings.Priority);
         break;
     case ECameraNotifyEffect::LetterBox:
+        if (!CameraManager) { return; }
         CameraManager->StartLetterBox(
             LetterBoxSettings.Duration,
             LetterBoxSettings.Aspect,
@@ -49,6 +56,7 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             LetterBoxSettings.Priority);
         break;
     case ECameraNotifyEffect::Vignette:
+        if (!CameraManager) { return; }
         CameraManager->StartVignette(
             VignetteSettings.Duration,
             VignetteSettings.Radius,
@@ -59,9 +67,11 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             VignetteSettings.Priority);
         break;
     case ECameraNotifyEffect::Gamma:
+        if (!CameraManager) { return; }
         CameraManager->StartGamma(GammaSettings.Gamma);
         break;
     case ECameraNotifyEffect::DOF:
+        if (!CameraManager) { return; }
         CameraManager->StartDOF(
             DOFSettings.FocalDistance,
             DOFSettings.FocalRegion,
@@ -70,6 +80,12 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             DOFSettings.MaxNearBlur,
             DOFSettings.MaxFarBlur,
             DOFSettings.Priority);
+        break;
+    case ECameraNotifyEffect::HitStop:
+        World->RequestHitStop(HitStopSettings.Duration, HitStopSettings.Dilation);
+        break;
+    case ECameraNotifyEffect::Slomo:
+        World->RequestSlomo(SlomoSettings.Duration, SlomoSettings.Dilation);
         break;
     default:
         break;

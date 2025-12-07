@@ -27,4 +27,7 @@ public:
 
     // 카메라 기준으로 리본 너비 방향을 잡을지 여부
     bool bUseCameraFacing;
+
+    // 추가 세분화 (1 이상). 각 구간을 TessellationFactor만큼 분할해 더 부드러운 리본 생성
+    int32 TessellationFactor = 1;
 };

@@ -7,6 +7,7 @@
 #include "Camera/CamMod_Vignette.h"
 #include "Camera/CamMod_Gamma.h"
 #include "Camera/CamMod_DOF.h"
+#include "Camera/CamMod_Bloom.h"
 #include "SceneView.h"
 #include "CameraActor.h"
 #include "World.h"
@@ -52,6 +53,21 @@ APlayerCameraManager::~APlayerCameraManager()
 	CurrentViewCamera = nullptr;
 
 	CachedViewport = nullptr;
+}
+
+void APlayerCameraManager::Serialize(const bool bInIsLoading, JSON& InOutHandle)
+{
+	if (!bInIsLoading)
+	{
+		CacheBloomSettingsFromModifier();
+	}
+
+	Super::Serialize(bInIsLoading, InOutHandle);
+
+	if (bInIsLoading)
+	{
+		ApplyBloomSettingsFromSerializedData();
+	}
 }
 
 void APlayerCameraManager::DuplicateSubObjects()
@@ -456,4 +472,72 @@ void APlayerCameraManager::UpdateViewInfo(float DeltaTime)
 		CurrentViewInfo.ZoomFactor = CurrentViewCamera->GetZoomFactor();
 		CurrentViewInfo.ProjectionMode = CurrentViewCamera->GetProjectionMode();
 	}
+}
+
+UCamMod_Bloom* APlayerCameraManager::FindBloomModifier(int32* OutIndex) const
+{
+	for (int32 ModifierIdx = 0; ModifierIdx < ActiveModifiers.Num(); ++ModifierIdx)
+	{
+		if (UCamMod_Bloom* Bloom = Cast<UCamMod_Bloom>(ActiveModifiers[ModifierIdx]))
+		{
+			if (OutIndex)
+			{
+				*OutIndex = ModifierIdx;
+			}
+			return Bloom;
+		}
+	}
+
+	if (OutIndex)
+	{
+		*OutIndex = -1;
+	}
+
+	return nullptr;
+}
+
+void APlayerCameraManager::CacheBloomSettingsFromModifier()
+{
+	if (UCamMod_Bloom* Bloom = FindBloomModifier())
+	{
+		bBloomSettingsEnabled = Bloom->bEnabled;
+		BloomThresholdSetting = Bloom->Threshold;
+		BloomSoftKneeSetting = Bloom->SoftKnee;
+		BloomIntensitySetting = Bloom->Intensity;
+		BloomBlurRadiusSetting = Bloom->BlurRadius;
+	}
+	else
+	{
+		bBloomSettingsEnabled = false;
+	}
+}
+
+void APlayerCameraManager::ApplyBloomSettingsFromSerializedData()
+{
+	if (!bBloomSettingsEnabled)
+	{
+		int32 RemoveIdx = -1;
+		if (UCamMod_Bloom* Bloom = FindBloomModifier(&RemoveIdx))
+		{
+			DeleteObject(Bloom);
+			if (0 <= RemoveIdx && RemoveIdx < ActiveModifiers.Num())
+			{
+				ActiveModifiers.RemoveAt(RemoveIdx);
+			}
+		}
+		return;
+	}
+
+	UCamMod_Bloom* Bloom = FindBloomModifier();
+	if (!Bloom)
+	{
+		Bloom = NewObject<UCamMod_Bloom>();
+		ActiveModifiers.Add(Bloom);
+	}
+
+	Bloom->bEnabled = true;
+	Bloom->Threshold = BloomThresholdSetting;
+	Bloom->SoftKnee = BloomSoftKneeSetting;
+	Bloom->Intensity = BloomIntensitySetting;
+	Bloom->BlurRadius = BloomBlurRadiusSetting;
 }

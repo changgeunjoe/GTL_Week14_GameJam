@@ -1,0 +1,46 @@
+{
+  "Notifies" : [{
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.250000,
+          "Duration" : 0.400000,
+          "Type" : "Slomo"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.081083
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.250000,
+          "Duration" : 0.200000,
+          "Type" : "Slomo"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.177060
+    }, {
+      "Class" : "UAnimNotify_PlayParticle",
+      "Data" : {
+        "AttachBone" : "Invalid",
+        "AttachToOwner" : false,
+        "LifeTime" : 0.000000,
+        "LocationOffset" : [0.000000, 0.000000, 0.000000],
+        "ParticlePath" : "",
+        "RotationOffset" : [0.000000, 0.000000, 0.000000],
+        "ScaleOffset" : [1.000000, 1.000000, 1.000000]
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.004964
+    }],
+  "Type" : "AnimSequenceMeta",
+  "Version" : 1
+}
