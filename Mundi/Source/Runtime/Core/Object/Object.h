@@ -196,6 +196,7 @@ public:
 
     FString GetName();    // 원문
     FString GetComparisonName(); // lower-case
+    void SetName(const FName& InName) { ObjectName = InName; }
 
     // 리플렉션 기반 자동 직렬화 (현재 클래스의 프로퍼티만 처리)
     virtual void Serialize(const bool bInIsLoading, JSON& InOutHandle);
