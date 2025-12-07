@@ -234,6 +234,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 패리 윈도우 업데이트
     UpdateParryWindow(DeltaSeconds);
 
+    // 스킬 차징 업데이트
+    UpdateSkillCharging(DeltaSeconds);
+
     // 경직 중이 아니면 입력 처리
     if (CombatState != ECombatState::Staggered)
     {
@@ -353,12 +356,12 @@ void APlayerCharacter::LightAttack()
             if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
             {
                 // 루트 모션 활성화 및 애니메이션 끝 자르기 시간 설정
-                AnimInst->SetRootMotionEnabled(bEnableAttackRootMotion);
-                AnimInst->SetAnimationCutEndTime(AnimationCutEndTime);
+                AnimInst->SetRootMotionEnabled(bEnableLightAttackRootMotion);
+                AnimInst->SetAnimationCutEndTime(LightAttackCutEndTime);
 
                 AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.01f, 1.0f);  // BlendOut 최소화
                 UE_LOG("[PlayerCharacter] Playing LightAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
-                    bEnableAttackRootMotion ? "ON" : "OFF", AnimationCutEndTime);
+                    bEnableLightAttackRootMotion ? "ON" : "OFF", LightAttackCutEndTime);
             }
         }
     }
@@ -392,7 +395,102 @@ void APlayerCharacter::HeavyAttack()
     DamageInfo.KnockbackForce = 200.f;
     StartWeaponTrace(DamageInfo);
 
-    // TODO: 강공격 애니메이션 재생
+    // 강공격 애니메이션 재생 (몽타주)
+    if (HeavyAttackMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableHeavyAttackRootMotion);
+                AnimInst->SetAnimationCutEndTime(HeavyAttackCutEndTime);
+
+                AnimInst->Montage_Play(HeavyAttackMontage, 0.1f, 0.1f, 1.0f);
+                UE_LOG("[PlayerCharacter] Playing HeavyAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
+                    bEnableHeavyAttackRootMotion ? "ON" : "OFF", HeavyAttackCutEndTime);
+            }
+        }
+    }
+}
+
+void APlayerCharacter::DashAttack()
+{
+    UE_LOG("[PlayerCharacter] DashAttack() called - CombatState: %d", static_cast<int>(CombatState));
+
+    // 이미 차징 중이면 무시
+    if (PendingSkillType != 0)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - already charging");
+        return;
+    }
+
+    // 상태 체크
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Dead)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - invalid state");
+        return;
+    }
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - no StatsComponent");
+        return;
+    }
+
+    // 포커스 50 이상 필요
+    if (Stats->GetCurrentFocus() < 50.f)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - not enough focus (need 50, have %.0f)",
+               Stats->GetCurrentFocus());
+        return;
+    }
+
+    // 차징 시작 (포커스는 실제 공격 시 소모)
+    StartSkillCharging(1);  // 1 = DashAttack
+}
+
+void APlayerCharacter::UltimateAttack()
+{
+    UE_LOG("[PlayerCharacter] UltimateAttack() called - CombatState: %d", static_cast<int>(CombatState));
+
+    // 이미 차징 중이면 무시
+    if (PendingSkillType != 0)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - already charging");
+        return;
+    }
+
+    // 상태 체크
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Dead)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - invalid state");
+        return;
+    }
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - no StatsComponent");
+        return;
+    }
+
+    // 포커스 100 이상 필요 (최대치)
+    if (Stats->GetCurrentFocus() < 100.f)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - not enough focus (need 100, have %.0f)",
+               Stats->GetCurrentFocus());
+        return;
+    }
+
+    // 차징 시작 (포커스는 실제 공격 시 소모)
+    StartSkillCharging(2);  // 2 = UltimateAttack
 }
 
 void APlayerCharacter::Dodge()
@@ -833,6 +931,162 @@ void APlayerCharacter::UpdateDodgeState(float DeltaTime)
                 bIsInvincible = false;
                 SetCombatState(ECombatState::Idle);
                 UE_LOG("[PlayerCharacter] Dodge finished, returning to Idle");
+            }
+        }
+    }
+}
+
+// ============================================================================
+// 스킬 차징 시스템
+// ============================================================================
+
+void APlayerCharacter::StartSkillCharging(int32 SkillType)
+{
+    UE_LOG("[PlayerCharacter] StartSkillCharging - SkillType: %d", SkillType);
+
+    // 가드 해제
+    StopBlock();
+
+    // 차징 상태 초기화
+    PendingSkillType = SkillType;
+    ChargingLoopCount = 0;
+    ChargingLoopTimer = 0.f;
+
+    // 차징 몽타주 재생
+    if (ChargingMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->Montage_Play(ChargingMontage, 0.1f, 0.1f, 1.0f, true);  // bLoop = true
+                UE_LOG("[PlayerCharacter] Playing Charging montage for skill (Loop target: %d)", ChargingLoopTarget);
+            }
+        }
+    }
+}
+
+void APlayerCharacter::UpdateSkillCharging(float DeltaTime)
+{
+    // 스킬 대기 중이 아니면 스킵
+    if (PendingSkillType == 0)
+    {
+        return;
+    }
+
+    // 타이머 증가
+    ChargingLoopTimer += DeltaTime;
+
+    // 루프 1회 완료 체크
+    if (ChargingLoopTimer >= ChargingLoopDuration)
+    {
+        ChargingLoopCount++;
+        ChargingLoopTimer -= ChargingLoopDuration;
+        UE_LOG("[PlayerCharacter] Charging loop %d/%d completed", ChargingLoopCount, ChargingLoopTarget);
+
+        // 목표 루프 횟수 도달
+        if (ChargingLoopCount >= ChargingLoopTarget)
+        {
+            // 차징 몽타주 정지
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->Montage_Stop(0.1f);
+                }
+            }
+
+            // 스킬 실행
+            ExecutePendingSkill();
+        }
+    }
+}
+
+void APlayerCharacter::ExecutePendingSkill()
+{
+    int32 SkillType = PendingSkillType;
+    PendingSkillType = 0;  // 초기화
+
+    UE_LOG("[PlayerCharacter] ExecutePendingSkill - SkillType: %d", SkillType);
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] ExecutePendingSkill blocked - no StatsComponent");
+        return;
+    }
+
+    if (SkillType == 1)  // DashAttack
+    {
+        // 포커스 50 소모
+        if (!Stats->ConsumeFocus(50.f))
+        {
+            UE_LOG("[PlayerCharacter] ExecutePendingSkill (DashAttack) blocked - ConsumeFocus failed");
+            return;
+        }
+
+        UE_LOG("[PlayerCharacter] Executing DashAttack - Focus remaining: %.0f", Stats->GetCurrentFocus());
+
+        SetCombatState(ECombatState::Attacking);
+        ComboCount = 0;
+
+        // 무기 Sweep으로 대시공격 판정 시작
+        FDamageInfo DamageInfo(this, 40.f, EDamageType::Heavy);
+        DamageInfo.HitReaction = EHitReaction::Stagger;
+        DamageInfo.StaggerDuration = 0.6f;
+        DamageInfo.KnockbackForce = 300.f;
+        StartWeaponTrace(DamageInfo);
+
+        // 대시공격 애니메이션 재생
+        if (DashAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableDashAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(DashAttackCutEndTime);
+                    AnimInst->Montage_Play(DashAttackMontage, 0.1f, 0.1f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Playing DashAttack montage");
+                }
+            }
+        }
+    }
+    else if (SkillType == 2)  // UltimateAttack
+    {
+        // 포커스 100 소모
+        if (!Stats->ConsumeFocus(100.f))
+        {
+            UE_LOG("[PlayerCharacter] ExecutePendingSkill (UltimateAttack) blocked - ConsumeFocus failed");
+            return;
+        }
+
+        UE_LOG("[PlayerCharacter] Executing UltimateAttack - Focus remaining: %.0f", Stats->GetCurrentFocus());
+
+        SetCombatState(ECombatState::Attacking);
+        ComboCount = 0;
+
+        // 무기 Sweep으로 궁극기 판정 시작
+        FDamageInfo DamageInfo(this, 80.f, EDamageType::Special);
+        DamageInfo.HitReaction = EHitReaction::Knockback;
+        DamageInfo.StaggerDuration = 1.0f;
+        DamageInfo.KnockbackForce = 500.f;
+        DamageInfo.bCanBeBlocked = false;
+        StartWeaponTrace(DamageInfo);
+
+        // 궁극기 애니메이션 재생
+        if (UltimateAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableUltimateAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(UltimateAttackCutEndTime);
+                    AnimInst->Montage_Play(UltimateAttackMontage, 0.1f, 0.1f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Playing UltimateAttack montage");
+                }
             }
         }
     }

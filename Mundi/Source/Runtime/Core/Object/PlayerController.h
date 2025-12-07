@@ -45,6 +45,8 @@ protected:
 	void OnSwitchTargetRight();
 	void OnToggleMouseLook();
 	void OnAttack();
+	void OnDashAttack();
+	void OnUltimateAttack();
 	void OnStartSprint();
 	void OnStopSprint();
 	void OnStartBlock();
