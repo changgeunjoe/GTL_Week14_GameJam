@@ -6,6 +6,7 @@
 #include "AnimNotify/AnimNotify_PlaySound.h"
 #include "AnimNotify/AnimNotify_PlayCamera.h"
 #include "AnimNotify/AnimNotify_PlayParticle.h"
+#include "AnimNotify/AnimNotify_ParticleOnOff.h"
 #include "AnimNotify/AnimNotify_EnableHitbox.h"
 #include "AnimNotify/AnimNotify_EnableWeaponCollision.h"
 #include "AnimTypes.h"
@@ -405,6 +406,11 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
             const UAnimNotify_EnableWeaponCollision* WC = static_cast<const UAnimNotify_EnableWeaponCollision*>(Evt.Notify);
             Data["bEnable"] = WC->bEnable;
         }
+        else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_ParticleOnOff>())
+        {
+            const UAnimNotify_ParticleOnOff* ParticleOnOff = static_cast<const UAnimNotify_ParticleOnOff*>(Evt.Notify);
+            Data["bActivate"] = ParticleOnOff->bActivate;
+        }
         else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayCamera>())
         {
             const UAnimNotify_PlayCamera* CameraNotify = static_cast<const UAnimNotify_PlayCamera*>(Evt.Notify);
@@ -627,6 +633,19 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 }
             }
             Evt.Notify = WC;
+            Evt.NotifyState = nullptr;
+        }
+        else if (ClassStr == "UAnimNotify_ParticleOnOff" || ClassStr == "ParticleOnOff")
+        {
+            UAnimNotify_ParticleOnOff* ParticleOnOff = NewObject<UAnimNotify_ParticleOnOff>();
+            if (ParticleOnOff && DataPtr)
+            {
+                if (DataPtr->hasKey("bActivate"))
+                {
+                    ParticleOnOff->bActivate = DataPtr->at("bActivate").ToBool();
+                }
+            }
+            Evt.Notify = ParticleOnOff;
             Evt.NotifyState = nullptr;
         }
         else if (ClassStr == "UAnimNotify_PlayCamera" || ClassStr == "PlayCamera")

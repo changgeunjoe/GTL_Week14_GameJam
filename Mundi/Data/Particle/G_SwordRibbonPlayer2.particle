@@ -19,7 +19,7 @@
                     "TilingDistance" : 1.000000,
                     "TrailLifetime" : 1.000000,
                     "Type" : "Ribbon",
-                    "Width" : 0.500000,
+                    "Width" : 0.200000,
                     "bEnabled" : true,
                     "bUseCameraFacing" : false
                   }, {
@@ -46,7 +46,7 @@
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 2,
-                  "DiffuseTexture" : "Data/Textures/A_Trace.png",
+                  "DiffuseTexture" : "Data/Textures/A_Trace6.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,
@@ -74,8 +74,8 @@
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
                   "SpawnRateType" : 0,
-                  "SpawnRate_Max" : 100.000000,
-                  "SpawnRate_Min" : 100.000000,
+                  "SpawnRate_Max" : 60.000000,
+                  "SpawnRate_Min" : 60.000000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true

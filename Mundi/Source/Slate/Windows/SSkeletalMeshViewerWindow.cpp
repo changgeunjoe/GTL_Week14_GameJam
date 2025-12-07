@@ -18,6 +18,7 @@
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlaySound.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayParticle.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayCamera.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ParticleOnOff.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -2474,6 +2475,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+                    else if (ImGui::MenuItem("Particle On/Off Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_ParticleOnOff* NewNotify = NewObject<UAnimNotify_ParticleOnOff>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("ParticleOnOff");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                                MarkNotifiesDirty(State);
+                            }
+                        }
+                    }
                     ImGui::EndMenu();
                 }
 
@@ -2603,6 +2622,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_EnableWeaponCollision>())
                             {
                                 Label = "WeaponCollision";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_ParticleOnOff>())
+                            {
+                                Label = "ParticleOnOff";
                             }
                             else
                             {
@@ -3161,6 +3184,21 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
 
                         // 라벨 업데이트
                         Evt.NotifyName = FName(WeaponNotify->bEnable ? "WeaponCollision: Enable" : "WeaponCollision: Disable");
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_ParticleOnOff>())
+                    {
+                        UAnimNotify_ParticleOnOff* ParticleOnOffNotify = static_cast<UAnimNotify_ParticleOnOff*>(Evt.Notify);
+
+                        ImGui::Text("Particle On/Off Notify");
+                        ImGui::Separator();
+
+                        if (ImGui::Checkbox("Activate", &ParticleOnOffNotify->bActivate))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        
+                        // 라벨 업데이트
+                        Evt.NotifyName = FName(ParticleOnOffNotify->bActivate ? "Particle: On" : "Particle: Off");
                     }
                     else
                     {

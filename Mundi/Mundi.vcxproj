@@ -295,6 +295,7 @@
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotifyState.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotifyState_Trail.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_ParticleOnOff.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlayCamera.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlayParticle.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlaySound.cpp" />
@@ -945,6 +946,7 @@
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotifyState.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotifyState_Trail.h" />
+    <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_ParticleOnOff.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlayCamera.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlayParticle.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PlaySound.h" />
