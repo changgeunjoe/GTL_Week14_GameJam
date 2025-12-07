@@ -1188,6 +1188,11 @@ void FSceneRenderer::RenderDecalPass()
 		for (FMeshBatchElement& BatchElement : MeshBatchElements)
 		{
 			BatchElement.InstanceShaderResourceView = Decal->GetDecalTexture()->GetShaderResourceView();
+			// 노멀 텍스처가 있으면 바인딩
+			if (UTexture* NormalTex = Decal->GetNormalTexture())
+			{
+				BatchElement.InstanceNormalSRV = NormalTex->GetShaderResourceView();
+			}
 			BatchElement.Material = Decal->GetMaterial(0);
 			BatchElement.InputLayout = ShaderVariant->InputLayout;
 			BatchElement.VertexShader = ShaderVariant->VertexShader;
@@ -1525,6 +1530,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 	ID3D11PixelShader* CurrentPixelShader = nullptr;
 	UMaterialInterface* CurrentMaterial = nullptr;
 	ID3D11ShaderResourceView* CurrentInstanceSRV = nullptr; // [추가] Instance SRV 캐시
+	ID3D11ShaderResourceView* CurrentInstanceNormalSRV = nullptr; // [추가] Instance Normal SRV 캐시
 	ID3D11Buffer* CurrentVertexBuffer = nullptr;
 	ID3D11Buffer* CurrentIndexBuffer = nullptr;
 	UINT CurrentVertexStride = 0;
@@ -1571,7 +1577,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 		//
 		// 'Material' 또는 'Instance SRV' 둘 중 하나라도 바뀌면
 		// 모든 픽셀 리소스를 다시 바인딩해야 합니다.
-		if (Batch.Material != CurrentMaterial || Batch.InstanceShaderResourceView != CurrentInstanceSRV)
+		if (Batch.Material != CurrentMaterial || Batch.InstanceShaderResourceView != CurrentInstanceSRV || Batch.InstanceNormalSRV != CurrentInstanceNormalSRV)
 		{
 			ID3D11ShaderResourceView* DiffuseTextureSRV = nullptr; // t0
 			ID3D11ShaderResourceView* NormalTextureSRV = nullptr;  // t1
@@ -1591,12 +1597,22 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 				PixelConst.bHasNormalTexture = false;
 			}
 
-			// 1순위: 인스턴스 텍스처 (빌보드)
+			// 1순위: 인스턴스 텍스처 (빌보드/데칼)
 			if (Batch.InstanceShaderResourceView)
 			{
 				DiffuseTextureSRV = Batch.InstanceShaderResourceView;
 				PixelConst.bHasDiffuseTexture = true;
-				PixelConst.bHasNormalTexture = false;
+
+				// 데칼 노멀 텍스처 지원
+				if (Batch.InstanceNormalSRV)
+				{
+					NormalTextureSRV = Batch.InstanceNormalSRV;
+					PixelConst.bHasNormalTexture = true;
+				}
+				else
+				{
+					PixelConst.bHasNormalTexture = false;
+				}
 			}
 			// 2순위: 머티리얼 텍스처 (스태틱 메시)
 			else if (Batch.Material)
@@ -1644,6 +1660,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 			// --- 캐시 업데이트 ---
 			CurrentMaterial = Batch.Material;
 			CurrentInstanceSRV = Batch.InstanceShaderResourceView;
+			CurrentInstanceNormalSRV = Batch.InstanceNormalSRV;
 		}
 
 		if (Batch.GPUSkinMatrixSRV != CurrentSkinMatrixSRV || Batch.GPUSkinNormalMatrixSRV != CurrentSkinNormalMatrixSRV)
