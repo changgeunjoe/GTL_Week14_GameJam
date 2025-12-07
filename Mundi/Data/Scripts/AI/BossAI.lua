@@ -100,14 +100,14 @@ local ctx = {
 
 local Config = {
     DetectionRange = 2000,
-    AttackRange = 3,            -- 3m 이내면 공격
+    AttackRange = 4,            -- 4m 이내면 공격
     LoseTargetRange = 3000,
     MoveSpeed = 250,
     Phase2MoveSpeed = 350,
     Phase2HealthThreshold = 0.5,
 
     -- 좌우 이동(Strafe) 설정 (미터 단위)
-    StrafeMinRange = 4,         -- 4m 이상일 때 좌우 이동 시작 (AttackRange보다 커야함)
+    StrafeMinRange = 5,         -- 5m 이상일 때 좌우 이동 시작 (AttackRange보다 커야함)
     StrafeMaxRange = 8,         -- 8m 이하일 때 좌우 이동
     StrafeSpeed = 2,            -- 좌우 이동 속도 (m/s)
     StrafeChangeInterval = 1.5, -- 방향 전환 간격 (초)
@@ -523,6 +523,12 @@ local function DoChase(c)
 
     local dist = VecDistance(myPos, targetPos)
 
+    -- 공격 범위에 도달하면 멈춤 (BT Branch 10에서 공격 처리)
+    if dist <= Config.AttackRange then
+        Log("  [Action] DoChase -> Reached attack range, stopping")
+        return BT_SUCCESS
+    end
+
     -- 타겟을 바라보도록 부드러운 회전
     local targetYaw = CalcYaw(myPos, targetPos)
     local currentYaw = Obj.Rotation.Z
@@ -667,11 +673,9 @@ local function DoApproach(c)
 
     local dist = VecDistance(myPos, targetPos)
 
-    -- 공격 범위에 도달하면 접근 종료
+    -- 공격 범위에 도달하면 접근 종료 (BT Branch 10에서 공격 처리)
     if dist <= Config.AttackRange then
         c.is_approaching = false
-        SetBossAIState(Obj, "Idle")
-        SetBossMovementType(Obj, "None")
         Log("  [Action] DoApproach -> Reached attack range, stopping")
         return BT_SUCCESS
     end
@@ -861,6 +865,14 @@ local function UpdateCombo(c)
         return
     end
 
+    -- current_combo가 nil이면 콤보 종료
+    if not c.current_combo then
+        c.is_combo_attacking = false
+        c.combo_index = 0
+        Log("[Combo] No current_combo, resetting")
+        return
+    end
+
     -- 몽타주가 끝났고 다음 타격 시간이 되었으면
     local bMontagePlayling = IsMontagePlayling(Obj)
 
@@ -872,6 +884,7 @@ local function UpdateCombo(c)
             c.combo_index = 0
             c.is_strafing = false      -- Strafe 상태 리셋
             c.is_approaching = false   -- 접근 상태 리셋
+            SetBossPatternName(Obj, "")  -- 패턴 이름 리셋
             Log("[Combo] Combo ended")
 
             -- 콤보 끝난 후 확률적으로 후퇴
@@ -889,6 +902,78 @@ local function UpdateCombo(c)
             ExecuteNextComboHit(c)
         end
     end
+end
+
+-- 랜덤 공격 패턴 선택 및 실행
+local function DoAttack(c)
+    Log("  [Action] DoAttack")
+
+    -- 몽타주 재생 중이면 공격 불가
+    if IsMontagePlayling(Obj) then
+        Log("    -> FAILURE (montage playing)")
+        return BT_FAILURE
+    end
+
+    -- 타겟 바라보기
+    if c.target then
+        local myPos = Obj.Location
+        local targetPos = c.target.Location
+        local yaw = CalcYaw(myPos, targetPos)
+        Obj.Rotation = Vector(0, 0, yaw)
+    end
+
+    -- 페이즈에 따라 패턴 선택
+    local pattern
+    local maxPattern
+    if c.phase >= 2 then
+        -- Phase 2: 모든 패턴 사용 (0~3)
+        maxPattern = 3
+        pattern = math.random(0, maxPattern)
+    else
+        -- Phase 1: 기본 패턴만 (0~1)
+        maxPattern = 1
+        pattern = math.random(0, maxPattern)
+    end
+
+    -- 같은 패턴 연속 방지 (페이즈 범위 내에서)
+    if pattern == c.last_pattern then
+        pattern = (pattern + 1) % (maxPattern + 1)
+    end
+    c.last_pattern = pattern
+
+    local atk = AttackPatterns[pattern]
+    if not atk then
+        Log("    -> FAILURE (invalid pattern)")
+        return BT_FAILURE
+    end
+    -- ChargeAttack (패턴 2) 특수 처리: ChargeStart 먼저 재생
+    if pattern == 2 then
+        -- ChargeStart 몽타주 재생
+        local success = PlayBossMontage(Obj, "ChargeStart")
+        if not success then
+            Log("    -> FAILURE (montage not found: ChargeStart)")
+            return BT_FAILURE
+        end
+        c.is_charging = true
+        SetBossPatternName(Obj, "ChargeAttack")
+        Log("    -> ChargeAttack: Playing ChargeStart animation")
+    else
+        -- 일반 공격: 정상 속도로 몽타주 재생
+        local success = PlayBossMontage(Obj, atk.name)
+        if not success then
+            Log("    -> FAILURE (montage not found: " .. atk.name .. ")")
+            return BT_FAILURE
+        end
+        SetBossPatternName(Obj, atk.name)
+    end
+
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Attacking")
+    SetBossMovementType(Obj, "None")
+
+    -- 히트박스는 애님 노티파이에서 처리됨
+    StartAttack(c, atk.name)
+    return BT_SUCCESS
 end
 
 -- 콤보 공격 액션
@@ -916,9 +1001,9 @@ local function DoComboAttack(c)
     return BT_FAILURE
 end
 
--- 단일 공격 또는 콤보 공격 (확률적 선택)
+-- 단일 공격 또는 콤보 공격 (페이즈에 따라 선택)
 local function DoAttackOrCombo(c)
-    Log("  [Action] DoAttackOrCombo")
+    Log("  [Action] DoAttackOrCombo (phase=" .. c.phase .. ")")
 
     -- 이미 콤보 중이면 계속 진행
     if c.is_combo_attacking then
@@ -931,13 +1016,15 @@ local function DoAttackOrCombo(c)
         return BT_FAILURE
     end
 
-    -- 50% 확률로 단일 공격 또는 콤보
-    if math.random() < 0.5 then
-        -- 단일 공격
-        return DoAttack(c)
-    else
-        -- 콤보 공격
+    -- 페이즈에 따라 공격 방식 결정
+    if c.phase >= 2 then
+        -- Phase 2: 콤보 공격만
+        Log("    -> Phase 2: DoComboAttack")
         return DoComboAttack(c)
+    else
+        -- Phase 1: 단일 공격만
+        Log("    -> Phase 1: DoAttack")
+        return DoAttack(c)
     end
 end
 
@@ -1051,79 +1138,6 @@ local function DoGapCloser(c)
     return BT_FAILURE
 end
 
--- 랜덤 공격 패턴 선택 및 실행
-local function DoAttack(c)
-    Log("  [Action] DoAttack")
-
-    -- 몽타주 재생 중이면 공격 불가
-    if IsMontagePlayling(Obj) then
-        Log("    -> FAILURE (montage playing)")
-        return BT_FAILURE
-    end
-
-    -- 타겟 바라보기
-    if c.target then
-        local myPos = Obj.Location
-        local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
-    end
-
-    -- 페이즈에 따라 패턴 선택
-    local pattern
-    local maxPattern
-    if c.phase >= 2 then
-        -- Phase 2: 모든 패턴 사용 (0~3)
-        maxPattern = 3
-        pattern = math.random(0, maxPattern)
-    else
-        -- Phase 1: 기본 패턴만 (0~1)
-        maxPattern = 1
-        pattern = math.random(0, maxPattern)
-    end
-
-    -- 같은 패턴 연속 방지 (페이즈 범위 내에서)
-    if pattern == c.last_pattern then
-        pattern = (pattern + 1) % (maxPattern + 1)
-    end
-    c.last_pattern = pattern
-
-   -- pattern=2;
-    local atk = AttackPatterns[pattern]
-    if not atk then
-        Log("    -> FAILURE (invalid pattern)")
-        return BT_FAILURE
-    end
-    -- ChargeAttack (패턴 2) 특수 처리: ChargeStart 먼저 재생
-    if pattern == 2 then
-        -- ChargeStart 몽타주 재생
-        local success = PlayBossMontage(Obj, "ChargeStart")
-        if not success then
-            Log("    -> FAILURE (montage not found: ChargeStart)")
-            return BT_FAILURE
-        end
-        c.is_charging = true
-        SetBossPatternName(Obj, "ChargeAttack")
-        Log("    -> ChargeAttack: Playing ChargeStart animation")
-    else
-        -- 일반 공격: 정상 속도로 몽타주 재생
-        local success = PlayBossMontage(Obj, atk.name)
-        if not success then
-            Log("    -> FAILURE (montage not found: " .. atk.name .. ")")
-            return BT_FAILURE
-        end
-        SetBossPatternName(Obj, atk.name)
-    end
-
-    -- 디버그 상태 설정
-    SetBossAIState(Obj, "Attacking")
-    SetBossMovementType(Obj, "None")
-
-    -- 히트박스는 애님 노티파이에서 처리됨
-    StartAttack(c, atk.name)
-    return BT_SUCCESS
-end
-
 local function DoRetreat(c)
     Log("  [Action] DoRetreat")
     if not c.target then
@@ -1194,12 +1208,26 @@ end
 -- ============================================================================
 
 local function CheckPhaseTransition(c)
-    if not c.stats or c.phase >= 2 then return end
+    if c.phase >= 2 then return end
 
-    local healthPercent = c.stats.CurrentHealth / c.stats.MaxHealth
+    -- 새로운 Lua 바인딩 함수 사용
+    local currentHP = GetCurrentHealth(Obj)
+    local maxHP = GetMaxHealth(Obj)
+    local healthPercent = GetHealthPercent(Obj)
+
+    print("[Phase] HP: " .. currentHP .. "/" .. maxHP .. " = " .. string.format("%.1f%%", healthPercent * 100))
     if healthPercent <= Config.Phase2HealthThreshold then
         c.phase = 2
-        Log("*** PHASE TRANSITION: 1 -> 2 ***")
+        print("*** PHASE TRANSITION: 1 -> 2 ***")
+        -- 페이즈 전환 시 공격 상태 리셋
+        c.is_combo_attacking = false
+        c.current_combo = nil
+        c.combo_index = 0
+        c.was_attacking = false
+        c.is_charging = false
+        c.is_winding_up = false
+        c.is_guard_breaking = false
+        SetBossPatternName(Obj, "")
 
         local camMgr = GetCameraManager()
         if camMgr then
@@ -1278,6 +1306,7 @@ local function UpdateAttackState(c)
         c.is_winding_up = false      -- Wind-up 상태 리셋
         c.is_strafing = false      -- Strafe 상태 리셋 (다음에 다시 Strafe 가능)
         c.is_approaching = false   -- 접근 상태 리셋
+        SetBossPatternName(Obj, "")  -- 패턴 이름 리셋
         Log("Attack ended (montage finished)")
 
         -- 히트박스는 애님 노티파이의 Duration으로 자동 비활성화됨
@@ -1412,7 +1441,7 @@ local BossTree = Selector({
     }),
 
     -- 11. 접근 중이면 계속 접근 (공격 범위까지)
-    Sequence({
+    Sequence({ 
         Condition(function(c)
             Log("[Branch 11] Approaching?")
             return HasTarget(c) and IsCurrentlyApproaching(c) and IsNotAttacking(c)
@@ -1482,6 +1511,11 @@ end
 function Tick(Delta)
     ctx.time = ctx.time + Delta
     ctx.delta_time = Delta
+
+    -- 매 틱마다 stats 갱신 (Lua 캐싱 문제 방지)
+    ctx.stats = GetComponent(Obj, "UStatsComponent")
+
+    print("[BossAI] Phase: " .. ctx.phase)
 
     -- 플레이어 상태 추적 업데이트
     UpdatePlayerState(ctx)
