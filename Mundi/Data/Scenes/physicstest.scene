@@ -1,6 +1,6 @@
 {
   "Actors" : {
-    "7036" : {
+    "6886" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -12,7 +12,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7038,
+          "Id" : 6888,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -40,13 +40,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7038,
+      "RootComponentId" : 6888,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7041" : {
+    "6891" : {
       "ObjectName" : "ADirectionalLightActor_1",
       "OwnedComponents" : [{
           "CascadedAreaColorDebugValue" : 0.000000,
@@ -54,7 +54,7 @@
           "CascadedCount" : 8,
           "CascadedLinearBlendingValue" : 0.000000,
           "CascadedOverlapValue" : 0.000000,
-          "Id" : 7043,
+          "Id" : 6893,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 1.000000, 1.000000, 1.000000],
           "ObjectName" : "UDirectionalLightComponent_1",
@@ -75,16 +75,16 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7043,
+      "RootComponentId" : 6893,
       "Tag" : "",
       "Type" : "ADirectionalLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7044" : {
+    "6894" : {
       "ObjectName" : "AAmbientLightActor_1",
       "OwnedComponents" : [{
-          "Id" : 7046,
+          "Id" : 6896,
           "Intensity" : 0.100000,
           "LightColor" : [1.000000, 1.000000, 1.000000, 1.000000],
           "ObjectName" : "UAmbientLightComponent_1",
@@ -104,16 +104,20 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7046,
+      "RootComponentId" : 6896,
       "Tag" : "",
       "Type" : "AAmbientLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7047" : {
+    "6897" : {
+      "BloomBlurRadiusSetting" : 1.000000,
+      "BloomIntensitySetting" : 1.000000,
+      "BloomSoftKneeSetting" : 0.500000,
+      "BloomThresholdSetting" : 1.000000,
       "ObjectName" : "APlayerCameraManager_1",
       "OwnedComponents" : [{
-          "Id" : 7048,
+          "Id" : 6898,
           "ObjectName" : "USceneComponent_1",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -125,18 +129,19 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7048,
+      "RootComponentId" : 6898,
       "Tag" : "",
       "Type" : "APlayerCameraManager",
       "bActorHiddenInGame" : false,
-      "bActorIsActive" : true
+      "bActorIsActive" : true,
+      "bBloomSettingsEnabled" : false
     },
-    "7049" : {
+    "6899" : {
       "ObjectName" : "포인트 라이트_0",
       "OwnedComponents" : [{
           "AttenuationRadius" : 10.900000,
           "FalloffExponent" : 2.000000,
-          "Id" : 7051,
+          "Id" : 6901,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 1.000000, 1.000000, 1.000000],
           "ObjectName" : "UPointLightComponent_2",
@@ -159,13 +164,13 @@
           "bTickEnabled" : true,
           "bUseInverseSquareFalloff" : true
         }],
-      "RootComponentId" : 7051,
+      "RootComponentId" : 6901,
       "Tag" : "",
       "Type" : "APointLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7052" : {
+    "6902" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -177,7 +182,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7054,
+          "Id" : 6904,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -205,18 +210,18 @@
           "bSimulatePhysics" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7054,
+      "RootComponentId" : 6904,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7057" : {
+    "6907" : {
       "ObjectName" : "스켈레탈 메시_0",
       "OwnedComponents" : [{
           "AnimGraphPath" : "",
           "CollisionEnabled_Internal" : 2,
-          "Id" : 7059,
+          "Id" : 6909,
           "MaterialSlots" : [{
               "Type" : "None"
             }, {
@@ -246,13 +251,13 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7059,
+      "RootComponentId" : 6909,
       "Tag" : "",
       "Type" : "ASkeletalMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7060" : {
+    "6910" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -264,7 +269,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7062,
+          "Id" : 6912,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 1.000000,
           "MaterialSlots" : [{
@@ -292,13 +297,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7062,
+      "RootComponentId" : 6912,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7065" : {
+    "6915" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -310,7 +315,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7067,
+          "Id" : 6917,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -338,13 +343,13 @@
           "bSimulatePhysics" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7067,
+      "RootComponentId" : 6917,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7070" : {
+    "6920" : {
       "ObjectName" : "AStaticMeshActor_3",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -356,7 +361,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7072,
+          "Id" : 6922,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -384,13 +389,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7072,
+      "RootComponentId" : 6922,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7075" : {
+    "6925" : {
       "ObjectName" : "AStaticMeshActor_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -402,7 +407,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7077,
+          "Id" : 6927,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -430,13 +435,13 @@
           "bSimulatePhysics" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7077,
+      "RootComponentId" : 6927,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7080" : {
+    "6930" : {
       "ObjectName" : "AStaticMeshActor_5",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -448,7 +453,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7082,
+          "Id" : 6932,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -476,13 +481,13 @@
           "bSimulatePhysics" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7082,
+      "RootComponentId" : 6932,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7085" : {
+    "6935" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -494,7 +499,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7087,
+          "Id" : 6937,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -522,13 +527,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7087,
+      "RootComponentId" : 6937,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7090" : {
+    "6940" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -540,7 +545,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7092,
+          "Id" : 6942,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 1.000000,
           "MaterialSlots" : [{
@@ -568,13 +573,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7092,
+      "RootComponentId" : 6942,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7095" : {
+    "6945" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -586,7 +591,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7097,
+          "Id" : 6947,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -614,13 +619,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7097,
+      "RootComponentId" : 6947,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7100" : {
+    "6950" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -630,7 +635,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_1",
       "OwnedComponents" : [{
-          "Id" : 7101,
+          "Id" : 6951,
           "ObjectName" : "USceneComponent_4",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -642,7 +647,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7101,
+      "RootComponentId" : 6951,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -652,7 +657,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7102" : {
+    "6952" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -662,7 +667,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_2",
       "OwnedComponents" : [{
-          "Id" : 7103,
+          "Id" : 6953,
           "ObjectName" : "USceneComponent_5",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -674,7 +679,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7103,
+      "RootComponentId" : 6953,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -684,7 +689,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7104" : {
+    "6954" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -694,7 +699,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_3",
       "OwnedComponents" : [{
-          "Id" : 7105,
+          "Id" : 6955,
           "ObjectName" : "USceneComponent_6",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -706,7 +711,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7105,
+      "RootComponentId" : 6955,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -716,7 +721,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7106" : {
+    "6956" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -726,7 +731,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_4",
       "OwnedComponents" : [{
-          "Id" : 7107,
+          "Id" : 6957,
           "ObjectName" : "USceneComponent_7",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -738,7 +743,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7107,
+      "RootComponentId" : 6957,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -748,7 +753,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7108" : {
+    "6958" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -758,7 +763,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_5",
       "OwnedComponents" : [{
-          "Id" : 7109,
+          "Id" : 6959,
           "ObjectName" : "USceneComponent_8",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -770,7 +775,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7109,
+      "RootComponentId" : 6959,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -780,7 +785,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7110" : {
+    "6960" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -790,7 +795,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_6",
       "OwnedComponents" : [{
-          "Id" : 7111,
+          "Id" : 6961,
           "ObjectName" : "USceneComponent_9",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -802,7 +807,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7111,
+      "RootComponentId" : 6961,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -812,7 +817,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7112" : {
+    "6962" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -822,7 +827,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_7",
       "OwnedComponents" : [{
-          "Id" : 7113,
+          "Id" : 6963,
           "ObjectName" : "USceneComponent_10",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -834,7 +839,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7113,
+      "RootComponentId" : 6963,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -844,7 +849,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7114" : {
+    "6964" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -854,7 +859,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_8",
       "OwnedComponents" : [{
-          "Id" : 7115,
+          "Id" : 6965,
           "ObjectName" : "USceneComponent_11",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -866,7 +871,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7115,
+      "RootComponentId" : 6965,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -876,7 +881,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7116" : {
+    "6966" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -886,7 +891,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_9",
       "OwnedComponents" : [{
-          "Id" : 7117,
+          "Id" : 6967,
           "ObjectName" : "USceneComponent_12",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -898,7 +903,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7117,
+      "RootComponentId" : 6967,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -908,7 +913,7 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7118" : {
+    "6968" : {
       "AcceptanceRadius" : 100.000000,
       "AttackCooldown" : 2.000000,
       "AttackRange" : 200.000000,
@@ -918,7 +923,7 @@
       "MoveSpeed" : 300.000000,
       "ObjectName" : "AEnemyAIController_10",
       "OwnedComponents" : [{
-          "Id" : 7119,
+          "Id" : 6969,
           "ObjectName" : "USceneComponent_13",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -930,7 +935,7 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 7119,
+      "RootComponentId" : 6969,
       "RotationSpeed" : 5.000000,
       "StrafeChance" : 0.300000,
       "StrafeDuration" : 1.500000,
@@ -940,7 +945,103 @@
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "7120" : {
+    "7042" : {
+      "AcceptanceRadius" : 100.000000,
+      "AttackCooldown" : 2.000000,
+      "AttackRange" : 200.000000,
+      "DetectionRange" : 1000.000000,
+      "LoseTargetRange" : 1500.000000,
+      "MaxAttackPatterns" : 2,
+      "MoveSpeed" : 300.000000,
+      "ObjectName" : "AEnemyAIController_11",
+      "OwnedComponents" : [{
+          "Id" : 7043,
+          "ObjectName" : "USceneComponent_14",
+          "ParentId" : 0,
+          "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Type" : "USceneComponent",
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bTickEnabled" : true
+        }],
+      "RootComponentId" : 7043,
+      "RotationSpeed" : 5.000000,
+      "StrafeChance" : 0.300000,
+      "StrafeDuration" : 1.500000,
+      "Tag" : "",
+      "Type" : "AEnemyAIController",
+      "bAIEnabled" : true,
+      "bActorHiddenInGame" : false,
+      "bActorIsActive" : true
+    },
+    "7044" : {
+      "AcceptanceRadius" : 100.000000,
+      "AttackCooldown" : 2.000000,
+      "AttackRange" : 200.000000,
+      "DetectionRange" : 1000.000000,
+      "LoseTargetRange" : 1500.000000,
+      "MaxAttackPatterns" : 2,
+      "MoveSpeed" : 300.000000,
+      "ObjectName" : "AEnemyAIController_12",
+      "OwnedComponents" : [{
+          "Id" : 7045,
+          "ObjectName" : "DefaultSceneComponent",
+          "ParentId" : 0,
+          "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Type" : "USceneComponent",
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bTickEnabled" : true
+        }],
+      "RootComponentId" : 7045,
+      "RotationSpeed" : 5.000000,
+      "StrafeChance" : 0.300000,
+      "StrafeDuration" : 1.500000,
+      "Tag" : "",
+      "Type" : "AEnemyAIController",
+      "bAIEnabled" : true,
+      "bActorHiddenInGame" : false,
+      "bActorIsActive" : true
+    },
+    "7113" : {
+      "AcceptanceRadius" : 100.000000,
+      "AttackCooldown" : 2.000000,
+      "AttackRange" : 200.000000,
+      "DetectionRange" : 1000.000000,
+      "LoseTargetRange" : 1500.000000,
+      "MaxAttackPatterns" : 2,
+      "MoveSpeed" : 300.000000,
+      "ObjectName" : "AEnemyAIController_13",
+      "OwnedComponents" : [{
+          "Id" : 7114,
+          "ObjectName" : "DefaultSceneComponent",
+          "ParentId" : 0,
+          "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Type" : "USceneComponent",
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bTickEnabled" : true
+        }],
+      "RootComponentId" : 7114,
+      "RotationSpeed" : 5.000000,
+      "StrafeChance" : 0.300000,
+      "StrafeDuration" : 1.500000,
+      "Tag" : "",
+      "Type" : "AEnemyAIController",
+      "bAIEnabled" : true,
+      "bActorHiddenInGame" : false,
+      "bActorIsActive" : true
+    },
+    "7131" : {
       "AnimationCutEndTime" : 0.000000,
       "AttackCooldown" : 1.000000,
       "AttackRange" : 300.000000,
@@ -959,9 +1060,57 @@
       "MoveSpeed" : 350.000000,
       "ObjectName" : "보스 에너미_0",
       "OwnedComponents" : [{
+          "AnimGraphPath" : "Data/Graphs/보스 에너미_0.graph",
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 7140,
+          "MaterialSlots" : [{
+              "Type" : "None"
+            }, {
+              "AssetPath" : "MI_DKM_Boots",
+              "Type" : "UMaterial"
+            }, {
+              "AssetPath" : "MI_DKM_Helmet",
+              "Type" : "UMaterial"
+            }, {
+              "AssetPath" : "MI_DKM_Armor",
+              "Type" : "UMaterial"
+            }, {
+              "AssetPath" : "MI_DKM_Gauntlets",
+              "Type" : "UMaterial"
+            }, {
+              "AssetPath" : "MI_DKM_Pants",
+              "Type" : "UMaterial"
+            }, {
+              "AssetPath" : "MI_DKM_Armor_5",
+              "Type" : "UMaterial"
+            }],
+          "ObjectName" : "USkeletalMeshComponent_1",
+          "ParentId" : 7197,
+          "PhysicsAssetOverridePath" : "",
+          "RelativeLocation" : [0.000000, 0.000000, -2.746004],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [2.000000, 2.000000, 2.000000],
+          "SkeletalMesh" : "Data/FBX/SKM_DKM_Full/SKM_DKM_Full.FBX",
+          "Type" : "USkeletalMeshComponent",
+          "bBlockComponent" : false,
+          "bCastShadows" : true,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bTickEnabled" : true
+        }, {
+          "ObjectName" : "ULuaScriptComponent_2",
+          "ScriptFilePath" : "Data/Scripts/AI/BossAI.lua",
+          "Type" : "ULuaScriptComponent",
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bTickEnabled" : true
+        }, {
           "BoxExtent" : [0.000000, 0.000000, 0.000000],
           "CollisionEnabled_Internal" : 2,
-          "Id" : 7129,
+          "Id" : 7193,
           "ObjectName" : "UHitboxComponent_1",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -978,9 +1127,29 @@
           "bShapeIsVisible" : true,
           "bTickEnabled" : true
         }, {
-          "ObjectName" : "ULuaScriptComponent_2",
-          "ScriptFilePath" : "Data/Scripts/AI/BossAI.lua",
-          "Type" : "ULuaScriptComponent",
+          "CapsuleHalfHeight" : 57.500000,
+          "CapsuleRadius" : 5.000000,
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 7194,
+          "ObjectName" : "WeaponCollider",
+          "ParentId" : 7198,
+          "RelativeLocation" : [58.633282, -0.560002, 0.281755],
+          "RelativeRotationEuler" : [0.000000, 90.000000, 0.000001],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Type" : "UCapsuleComponent",
+          "bBlockComponent" : false,
+          "bGenerateOverlapEvents" : false,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bRegisterToPhysX" : true,
+          "bShapeHiddenInGame" : true,
+          "bShapeIsVisible" : true,
+          "bTickEnabled" : true
+        }, {
+          "ObjectName" : "UCharacterMovementComponent_1",
+          "Type" : "UCharacterMovementComponent",
           "bHiddenInGame" : false,
           "bIsActive" : true,
           "bTickEnabled" : true
@@ -994,7 +1163,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 7188,
+          "Id" : 7198,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1015,8 +1184,8 @@
               "ParentPath" : "M_DKM_Sword",
               "Type" : "UMaterialInstanceDynamic"
             }],
-          "ObjectName" : "UStaticMeshComponent_1",
-          "ParentId" : 7133,
+          "ObjectName" : "WeaponMeshComponent",
+          "ParentId" : 7140,
           "PhysMaterialPreset" : 0,
           "RelativeLocation" : [0.206993, 0.491680, 0.944607],
           "RelativeRotationEuler" : [176.491577, -26.321400, -20.498117],
@@ -1039,10 +1208,10 @@
           "CapsuleHalfHeight" : 2.800000,
           "CapsuleRadius" : 0.500000,
           "CollisionEnabled_Internal" : 2,
-          "Id" : 7187,
+          "Id" : 7197,
           "ObjectName" : "UCapsuleComponent_1",
           "ParentId" : 0,
-          "RelativeLocation" : [-6.491548, -4.629250, 2.813837],
+          "RelativeLocation" : [-5.781254, -4.306775, 3.448256],
           "RelativeRotationEuler" : [0.000000, -0.000000, 130.423691],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
           "Type" : "UCapsuleComponent",
@@ -1073,77 +1242,9 @@
           "bHiddenInGame" : false,
           "bIsActive" : true,
           "bTickEnabled" : true
-        }, {
-          "ObjectName" : "UCharacterMovementComponent_1",
-          "Type" : "UCharacterMovementComponent",
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bTickEnabled" : true
-        }, {
-          "CapsuleHalfHeight" : 57.500000,
-          "CapsuleRadius" : 5.000000,
-          "CollisionEnabled_Internal" : 2,
-          "Id" : 7132,
-          "ObjectName" : "WeaponCollider",
-          "ParentId" : 7188,
-          "RelativeLocation" : [58.633282, -0.560002, 0.281755],
-          "RelativeRotationEuler" : [0.000000, 90.000000, 0.000001],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "Type" : "UCapsuleComponent",
-          "bBlockComponent" : false,
-          "bGenerateOverlapEvents" : false,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bRegisterToPhysX" : true,
-          "bShapeHiddenInGame" : true,
-          "bShapeIsVisible" : true,
-          "bTickEnabled" : true
-        }, {
-          "AnimGraphPath" : "Data/Graphs/보스 에너미_0.graph",
-          "CollisionEnabled_Internal" : 2,
-          "Id" : 7133,
-          "MaterialSlots" : [{
-              "Type" : "None"
-            }, {
-              "AssetPath" : "MI_DKM_Boots",
-              "Type" : "UMaterial"
-            }, {
-              "AssetPath" : "MI_DKM_Helmet",
-              "Type" : "UMaterial"
-            }, {
-              "AssetPath" : "MI_DKM_Armor",
-              "Type" : "UMaterial"
-            }, {
-              "AssetPath" : "MI_DKM_Gauntlets",
-              "Type" : "UMaterial"
-            }, {
-              "AssetPath" : "MI_DKM_Pants",
-              "Type" : "UMaterial"
-            }, {
-              "AssetPath" : "MI_DKM_Armor_5",
-              "Type" : "UMaterial"
-            }],
-          "ObjectName" : "USkeletalMeshComponent_1",
-          "ParentId" : 7187,
-          "PhysicsAssetOverridePath" : "",
-          "RelativeLocation" : [0.000000, 0.000000, -2.746004],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [2.000000, 2.000000, 2.000000],
-          "SkeletalMesh" : "Data/FBX/SKM_DKM_Full/SKM_DKM_Full.FBX",
-          "Type" : "USkeletalMeshComponent",
-          "bBlockComponent" : false,
-          "bCastShadows" : true,
-          "bGenerateOverlapEvents" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bTickEnabled" : true
         }],
       "Phase2HealthThreshold" : 0.500000,
-      "RootComponentId" : 7187,
+      "RootComponentId" : 7197,
       "RotationSpeed" : 5.000000,
       "SpinAttackAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/Game/Game/Dark_Knight/Animations/Anim_DKM_Attack_01.FBX_Unreal Take",
       "SubWeaponBoneName" : "hand_l",
@@ -1161,47 +1262,15 @@
       "bEnableAttackRootMotion" : true,
       "bHasSuperArmor" : true,
       "bIsAttacking" : false
-    },
-    "7259" : {
-      "AcceptanceRadius" : 100.000000,
-      "AttackCooldown" : 2.000000,
-      "AttackRange" : 200.000000,
-      "DetectionRange" : 1000.000000,
-      "LoseTargetRange" : 1500.000000,
-      "MaxAttackPatterns" : 2,
-      "MoveSpeed" : 300.000000,
-      "ObjectName" : "AEnemyAIController_11",
-      "OwnedComponents" : [{
-          "Id" : 7260,
-          "ObjectName" : "USceneComponent_14",
-          "ParentId" : 0,
-          "RelativeLocation" : [0.000000, 0.000000, 0.000000],
-          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "Type" : "USceneComponent",
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bTickEnabled" : true
-        }],
-      "RootComponentId" : 7260,
-      "RotationSpeed" : 5.000000,
-      "StrafeChance" : 0.300000,
-      "StrafeDuration" : 1.500000,
-      "Tag" : "",
-      "Type" : "AEnemyAIController",
-      "bAIEnabled" : true,
-      "bActorHiddenInGame" : false,
-      "bActorIsActive" : true
     }
   },
-  "NextUUID" : 8102,
+  "NextUUID" : 7203,
   "PerspectiveCamera" : {
     "FOV" : [60.000000],
     "FarClip" : [2000.000000],
-    "Location" : [0.053555, -5.964910, 11.033253],
+    "Location" : [-6.784341, 2.148530, 5.161815],
     "NearClip" : [0.100000],
-    "Rotation" : [0.000000, 19.000055, 174.279816]
+    "Rotation" : [0.000000, 27.700464, -81.317253]
   },
   "Version" : 1
 }

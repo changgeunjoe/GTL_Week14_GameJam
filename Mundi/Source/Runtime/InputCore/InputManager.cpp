@@ -80,7 +80,9 @@ void UInputManager::Update()
 
             // 커서 잠금 모드: 무한 드래그 처리
             // ImGui가 마우스를 사용 중이면 커서 잠금 모드를 비활성화
-            if (bIsCursorLocked && !ImGui::GetIO().WantCaptureMouse)
+            bool bImGuiWantsMouse = (ImGui::GetCurrentContext() != nullptr) && ImGui::GetIO().WantCaptureMouse;
+            if (bIsCursorLocked && !bImGuiWantsMouse)
+
             {
                 MousePosition.X = static_cast<float>(CursorPos.x);
                 MousePosition.Y = static_cast<float>(CursorPos.y);
@@ -255,7 +257,6 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
     case WM_XBUTTONUP:
         if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
-            // X버튼 구분 (X1, X2)
             WORD XButton = GET_XBUTTON_WPARAM(wParam);
             if (XButton == XBUTTON1)
                 UpdateMouseButton(XButton1, false);
@@ -306,7 +307,6 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         // PIE 모드일 때는 게임 입력을 우선하여 항상 허용
         if (!IsKeyBoardCapture || GEngine.IsPIEActive())
         {
-            // Virtual Key Code 추출
             int KeyCode = static_cast<int>(wParam);
             UpdateKeyState(KeyCode, false);
 

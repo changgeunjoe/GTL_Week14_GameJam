@@ -347,13 +347,14 @@ void UCapsuleComponent::DestroyPhysXActor()
             {
                 Scene->removeActor(*PhysXActor);
             }
+            // PhysScene이 살아있을 때만 release 호출
+            // PhysScene이 Shutdown되면 모든 Actor가 자동 해제됨
+            PhysXActor->release();
+            UE_LOG("[CapsuleComponent] PhysX Actor destroyed");
         }
     }
 
-    PhysXActor->release();
     PhysXActor = nullptr;
-
-    UE_LOG("[CapsuleComponent] PhysX Actor destroyed");
 }
 
 void UCapsuleComponent::UpdatePhysXActorTransform()

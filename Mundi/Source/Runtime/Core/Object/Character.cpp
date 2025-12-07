@@ -105,24 +105,20 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
             }
         }
 
-        // 2차 패스: 부모-자식 관계로 무기 관련 컴포넌트 찾기
+        // 2차 패스: 이름으로 무기 관련 컴포넌트 찾기
         for (UActorComponent* Comp : GetOwnedComponents())
         {
             if (auto* StaticMesh = Cast<UStaticMeshComponent>(Comp))
             {
-                // SkeletalMeshComp의 자식 StaticMeshComponent = 무기
-                USceneComponent* Parent = StaticMesh->GetAttachParent();
-                if (Parent == SkeletalMeshComp)
+                // 이름으로 구분
+                FName CompName = Comp->GetName();
+                if (CompName == FName("WeaponMeshComponent"))
                 {
-                    // 첫 번째는 WeaponMeshComp, 두 번째는 SubWeaponMeshComp
-                    if (!WeaponMeshComp)
-                    {
-                        WeaponMeshComp = StaticMesh;
-                    }
-                    else if (!SubWeaponMeshComp)
-                    {
-                        SubWeaponMeshComp = StaticMesh;
-                    }
+                    WeaponMeshComp = StaticMesh;
+                }
+                else if (CompName == FName("SubWeaponMeshComponent"))
+                {
+                    SubWeaponMeshComp = StaticMesh;
                 }
             }
             else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
