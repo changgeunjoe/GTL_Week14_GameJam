@@ -343,6 +343,21 @@ void APlayerCharacter::ProcessCombatInput()
         UE_LOG("[PlayerCharacter] Invincible mode %s", bIsInvincible ? "ENABLED" : "DISABLED");
     }
     bIKeyWasPressed = bIKeyIsPressed;
+
+    // U키: 커서 토글 (디버그용, PIE에서만)
+    static bool bUKeyWasPressed = false;
+    bool bUKeyIsPressed = INPUT.IsKeyDown('U');
+
+    if (bUKeyIsPressed && !bUKeyWasPressed)
+    {
+        if (GWorld && GWorld->bPie)
+        {
+            static bool bCursorIsVisible = false;
+            bCursorIsVisible = !bCursorIsVisible;
+            UInputManager::GetInstance().SetCursorVisible(bCursorIsVisible);
+        }
+    }
+    bUKeyWasPressed = bUKeyIsPressed;
 }
 
 // ============================================================================
@@ -1221,6 +1236,7 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
     const bool bShouldEvaluateCharging = bIsCharging && Stats && CameraManager;
 
     int32 DesiredStage = 0;
+
     if (bShouldEvaluateCharging)
     {
         if (PlayerParticles["Charging"].size() < 3 || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
@@ -1229,6 +1245,7 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         if (!bWasCharging) bWasCharging = true;
 
         const float Stamina = Stats->GetCurrentStamina();
+        UE_LOG("%f", Stamina);
         if (Stamina < 50.0f)
         {
             CameraManager->StartCameraShake(5, 0.0005, 0.0005, 20, 2);
