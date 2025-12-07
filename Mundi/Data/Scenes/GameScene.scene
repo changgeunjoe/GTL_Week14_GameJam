@@ -1,13 +1,117 @@
 {
   "Actors" : {
-    "9415" : {
+    "10131" : {
+      "ObjectName" : "스태틱 메시_0",
+      "OwnedComponents" : [{
+          "AngularDampingOverride" : 0.050000,
+          "BoxExtent" : [50.000000, 0.000000, 0.000000],
+          "CapsuleHalfHeight" : 44.000000,
+          "CapsuleRadius" : 22.000000,
+          "CollisionEnabled_Internal" : 2,
+          "CollisionOffset" : [0.000000, 0.000000, 0.000000],
+          "CollisionRotation" : [0.000000, 0.000000, 0.000000],
+          "CollisionType" : 1,
+          "FrictionCombineModeOverride" : 2,
+          "Id" : 10132,
+          "LinearDampingOverride" : 0.010000,
+          "MassOverride" : 10.000000,
+          "MaterialSlots" : [{
+              "Type" : "None"
+            }, {
+              "AssetPath" : "MI_Treebark",
+              "Type" : "UMaterial"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_TreeBranch2_BaseColor_yellow.png"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_TreeBranch2",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_TreeBranch2_BaseColor_yellow.png"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_TreeBranch",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_TreeBranch_BaseColor.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_TreeBranch2_3",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/blank.png"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_TreeBillboard",
+              "Type" : "UMaterialInstanceDynamic"
+            }],
+          "ObjectName" : "StaticMeshComponent",
+          "ParentId" : 0,
+          "PhysMaterialPreset" : 0,
+          "RelativeLocation" : [7.548541, -8.303232, -0.004020],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [0.004000, 0.004000, 0.004000],
+          "RestitutionCombineModeOverride" : 2,
+          "SphereRadius" : 50.000000,
+          "StaticMesh" : "Data/Model/Sicka Dynasty/Game/SICKA_DYNASTY/StaticMeshes/SM_Tree_02.FBX",
+          "Type" : "UStaticMeshComponent",
+          "bBlockComponent" : false,
+          "bCastShadows" : true,
+          "bEnableCollision" : true,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bSimulatePhysics" : false,
+          "bTickEnabled" : true
+        }],
+      "RootComponentId" : 10132,
+      "Tag" : "",
+      "Type" : "AStaticMeshActor",
+      "bActorHiddenInGame" : false,
+      "bActorIsActive" : true
+    },
+    "9397" : {
       "ObjectName" : "ADecalActor_0",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
-          "FadeSpeed" : 0.500000,
-          "Id" : 9419,
+          "FadeSpeed" : 0.000000,
+          "Id" : 9401,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -23,162 +127,17 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9419,
+      "RootComponentId" : 9401,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9420" : {
-      "ObjectName" : "스태틱 메시_0",
-      "OwnedComponents" : [{
-          "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [194.816422, 51.967190, 120.248718],
-          "CapsuleHalfHeight" : 120.248718,
-          "CapsuleRadius" : 97.408211,
-          "CollisionEnabled_Internal" : 2,
-          "CollisionOffset" : [0.000000, 0.000000, 0.000000],
-          "CollisionRotation" : [0.000000, 0.000000, 0.000000],
-          "CollisionType" : 1,
-          "FrictionCombineModeOverride" : 2,
-          "Id" : 9422,
-          "LinearDampingOverride" : 0.010000,
-          "MassOverride" : 10.000000,
-          "MaterialSlots" : [{
-              "Overrides" : {
-                "Scalars" : {
-
-                },
-                "Textures" : {
-                  "0" : "Data/Textures/blank.png",
-                  "1" : "None"
-                },
-                "Vectors" : {
-
-                }
-              },
-              "ParentPath" : "GatlingGun_Turret_Mat",
-              "Type" : "UMaterialInstanceDynamic"
-            }, {
-              "Overrides" : {
-                "Scalars" : {
-
-                },
-                "Textures" : {
-                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_MiniPavilionBase_BaseColor.PNG"
-                },
-                "Vectors" : {
-
-                }
-              },
-              "ParentPath" : "MI_MiniPavilionBase",
-              "Type" : "UMaterialInstanceDynamic"
-            }],
-          "ObjectName" : "StaticMeshComponent",
-          "ParentId" : 0,
-          "PhysMaterialPreset" : 0,
-          "RelativeLocation" : [1.158487, 0.757979, 3.390790],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [0.005000, 0.005000, 0.005000],
-          "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 194.816422,
-          "StaticMesh" : "Data/Model/Sicka Dynasty/Game/SICKA_DYNASTY/StaticMeshes/SM_ChineseDragon_1.FBX",
-          "Type" : "UStaticMeshComponent",
-          "bBlockComponent" : false,
-          "bCastShadows" : true,
-          "bEnableCollision" : true,
-          "bGenerateOverlapEvents" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bSimulatePhysics" : false,
-          "bTickEnabled" : true
-        }],
-      "RootComponentId" : 9422,
-      "Tag" : "",
-      "Type" : "AStaticMeshActor",
-      "bActorHiddenInGame" : false,
-      "bActorIsActive" : true
-    },
-    "9427" : {
-      "ObjectName" : "AStaticMeshActor_0",
-      "OwnedComponents" : [{
-          "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [194.816422, 51.967190, 120.248718],
-          "CapsuleHalfHeight" : 120.248718,
-          "CapsuleRadius" : 97.408211,
-          "CollisionEnabled_Internal" : 2,
-          "CollisionOffset" : [0.000000, 0.000000, 0.000000],
-          "CollisionRotation" : [0.000000, 0.000000, 0.000000],
-          "CollisionType" : 1,
-          "FrictionCombineModeOverride" : 2,
-          "Id" : 9429,
-          "LinearDampingOverride" : 0.010000,
-          "MassOverride" : 10.000000,
-          "MaterialSlots" : [{
-              "Overrides" : {
-                "Scalars" : {
-
-                },
-                "Textures" : {
-                  "0" : "Data/Textures/blank.png",
-                  "1" : "None"
-                },
-                "Vectors" : {
-
-                }
-              },
-              "ParentPath" : "GatlingGun_Turret_Mat",
-              "Type" : "UMaterialInstanceDynamic"
-            }, {
-              "Overrides" : {
-                "Scalars" : {
-
-                },
-                "Textures" : {
-                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_MiniPavilionBase_BaseColor.PNG",
-                  "2" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_MiniPavilionBase_ORM.PNG"
-                },
-                "Vectors" : {
-
-                }
-              },
-              "ParentPath" : "MI_MiniPavilionBase",
-              "Type" : "UMaterialInstanceDynamic"
-            }],
-          "ObjectName" : "StaticMeshComponent",
-          "ParentId" : 0,
-          "PhysMaterialPreset" : 0,
-          "RelativeLocation" : [2.407377, 1.480995, 3.390790],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 59.614319],
-          "RelativeScale" : [0.005000, 0.005000, 0.005000],
-          "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 194.816422,
-          "StaticMesh" : "Data/Model/Sicka Dynasty/Game/SICKA_DYNASTY/StaticMeshes/SM_ChineseDragon_1.FBX",
-          "Type" : "UStaticMeshComponent",
-          "bBlockComponent" : false,
-          "bCastShadows" : true,
-          "bEnableCollision" : true,
-          "bGenerateOverlapEvents" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bSimulatePhysics" : false,
-          "bTickEnabled" : true
-        }],
-      "RootComponentId" : 9429,
-      "Tag" : "",
-      "Type" : "AStaticMeshActor",
-      "bActorHiddenInGame" : false,
-      "bActorIsActive" : true
-    },
-    "9434" : {
+    "9409" : {
       "ObjectName" : "앰비언트 라이트_0",
       "OwnedComponents" : [{
-          "Id" : 9436,
-          "Intensity" : 0.200000,
+          "Id" : 9411,
+          "Intensity" : 0.100000,
           "LightColor" : [1.000000, 1.000000, 1.000000, 1.000000],
           "ObjectName" : "AmbientLightComponent",
           "ParentId" : 0,
@@ -197,13 +156,13 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9436,
+      "RootComponentId" : 9411,
       "Tag" : "",
       "Type" : "AAmbientLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9437" : {
+    "9412" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -215,7 +174,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9439,
+          "Id" : 9414,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -243,13 +202,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9439,
+      "RootComponentId" : 9414,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9442" : {
+    "9417" : {
       "AnimationCutEndTime" : 0.010000,
       "BlockAnimPath" : "Data/FBX/Animation/Block_Hit_Seq.FBX_Unreal Take",
       "ChargingAnimPath" : "Data/FBX/Animation/Power_Attack_Loop_Seq.FBX_Unreal Take",
@@ -268,6 +227,27 @@
       "MoveSpeed" : 500.000000,
       "ObjectName" : "플레이어 캐릭터_0",
       "OwnedComponents" : [{
+          "CapsuleHalfHeight" : 0.900000,
+          "CapsuleRadius" : 0.300000,
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 9431,
+          "ObjectName" : "UCapsuleComponent_1",
+          "ParentId" : 0,
+          "RelativeLocation" : [0.792624, -1.032130, 1.138652],
+          "RelativeRotationEuler" : [0.000000, -0.004071, 0.000448],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Type" : "UCapsuleComponent",
+          "bBlockComponent" : false,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bRegisterToPhysX" : true,
+          "bShapeHiddenInGame" : true,
+          "bShapeIsVisible" : true,
+          "bTickEnabled" : true
+        }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [4.404629, 0.310638, 0.400278],
           "CapsuleHalfHeight" : 0.400278,
@@ -277,7 +257,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9450,
+          "Id" : 9425,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -314,7 +294,7 @@
               "Type" : "UMaterial"
             }],
           "ObjectName" : "WeaponMeshComponent",
-          "ParentId" : 9461,
+          "ParentId" : 9439,
           "PhysMaterialPreset" : 0,
           "RelativeLocation" : [0.394518, 0.434058, 1.103885],
           "RelativeRotationEuler" : [2.060881, -12.279352, -1.706857],
@@ -334,6 +314,27 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }, {
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 9429,
+          "ObjectName" : "UParticleSystemComponent_5",
+          "ParentId" : 9425,
+          "RelativeLocation" : [2.388424, 0.105524, 0.299700],
+          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Template" : "Data/Particle/G_SwordRibbonPlayer3.particle",
+          "Type" : "UParticleSystemComponent",
+          "bAutoActivate" : false,
+          "bAutoDestroy" : false,
+          "bBlockComponent" : false,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bTickEnabled" : true,
+          "bUseAsyncSimulation" : true,
+          "bUseGpuInstancing" : false
+        }, {
           "BlockCostPerHit" : 20.000000,
           "CurrentHealth" : 100.000000,
           "CurrentStamina" : 100.000000,
@@ -351,52 +352,10 @@
           "bIsActive" : true,
           "bTickEnabled" : true
         }, {
-          "CollisionEnabled_Internal" : 2,
-          "Id" : 9525,
-          "ObjectName" : "UParticleSystemComponent_6",
-          "ParentId" : 9450,
-          "RelativeLocation" : [-0.043833, -0.001290, 0.007330],
-          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "Template" : "Data/Particle/G_SwordRibbonPlayer2.particle",
-          "Type" : "UParticleSystemComponent",
-          "bAutoActivate" : false,
-          "bAutoDestroy" : false,
-          "bBlockComponent" : false,
-          "bGenerateOverlapEvents" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bTickEnabled" : true,
-          "bUseAsyncSimulation" : true,
-          "bUseGpuInstancing" : false
-        }, {
           "ObjectName" : "UCharacterMovementComponent_1",
           "Type" : "UCharacterMovementComponent",
           "bHiddenInGame" : false,
           "bIsActive" : true,
-          "bTickEnabled" : true
-        }, {
-          "CapsuleHalfHeight" : 0.900000,
-          "CapsuleRadius" : 0.300000,
-          "CollisionEnabled_Internal" : 2,
-          "Id" : 9455,
-          "ObjectName" : "UCapsuleComponent_1",
-          "ParentId" : 0,
-          "RelativeLocation" : [0.792624, -1.032130, 1.138652],
-          "RelativeRotationEuler" : [0.000000, -0.004071, 0.000448],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "Type" : "UCapsuleComponent",
-          "bBlockComponent" : false,
-          "bGenerateOverlapEvents" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCollisionSetting" : false,
-          "bRegisterToPhysX" : true,
-          "bShapeHiddenInGame" : true,
-          "bShapeIsVisible" : true,
           "bTickEnabled" : true
         }, {
           "AngularDampingOverride" : 0.050000,
@@ -408,7 +367,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9456,
+          "Id" : 9434,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -428,7 +387,7 @@
               "Type" : "UMaterial"
             }],
           "ObjectName" : "SubWeaponMeshComponent",
-          "ParentId" : 9461,
+          "ParentId" : 9439,
           "PhysMaterialPreset" : 0,
           "RelativeLocation" : [-0.126157, -0.424431, 1.140013],
           "RelativeRotationEuler" : [-165.859161, -1.739906, 179.597656],
@@ -449,13 +408,13 @@
           "bTickEnabled" : true
         }, {
           "CollisionEnabled_Internal" : 2,
-          "Id" : 9459,
-          "ObjectName" : "UParticleSystemComponent_5",
-          "ParentId" : 9450,
-          "RelativeLocation" : [2.388424, 0.105524, 0.299700],
+          "Id" : 9433,
+          "ObjectName" : "UParticleSystemComponent_6",
+          "ParentId" : 9425,
+          "RelativeLocation" : [-0.043833, -0.001290, 0.007330],
           "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "Template" : "Data/Particle/G_SwordRibbonPlayer3.particle",
+          "Template" : "Data/Particle/G_SwordRibbonPlayer2.particle",
           "Type" : "UParticleSystemComponent",
           "bAutoActivate" : false,
           "bAutoDestroy" : false,
@@ -470,9 +429,30 @@
           "bUseGpuInstancing" : false
         }, {
           "CollisionEnabled_Internal" : 2,
-          "Id" : 9460,
+          "Id" : 9437,
+          "ObjectName" : "UParticleSystemComponent_14",
+          "ParentId" : 9431,
+          "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+          "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "Template" : "Data/Particle/G_Leaves.particle",
+          "Type" : "UParticleSystemComponent",
+          "bAutoActivate" : true,
+          "bAutoDestroy" : false,
+          "bBlockComponent" : false,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bTickEnabled" : true,
+          "bUseAsyncSimulation" : true,
+          "bUseGpuInstancing" : false
+        }, {
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 9438,
           "ObjectName" : "UParticleSystemComponent_3",
-          "ParentId" : 9450,
+          "ParentId" : 9425,
           "RelativeLocation" : [3.904436, -0.022154, 0.341266],
           "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -492,7 +472,7 @@
         }, {
           "AnimGraphPath" : "Data/Graphs/Shinobi.graph",
           "CollisionEnabled_Internal" : 2,
-          "Id" : 9461,
+          "Id" : 9439,
           "MaterialSlots" : [{
               "Type" : "None"
             }, {
@@ -652,7 +632,7 @@
               "Type" : "UMaterialInstanceDynamic"
             }],
           "ObjectName" : "USkeletalMeshComponent_3",
-          "ParentId" : 9455,
+          "ParentId" : 9431,
           "PhysicsAssetOverridePath" : "Data/Physics/Shinobi.phys",
           "RelativeLocation" : [0.000000, 0.000000, -0.900000],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -669,7 +649,7 @@
           "bTickEnabled" : true
         }],
       "ParryWindowDuration" : 0.200000,
-      "RootComponentId" : 9455,
+      "RootComponentId" : 9431,
       "RotationSpeed" : 10.000000,
       "SubWeaponBoneName" : "hand_l",
       "SubWeaponOffset" : [0.040000, 0.040000, 0.100000],
@@ -687,7 +667,7 @@
       "bIsInvincible" : false,
       "bIsParrying" : false
     },
-    "9526" : {
+    "9502" : {
       "ObjectName" : "스태틱 메시_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -699,7 +679,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9528,
+          "Id" : 9504,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -771,20 +751,20 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9528,
+      "RootComponentId" : 9504,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9534" : {
+    "9510" : {
       "ObjectName" : "ADecalActor_6",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
-          "FadeSpeed" : 0.500000,
-          "Id" : 9536,
+          "FadeSpeed" : 0.000000,
+          "Id" : 9512,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -800,13 +780,13 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9536,
+      "RootComponentId" : 9512,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9537" : {
+    "9513" : {
       "ObjectName" : "ADirectionalLightActor_5",
       "OwnedComponents" : [{
           "CascadedAreaColorDebugValue" : 0.000000,
@@ -814,8 +794,8 @@
           "CascadedCount" : 4,
           "CascadedLinearBlendingValue" : 0.500000,
           "CascadedOverlapValue" : 0.200000,
-          "Id" : 9539,
-          "Intensity" : 1.000000,
+          "Id" : 9515,
+          "Intensity" : 0.500000,
           "LightColor" : [1.000000, 0.792490, 0.629344, 1.000000],
           "ObjectName" : "DirectionalLightComponent",
           "ParentId" : 0,
@@ -835,20 +815,20 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9539,
+      "RootComponentId" : 9515,
       "Tag" : "",
       "Type" : "ADirectionalLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9540" : {
-      "BloomBlurRadiusSetting" : 1.000000,
+    "9516" : {
+      "BloomBlurRadiusSetting" : 1.500000,
       "BloomIntensitySetting" : 1.000000,
-      "BloomSoftKneeSetting" : 0.500000,
-      "BloomThresholdSetting" : 1.000000,
+      "BloomSoftKneeSetting" : 0.900000,
+      "BloomThresholdSetting" : 0.800000,
       "ObjectName" : "APlayerCameraManager_5",
       "OwnedComponents" : [{
-          "Id" : 9541,
+          "Id" : 9517,
           "ObjectName" : "DefaultSceneComponent",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -860,14 +840,14 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9541,
+      "RootComponentId" : 9517,
       "Tag" : "",
       "Type" : "APlayerCameraManager",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true,
-      "bBloomSettingsEnabled" : false
+      "bBloomSettingsEnabled" : true
     },
-    "9542" : {
+    "9518" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -879,7 +859,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9544,
+          "Id" : 9520,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -934,13 +914,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9544,
+      "RootComponentId" : 9520,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9549" : {
+    "9525" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -952,7 +932,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9551,
+          "Id" : 9527,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -993,13 +973,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9551,
+      "RootComponentId" : 9527,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9555" : {
+    "9531" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1011,7 +991,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9557,
+          "Id" : 9533,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1065,13 +1045,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9557,
+      "RootComponentId" : 9533,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9562" : {
+    "9538" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1083,7 +1063,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9564,
+          "Id" : 9540,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1137,13 +1117,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9564,
+      "RootComponentId" : 9540,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9569" : {
+    "9545" : {
       "ObjectName" : "AStaticMeshActor_3",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1155,7 +1135,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9571,
+          "Id" : 9547,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1209,13 +1189,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9571,
+      "RootComponentId" : 9547,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9576" : {
+    "9552" : {
       "ObjectName" : "AStaticMeshActor_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1227,7 +1207,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9578,
+          "Id" : 9554,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1281,13 +1261,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9578,
+      "RootComponentId" : 9554,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9583" : {
+    "9559" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1299,7 +1279,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9585,
+          "Id" : 9561,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1354,59 +1334,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9585,
+      "RootComponentId" : 9561,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "9684" : {
-      "ObjectName" : "포인트 라이트_0",
-      "OwnedComponents" : [{
-          "AttenuationRadius" : 5.000000,
-          "FalloffExponent" : 2.000000,
-          "Id" : 9685,
-          "Intensity" : 1.000000,
-          "LightColor" : [1.000000, 1.000000, 1.000000, 1.000000],
-          "ObjectName" : "PointLightComponent",
-          "ParentId" : 0,
-          "RelativeLocation" : [0.531924, 2.285844, 3.490953],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "ShadowBias" : 0.000010,
-          "ShadowResolutionScale" : 1024,
-          "ShadowSharpen" : 0.500000,
-          "ShadowSlopeBias" : 0.000010,
-          "SourceRadius" : 0.000000,
-          "Temperature" : 6500.000000,
-          "Type" : "UPointLightComponent",
-          "bCastShadows" : true,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCameraLightPerspective" : false,
-          "bTickEnabled" : true,
-          "bUseInverseSquareFalloff" : true
-        }],
-      "RootComponentId" : 9685,
-      "Tag" : "",
-      "Type" : "APointLightActor",
-      "bActorHiddenInGame" : false,
-      "bActorIsActive" : true
-    },
-    "9687" : {
-      "ObjectName" : "스태틱 메시_0",
+    "9569" : {
+      "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [194.816422, 51.967190, 120.248718],
+          "CapsuleHalfHeight" : 120.248718,
+          "CapsuleRadius" : 97.408211,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 9688,
+          "Id" : 9571,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1415,27 +1361,39 @@
 
                 },
                 "Textures" : {
-                  "0" : "Data/Freshly_Bitten_Apple_tgzpdhlpa_Mid_2K_BaseColor.jpg",
-                  "1" : "None"
+                  "0" : "Data/Textures/blank.png"
                 },
                 "Vectors" : {
-                  "AmbientColor" : [0.000000, 0.000000, 0.000000, 1.000000],
-                  "DiffuseColor" : [1.000000, 1.000000, 1.000000, 1.000000],
-                  "EmissiveColor" : [0.000000, 0.000000, 0.000000, 1.000000]
+
                 }
               },
               "ParentPath" : "GatlingGun_Turret_Mat",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_ExteriorSet_BaseColor.PNG",
+                  "2" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_ExteriorSet_ORM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_ExteriorSet",
               "Type" : "UMaterialInstanceDynamic"
             }],
           "ObjectName" : "StaticMeshComponent",
           "ParentId" : 0,
           "PhysMaterialPreset" : 0,
-          "RelativeLocation" : [-3.445053, -3.804326, 1.326385],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "RelativeLocation" : [10.117445, -4.102582, 0.107846],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 90.000000],
+          "RelativeScale" : [0.010000, 0.010000, 0.010000],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
-          "StaticMesh" : "Data/apple_mid.obj",
+          "SphereRadius" : 194.816422,
+          "StaticMesh" : "Data/Model/Sicka Dynasty/Game/SICKA_DYNASTY/StaticMeshes/SM_ExteriorSet_Bench.FBX",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
           "bCastShadows" : true,
@@ -1448,20 +1406,93 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 9688,
+      "RootComponentId" : 9571,
+      "Tag" : "",
+      "Type" : "AStaticMeshActor",
+      "bActorHiddenInGame" : false,
+      "bActorIsActive" : true
+    },
+    "9576" : {
+      "ObjectName" : "AStaticMeshActor_1",
+      "OwnedComponents" : [{
+          "AngularDampingOverride" : 0.050000,
+          "BoxExtent" : [194.816422, 51.967190, 120.248718],
+          "CapsuleHalfHeight" : 120.248718,
+          "CapsuleRadius" : 97.408211,
+          "CollisionEnabled_Internal" : 2,
+          "CollisionOffset" : [0.000000, 0.000000, 0.000000],
+          "CollisionRotation" : [0.000000, 0.000000, 0.000000],
+          "CollisionType" : 1,
+          "FrictionCombineModeOverride" : 2,
+          "Id" : 9578,
+          "LinearDampingOverride" : 0.010000,
+          "MassOverride" : 10.000000,
+          "MaterialSlots" : [{
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/blank.png",
+                  "1" : "None"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "GatlingGun_Turret_Mat",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_MiniPavilionBase_BaseColor.PNG",
+                  "2" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_MiniPavilionBase_ORM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_MiniPavilionBase",
+              "Type" : "UMaterialInstanceDynamic"
+            }],
+          "ObjectName" : "StaticMeshComponent",
+          "ParentId" : 0,
+          "PhysMaterialPreset" : 0,
+          "RelativeLocation" : [10.117445, -0.079689, 0.107846],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 90.000008],
+          "RelativeScale" : [0.010000, 0.010000, 0.010000],
+          "RestitutionCombineModeOverride" : 2,
+          "SphereRadius" : 194.816422,
+          "StaticMesh" : "Data/Model/Sicka Dynasty/Game/SICKA_DYNASTY/StaticMeshes/SM_ChineseDragon_1.FBX",
+          "Type" : "UStaticMeshComponent",
+          "bBlockComponent" : false,
+          "bCastShadows" : true,
+          "bEnableCollision" : true,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bSimulatePhysics" : false,
+          "bTickEnabled" : true
+        }],
+      "RootComponentId" : 9578,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     }
   },
-  "NextUUID" : 9690,
+  "NextUUID" : 10589,
   "PerspectiveCamera" : {
     "FOV" : [60.000000],
     "FarClip" : [2000.000000],
-    "Location" : [-0.646277, 2.585396, 4.981692],
+    "Location" : [-5.247358, 0.593912, 3.686524],
     "NearClip" : [0.100000],
-    "Rotation" : [0.000000, 20.200239, -26.913174]
+    "Rotation" : [0.000000, 4.100646, -13.312954]
   },
   "Version" : 1
 }

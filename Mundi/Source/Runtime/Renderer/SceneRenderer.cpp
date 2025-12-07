@@ -20,6 +20,7 @@
 #include "BVHierarchy.h"
 #include "SelectionManager.h"
 #include "StaticMeshComponent.h"
+#include "SkeletalMeshComponent.h"
 #include "DecalStatManager.h"
 #include "BillboardComponent.h"
 #include "TextRenderComponent.h"
@@ -1163,7 +1164,11 @@ void FSceneRenderer::RenderDecalPass()
 			// 기즈모에 데칼 입히면 안되므로 에디팅이 안되는 Component는 데칼 그리지 않음
 			if (!SMC || !SMC->IsEditable())
 				continue;
-			
+
+			// 스켈레탈 메시는 데칼 렌더링에서 제외 (성능 최적화)
+			if (Cast<USkeletalMeshComponent>(SMC))
+				continue;
+
 			AActor* Owner = SMC->GetOwner();
 			if (!Owner || !Owner->IsActorVisible())
 				continue;
