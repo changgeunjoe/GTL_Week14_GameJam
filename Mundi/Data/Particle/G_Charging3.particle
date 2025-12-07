@@ -1,0 +1,321 @@
+{
+        "Emitters" : [{
+            "LODLevels" : [{
+                "LODIndex" : 0,
+                "Modules" : [{
+                    "Lifetime_Max" : 0.500000,
+                    "Lifetime_Min" : 0.200000,
+                    "Lifetime_bUseRange" : true,
+                    "Type" : "Lifetime",
+                    "bEnabled" : true
+                  }, {
+                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
+                    "StartSize_Min" : [0.800000, 0.800000, 0.800000],
+                    "StartSize_bUseRange" : false,
+                    "Type" : "Size",
+                    "bEnabled" : true
+                  }, {
+                    "BoxExtent" : [100.000000, 100.000000, 100.000000],
+                    "CylinderHeight" : 200.000000,
+                    "CylinderRadius" : 100.000000,
+                    "DistributionType" : 0,
+                    "SphereRadius" : 100.000000,
+                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
+                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_bUseRange" : true,
+                    "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "InterpMethod" : 0,
+                    "SubImageIndex_Max" : 0.000000,
+                    "SubImageIndex_Min" : 0.000000,
+                    "SubImageIndex_bUseRange" : true,
+                    "Type" : "SubUV",
+                    "bEnabled" : true,
+                    "bUseRealTime" : false
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
+                    "bEnabled" : true
+                  }],
+                "RequiredModule" : {
+                  "BlendMode" : 1,
+                  "DiffuseTexture" : "Data/Textures/A_Lighting_Particle.PNG",
+                  "EmitterDelay" : 0.000000,
+                  "EmitterDuration" : 1.000000,
+                  "EmitterLoops" : 0,
+                  "InitialColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_bUseRange" : false,
+                  "InitialRotation_Max" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_Min" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_bUseRange" : false,
+                  "InitialSize_Max" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_Min" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_bUseRange" : false,
+                  "Material" : "GatlingGun_Turret_Mat",
+                  "MaxParticles" : 1000,
+                  "ScreenAlignment" : 0,
+                  "SortMode" : 1,
+                  "SpawnRateBase" : 10.000000,
+                  "SubImages_Horizontal" : 2,
+                  "SubImages_Vertical" : 2,
+                  "bUseLocalSpace" : false
+                },
+                "SpawnModule" : {
+                  "BurstList" : [],
+                  "SpawnRateOverTime_Max" : 50.000000,
+                  "SpawnRateOverTime_Min" : 10.000000,
+                  "SpawnRateOverTime_bUseRange" : true,
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 15.000000,
+                  "SpawnRate_Min" : 15.000000,
+                  "SpawnRate_bUseRange" : false
+                },
+                "bEnabled" : true
+              }],
+            "Name" : "UParticleEmitter_71",
+            "RenderType" : 0
+          }, {
+            "LODLevels" : [{
+                "LODIndex" : 0,
+                "Modules" : [{
+                    "Lifetime_Max" : 0.500000,
+                    "Lifetime_Min" : 0.200000,
+                    "Lifetime_bUseRange" : true,
+                    "Type" : "Lifetime",
+                    "bEnabled" : true
+                  }, {
+                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
+                    "StartSize_Min" : [0.800000, 0.800000, 0.800000],
+                    "StartSize_bUseRange" : false,
+                    "Type" : "Size",
+                    "bEnabled" : true
+                  }, {
+                    "BoxExtent" : [100.000000, 100.000000, 100.000000],
+                    "CylinderHeight" : 200.000000,
+                    "CylinderRadius" : 100.000000,
+                    "DistributionType" : 0,
+                    "SphereRadius" : 100.000000,
+                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
+                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_bUseRange" : true,
+                    "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "InterpMethod" : 0,
+                    "SubImageIndex_Max" : 1.000000,
+                    "SubImageIndex_Min" : 1.000000,
+                    "SubImageIndex_bUseRange" : true,
+                    "Type" : "SubUV",
+                    "bEnabled" : true,
+                    "bUseRealTime" : false
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
+                    "bEnabled" : true
+                  }],
+                "RequiredModule" : {
+                  "BlendMode" : 1,
+                  "DiffuseTexture" : "Data/Textures/A_Lighting_Particle.PNG",
+                  "EmitterDelay" : 0.000000,
+                  "EmitterDuration" : 1.000000,
+                  "EmitterLoops" : 0,
+                  "InitialColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_bUseRange" : false,
+                  "InitialRotation_Max" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_Min" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_bUseRange" : false,
+                  "InitialSize_Max" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_Min" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_bUseRange" : false,
+                  "Material" : "GatlingGun_Turret_Mat",
+                  "MaxParticles" : 1000,
+                  "ScreenAlignment" : 0,
+                  "SortMode" : 1,
+                  "SpawnRateBase" : 10.000000,
+                  "SubImages_Horizontal" : 2,
+                  "SubImages_Vertical" : 2,
+                  "bUseLocalSpace" : false
+                },
+                "SpawnModule" : {
+                  "BurstList" : [],
+                  "SpawnRateOverTime_Max" : 50.000000,
+                  "SpawnRateOverTime_Min" : 10.000000,
+                  "SpawnRateOverTime_bUseRange" : true,
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 15.000000,
+                  "SpawnRate_Min" : 15.000000,
+                  "SpawnRate_bUseRange" : false
+                },
+                "bEnabled" : true
+              }],
+            "Name" : "UParticleEmitter_72",
+            "RenderType" : 0
+          }, {
+            "LODLevels" : [{
+                "LODIndex" : 0,
+                "Modules" : [{
+                    "Lifetime_Max" : 0.500000,
+                    "Lifetime_Min" : 0.200000,
+                    "Lifetime_bUseRange" : true,
+                    "Type" : "Lifetime",
+                    "bEnabled" : true
+                  }, {
+                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
+                    "StartSize_Min" : [0.800000, 0.800000, 0.800000],
+                    "StartSize_bUseRange" : false,
+                    "Type" : "Size",
+                    "bEnabled" : true
+                  }, {
+                    "BoxExtent" : [100.000000, 100.000000, 100.000000],
+                    "CylinderHeight" : 200.000000,
+                    "CylinderRadius" : 100.000000,
+                    "DistributionType" : 0,
+                    "SphereRadius" : 100.000000,
+                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
+                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_bUseRange" : true,
+                    "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "InterpMethod" : 0,
+                    "SubImageIndex_Max" : 2.000000,
+                    "SubImageIndex_Min" : 2.000000,
+                    "SubImageIndex_bUseRange" : true,
+                    "Type" : "SubUV",
+                    "bEnabled" : true,
+                    "bUseRealTime" : false
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
+                    "bEnabled" : true
+                  }],
+                "RequiredModule" : {
+                  "BlendMode" : 1,
+                  "DiffuseTexture" : "Data/Textures/A_Lighting_Particle.PNG",
+                  "EmitterDelay" : 0.000000,
+                  "EmitterDuration" : 1.000000,
+                  "EmitterLoops" : 0,
+                  "InitialColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_bUseRange" : false,
+                  "InitialRotation_Max" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_Min" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_bUseRange" : false,
+                  "InitialSize_Max" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_Min" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_bUseRange" : false,
+                  "Material" : "GatlingGun_Turret_Mat",
+                  "MaxParticles" : 1000,
+                  "ScreenAlignment" : 0,
+                  "SortMode" : 1,
+                  "SpawnRateBase" : 10.000000,
+                  "SubImages_Horizontal" : 2,
+                  "SubImages_Vertical" : 2,
+                  "bUseLocalSpace" : false
+                },
+                "SpawnModule" : {
+                  "BurstList" : [],
+                  "SpawnRateOverTime_Max" : 50.000000,
+                  "SpawnRateOverTime_Min" : 10.000000,
+                  "SpawnRateOverTime_bUseRange" : true,
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 15.000000,
+                  "SpawnRate_Min" : 15.000000,
+                  "SpawnRate_bUseRange" : false
+                },
+                "bEnabled" : true
+              }],
+            "Name" : "UParticleEmitter_73",
+            "RenderType" : 0
+          }, {
+            "LODLevels" : [{
+                "LODIndex" : 0,
+                "Modules" : [{
+                    "Lifetime_Max" : 0.500000,
+                    "Lifetime_Min" : 0.200000,
+                    "Lifetime_bUseRange" : true,
+                    "Type" : "Lifetime",
+                    "bEnabled" : true
+                  }, {
+                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
+                    "StartSize_Min" : [0.800000, 0.800000, 0.800000],
+                    "StartSize_bUseRange" : false,
+                    "Type" : "Size",
+                    "bEnabled" : true
+                  }, {
+                    "BoxExtent" : [100.000000, 100.000000, 100.000000],
+                    "CylinderHeight" : 200.000000,
+                    "CylinderRadius" : 100.000000,
+                    "DistributionType" : 0,
+                    "SphereRadius" : 100.000000,
+                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
+                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_bUseRange" : true,
+                    "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "InterpMethod" : 0,
+                    "SubImageIndex_Max" : 3.000000,
+                    "SubImageIndex_Min" : 3.000000,
+                    "SubImageIndex_bUseRange" : true,
+                    "Type" : "SubUV",
+                    "bEnabled" : true,
+                    "bUseRealTime" : false
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
+                    "bEnabled" : true
+                  }],
+                "RequiredModule" : {
+                  "BlendMode" : 1,
+                  "DiffuseTexture" : "Data/Textures/A_Lighting_Particle.PNG",
+                  "EmitterDelay" : 0.000000,
+                  "EmitterDuration" : 1.000000,
+                  "EmitterLoops" : 0,
+                  "InitialColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
+                  "InitialColor_bUseRange" : false,
+                  "InitialRotation_Max" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_Min" : [0.000000, 0.000000, 0.000000],
+                  "InitialRotation_bUseRange" : false,
+                  "InitialSize_Max" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_Min" : [50.000000, 50.000000, 1.000000],
+                  "InitialSize_bUseRange" : false,
+                  "Material" : "GatlingGun_Turret_Mat",
+                  "MaxParticles" : 1000,
+                  "ScreenAlignment" : 0,
+                  "SortMode" : 1,
+                  "SpawnRateBase" : 10.000000,
+                  "SubImages_Horizontal" : 2,
+                  "SubImages_Vertical" : 2,
+                  "bUseLocalSpace" : false
+                },
+                "SpawnModule" : {
+                  "BurstList" : [],
+                  "SpawnRateOverTime_Max" : 50.000000,
+                  "SpawnRateOverTime_Min" : 10.000000,
+                  "SpawnRateOverTime_bUseRange" : true,
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 15.000000,
+                  "SpawnRate_Min" : 15.000000,
+                  "SpawnRate_bUseRange" : false
+                },
+                "bEnabled" : true
+              }],
+            "Name" : "UParticleEmitter_74",
+            "RenderType" : 0
+          }],
+        "Name" : "UParticleSystem_28",
+        "Type" : "ParticleSystem"
+      }

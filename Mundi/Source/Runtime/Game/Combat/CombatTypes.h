@@ -40,6 +40,7 @@ enum class ECombatState
     Blocking,       // 가드 중
     Parrying,       // 패리 중 (패리 윈도우)
     Staggered,      // 경직 중
+    Charging,       // 차징 중
     Knockback,      // 넉백 중
     Dead            // 사망
 };

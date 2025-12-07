@@ -8,6 +8,10 @@
 // - LightStructures.hlsl
 // - LightingBuffers.hlsl
 
+#ifndef PI
+#define PI 3.14159265359
+#endif
+
 //================================================================================================
 // Specular 계산 방식 선택
 //================================================================================================
@@ -952,4 +956,210 @@ float3 CalculateAllLights(
     }
 
     return litColor;
+}
+
+// Specular with explicit color (for PBR metallic workflows)
+float3 CalculateSpecularWithColor(float3 lightDir, float3 normal, float3 viewDir, float4 lightColor, float specularPower, float3 explicitSpecularColor)
+{
+#ifdef USE_BLINN_PHONG
+    float3 halfVec = normalize(lightDir + viewDir);
+    float NdotH = max(dot(normal, halfVec), 0.0f);
+    float specular = pow(NdotH, specularPower);
+    // Simple Schlick Fresnel to enhance metallic appearance at grazing angles
+    float VdotH = max(dot(viewDir, halfVec), 0.0f);
+    float3 F = explicitSpecularColor + (1.0f - explicitSpecularColor) * pow(1.0f - VdotH, 5.0f);
+    return lightColor.rgb * F * specular;
+#else
+    float3 reflectDir = reflect(-lightDir, normal);
+    float RdotV = max(dot(reflectDir, viewDir), 0.0f);
+    float specular = pow(RdotV, specularPower);
+    // Phong variant: approximate Fresnel using N·V
+    float NdotV = max(dot(normal, viewDir), 0.0f);
+    float3 F = explicitSpecularColor + (1.0f - explicitSpecularColor) * pow(1.0f - NdotV, 5.0f);
+    return lightColor.rgb * F * specular;
+#endif
+}
+
+// ============================================================================
+// GGX/Cook-Torrance helpers
+// ============================================================================
+float3 FresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0f - F0) * pow(1.0f - cosTheta, 5.0f);
+}
+
+float DistributionGGX(float3 N, float3 H, float alpha)
+{
+    float NdotH = max(dot(N, H), 0.0f);
+    float a2 = alpha * alpha;
+    float denom = (NdotH * NdotH) * (a2 - 1.0f) + 1.0f;
+    return a2 / (PI * denom * denom + 1e-5f);
+}
+
+float GeometrySchlickGGX(float NdotX, float k)
+{
+    return NdotX / (NdotX * (1.0f - k) + k + 1e-5f);
+}
+
+float GeometrySmith(float3 N, float3 V, float3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+    return ggx1 * ggx2;
+}
+
+float3 SpecularGGX(float3 N, float3 V, float3 L, float roughness, float3 F0, float4 lightColor)
+{
+    float3 H = normalize(V + L);
+    float NdotV = max(dot(N, V), 0.0f);
+    float NdotL = max(dot(N, L), 0.0f);
+    if (NdotL <= 0.0f || NdotV <= 0.0f) return 0.0f;
+
+    float alpha = max(roughness * roughness, 0.01f);
+    float D = DistributionGGX(N, H, alpha);
+    float k = (alpha + 1.0f);
+    k = (k * k) / 8.0f; // Schlick-GGX visibility term
+    float G = GeometrySmith(N, V, L, k);
+    float3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
+
+    float denom = max(4.0f * NdotV * NdotL, 1e-4f);
+    float3 spec = (D * G) * F / denom;
+    return lightColor.rgb * spec;
+}
+
+// Convert direction to equirectangular UV
+// (IBL helpers removed)
+
+// Directional light with explicit specular color
+float3 CalculateDirectionalLightPBR(
+    FDirectionalLightInfo light,
+    float3 WorldPos,
+    float3 ViewPos,
+    float3 normal,
+    float3 viewDir,
+    float4 materialColor,
+    bool includeSpecular,
+    float specularPower,
+    Texture2D ShadowMap,
+    SamplerComparisonState ShadowSampler,
+    float3 specularColor,
+    float roughness)
+{
+    if (all(light.Direction == float3(0.0f, 0.0f, 0.0f)))
+    {
+        return float3(0.0f, 0.0f, 0.0f);
+    }
+    float3 lightDir = normalize(-light.Direction);
+    float3 diffuse = CalculateDiffuse(lightDir, normal, light.Color, materialColor);
+    float3 specular = float3(0.0f, 0.0f, 0.0f);
+    if (includeSpecular)
+    {
+        specular = SpecularGGX(normal, viewDir, lightDir, roughness, specularColor, light.Color);
+    }
+    float shadowFactor = 1;
+    if (light.bCastShadows)
+    {
+        if (light.bCascaded)
+        {
+            shadowFactor = GetCascadedShadowAtt(WorldPos, ViewPos, normal, lightDir, ShadowMap, ShadowSampler);
+        }
+        else
+        {
+            shadowFactor = CalculateSpotLightShadowFactor(
+             WorldPos, normal, viewDir, light.Cascades[0], ShadowMap, ShadowSampler);
+        }
+    }
+    return (diffuse + specular) * shadowFactor;
+}
+
+// Spot light with explicit specular color
+float3 CalculateSpotLightPBR(
+    FSpotLightInfo light,
+    float3 worldPos,
+    float3 normal,
+    float3 viewDir,
+    float4 materialColor,
+    bool includeSpecular,
+    float specularPower,
+    Texture2D ShadowMap, SamplerComparisonState ShadowSampler,
+    Texture2D<float2> VShadowMap, SamplerState VShadowSampler,
+    float3 specularColor,
+    float roughness)
+{
+    float3 lightVec = light.Position - worldPos;
+    float distance = max(length(lightVec), 0.0001f);
+    float3 lightDir = lightVec / distance;
+    float3 spotDir = normalize(light.Direction);
+    float cosAngle = dot(-lightDir, spotDir);
+    float angle = degrees(acos(saturate(cosAngle)));
+    float spotAttenuation = 1.0 - smoothstep(light.InnerConeAngle, light.OuterConeAngle, angle);
+    float distanceAttenuation;
+    if (light.bUseInverseSquareFalloff)
+        distanceAttenuation = CalculateInverseSquareFalloff(distance, light.AttenuationRadius);
+    else
+        distanceAttenuation = CalculateExponentFalloff(distance, light.AttenuationRadius, light.FalloffExponent);
+    float attenuation = distanceAttenuation * spotAttenuation;
+    float3 diffuse = CalculateDiffuse(lightDir, normal, light.Color, materialColor) * attenuation;
+    float3 specular = float3(0.0f, 0.0f, 0.0f);
+    if (includeSpecular)
+    {
+        specular = SpecularGGX(normal, viewDir, lightDir, roughness, specularColor, light.Color) * attenuation;
+    }
+    if (light.bCastShadows)
+    {
+#if SHADOW_AA_TECHNIQUE == 1
+        float shadowFactor = CalculateSpotLightShadowFactor(
+            worldPos, normal, lightDir, light.ShadowData, ShadowMap, ShadowSampler);
+        diffuse *= shadowFactor;
+        specular *= shadowFactor;
+#elif SHADOW_AA_TECHNIQUE == 2 
+        float shadowFactor = CalculateSpotLightShadowFactorVSM(worldPos,
+            light.ShadowData, light.AttenuationRadius, VShadowMap, VShadowSampler);
+        diffuse *= shadowFactor;
+        specular *= shadowFactor;
+#endif
+    }
+    return diffuse + specular;
+}
+
+// Point light with explicit specular color
+float3 CalculatePointLightPBR(
+    FPointLightInfo light,
+    float3 worldPos,
+    float3 normal,
+    float3 viewDir,
+    float4 materialColor,
+    bool includeSpecular,
+    float specularPower,
+    TextureCubeArray ShadowMapCube,
+    SamplerComparisonState ShadowSampler,
+    float3 specularColor,
+    float roughness)
+{
+    float3 lightVec = light.Position - worldPos;
+    float distance = max(length(lightVec), 0.0001f);
+    float3 lightDir = lightVec / distance;
+    float attenuation;
+    if (light.bUseInverseSquareFalloff)
+        attenuation = CalculateInverseSquareFalloff(distance, light.AttenuationRadius);
+    else
+        attenuation = CalculateExponentFalloff(distance, light.AttenuationRadius, light.FalloffExponent);
+    float3 diffuse = CalculateDiffuse(lightDir, normal, light.Color, materialColor) * attenuation;
+    float3 specular = float3(0.0f, 0.0f, 0.0f);
+    if (includeSpecular)
+    {
+        specular = SpecularGGX(normal, viewDir, lightDir, roughness, specularColor, light.Color) * attenuation;
+    }
+    if (light.bCastShadows)
+    {
+        int SampleCount = ConvertSharpenToSampleCount(light.ShadowSharpen);
+        float shadowFactor = CalculatePointLightShadowFactor(
+            worldPos, normal, light, SampleCount,
+            ShadowMapCube, ShadowSampler);
+        diffuse *= shadowFactor;
+        specular *= shadowFactor;
+    }
+    return diffuse + specular;
 }

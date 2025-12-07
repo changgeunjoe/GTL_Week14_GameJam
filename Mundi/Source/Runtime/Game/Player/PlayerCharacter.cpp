@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "SkeletalMeshComponent.h"
 #include "CharacterMovementComponent.h"
+#include "ParticleSystemComponent.h"
 #include "World.h"
 #include "GameModeBase.h"
 #include "GameState.h"
@@ -14,7 +15,7 @@
 #include "Source/Runtime/Engine/Animation/AnimInstance.h"
 #include "Source/Runtime/Engine/Animation/AnimSequence.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
-
+#include "Source/Runtime/Engine/GameFramework/PlayerCameraManager.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -191,6 +192,8 @@ void APlayerCharacter::BeginPlay()
             UE_LOG("[PlayerCharacter] Failed to find charging animation: %s", ChargingAnimPath.c_str());
         }
     }
+
+    GatherParticles();
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -280,6 +283,8 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     {
         ProcessInput(DeltaSeconds);
     }
+
+    UpdateEffect(DeltaSeconds);
 }
 
 // ============================================================================
@@ -1199,5 +1204,104 @@ void APlayerCharacter::ExecutePendingSkill()
                 }
             }
         }
+    }
+}
+
+void APlayerCharacter::UpdateEffect(float DeltaTime)
+{
+    UStatsComponent* Stats = StatsComponent;
+    if (!Stats)
+    {
+        Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    }
+
+    UWorld* WorldPtr = GetWorld();
+    APlayerCameraManager* CameraManager = WorldPtr ? WorldPtr->GetPlayerCameraManager() : nullptr;
+
+    const bool bShouldEvaluateCharging = bIsCharging && Stats && CameraManager;
+
+    int32 DesiredStage = 0;
+    if (bShouldEvaluateCharging)
+    {
+        if (PlayerParticles["Charging"].size() < 3)
+            return;
+
+        if (!bWasCharging) bWasCharging = true;
+
+        const float Stamina = Stats->GetCurrentStamina();
+        if (Stamina < 50.0f)
+        {
+            CameraManager->StartCameraShake(5, 0.0005, 0.0005, 20, 2);
+            PlayerParticles["Charging"][0]->ResumeSpawning();
+        }
+        else if (Stamina < 99.0f)
+        {
+            CameraManager->StopCameraShake();
+            CameraManager->StartCameraShake(5, 0.00055, 0.00055, 20, 1);
+            PlayerParticles["Charging"][1]->ResumeSpawning();
+        }
+        else
+        {
+            CameraManager->StopCameraShake();
+            CameraManager->StartCameraShake(5, 0.0006, 0.0006, 20, 0);
+            PlayerParticles["Charging"][2]->ResumeSpawning();
+        }
+    }
+    else if (bWasCharging)
+    {
+        bWasCharging = false;
+        CameraManager->StopCameraShake();
+        for (auto& Charge : PlayerParticles["Charging"])
+        {
+            Charge->PauseSpawning();
+        }
+    }
+}
+
+void APlayerCharacter::GatherParticles()
+{
+    PlayerParticles.clear();
+
+    const TSet<UActorComponent*>& OwnedComponents = GetOwnedComponents();
+    if (OwnedComponents.IsEmpty())
+    {
+        return;
+    }
+
+    for (UActorComponent* Component : OwnedComponents)
+    {
+        if (!Component)
+        {
+            continue;
+        }
+
+        UParticleSystemComponent* ParticleComp = Cast<UParticleSystemComponent>(Component);
+        if (!ParticleComp)
+        {
+            continue;
+        }
+
+        FString ParticleName = ParticleComp->GetParticleName();
+        if (ParticleName.empty())
+        {
+            ParticleName = ParticleComp->GetName();
+        }
+
+        if (ParticleName.empty())
+        {
+            continue;
+        }
+
+        if (ParticleName.find("Charging") != FString::npos)
+        {
+            PlayerParticles["Charging"].Add(ParticleComp);
+            continue;
+        }
+        else if (ParticleName.find("WeaponRibbon") != FString::npos)
+        {
+            PlayerParticles["WeaponRibbon"].Add(ParticleComp);
+            continue;
+        }
+        PlayerParticles[ParticleName].Add(ParticleComp);
     }
 }

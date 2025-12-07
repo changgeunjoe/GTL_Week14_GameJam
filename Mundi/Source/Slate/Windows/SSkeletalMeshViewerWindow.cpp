@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "SSkeletalMeshViewerWindow.h"
 #include "FViewport.h"
 #include "FViewportClient.h"
@@ -2450,8 +2450,8 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                             float ClickFrame = RightClickFrame;
                             float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
-                            // Weapon Collision Notify 추가
-                            UAnimNotify_EnableWeaponCollision* NewNotify = NewObject<UAnimNotify_EnableWeaponCollision>();
+                            // Camera Notify 추가
+                            UAnimNotify_PlayCamera* NewNotify = NewObject<UAnimNotify_PlayCamera>();
                             if (NewNotify)
                             {
                                 State->CurrentAnimation->AddPlayCameraNotify(TimeSec, NewNotify, 0.0f);
@@ -2633,7 +2633,6 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                         DrawList->AddText(ImVec2(XStart + 2, P.y + 2), IM_COL32_WHITE, Label.c_str());
-                        ImGui::PopClipRect();
 
                         // Double-click opens edit popup; single-click starts dragging
                         if (bDoubleClicked)
@@ -2996,15 +2995,15 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                         case ECameraNotifyEffect::Shake:
                             ImGui::TextUnformatted("Shake Settings");
-                            if (ImGui::DragFloat("Duration##Shake", &CameraNotify->ShakeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.2f"))
+                            if (ImGui::DragFloat("Duration##Shake", &CameraNotify->ShakeSettings.Duration, 0.01f, 0.0f, 60.0f, "%.4f"))
                             {
                                 MarkNotifiesDirty(State);
                             }
-                            if (ImGui::DragFloat("Amplitude Loc", &CameraNotify->ShakeSettings.AmplitudeLocation, 0.01f, 0.0f, 10.0f, "%.2f"))
+                            if (ImGui::DragFloat("Amplitude Loc", &CameraNotify->ShakeSettings.AmplitudeLocation, 0.01f, 0.0f, 10.0f, "%.4f"))
                             {
                                 MarkNotifiesDirty(State);
                             }
-                            if (ImGui::DragFloat("Amplitude Rot (deg)", &CameraNotify->ShakeSettings.AmplitudeRotationDeg, 0.01f, 0.0f, 45.0f, "%.2f"))
+                            if (ImGui::DragFloat("Amplitude Rot (deg)", &CameraNotify->ShakeSettings.AmplitudeRotationDeg, 0.01f, 0.0f, 45.0f, "%.4f"))
                             {
                                 MarkNotifiesDirty(State);
                             }
@@ -3196,9 +3195,33 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                             MarkNotifiesDirty(State);
                         }
-                        
+
+						// Particle Name
+						static char ParticleNameBuffer[128];
+						static UAnimNotify_ParticleOnOff* LastNotify = nullptr;
+						if (LastNotify != ParticleOnOffNotify)
+						{
+							strncpy_s(ParticleNameBuffer, ParticleOnOffNotify->ParticleName.c_str(), sizeof(ParticleNameBuffer));
+							LastNotify = ParticleOnOffNotify;
+						}
+
+						if (ImGui::InputText("Particle Name", ParticleNameBuffer, sizeof(ParticleNameBuffer)))
+						{
+							ParticleOnOffNotify->ParticleName = ParticleNameBuffer;
+							MarkNotifiesDirty(State);
+						}
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::SetTooltip("Name of the particle component to target.\nLeave empty or use 'All' to target all particles.");
+						}
+
                         // 라벨 업데이트
-                        Evt.NotifyName = FName(ParticleOnOffNotify->bActivate ? "Particle: On" : "Particle: Off");
+						FString Label = ParticleOnOffNotify->bActivate ? "Particle: On" : "Particle: Off";
+						if (!ParticleOnOffNotify->ParticleName.empty() && ParticleOnOffNotify->ParticleName != "All")
+						{
+							Label += ": " + ParticleOnOffNotify->ParticleName;
+						}
+						Evt.NotifyName = FName(Label.c_str());
                     }
                     else
                     {

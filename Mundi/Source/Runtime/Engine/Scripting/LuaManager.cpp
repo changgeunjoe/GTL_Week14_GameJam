@@ -16,6 +16,7 @@
 #include "SkeletalMeshComponent.h"
 #include "AnimInstance.h"
 #include "PlayerCharacter.h"
+#include "StatsComponent.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -580,6 +581,70 @@ FLuaManager::FLuaManager()
                     Boss->SetDistanceToPlayer(Distance);
                 }
             }
+        });
+
+    // ========================================================================
+    // StatsComponent Lua 바인딩
+    // ========================================================================
+
+    // 현재 체력 가져오기
+    // 사용법: local hp = GetCurrentHealth(Obj)
+    SharedLib.set_function("GetCurrentHealth", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    float hp = Stats->GetCurrentHealth();
+                    UE_LOG("[Lua] GetCurrentHealth: %.1f (Owner: %s)", hp, Owner->GetName().c_str());
+                    return hp;
+                }
+                UE_LOG("[Lua] GetCurrentHealth: StatsComponent not found on %s", Owner->GetName().c_str());
+            }
+            UE_LOG("[Lua] GetCurrentHealth: Owner is null");
+            return 0.f;
+        });
+
+    // 최대 체력 가져오기
+    // 사용법: local maxHp = GetMaxHealth(Obj)
+    SharedLib.set_function("GetMaxHealth", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->GetMaxHealth();
+                }
+            }
+            return 0.f;
+        });
+
+    // 체력 퍼센트 가져오기 (0.0 ~ 1.0)
+    // 사용법: local percent = GetHealthPercent(Obj)
+    SharedLib.set_function("GetHealthPercent", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->GetHealthPercent();
+                }
+            }
+            return 0.f;
+        });
+
+    // 생존 여부 확인
+    // 사용법: local alive = IsAlive(Obj)
+    SharedLib.set_function("IsAlive", [](FGameObject& Obj) -> bool
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->IsAlive();
+                }
+            }
+            return false;
         });
 
     // 히트박스 활성화 (Lua용)

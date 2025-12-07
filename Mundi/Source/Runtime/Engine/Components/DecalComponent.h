@@ -34,10 +34,14 @@ public:
 	virtual void RenderDebugVolume(URenderer* Renderer) const override;
 
 	// Decal Resource API
-	
+
 	void SetDecalTexture(UTexture* InTexture);
 	void SetDecalTexture(const FString& TexturePath);
 	UTexture* GetDecalTexture() const { return DecalTexture; }
+
+	void SetNormalTexture(UTexture* InTexture);
+	void SetNormalTexture(const FString& TexturePath);
+	UTexture* GetNormalTexture() const { return NormalTexture; }
 
 	// Decal Property API
 	void SetVisibility(bool bVisible) { bIsVisible = bVisible; }
@@ -64,8 +68,11 @@ public:
 	void OnRegister(UWorld* InWorld) override;
 
 private:
-	UPROPERTY(EditAnywhere, Category="Decal", Tooltip="데칼 텍스처입니다")
+	UPROPERTY(EditAnywhere, Category="Decal", Tooltip="데칼 디퓨즈 텍스처입니다")
 	UTexture* DecalTexture = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="Decal", Tooltip="데칼 노멀 텍스처입니다")
+	UTexture* NormalTexture = nullptr;
 
 	UGizmoArrowComponent* DirectionGizmo = nullptr;
 

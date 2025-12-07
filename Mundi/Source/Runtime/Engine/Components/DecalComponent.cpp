@@ -121,6 +121,16 @@ void UDecalComponent::SetDecalTexture(const FString& TexturePath)
 	DecalTexture = UResourceManager::GetInstance().Load<UTexture>(TexturePath);
 }
 
+void UDecalComponent::SetNormalTexture(UTexture* InTexture)
+{
+	NormalTexture = InTexture;
+}
+
+void UDecalComponent::SetNormalTexture(const FString& TexturePath)
+{
+	NormalTexture = UResourceManager::GetInstance().Load<UTexture>(TexturePath);
+}
+
 FAABB UDecalComponent::GetWorldAABB() const
 {
     // Step 1: Build the decal's oriented box so we can inspect its world-space corners.

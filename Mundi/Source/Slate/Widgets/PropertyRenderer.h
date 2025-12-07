@@ -2,6 +2,8 @@
 
 #include "Property.h"
 #include "Object.h"
+#include <unordered_map>
+#include <string>
 
 // 프로퍼티 렌더러
 // 리플렉션 정보를 기반으로 ImGui UI를 자동 생성
@@ -83,4 +85,9 @@ private:
 	static TArray<const char*> CachedScriptItems;
 	static TArray<FString> CachedAnimSequencePaths;
 	static TArray<FString> CachedAnimSequenceItems;
+
+	// 텍스처/머티리얼/메쉬 검색 필터용 버퍼 (라벨별로 저장)
+	static std::unordered_map<std::string, std::string> TextureSearchFilters;
+	static std::unordered_map<std::string, std::string> MaterialSearchFilters;
+	static std::unordered_map<std::string, std::string> StaticMeshSearchFilters;
 };

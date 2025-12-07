@@ -364,7 +364,7 @@ void UGameEngine::Shutdown()
     // Resource destructors will properly release D3D resources
     ObjectFactory::DeleteAll(true);
 
-    // Clear FObjManager's static map BEFORE static destruction
+    // Clear FObjManager's static map BEFORE static destruction 
     // This must be done in Shutdown() (before main() exits) rather than ~UGameEngine()
     // because ObjStaticMeshMap is a static member variable that may be destroyed
     // before the global GEngine variable's destructor runs

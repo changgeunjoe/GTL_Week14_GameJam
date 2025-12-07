@@ -26,17 +26,41 @@ void UAnimNotify_ParticleOnOff::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 		return;
 	}
 
+	bool bAll = ParticleName.empty() || ParticleName == "All";
+
 	for (UActorComponent* Component : Owner->GetOwnedComponents())
 	{
 		if (UParticleSystemComponent* ParticleComp = Cast<UParticleSystemComponent>(Component))
 		{
-			if (bActivate)
+			bool bMatch = false;
+			if (bAll)
 			{
-				ParticleComp->ResumeSpawning();
+				bMatch = true;
 			}
 			else
 			{
-				ParticleComp->PauseSpawning();
+				FString CompName = ParticleComp->GetParticleName();
+				if (CompName.empty())
+				{
+					CompName = ParticleComp->GetName();
+				}
+
+				if (CompName == ParticleName)
+				{
+					bMatch = true;
+				}
+			}
+
+			if (bMatch)
+			{
+				if (bActivate)
+				{
+					ParticleComp->ResumeSpawning();
+				}
+				else
+				{
+					ParticleComp->PauseSpawning();
+				}
 			}
 		}
 	}

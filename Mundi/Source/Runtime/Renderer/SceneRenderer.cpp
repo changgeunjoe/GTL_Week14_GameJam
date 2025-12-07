@@ -20,6 +20,7 @@
 #include "BVHierarchy.h"
 #include "SelectionManager.h"
 #include "StaticMeshComponent.h"
+#include "SkeletalMeshComponent.h"
 #include "DecalStatManager.h"
 #include "BillboardComponent.h"
 #include "TextRenderComponent.h"
@@ -1163,7 +1164,11 @@ void FSceneRenderer::RenderDecalPass()
 			// 기즈모에 데칼 입히면 안되므로 에디팅이 안되는 Component는 데칼 그리지 않음
 			if (!SMC || !SMC->IsEditable())
 				continue;
-			
+
+			// 스켈레탈 메시는 데칼 렌더링에서 제외 (성능 최적화)
+			if (Cast<USkeletalMeshComponent>(SMC))
+				continue;
+
 			AActor* Owner = SMC->GetOwner();
 			if (!Owner || !Owner->IsActorVisible())
 				continue;
@@ -1188,6 +1193,11 @@ void FSceneRenderer::RenderDecalPass()
 		for (FMeshBatchElement& BatchElement : MeshBatchElements)
 		{
 			BatchElement.InstanceShaderResourceView = Decal->GetDecalTexture()->GetShaderResourceView();
+			// 노멀 텍스처가 있으면 바인딩
+			if (UTexture* NormalTex = Decal->GetNormalTexture())
+			{
+				BatchElement.InstanceNormalSRV = NormalTex->GetShaderResourceView();
+			}
 			BatchElement.Material = Decal->GetMaterial(0);
 			BatchElement.InputLayout = ShaderVariant->InputLayout;
 			BatchElement.VertexShader = ShaderVariant->VertexShader;
@@ -1525,6 +1535,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 	ID3D11PixelShader* CurrentPixelShader = nullptr;
 	UMaterialInterface* CurrentMaterial = nullptr;
 	ID3D11ShaderResourceView* CurrentInstanceSRV = nullptr; // [추가] Instance SRV 캐시
+	ID3D11ShaderResourceView* CurrentInstanceNormalSRV = nullptr; // [추가] Instance Normal SRV 캐시
 	ID3D11Buffer* CurrentVertexBuffer = nullptr;
 	ID3D11Buffer* CurrentIndexBuffer = nullptr;
 	UINT CurrentVertexStride = 0;
@@ -1571,10 +1582,11 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 		//
 		// 'Material' 또는 'Instance SRV' 둘 중 하나라도 바뀌면
 		// 모든 픽셀 리소스를 다시 바인딩해야 합니다.
-		if (Batch.Material != CurrentMaterial || Batch.InstanceShaderResourceView != CurrentInstanceSRV)
+		if (Batch.Material != CurrentMaterial || Batch.InstanceShaderResourceView != CurrentInstanceSRV || Batch.InstanceNormalSRV != CurrentInstanceNormalSRV)
 		{
 			ID3D11ShaderResourceView* DiffuseTextureSRV = nullptr; // t0
 			ID3D11ShaderResourceView* NormalTextureSRV = nullptr;  // t1
+			ID3D11ShaderResourceView* ORMTextureSRV = nullptr;     // t2 (Occlusion, Roughness, Metallic)
 			FPixelConstBufferType PixelConst{};
 
 			if (Batch.Material)
@@ -1589,14 +1601,27 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 				PixelConst.bHasMaterial = false;
 				PixelConst.bHasDiffuseTexture = false;
 				PixelConst.bHasNormalTexture = false;
+				PixelConst.bHasORMTexture = false;
 			}
 
-			// 1순위: 인스턴스 텍스처 (빌보드)
+			// 1순위: 인스턴스 텍스처 (빌보드/데칼)
 			if (Batch.InstanceShaderResourceView)
 			{
 				DiffuseTextureSRV = Batch.InstanceShaderResourceView;
 				PixelConst.bHasDiffuseTexture = true;
-				PixelConst.bHasNormalTexture = false;
+
+				// 데칼 노멀 텍스처 지원
+				if (Batch.InstanceNormalSRV)
+				{
+					NormalTextureSRV = Batch.InstanceNormalSRV;
+					PixelConst.bHasNormalTexture = true;
+				}
+				else
+				{
+					PixelConst.bHasNormalTexture = false;
+				}
+				// 인스턴스 텍스처는 ORM을 지원하지 않음
+				PixelConst.bHasORMTexture = false;
 			}
 			// 2순위: 머티리얼 텍스처 (스태틱 메시)
 			else if (Batch.Material)
@@ -1627,12 +1652,29 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 						PixelConst.bHasNormalTexture = (NormalTextureSRV != nullptr);
 					}
 				}
+				// ORM 텍스처 (Occlusion, Roughness, Metallic)
+				if (!MaterialInfo.ORMTextureFileName.empty())
+				{
+					if (UTexture* TextureData = Batch.Material->GetTexture(EMaterialTextureSlot::ORM))
+					{
+						ORMTextureSRV = TextureData->GetShaderResourceView();
+						PixelConst.bHasORMTexture = (ORMTextureSRV != nullptr);
+					}
+				}
+
+				// no env map
 			}
-			
+
 			// --- RHI 상태 업데이트 ---
 			// 1. 텍스처(SRV) 바인딩
-			ID3D11ShaderResourceView* Srvs[2] = { DiffuseTextureSRV, NormalTextureSRV };
-			RHIDevice->GetDeviceContext()->PSSetShaderResources(0, 2, Srvs);
+			//    - t0 = Diffuse
+            //    - t1 = Normal
+            //    - t6 = ORM (Occlusion, Roughness, Metallic) [avoid conflict with t2 tile indices]
+			ID3D11ShaderResourceView* BaseSrvs[2] = { DiffuseTextureSRV, NormalTextureSRV };
+			RHIDevice->GetDeviceContext()->PSSetShaderResources(0, 2, BaseSrvs);
+			// Bind ORM separately at slot 6 to avoid register conflicts (t2 is used by tile culling indices)
+			RHIDevice->GetDeviceContext()->PSSetShaderResources(6, 1, &ORMTextureSRV);
+			// no env map binding
 
 			// 2. 샘플러 바인딩
 			ID3D11SamplerState* Samplers[4] = { DefaultSampler, DefaultSampler, ShadowSampler, VSMSampler };
@@ -1644,6 +1686,7 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 			// --- 캐시 업데이트 ---
 			CurrentMaterial = Batch.Material;
 			CurrentInstanceSRV = Batch.InstanceShaderResourceView;
+			CurrentInstanceNormalSRV = Batch.InstanceNormalSRV;
 		}
 
 		if (Batch.GPUSkinMatrixSRV != CurrentSkinMatrixSRV || Batch.GPUSkinNormalMatrixSRV != CurrentSkinNormalMatrixSRV)

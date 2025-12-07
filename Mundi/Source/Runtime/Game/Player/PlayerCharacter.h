@@ -1,14 +1,18 @@
-#pragma once
+﻿#pragma once
 
 #include "Character.h"
 #include "IDamageable.h"
 #include "CombatTypes.h"
+#include "Source/Runtime/Core/Containers/UEContainer.h"
 #include "APlayerCharacter.generated.h"
 class UStatsComponent;
 class UHitboxComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UAnimMontage;
+class UParticleSystem;
+class UParticleSystemComponent;
+class UCamMod_Shake;
 
 // ============================================================================
 // APlayerCharacter - 플레이어 캐릭터 예시
@@ -105,6 +109,7 @@ protected:
     void UpdateParryWindow(float DeltaTime);
     void UpdateStagger(float DeltaTime);
     void UpdateDodgeState(float DeltaTime);
+    void UpdateEffect(float DeltaTime);
 
     /** 스킬 차징 시작 (1=DashAttack, 2=UltimateAttack) */
     void StartSkillCharging(int32 SkillType);
@@ -347,4 +352,10 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     float RotationSpeed = 10.f;
+
+    // Effect
+    // Charging Effect
+    void GatherParticles();
+    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
+    bool bWasCharging = false;
 };

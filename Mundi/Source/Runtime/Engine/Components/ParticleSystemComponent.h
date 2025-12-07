@@ -53,6 +53,7 @@ public:
 	// Location 모듈 범위 디버그 드로잉
 	void RenderDebugVolume(class URenderer* Renderer) const override;
 
+	FString GetParticleName() { return ParticleName; }
 private:
 	// sprite, mesh 나눠 BuildBatch
 	void BuildSpriteParticleBatch(TArray<FDynamicEmitterDataBase*>& EmitterRenderData, TArray<FMeshBatchElement>& OutMeshBatchElements, const FSceneView* View);
@@ -75,6 +76,9 @@ private:
 private:	
 	UPROPERTY(EditAnywhere, Category = "Particle", DisplayName = "파티클 시스템")
 	UParticleSystem* Template = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Particle", DisplayName = "파티클 이름")
+	FString ParticleName = "";
 
 	// Runtime Data
 	TArray<FParticleEmitterInstance*> EmitterInstances;	

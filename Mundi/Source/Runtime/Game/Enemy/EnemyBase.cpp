@@ -23,6 +23,35 @@ AEnemyBase::AEnemyBase()
     HitboxComponent->SetBoxExtent(FVector(60.f, 60.f, 60.f));
 }
 
+void AEnemyBase::DuplicateSubObjects()
+{
+    Super::DuplicateSubObjects();
+
+    // 프리팹 로드 후 컴포넌트 포인터 재바인딩
+    StatsComponent = nullptr;
+    HitboxComponent = nullptr;
+    LockOnIndicator = nullptr;
+
+    for (UActorComponent* Comp : GetOwnedComponents())
+    {
+        if (auto* Stats = Cast<UStatsComponent>(Comp))
+        {
+            StatsComponent = Stats;
+        }
+        else if (auto* Hitbox = Cast<UHitboxComponent>(Comp))
+        {
+            HitboxComponent = Hitbox;
+        }
+        else if (auto* Billboard = Cast<UBillboardComponent>(Comp))
+        {
+            LockOnIndicator = Billboard;
+        }
+    }
+
+    UE_LOG("[EnemyBase] DuplicateSubObjects - StatsComponent: %p, HitboxComponent: %p",
+           StatsComponent, HitboxComponent);
+}
+
 void AEnemyBase::BeginPlay()
 {
     Super::BeginPlay();

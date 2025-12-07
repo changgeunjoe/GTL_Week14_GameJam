@@ -54,6 +54,7 @@ cbuffer PixelConstBuffer : register(b4)
     uint bHasMaterial;
     uint bHasTexture;
     uint bHasNormalTexture;
+    uint bHasORMTexture;        // ORM 텍스처 (Occlusion, Roughness, Metallic) - 레이아웃 일치용
 };
 
 #define SPECULAR_COLOR (bHasMaterial ? Material.SpecularColor : float3(1.0f, 1.0f, 1.0f))

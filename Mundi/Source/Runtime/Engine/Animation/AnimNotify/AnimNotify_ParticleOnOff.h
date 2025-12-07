@@ -13,4 +13,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Notify")
 	bool bActivate = true;
+
+	UPROPERTY(EditAnywhere, Category = "Notify")
+	FString ParticleName; // 비어있으면 "All"
 };
