@@ -40,6 +40,22 @@ public:
     void SetPhase(int32 NewPhase);
     int32 GetPhase() const { return CurrentPhase; }
 
+    /** 현재 공격 패턴 이름 */
+    const FString& GetCurrentPatternName() const { return CurrentPatternName; }
+    void SetCurrentPatternName(const FString& Name) { CurrentPatternName = Name; }
+
+    /** AI 상태 (디버그용) */
+    const FString& GetAIState() const { return AIState; }
+    void SetAIState(const FString& State) { AIState = State; }
+
+    /** 이동 타입 (디버그용) */
+    const FString& GetMovementType() const { return MovementType; }
+    void SetMovementType(const FString& Type) { MovementType = Type; }
+
+    /** 플레이어까지 거리 */
+    float GetDistanceToPlayer() const { return DistanceToPlayer; }
+    void SetDistanceToPlayer(float Dist) { DistanceToPlayer = Dist; }
+
 protected:
     // ========================================================================
     // 보스 공격 패턴들
@@ -66,6 +82,18 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Boss", Tooltip = "페이즈 2 진입 HP 비율")
     float Phase2HealthThreshold = 0.5f;
 
+    /** 현재 공격 패턴 이름 (디버그용) */
+    FString CurrentPatternName = "None";
+
+    /** AI 상태 (디버그용): Idle, Strafing, Approaching, Attacking, Retreating, Chasing */
+    FString AIState = "Idle";
+
+    /** 이동 타입 (디버그용): None, Walk, Run, Strafe_L, Strafe_R, Retreat, Approach */
+    FString MovementType = "None";
+
+    /** 플레이어까지 거리 (디버그용) */
+    float DistanceToPlayer = 0.f;
+
     // ========== 공격 애니메이션 경로 ==========
     UPROPERTY(EditAnywhere, Category = "Animation")
     FString LightComboAnimPath;
@@ -82,12 +110,42 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Animation")
     FString SpinAttackAnimPath;
 
+    // ========== 콤보 애니메이션 경로 ==========
+    // 베기 콤보 (3타)
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Slash_1_AnimPath;
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Slash_2_AnimPath;
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Slash_3_AnimPath;
+
+    // 회전 콤보 (2타)
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Spin_1_AnimPath;
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Spin_2_AnimPath;
+
+    // 내려찍기 콤보 (2타)
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Smash_1_AnimPath;
+    UPROPERTY(EditAnywhere, Category = "Animation|Combo")
+    FString Smash_2_AnimPath;
+
     // ========== 공격 애니메이션 몽타주 ==========
     UAnimMontage* LightComboMontage = nullptr;
     UAnimMontage* HeavySlamMontage = nullptr;
     UAnimMontage* ChargeStartMontage = nullptr;
     UAnimMontage* ChargeAttackMontage = nullptr;
     UAnimMontage* SpinAttackMontage = nullptr;
+
+    // ========== 콤보 애니메이션 몽타주 ==========
+    UAnimMontage* Slash_1_Montage = nullptr;
+    UAnimMontage* Slash_2_Montage = nullptr;
+    UAnimMontage* Slash_3_Montage = nullptr;
+    UAnimMontage* Spin_1_Montage = nullptr;
+    UAnimMontage* Spin_2_Montage = nullptr;
+    UAnimMontage* Smash_1_Montage = nullptr;
+    UAnimMontage* Smash_2_Montage = nullptr;
 
     // ========== 애니메이션 설정 ==========
     UPROPERTY(EditAnywhere, Category = "Animation")

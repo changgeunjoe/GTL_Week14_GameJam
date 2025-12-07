@@ -1044,7 +1044,13 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
             bPlayerBlocking = Player->IsBlocking();
             bPlayerInvincible = Player->IsInvincible();
 
-            if (UStatsComponent* Stats = Player->GetStatsComponent())
+            // GetStatsComponent() 또는 GetComponent()로 찾기
+            UStatsComponent* Stats = Player->GetStatsComponent();
+            if (!Stats)
+            {
+                Stats = Cast<UStatsComponent>(Player->GetComponent(UStatsComponent::StaticClass()));
+            }
+            if (Stats)
             {
                 PlayerHP = Stats->CurrentHealth;
                 PlayerMaxHP = Stats->MaxHealth;
@@ -1055,11 +1061,13 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
     // ========================================================================
     // 보스 상태 수집
     // ========================================================================
-    FString BossStateStr = "No Boss";
+    FString BossAIStateStr = "No Boss";
+    FString BossMovementStr = "None";
     FString BossAttackStr = "None";
     int32 BossPhase = 0;
     float BossHP = 0.f;
     float BossMaxHP = 100.f;
+    float BossDistToPlayer = 0.f;
     bool bBossSuperArmor = false;
 
     // 월드의 모든 Actor에서 BossEnemy 찾기
@@ -1070,31 +1078,11 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
         {
             BossPhase = Boss->GetPhase();
 
-            // 보스 상태 (몽타주 재생 여부로 공격 중인지 판단)
-            if (USkeletalMeshComponent* Mesh = Boss->GetMesh())
-            {
-                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
-                {
-                    if (AnimInst->Montage_IsPlaying())
-                    {
-                        BossStateStr = "Attacking";
-                        // 현재 재생 중인 몽타주 이름 가져오기
-                        if (UAnimMontage* CurrentMontage = AnimInst->Montage_GetCurrentMontage())
-                        {
-                            BossAttackStr = CurrentMontage->GetName();
-                        }
-                        else
-                        {
-                            BossAttackStr = "Montage Playing";
-                        }
-                    }
-                    else
-                    {
-                        BossStateStr = "Idle";
-                        BossAttackStr = "None";
-                    }
-                }
-            }
+            // Lua에서 설정한 AI 상태
+            BossAIStateStr = Boss->GetAIState();
+            BossMovementStr = Boss->GetMovementType();
+            BossAttackStr = Boss->GetCurrentPatternName();
+            BossDistToPlayer = Boss->GetDistanceToPlayer();
 
             bBossSuperArmor = Boss->HasSuperArmor();
 
@@ -1119,7 +1107,7 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
     float BoxX = 10.f;
     float BoxY = 60.f;  // FPS 아래로 이동
     float BoxW = 280.f;
-    float BoxH = 200.f;
+    float BoxH = 260.f;  // 높이 증가
 
     if (BgBrush)
     {
@@ -1139,8 +1127,10 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
         L"\n"
         L"=== BOSS ===\n"
         L"Phase: %d\n"
-        L"State: %hs\n"
+        L"AI State: %hs\n"
+        L"Movement: %hs\n"
         L"Attack: %hs\n"
+        L"Distance: %.1fm\n"
         L"HP: %.0f / %.0f\n"
         L"SuperArmor: %hs",
         PlayerStateStr.c_str(),
@@ -1148,8 +1138,10 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
         bPlayerBlocking ? "Yes" : "No",
         bPlayerInvincible ? "Yes" : "No",
         BossPhase,
-        BossStateStr.c_str(),
+        BossAIStateStr.c_str(),
+        BossMovementStr.c_str(),
         BossAttackStr.c_str(),
+        BossDistToPlayer,
         BossHP, BossMaxHP,
         bBossSuperArmor ? "Yes" : "No"
     );

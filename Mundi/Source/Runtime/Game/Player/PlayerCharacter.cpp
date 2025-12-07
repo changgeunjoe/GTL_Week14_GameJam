@@ -285,6 +285,18 @@ void APlayerCharacter::ProcessCombatInput()
     // - 마우스 우클릭: Block -> OnStartBlock/OnStopBlock -> StartBlock/StopBlock
     // - 스페이스: Dodge -> OnDodge -> Dodge
     // - Y키: Charging -> OnStartCharging/OnStopCharging -> StartCharging/StopCharging
+
+    // I키: 무적 모드 토글 (디버그용)
+    static bool bIKeyWasPressed = false;
+    bool bIKeyIsPressed = INPUT.IsKeyDown('I');
+
+    if (bIKeyIsPressed && !bIKeyWasPressed)
+    {
+        // I키가 눌린 순간 (토글)
+        bIsInvincible = !bIsInvincible;
+        UE_LOG("[PlayerCharacter] Invincible mode %s", bIsInvincible ? "ENABLED" : "DISABLED");
+    }
+    bIKeyWasPressed = bIKeyIsPressed;
 }
 
 // ============================================================================

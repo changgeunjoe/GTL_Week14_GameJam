@@ -31,6 +31,12 @@ local ctx = {
     -- Strafe 관련
     strafe_direction = 1,           -- 1: 오른쪽, -1: 왼쪽
     strafe_last_change_time = 0,    -- 마지막 방향 전환 시간
+    strafe_start_time = 0,          -- Strafe 시작 시간
+    strafe_duration = 0,            -- 이번 Strafe 지속 시간
+    is_strafing = false,            -- Strafe 중인지
+    -- 접근 행동 관련
+    is_approaching = false,         -- 플레이어에게 접근 중인지
+    approach_start_time = 0,        -- 접근 시작 시간
     -- 공격 쿨다운
     last_attack_time = 0,           -- 마지막 공격 시간
     -- 몽타주 상태 추적
@@ -40,6 +46,20 @@ local ctx = {
     retreat_end_time = 0,           -- 후퇴 종료 시간
     -- 차지 공격 관련
     is_charging = false,            -- ChargeStart 재생 중인지
+
+    -- 콤보 공격 관련
+    is_combo_attacking = false,     -- 콤보 공격 중인지
+    current_combo = nil,            -- 현재 실행 중인 콤보 테이블
+    combo_index = 0,                -- 현재 콤보 인덱스 (1부터 시작)
+    combo_next_time = 0,            -- 다음 콤보 타격 시간
+
+    -- 가드 브레이크 관련
+    is_guard_breaking = false,      -- 가드 브레이크 중인지
+    guard_break_start_time = 0,     -- 가드 브레이크 시작 시간
+
+    -- 예비 동작(Wind-up) 관련
+    is_winding_up = false,          -- 예비 동작 중인지
+    wind_up_start_time = 0,         -- 예비 동작 시작 시간
 
     -- ========================================================================
     -- 플레이어 상태 추적 (Reactive AI용)
@@ -92,6 +112,11 @@ local Config = {
     StrafeSpeed = 2,            -- 좌우 이동 속도 (m/s)
     StrafeChangeInterval = 1.5, -- 방향 전환 간격 (초)
 
+    -- 접근 행동 설정
+    StrafeMinDuration = 1.5,    -- 최소 Strafe 시간 (초)
+    StrafeMaxDuration = 3.5,    -- 최대 Strafe 시간 (초)
+    ApproachChance = 0.55,       -- Strafe 후 접근할 확률 (0~1), 낮을수록 Strafe 더 많이 함
+
     -- 후퇴 설정 (미터 단위)
     RetreatRange = 2,           -- 이 거리보다 가까우면 후퇴 (AttackRange보다 작아야함)
     RetreatChance = 0.3,        -- 공격 후 후퇴할 확률 (0~1)
@@ -104,7 +129,50 @@ local Config = {
     TurnSpeed = 180,            -- 초당 회전할 수 있는 최대 각도
 
     -- 차지 공격 설정 (ChargeStart 끝나면 ChargeAttack 재생)
+
+    -- 가드 브레이크 설정
+    GuardBreakSlowDuration = 0.5,   -- 느린 속도 유지 시간 (초)
+    GuardBreakSlowRate = 0.3,       -- 시작 재생 속도 (GlobalAnimSpeed 곱해짐)
+    GuardBreakNormalRate = 1.0,     -- 정상 재생 속도 (GlobalAnimSpeed 곱해짐)
+
+    -- 전역 애니메이션 속도 배율
+    GlobalAnimSpeed = 0.8,          -- 모든 공격 애니메이션에 적용되는 속도 배율
+
+    -- 소울라이크 스타일: 예비 동작 느리게 -> 공격 빠르게
+    WindUpEnabled = true,           -- 예비 동작 시스템 활성화
+    WindUpSlowRate = 0.3,           -- 예비 동작 속도 (느리게)
+    WindUpDuration = 0.4,           -- 예비 동작 지속 시간 (초)
+    AttackSpeedRate = 1.0,          -- 실제 공격 속도 (빠르게)
 }
+
+-- ============================================================================
+-- 헬퍼 함수: 글로벌 애니메이션 속도 적용
+-- ============================================================================
+
+-- PlayMontage 래퍼: GlobalAnimSpeed + Wind-up 시스템 적용
+-- useWindUp: true면 예비 동작 시스템 사용 (기본값 true)
+local function PlayBossMontage(obj, montageName, playRate, useWindUp)
+    -- 기본값 설정
+    if useWindUp == nil then useWindUp = true end
+
+    local baseRate = (playRate or 1.0) * Config.GlobalAnimSpeed
+
+    -- Wind-up 시스템 적용
+    if Config.WindUpEnabled and useWindUp then
+        -- 예비 동작: 느린 속도로 시작
+        local windUpRate = Config.WindUpSlowRate * Config.GlobalAnimSpeed
+        local success = PlayMontage(obj, montageName, 0.1, 0.1, windUpRate)
+        if success then
+            -- 컨텍스트에 wind-up 상태 설정 (전역 ctx 사용)
+            ctx.is_winding_up = true
+            ctx.wind_up_start_time = ctx.time
+        end
+        return success
+    else
+        -- Wind-up 없이 바로 재생
+        return PlayMontage(obj, montageName, 0.1, 0.1, baseRate)
+    end
+end
 
 -- ============================================================================
 -- Conditions (조건 함수들)
@@ -167,18 +235,21 @@ local function IsLowHealth(c)
 end
 
 local function IsNotAttacking(c)
-    -- 몽타주 재생 중이면 공격 중으로 판단
+    -- 몽타주 재생 중이거나 콤보 공격 중이면 공격 중으로 판단
     local bMontagePlayling = IsMontagePlayling(Obj)
-    local result = not bMontagePlayling
-    Log("  [Cond] IsNotAttacking: " .. tostring(result) .. " (montage=" .. tostring(bMontagePlayling) .. ")")
+    local bComboAttacking = c.is_combo_attacking
+    local result = not bMontagePlayling and not bComboAttacking
+    Log("  [Cond] IsNotAttacking: " .. tostring(result) .. " (montage=" .. tostring(bMontagePlayling) .. ", combo=" .. tostring(bComboAttacking) .. ")")
     return result
 end
 
 local function IsAttacking(c)
-    -- 몽타주 재생 중이면 공격 중으로 판단
+    -- 몽타주 재생 중이거나 콤보 공격 중이면 공격 중으로 판단
     local bMontagePlayling = IsMontagePlayling(Obj)
-    Log("  [Cond] IsAttacking: " .. tostring(bMontagePlayling))
-    return bMontagePlayling
+    local bComboAttacking = c.is_combo_attacking
+    local result = bMontagePlayling or bComboAttacking
+    Log("  [Cond] IsAttacking: " .. tostring(result) .. " (montage=" .. tostring(bMontagePlayling) .. ", combo=" .. tostring(bComboAttacking) .. ")")
+    return result
 end
 
 local function IsInStrafeRange(c)
@@ -234,6 +305,34 @@ local function ShouldRetreatAfterAttack(c)
     -- 공격 직후에 일정 확률로 후퇴
     -- was_attacking이 true였다가 false가 되는 순간 (공격 종료 직후)
     return math.random() < Config.RetreatChance
+end
+
+-- Strafe 중인지 (시간 기반)
+local function IsCurrentlyStrafing(c)
+    if not c.is_strafing then
+        return false
+    end
+    -- Strafe 지속 시간 체크
+    local elapsed = c.time - c.strafe_start_time
+    local result = elapsed < c.strafe_duration
+    Log("  [Cond] IsCurrentlyStrafing: " .. tostring(result) .. " (elapsed=" .. string.format("%.1f", elapsed) .. "/" .. string.format("%.1f", c.strafe_duration) .. "s)")
+    return result
+end
+
+-- 접근 중인지
+local function IsCurrentlyApproaching(c)
+    local result = c.is_approaching
+    Log("  [Cond] IsCurrentlyApproaching: " .. tostring(result))
+    return result
+end
+
+-- Strafe가 끝났는지 (접근 결정 필요)
+local function ShouldDecideNextAction(c)
+    if not c.is_strafing then
+        return false
+    end
+    local elapsed = c.time - c.strafe_start_time
+    return elapsed >= c.strafe_duration
 end
 
 -- ============================================================================
@@ -435,13 +534,46 @@ local function DoChase(c)
     local moveDir = Vector(dir.X, dir.Y, dir.Z)
     AddMovementInput(Obj, moveDir, 1.0)
 
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Chasing")
+    SetBossMovementType(Obj, "Run")
+    SetBossDistanceToPlayer(Obj, dist)
+
     Log("  [Action] DoChase -> Moving (dist=" .. string.format("%.1f", dist) .. ", yaw=" .. string.format("%.1f", newYaw) .. " -> " .. string.format("%.1f", targetYaw) .. ")")
     return BT_SUCCESS
 end
 
 local function DoIdle(c)
     Log("  [Action] DoIdle")
+    SetBossAIState(Obj, "Idle")
+    SetBossMovementType(Obj, "None")
     return BT_SUCCESS
+end
+
+-- Strafe 시작 (랜덤 지속 시간 설정)
+local function StartStrafe(c)
+    c.is_strafing = true
+    c.is_approaching = false
+    c.strafe_start_time = c.time
+    c.strafe_duration = Config.StrafeMinDuration + math.random() * (Config.StrafeMaxDuration - Config.StrafeMinDuration)
+    c.strafe_direction = math.random() > 0.5 and 1 or -1  -- 랜덤 방향
+    Log("  [Action] StartStrafe -> duration=" .. string.format("%.1f", c.strafe_duration) .. "s, dir=" .. (c.strafe_direction == 1 and "Right" or "Left"))
+end
+
+-- Strafe 종료 후 다음 행동 결정
+local function DecideAfterStrafe(c)
+    c.is_strafing = false
+
+    -- 확률적으로 접근 or 다시 Strafe
+    if math.random() < Config.ApproachChance then
+        c.is_approaching = true
+        c.approach_start_time = c.time
+        Log("  [Decision] After strafe -> APPROACH")
+    else
+        -- 다시 Strafe 시작
+        StartStrafe(c)
+        Log("  [Decision] After strafe -> STRAFE AGAIN")
+    end
 end
 
 local function DoStrafe(c)
@@ -453,6 +585,19 @@ local function DoStrafe(c)
     -- 몽타주 재생 중이면 이동 불가
     if IsMontagePlayling(Obj) then
         Log("  [Action] DoStrafe -> SKIP (montage playing)")
+        return BT_SUCCESS
+    end
+
+    -- Strafe 시작 체크
+    if not c.is_strafing then
+        StartStrafe(c)
+    end
+
+    -- Strafe 지속 시간 체크
+    local elapsed = c.time - c.strafe_start_time
+    if elapsed >= c.strafe_duration then
+        -- Strafe 종료 -> 다음 행동 결정
+        DecideAfterStrafe(c)
         return BT_SUCCESS
     end
 
@@ -491,7 +636,65 @@ local function DoStrafe(c)
     AddMovementInput(Obj, moveDir, 1.0)
 
     local dist = VecDistance(myPos, targetPos)
-    Log("  [Action] DoStrafe -> Moving " .. (c.strafe_direction == 1 and "Right" or "Left") .. " (dist=" .. string.format("%.2f", dist) .. "m)")
+    local remaining = c.strafe_duration - elapsed
+
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Strafing")
+    SetBossMovementType(Obj, c.strafe_direction == 1 and "Strafe_R" or "Strafe_L")
+    SetBossDistanceToPlayer(Obj, dist)
+
+    Log("  [Action] DoStrafe -> Moving " .. (c.strafe_direction == 1 and "Right" or "Left") .. " (dist=" .. string.format("%.2f", dist) .. "m, remaining=" .. string.format("%.1f", remaining) .. "s)")
+    return BT_SUCCESS
+end
+
+-- 접근 행동 (Strafe 후 플레이어에게 다가감)
+local function DoApproach(c)
+    if not c.target then
+        Log("  [Action] DoApproach -> FAILURE (no target)")
+        return BT_FAILURE
+    end
+
+    -- 몽타주 재생 중이면 이동 불가
+    if IsMontagePlayling(Obj) then
+        Log("  [Action] DoApproach -> SKIP (montage playing)")
+        return BT_SUCCESS
+    end
+
+    local myPosRaw = Obj.Location
+    local targetPosRaw = c.target.Location
+    local myPos = { X = myPosRaw.X, Y = myPosRaw.Y, Z = myPosRaw.Z }
+    local targetPos = { X = targetPosRaw.X, Y = targetPosRaw.Y, Z = targetPosRaw.Z }
+
+    local dist = VecDistance(myPos, targetPos)
+
+    -- 공격 범위에 도달하면 접근 종료
+    if dist <= Config.AttackRange then
+        c.is_approaching = false
+        SetBossAIState(Obj, "Idle")
+        SetBossMovementType(Obj, "None")
+        Log("  [Action] DoApproach -> Reached attack range, stopping")
+        return BT_SUCCESS
+    end
+
+    -- 타겟을 바라보도록 부드러운 회전
+    local targetYaw = CalcYaw(myPos, targetPos)
+    local currentYaw = Obj.Rotation.Z
+    local maxTurnDelta = Config.TurnSpeed * c.delta_time
+    local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+    Obj.Rotation = Vector(0, 0, newYaw)
+
+    -- 타겟 방향으로 이동
+    local dir = VecDirection(myPos, targetPos)
+    dir.Z = 0
+    local moveDir = Vector(dir.X, dir.Y, dir.Z)
+    AddMovementInput(Obj, moveDir, 1.0)
+
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Approaching")
+    SetBossMovementType(Obj, "Walk")
+    SetBossDistanceToPlayer(Obj, dist)
+
+    Log("  [Action] DoApproach -> Moving toward player (dist=" .. string.format("%.2f", dist) .. "m)")
     return BT_SUCCESS
 end
 
@@ -511,6 +714,232 @@ local AttackPatterns = {
     [2] = { name = "ChargeAttack" },
     [3] = { name = "SpinAttack" }
 }
+
+-- ============================================================================
+-- 콤보 테이블 정의
+-- montage: 재생할 몽타주 이름
+-- delay: 이 타격 후 다음 타격까지 대기 시간 (초), 마지막은 0
+-- ============================================================================
+
+local ComboPatterns = {
+    -- 콤보 1: 베기 3연타 (Slash_1 -> Slash_2 -> Slash_3)
+    Combo_Slash3 = {
+        { montage = "Slash_1", delay = 0.4 },
+        { montage = "Slash_2", delay = 0.5 },
+        { montage = "Slash_3", delay = 0 },  -- 마지막 (큰 빈틈)
+    },
+
+    -- 콤보 2: 베기 2연타 + 내려찍기 (Slash -> Slash -> Smash)
+    Combo_SSH = {
+        { montage = "Slash_1", delay = 0.3 },
+        { montage = "Slash_2", delay = 0.4 },
+        { montage = "Smash_1", delay = 0 },   -- 내려찍기로 마무리
+    },
+
+    -- 콤보 3: 베기 + 내려찍기 (짧은 콤보)
+    Combo_SH = {
+        { montage = "Slash_1", delay = 0.5 },
+        { montage = "Smash_1", delay = 0 },
+    },
+
+    -- 콤보 4: 회전 2연타 (Phase 2 전용)
+    Combo_Spin2 = {
+        { montage = "Spin_1", delay = 0.6 },
+        { montage = "Spin_2", delay = 0 },
+    },
+
+    -- 콤보 5: 내려찍기 2연타 (Phase 2 전용)
+    Combo_Smash2 = {
+        { montage = "Smash_1", delay = 0.6 },
+        { montage = "Smash_2", delay = 0 },
+    },
+
+    -- 콤보 6: 베기 3연타 + 내려찍기 (Phase 2 전용, 긴 콤보)
+    Combo_SSSH = {
+        { montage = "Slash_1", delay = 0.3 },
+        { montage = "Slash_2", delay = 0.3 },
+        { montage = "Slash_3", delay = 0.4 },
+        { montage = "Smash_2", delay = 0 },
+    },
+
+    -- 콤보 7: 회전 + 내려찍기 (Phase 2 전용)
+    Combo_SpinSmash = {
+        { montage = "Spin_1", delay = 0.5 },
+        { montage = "Smash_2", delay = 0 },
+    },
+}
+
+-- Phase별 사용 가능한 콤보 목록
+local Phase1Combos = { "Combo_Slash3", "Combo_SSH", "Combo_SH" }
+local Phase2Combos = { "Combo_Slash3", "Combo_SSH", "Combo_SH", "Combo_Spin2", "Combo_Smash2", "Combo_SSSH", "Combo_SpinSmash" }
+
+-- 랜덤 콤보 선택
+local function SelectRandomCombo(phase)
+    local comboList = phase >= 2 and Phase2Combos or Phase1Combos
+    local comboName = comboList[math.random(1, #comboList)]
+    return ComboPatterns[comboName], comboName
+end
+
+-- 콤보 시작
+local function StartCombo(c, comboName)
+    local combo = ComboPatterns[comboName]
+    if not combo then
+        Log("[Combo] ERROR: Combo not found: " .. comboName)
+        return false
+    end
+
+    c.is_combo_attacking = true
+    c.current_combo = combo
+    c.current_combo_name = comboName
+    c.combo_index = 1
+    c.combo_next_time = 0  -- 즉시 첫 타격
+
+    SetBossPatternName(Obj, comboName .. " (1/" .. #combo .. ")")
+    SetBossAIState(Obj, "Attacking")
+    SetBossMovementType(Obj, "None")
+
+    Log("[Combo] Started: " .. comboName .. " (" .. #combo .. " hits)")
+    return true
+end
+
+-- 콤보 다음 타격 실행
+local function ExecuteNextComboHit(c)
+    if not c.is_combo_attacking or not c.current_combo then
+        return false
+    end
+
+    local combo = c.current_combo
+    local hit = combo[c.combo_index]
+    if not hit then
+        -- 콤보 종료
+        c.is_combo_attacking = false
+        c.current_combo = nil
+        c.combo_index = 0
+        Log("[Combo] Finished")
+        return false
+    end
+
+    -- 타겟 바라보기
+    if c.target then
+        local myPos = Obj.Location
+        local targetPos = c.target.Location
+        local yaw = CalcYaw(myPos, targetPos)
+        Obj.Rotation = Vector(0, 0, yaw)
+    end
+
+    -- 몽타주 재생 (GlobalAnimSpeed 적용)
+    local success = PlayBossMontage(Obj, hit.montage)
+    if not success then
+        Log("[Combo] Failed to play montage: " .. hit.montage)
+        c.is_combo_attacking = false
+        c.current_combo = nil
+        return false
+    end
+
+    -- 디버그 표시 업데이트
+    SetBossPatternName(Obj, c.current_combo_name .. " (" .. c.combo_index .. "/" .. #combo .. ")")
+
+    Log("[Combo] Hit " .. c.combo_index .. "/" .. #combo .. ": " .. hit.montage)
+
+    -- 다음 타격 시간 설정
+    if c.combo_index < #combo then
+        c.combo_next_time = c.time + hit.delay
+        c.combo_index = c.combo_index + 1
+    else
+        -- 마지막 타격
+        c.combo_next_time = 0
+        c.combo_index = c.combo_index + 1  -- 인덱스 넘겨서 다음에 종료되도록
+    end
+
+    c.last_attack_time = c.time
+    return true
+end
+
+-- 콤보 업데이트 (매 Tick 호출)
+local function UpdateCombo(c)
+    if not c.is_combo_attacking then
+        return
+    end
+
+    -- 몽타주가 끝났고 다음 타격 시간이 되었으면
+    local bMontagePlayling = IsMontagePlayling(Obj)
+
+    if not bMontagePlayling then
+        -- 콤보 다 끝났는지 체크
+        if c.combo_index > #c.current_combo then
+            c.is_combo_attacking = false
+            c.current_combo = nil
+            c.combo_index = 0
+            c.is_strafing = false      -- Strafe 상태 리셋
+            c.is_approaching = false   -- 접근 상태 리셋
+            Log("[Combo] Combo ended")
+
+            -- 콤보 끝난 후 확률적으로 후퇴
+            if ShouldRetreatAfterAttack(c) then
+                StartRetreat(c)
+            end
+            return
+        end
+
+        -- 다음 타격 대기 시간 체크
+        if c.combo_next_time > 0 and c.time >= c.combo_next_time then
+            ExecuteNextComboHit(c)
+        elseif c.combo_next_time == 0 then
+            -- 첫 타격 또는 즉시 실행
+            ExecuteNextComboHit(c)
+        end
+    end
+end
+
+-- 콤보 공격 액션
+local function DoComboAttack(c)
+    Log("  [Action] DoComboAttack")
+
+    -- 이미 콤보 중이면 계속 진행
+    if c.is_combo_attacking then
+        return BT_SUCCESS
+    end
+
+    -- 몽타주 재생 중이면 불가
+    if IsMontagePlayling(Obj) then
+        Log("    -> FAILURE (montage playing)")
+        return BT_FAILURE
+    end
+
+    -- 랜덤 콤보 선택 및 시작
+    local combo, comboName = SelectRandomCombo(c.phase)
+    if StartCombo(c, comboName) then
+        ExecuteNextComboHit(c)
+        return BT_SUCCESS
+    end
+
+    return BT_FAILURE
+end
+
+-- 단일 공격 또는 콤보 공격 (확률적 선택)
+local function DoAttackOrCombo(c)
+    Log("  [Action] DoAttackOrCombo")
+
+    -- 이미 콤보 중이면 계속 진행
+    if c.is_combo_attacking then
+        return DoComboAttack(c)
+    end
+
+    -- 몽타주 재생 중이면 불가
+    if IsMontagePlayling(Obj) then
+        Log("    -> FAILURE (montage playing)")
+        return BT_FAILURE
+    end
+
+    -- 50% 확률로 단일 공격 또는 콤보
+    if math.random() < 0.5 then
+        -- 단일 공격
+        return DoAttack(c)
+    else
+        -- 콤보 공격
+        return DoComboAttack(c)
+    end
+end
 
 -- ============================================================================
 -- 리액티브 공격 (플레이어 행동에 반응)
@@ -533,16 +962,18 @@ local function DoPunishAttack(c)
         Obj.Rotation = Vector(0, 0, yaw)
     end
 
-    -- 빠른 공격으로 징벌 (LightCombo 또는 ChargeAttack)
-    local success = PlayMontage(Obj, "LightCombo")
+    -- 빠른 공격으로 징벌 (LightCombo)
+    local success = PlayBossMontage(Obj, "LightCombo")
     if success then
-        StartAttack(c, "PunishAttack (LightCombo)")
+        SetBossPatternName(Obj, "PunishAttack")
+        StartAttack(c, "PunishAttack")
         return BT_SUCCESS
     end
     return BT_FAILURE
 end
 
 -- 가드 브레이크 공격 (플레이어가 가드 중일 때)
+-- 처음 느리게 시작 -> 일정 시간 후 정상 속도
 local function DoGuardBreakAttack(c)
     Log("  [Action] DoGuardBreakAttack - Breaking guard!")
 
@@ -557,10 +988,13 @@ local function DoGuardBreakAttack(c)
         Obj.Rotation = Vector(0, 0, yaw)
     end
 
-    -- 강공격으로 가드 브레이크 시도 (HeavySlam 또는 SpinAttack)
-    local success = PlayMontage(Obj, "HeavySlam")
+    -- 강공격으로 가드 브레이크 시도 (느리게 시작, GlobalAnimSpeed도 적용)
+    local success = PlayBossMontage(Obj, "HeavySlam", Config.GuardBreakSlowRate)  -- 0.3배속으로 시작
     if success then
-        StartAttack(c, "GuardBreak (HeavySlam)")
+        SetBossPatternName(Obj, "GuardBreak")
+        StartAttack(c, "GuardBreak")
+        c.is_guard_breaking = true
+        c.guard_break_start_time = c.time
         return BT_SUCCESS
     end
     return BT_FAILURE
@@ -582,9 +1016,10 @@ local function DoTradeAttack(c)
     end
 
     -- 슈퍼아머가 있는 강공격 사용
-    local success = PlayMontage(Obj, "HeavySlam")
+    local success = PlayBossMontage(Obj, "HeavySlam")
     if success then
-        StartAttack(c, "Trade (HeavySlam)")
+        SetBossPatternName(Obj, "TradeAttack")
+        StartAttack(c, "TradeAttack")
         return BT_SUCCESS
     end
     return BT_FAILURE
@@ -606,10 +1041,11 @@ local function DoGapCloser(c)
     end
 
     -- 돌진 공격
-    local success = PlayMontage(Obj, "ChargeStart")
+    local success = PlayBossMontage(Obj, "ChargeStart")
     if success then
         c.is_charging = true
-        StartAttack(c, "GapCloser (ChargeAttack)")
+        SetBossPatternName(Obj, "GapCloser")
+        StartAttack(c, "GapCloser")
         return BT_SUCCESS
     end
     return BT_FAILURE
@@ -661,21 +1097,27 @@ local function DoAttack(c)
     -- ChargeAttack (패턴 2) 특수 처리: ChargeStart 먼저 재생
     if pattern == 2 then
         -- ChargeStart 몽타주 재생
-        local success = PlayMontage(Obj, "ChargeStart")
+        local success = PlayBossMontage(Obj, "ChargeStart")
         if not success then
             Log("    -> FAILURE (montage not found: ChargeStart)")
             return BT_FAILURE
         end
         c.is_charging = true
+        SetBossPatternName(Obj, "ChargeAttack")
         Log("    -> ChargeAttack: Playing ChargeStart animation")
     else
         -- 일반 공격: 정상 속도로 몽타주 재생
-        local success = PlayMontage(Obj, atk.name)
+        local success = PlayBossMontage(Obj, atk.name)
         if not success then
             Log("    -> FAILURE (montage not found: " .. atk.name .. ")")
             return BT_FAILURE
         end
+        SetBossPatternName(Obj, atk.name)
     end
+
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Attacking")
+    SetBossMovementType(Obj, "None")
 
     -- 히트박스는 애님 노티파이에서 처리됨
     StartAttack(c, atk.name)
@@ -705,6 +1147,8 @@ local function DoRetreat(c)
     -- 후퇴 종료 체크
     if c.time >= c.retreat_end_time then
         c.is_retreating = false
+        SetBossAIState(Obj, "Idle")
+        SetBossMovementType(Obj, "None")
         Log("    -> Retreat ended")
         return BT_SUCCESS
     end
@@ -713,6 +1157,8 @@ local function DoRetreat(c)
     local targetPosRaw = c.target.Location
     local myPos = { X = myPosRaw.X, Y = myPosRaw.Y, Z = myPosRaw.Z }
     local targetPos = { X = targetPosRaw.X, Y = targetPosRaw.Y, Z = targetPosRaw.Z }
+
+    local dist = VecDistance(myPos, targetPos)
 
     -- 타겟을 바라보면서 후퇴 (부드러운 회전)
     local targetYaw = CalcYaw(myPos, targetPos)
@@ -726,6 +1172,11 @@ local function DoRetreat(c)
     dir.Z = 0
     local moveDir = Vector(dir.X, dir.Y, dir.Z)
     AddMovementInput(Obj, moveDir, 1.0)
+
+    -- 디버그 상태 설정
+    SetBossAIState(Obj, "Retreating")
+    SetBossMovementType(Obj, "Retreat")
+    SetBossDistanceToPlayer(Obj, dist)
 
     Log("    -> Retreating...")
     return BT_RUNNING  -- 후퇴 중에는 RUNNING 반환
@@ -757,7 +1208,47 @@ local function CheckPhaseTransition(c)
     end
 end
 
+-- Wind-up (예비 동작) 속도 전환 업데이트
+local function UpdateWindUp(c)
+    if not c.is_winding_up then
+        return
+    end
+
+    local elapsed = c.time - c.wind_up_start_time
+
+    -- 예비 동작 시간이 지나면 실제 공격 속도로 전환
+    if elapsed >= Config.WindUpDuration then
+        local attackRate = Config.AttackSpeedRate * Config.GlobalAnimSpeed
+        SetMontagePlayRate(Obj, attackRate)
+        c.is_winding_up = false
+        Log("[WindUp] Speed changed to attack: " .. attackRate)
+    end
+end
+
+-- 가드 브레이크 속도 전환 업데이트
+local function UpdateGuardBreak(c)
+    if not c.is_guard_breaking then
+        return
+    end
+
+    local elapsed = c.time - c.guard_break_start_time
+
+    -- 느린 속도 유지 시간이 지나면 정상 속도로 전환 (GlobalAnimSpeed 적용)
+    if elapsed >= Config.GuardBreakSlowDuration then
+        local normalRate = Config.GuardBreakNormalRate * Config.GlobalAnimSpeed
+        SetMontagePlayRate(Obj, normalRate)
+        c.is_guard_breaking = false  -- 더 이상 체크 안함
+        Log("[GuardBreak] Speed changed to normal: " .. normalRate)
+    end
+end
+
 local function UpdateAttackState(c)
+    -- Wind-up 속도 전환 체크
+    UpdateWindUp(c)
+
+    -- 가드 브레이크 속도 전환 체크
+    UpdateGuardBreak(c)
+
     -- 몽타주 기반 공격 종료 체크
     local bMontagePlayling = IsMontagePlayling(Obj)
 
@@ -766,7 +1257,7 @@ local function UpdateAttackState(c)
         -- 차지 중이었으면 ChargeAttack으로 이어서 재생
         if c.is_charging then
             Log("ChargeStart finished -> Playing ChargeAttack")
-            local success = PlayMontage(Obj, "ChargeAttack")
+            local success = PlayBossMontage(Obj, "ChargeAttack")
             if success then
                 c.is_charging = false  -- 차지 완료
                 c.was_attacking = true -- 아직 공격 중
@@ -774,9 +1265,19 @@ local function UpdateAttackState(c)
             end
         end
 
+        -- 콤보 중이면 공격 종료 처리하지 않음 (UpdateCombo에서 처리)
+        if c.is_combo_attacking then
+            c.was_attacking = false  -- 다음 타격 대기 상태
+            return
+        end
+
         -- 일반 공격 종료 처리
         c.was_attacking = false
         c.is_charging = false
+        c.is_guard_breaking = false  -- 가드 브레이크 상태 리셋
+        c.is_winding_up = false      -- Wind-up 상태 리셋
+        c.is_strafing = false      -- Strafe 상태 리셋 (다음에 다시 Strafe 가능)
+        c.is_approaching = false   -- 접근 상태 리셋
         Log("Attack ended (montage finished)")
 
         -- 히트박스는 애님 노티파이의 Duration으로 자동 비활성화됨
@@ -892,36 +1393,54 @@ local BossTree = Selector({
         Action(DoRetreat)
     }),
 
-    -- 9. 공격 범위 내 + 쿨다운 완료 → 공격
+    -- 9. 콤보 공격 중이면 계속 진행
     Sequence({
         Condition(function(c)
-            Log("[Branch 9] Attack?")
-            return HasTarget(c) and IsTargetInAttackRange(c) and CanAttack(c)
+            Log("[Branch 9] ComboAttacking?")
+            return c.is_combo_attacking
         end),
-        Action(DoAttack)
+        Action(DoComboAttack)
     }),
 
-    -- 10. 일정 거리(4~8m)일 때 좌우 이동
+    -- 10. 공격 범위 내 + 쿨다운 완료 → 단일 공격 또는 콤보 (50/50)
     Sequence({
         Condition(function(c)
-            Log("[Branch 10] Strafe?")
-            return HasTarget(c) and IsInStrafeRange(c) and IsNotAttacking(c)
+            Log("[Branch 10] Attack?")
+            return HasTarget(c) and IsTargetInAttackRange(c) and CanAttack(c)
+        end),
+        Action(DoAttackOrCombo)
+    }),
+
+    -- 11. 접근 중이면 계속 접근 (공격 범위까지)
+    Sequence({
+        Condition(function(c)
+            Log("[Branch 11] Approaching?")
+            return HasTarget(c) and IsCurrentlyApproaching(c) and IsNotAttacking(c)
+        end),
+        Action(DoApproach)
+    }),
+
+    -- 12. 일정 거리(4~8m)일 때 좌우 이동 (Strafe)
+    Sequence({
+        Condition(function(c)
+            Log("[Branch 12] Strafe?")
+            return HasTarget(c) and IsInStrafeRange(c) and IsNotAttacking(c) and not IsCurrentlyApproaching(c)
         end),
         Action(DoStrafe)
     }),
 
-    -- 11. 추적 (공격 중이 아닐 때만)
+    -- 13. 추적 (공격 중이 아닐 때만)
     Sequence({
         Condition(function(c)
-            Log("[Branch 11] Chase?")
+            Log("[Branch 13] Chase?")
             return HasTarget(c) and IsNotAttacking(c)
         end),
         Action(DoChase)
     }),
 
-    -- 12. 기본 - 대기
+    -- 14. 기본 - 대기
     Action(function(c)
-        Log("[Branch 12] Idle (fallback)")
+        Log("[Branch 14] Idle (fallback)")
         return DoIdle(c)
     end)
 })
@@ -969,6 +1488,9 @@ function Tick(Delta)
 
     -- 페이즈 전환 체크
     CheckPhaseTransition(ctx)
+
+    -- 콤보 업데이트
+    UpdateCombo(ctx)
 
     -- 공격 상태 업데이트
     UpdateAttackState(ctx)
