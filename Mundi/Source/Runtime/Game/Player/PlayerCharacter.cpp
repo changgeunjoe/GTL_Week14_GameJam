@@ -72,21 +72,28 @@ void APlayerCharacter::BeginPlay()
     });
 
     // 공격 몽타주 초기화
-    if (!LightAttackAnimPath.empty())
+    auto InitAttackMontage = [](UAnimMontage*& OutMontage, const FString& AnimPath, const char* Name)
     {
-        // AnimSequence는 FBXLoader에서 미리 로드되어 ResourceManager에 등록됨
-        UAnimSequence* AttackAnim = UResourceManager::GetInstance().Get<UAnimSequence>(LightAttackAnimPath);
-        if (AttackAnim)
+        if (!AnimPath.empty())
         {
-            LightAttackMontage = NewObject<UAnimMontage>();
-            LightAttackMontage->SetSourceSequence(AttackAnim);
-            UE_LOG("[PlayerCharacter] LightAttackMontage initialized: %s", LightAttackAnimPath.c_str());
+            UAnimSequence* Anim = UResourceManager::GetInstance().Get<UAnimSequence>(AnimPath);
+            if (Anim)
+            {
+                OutMontage = NewObject<UAnimMontage>();
+                OutMontage->SetSourceSequence(Anim);
+                UE_LOG("[PlayerCharacter] %s initialized: %s", Name, AnimPath.c_str());
+            }
+            else
+            {
+                UE_LOG("[PlayerCharacter] Failed to find animation: %s", AnimPath.c_str());
+            }
         }
-        else
-        {
-            UE_LOG("[PlayerCharacter] Failed to find animation: %s", LightAttackAnimPath.c_str());
-        }
-    }
+    };
+
+    InitAttackMontage(LightAttackMontage, LightAttackAnimPath, "LightAttackMontage");
+    InitAttackMontage(HeavyAttackMontage, HeavyAttackAnimPath, "HeavyAttackMontage");
+    InitAttackMontage(DashAttackMontage, DashAttackAnimPath, "DashAttackMontage");
+    InitAttackMontage(UltimateAttackMontage, UltimateAttackAnimPath, "UltimateAttackMontage");
 
     // 구르기 몽타주 초기화 (8방향)
     FString* DodgePaths[8] = {

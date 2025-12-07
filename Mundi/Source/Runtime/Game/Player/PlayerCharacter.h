@@ -140,13 +140,34 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Combat")
     int32 MaxComboCount = 3;
 
-    // ========== 몽타주 ==========
-    /** 공격 애니메이션 경로 */
-    UPROPERTY(EditAnywhere, Category = "Animation")
+    // ========== 공격 몽타주 ==========
+    /** 약공격 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
     FString LightAttackAnimPath;
 
-    /** 공격 몽타주 */
+    /** 약공격 몽타주 */
     UAnimMontage* LightAttackMontage = nullptr;
+
+    /** 강공격 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    FString HeavyAttackAnimPath;
+
+    /** 강공격 몽타주 */
+    UAnimMontage* HeavyAttackMontage = nullptr;
+
+    /** 대시공격 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    FString DashAttackAnimPath;
+
+    /** 대시공격 몽타주 */
+    UAnimMontage* DashAttackMontage = nullptr;
+
+    /** 궁극기 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    FString UltimateAttackAnimPath;
+
+    /** 궁극기 몽타주 */
+    UAnimMontage* UltimateAttackMontage = nullptr;
 
     // ========== 구르기 몽타주 (8방향) ==========
     /** 구르기 애니메이션 경로 - Forward */
