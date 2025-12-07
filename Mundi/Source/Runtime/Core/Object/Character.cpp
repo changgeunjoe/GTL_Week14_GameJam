@@ -68,6 +68,73 @@ void ACharacter::Tick(float DeltaSecond)
 void ACharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    // 무기 관련 컴포넌트 상태 로그
+    UE_LOG("[Character] BeginPlay - WeaponMeshComp: %p, WeaponCollider: %p, SkeletalMeshComp: %p",
+           WeaponMeshComp, WeaponCollider, SkeletalMeshComp);
+
+    if (!WeaponMeshComp && !WeaponCollider)
+    {
+        UE_LOG("[Character] WARNING: No weapon collision component found! Weapon attacks will not work.");
+    }
+
+    // WeaponCollider가 있으면 그 크기를 Sweep 파라미터로 사용
+    // 에디터에서 보이는 디버그 캡슐 = 실제 충돌 범위
+    if (WeaponCollider)
+    {
+        WeaponTraceRadius = WeaponCollider->CapsuleRadius;
+        WeaponTraceLength = WeaponCollider->CapsuleHalfHeight * 2.0f;  // HalfHeight → 전체 길이
+        UE_LOG("[Character] WeaponCollider size applied - Radius: %.2f, Length: %.2f",
+               WeaponTraceRadius, WeaponTraceLength);
+    }
+
+    // OnComponentBeginOverlap 델리게이트 바인딩 (Overlap 방식 충돌 감지)
+    OnComponentBeginOverlap.Add([this](UPrimitiveComponent* OverlappedComp, UPrimitiveComponent* OtherComp, const FTriggerHit* TriggerHit) {
+        // WeaponCollider와의 오버랩만 처리
+        if (!WeaponCollider || OverlappedComp != static_cast<UPrimitiveComponent*>(WeaponCollider))
+        {
+            return;
+        }
+
+        if (!OtherComp || !OtherComp->GetOwner())
+        {
+            return;
+        }
+
+        AActor* OtherActor = OtherComp->GetOwner();
+
+        // 보스(EnemyBase)는 플레이어만 충돌 처리
+        // 플레이어는 모두 다 충돌 처리
+        FString MyName = GetName();
+        FString OtherName = OtherActor->GetName();
+        if (MyName.find("Enemy") != FString::npos ||
+            MyName.find("Boss") != FString::npos ||
+            MyName.find("에너미") != FString::npos ||
+            MyName.find("보스") != FString::npos)
+        {
+            // 적인 경우: 상대방이 플레이어가 아니면 무시
+            if (OtherName.find("Player") == FString::npos && OtherName.find("Shinobi") == FString::npos)
+            {
+                return;
+            }
+        }
+		UE_LOG("check");
+        // 충돌 위치 계산 (상대방이 맞은 위치 = 상대방 캡슐 표면)
+        FVector Direction = (OtherComp->GetWorldLocation() - OverlappedComp->GetWorldLocation()).GetNormalized();
+
+        // 상대방 캡슐의 스케일 적용된 반지름 계산
+        float OtherRadius = 0.5f;  // 기본값
+        if (UCapsuleComponent* OtherCapsule = Cast<UCapsuleComponent>(OtherComp))
+        {
+            FVector OtherScale = OtherCapsule->GetWorldScale();
+            OtherRadius = OtherCapsule->CapsuleRadius * FMath::Max(OtherScale.X, FMath::Max(OtherScale.Y, OtherScale.Z));
+        }
+
+        FVector HitLocation = OtherComp->GetWorldLocation() - Direction * OtherRadius;
+        FVector HitNormal = -Direction;  // 상대방 표면의 법선 (검 방향)
+
+        OnWeaponColliderOverlap(OtherActor, HitLocation, HitNormal);
+    });
 }
 
 void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
@@ -82,6 +149,7 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
         WeaponMeshComp = nullptr;
         SubWeaponMeshComp = nullptr;
         SkeletalMeshComp = nullptr;
+        WeaponCollider = nullptr;
 
         // 1차 패스: 기본 컴포넌트들 찾기 (CapsuleComponent, CharacterMovement, SkeletalMeshComp)
         for (UActorComponent* Comp : GetOwnedComponents())
@@ -96,8 +164,14 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
             }
             else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
             {
+                // 이름으로 WeaponCollider 구분
+                FName CompName = Comp->GetName();
+                if (CompName == FName("WeaponCollider"))
+                {
+                    WeaponCollider = Cap;
+                }
                 // 부모가 없는 캡슐 = 루트 캡슐
-                if (!Cap->GetAttachParent())
+                else if (!Cap->GetAttachParent())
                 {
                     CapsuleComponent = Cap;
                 }
@@ -140,6 +214,7 @@ void ACharacter::DuplicateSubObjects()
     WeaponMeshComp = nullptr;
     SubWeaponMeshComp = nullptr;
     SkeletalMeshComp = nullptr;
+    WeaponCollider = nullptr;
 
     // 1차 패스: 기본 컴포넌트들 찾기
     for (UActorComponent* Comp : GetOwnedComponents())
@@ -154,8 +229,14 @@ void ACharacter::DuplicateSubObjects()
         }
         else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
         {
+            // 이름으로 WeaponCollider 구분
+            FName CompName = Comp->GetName();
+            if (CompName == FName("WeaponCollider"))
+            {
+                WeaponCollider = Cap;
+            }
             // 부모가 없는 캡슐 = 루트 캡슐
-            if (!Cap->GetAttachParent())
+            else if (!Cap->GetAttachParent())
             {
                 CapsuleComponent = Cap;
             }
@@ -256,11 +337,6 @@ void ACharacter::UpdateWeaponTransform()
 
 void ACharacter::StartWeaponTrace()
 {
-	if (!WeaponMeshComp)
-	{
-		return;
-	}
-
 	bWeaponTraceActive = true;
 	HitActorsThisSwing.Empty();
 
@@ -270,16 +346,30 @@ void ACharacter::StartWeaponTrace()
 		CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
 	}
 
-	// 현재 무기 위치를 이전 위치로 초기화
-	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
-	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
+	// WeaponCollider 오버랩 활성화 (PhysX 기반)
+	if (WeaponCollider)
+	{
+		WeaponCollider->SetGenerateOverlapEvents(true);
+		UE_LOG("[Character] WeaponCollider overlap enabled");
+	}
 
-	// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
-	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
-	PrevWeaponBasePos = WeaponPos;
-	PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+	// WeaponMeshComp가 있으면 Sweep 방식도 병행
+	if (WeaponMeshComp)
+	{
+		// 현재 무기 위치를 이전 위치로 초기화
+		FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
+		FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
 
-	UE_LOG("[Character] Weapon trace started");
+		// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
+		FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+		PrevWeaponBasePos = WeaponPos;
+		PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+		UE_LOG("[Character] Weapon trace started with WeaponMeshComp (Sweep enabled)");
+	}
+	else
+	{
+		UE_LOG("[Character] Weapon trace started WITHOUT WeaponMeshComp (Sweep DISABLED)");
+	}
 }
 
 void ACharacter::EndWeaponTrace()
@@ -288,15 +378,32 @@ void ACharacter::EndWeaponTrace()
 	HitActorsThisSwing.Empty();
 	ClearWeaponDebugData();
 
+	// WeaponCollider 오버랩 비활성화
+	if (WeaponCollider)
+	{
+		WeaponCollider->SetGenerateOverlapEvents(false);
+		UE_LOG("[Character] WeaponCollider overlap disabled");
+	}
+
 	UE_LOG("[Character] Weapon trace ended");
 }
 
 void ACharacter::PerformWeaponTrace()
 {
-	if (!WeaponMeshComp || !bWeaponTraceActive)
+	if (!bWeaponTraceActive)
 	{
 		return;
 	}
+
+	if (!WeaponMeshComp)
+	{
+		// WeaponMeshComp가 없으면 Sweep 불가 (WeaponCollider 오버랩으로만 작동)
+		return;
+	}
+
+	// PhysX geometry 에러 방지: 0이면 기본값 사용
+	if (WeaponTraceRadius <= 0.0f) WeaponTraceRadius = 0.1f;
+	if (WeaponTraceLength <= 0.0f) WeaponTraceLength = 0.8f;
 
 	UWorld* World = GetWorld();
 	if (!World)
@@ -326,28 +433,76 @@ void ACharacter::PerformWeaponTrace()
 	}
 	// ========== 디버그 데이터 저장 끝 ==========
 
-	// 이전 프레임 → 현재 프레임 Sweep 수행
-	// 베이스 위치와 팁 위치 모두에서 Sweep
-	FHitResult HitResult;
-
-	// 팁 위치 Sweep (무기 끝부분)
-	if (PhysScene->SweepSphere(PrevWeaponTipPos, CurrentTipPos, WeaponTraceRadius, HitResult, this))
+	// 이전 프레임 → 현재 프레임 경로를 캡슐로 분할 스윕
+	const float HalfTraceLength = WeaponTraceLength * 0.5f;
+	if (HalfTraceLength <= KINDA_SMALL_NUMBER)
 	{
-		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
-		{
-			HitActorsThisSwing.Add(HitResult.HitActor);
-			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint, HitResult.ImpactNormal);
-		}
+		PrevWeaponBasePos = CurrentBasePos;
+		PrevWeaponTipPos = CurrentTipPos;
+		return;
 	}
 
-	// 베이스 위치 Sweep (무기 손잡이 쪽)
-	if (PhysScene->SweepSphere(PrevWeaponBasePos, CurrentBasePos, WeaponTraceRadius, HitResult, this))
+	auto ProcessWeaponHit = [&](const FHitResult& Hit)
 	{
-		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
+		if (Hit.HitActor && !HitActorsThisSwing.Contains(Hit.HitActor))
 		{
-			HitActorsThisSwing.Add(HitResult.HitActor);
-			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint, HitResult.ImpactNormal);
+			HitActorsThisSwing.Add(Hit.HitActor);
+			UE_LOG("[Character] Sweep HIT! Actor: %s", Hit.HitActor->GetName().c_str());
+			OnWeaponHitDetected(Hit.HitActor, Hit.ImpactPoint, Hit.ImpactNormal);
 		}
+	};
+
+	auto PerformCapsuleSweep = [&](const FVector& StartCenter, const FVector& EndCenter, const FQuat& CapsuleRot)
+	{
+		FHitResult HitResult;
+		if (PhysScene->SweepCapsuleOriented(StartCenter, EndCenter, WeaponTraceRadius, HalfTraceLength, CapsuleRot, HitResult, this))
+		{
+			ProcessWeaponHit(HitResult);
+		}
+	};
+
+	auto ComputeDirection = [](const FVector& PrimaryDir, const FVector& SecondaryDir)
+	{
+		FVector Result = PrimaryDir;
+		if (Result.SizeSquared() < KINDA_SMALL_NUMBER)
+		{
+			Result = SecondaryDir;
+		}
+		if (Result.SizeSquared() < KINDA_SMALL_NUMBER)
+		{
+			return FVector(0.0f, 0.0f, 1.0f);
+		}
+		Result.Normalize();
+		return Result;
+	};
+
+	const int32 NumSubsteps = 3;
+	const float InvSubstep = 1.0f / static_cast<float>(NumSubsteps);
+
+	for (int32 Step = 0; Step < NumSubsteps; ++Step)
+	{
+		const float Alpha0 = Step * InvSubstep;
+		const float Alpha1 = (Step + 1) * InvSubstep;
+
+		const FVector StartBase = FVector::Lerp(PrevWeaponBasePos, CurrentBasePos, Alpha0);
+		const FVector EndBase = FVector::Lerp(PrevWeaponBasePos, CurrentBasePos, Alpha1);
+		const FVector StartTip = FVector::Lerp(PrevWeaponTipPos, CurrentTipPos, Alpha0);
+		const FVector EndTip = FVector::Lerp(PrevWeaponTipPos, CurrentTipPos, Alpha1);
+
+		const FVector PrimaryDir = StartTip - StartBase;
+		const FVector SecondaryDir = EndTip - EndBase;
+		const FVector StartDir = ComputeDirection(PrimaryDir, SecondaryDir);
+		const FVector EndDir = ComputeDirection(SecondaryDir, PrimaryDir);
+
+		const FQuat CapsuleRotation = FQuat::FindBetweenVectors(FVector(1.0f, 0.0f, 0.0f), StartDir);
+
+		const FVector BaseStartCenter = StartBase + StartDir * HalfTraceLength;
+		const FVector BaseEndCenter = EndBase + EndDir * HalfTraceLength;
+		const FVector TipStartCenter = StartTip - StartDir * HalfTraceLength;
+		const FVector TipEndCenter = EndTip - EndDir * HalfTraceLength;
+
+		PerformCapsuleSweep(BaseStartCenter, BaseEndCenter, CapsuleRotation);
+		PerformCapsuleSweep(TipStartCenter, TipEndCenter, CapsuleRotation);
 	}
 
 	// 현재 위치를 다음 프레임의 이전 위치로 저장
@@ -385,6 +540,35 @@ void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocatio
 
 	// 델리게이트 브로드캐스트 (FDamageInfo 전달)
 	OnWeaponHit.Broadcast(HitActor, DamageInfo);
+}
+
+void ACharacter::OnWeaponColliderOverlap(AActor* OtherActor, const FVector& HitLocation, const FVector& HitNormal)
+{
+	// 무기 트레이스가 비활성화 상태면 무시
+	if (!bWeaponTraceActive)
+	{
+		return;
+	}
+
+	// 자기 자신은 무시
+	if (OtherActor == this)
+	{
+		return;
+	}
+
+	// 이미 이번 스윙에서 맞은 액터는 무시 (중복 히트 방지)
+	if (HitActorsThisSwing.Contains(OtherActor))
+	{
+		return;
+	}
+
+	// 히트 처리
+	HitActorsThisSwing.Add(OtherActor);
+
+	UE_LOG("[Character] WeaponCollider overlap with: %s", OtherActor->GetName().c_str());
+
+	// 기존 OnWeaponHitDetected 로직 재사용
+	OnWeaponHitDetected(OtherActor, HitLocation, HitNormal);
 }
 
 void ACharacter::UpdateSubWeaponTransform()

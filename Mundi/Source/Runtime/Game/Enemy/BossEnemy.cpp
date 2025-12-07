@@ -173,7 +173,8 @@ void ABossEnemy::Attack_LightCombo()
     DamageInfo.HitReaction = EHitReaction::Flinch;
     DamageInfo.StaggerDuration = 0.3f;
 
-    HitboxComponent->EnableHitbox(DamageInfo);
+    // WeaponCollider 기반 충돌 (노티파이에서 StartWeaponTrace 호출)
+    SetWeaponDamageInfo(DamageInfo);
 
     // 콤보 애니메이션 재생
     if (LightComboMontage && GetMesh())
@@ -199,7 +200,7 @@ void ABossEnemy::Attack_HeavySlam()
     DamageInfo.KnockbackForce = 500.f;
 
     bHasSuperArmor = true;  // 강공격 중 슈퍼아머
-    HitboxComponent->EnableHitbox(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 내려찍기 애니메이션 재생
     if (HeavySlamMontage && GetMesh())
@@ -225,7 +226,7 @@ void ABossEnemy::Attack_ChargeAttack()
     DamageInfo.KnockbackForce = 800.f;
 
     bHasSuperArmor = true;
-    HitboxComponent->EnableHitbox(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 돌진 이동
     if (TargetActor)
@@ -259,7 +260,7 @@ void ABossEnemy::Attack_SpinAttack()
     DamageInfo.bCanBeBlocked = false;  // 가드 불가
 
     bHasSuperArmor = true;
-    HitboxComponent->EnableHitbox(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 회전 공격 애니메이션 재생
     if (SpinAttackMontage && GetMesh())

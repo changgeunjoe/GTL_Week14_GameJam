@@ -190,8 +190,7 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_LBUTTONDOWN:
-        //UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s",
-               IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
+        //UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s", IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
         if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(LeftButton, true);

@@ -41,6 +41,9 @@ public:
 	/** 무기 메시 컴포넌트 (컴포넌트는 별도 직렬화됨) */
 	UStaticMeshComponent* WeaponMeshComp = nullptr;
 
+	/** 무기 충돌 캡슐 컴포넌트 (PhysX 오버랩 기반 충돌) */
+	UCapsuleComponent* WeaponCollider = nullptr;
+
 	/** 무기가 부착될 본 이름 */
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	FString WeaponBoneName = "hand_r";
@@ -125,6 +128,9 @@ public:
 
 	/** 디버그 데이터 초기화 */
 	void ClearWeaponDebugData();
+
+	/** WeaponCollider 오버랩 시 호출 (PhysX 오버랩 콜백) */
+	void OnWeaponColliderOverlap(AActor* OtherActor, const FVector& HitLocation, const FVector& HitNormal);
 
 protected:
 	/** 무기 충돌 시 호출 */

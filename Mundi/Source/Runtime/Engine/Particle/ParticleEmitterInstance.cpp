@@ -108,7 +108,7 @@ void FParticleEmitterInstance::InitializeParticleMemory()
 
 void FParticleEmitterInstance::FreeParticleMemory()
 {
-    UE_LOG("[FreeParticleMemory] Called! Resetting MaxActiveParticles from %d to 0", MaxActiveParticles);
+    //UE_LOG("[FreeParticleMemory] Called! Resetting MaxActiveParticles from %d to 0", MaxActiveParticles);
 
     if (ParticleData)
     {

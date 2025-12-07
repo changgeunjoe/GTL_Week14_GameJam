@@ -4,6 +4,7 @@
 #include "StatsComponent.h"
 #include "HitboxComponent.h"
 #include "BillboardComponent.h"
+#include "CapsuleComponent.h"
 #include "World.h"
 #include "PlayerController.h"
 #include "GameModeBase.h"
@@ -98,6 +99,12 @@ void AEnemyBase::BeginPlay()
             }
         }
     });
+
+    // WeaponCollider 로그 (바인딩은 Character::BeginPlay에서 처리)
+    if (WeaponCollider)
+    {
+        UE_LOG("[EnemyBase] WeaponCollider found: %s", WeaponCollider->GetName().c_str());
+    }
 
     // AI 컨트롤러 생성 및 빙의
     UWorld* World = GetWorld();

@@ -193,6 +193,20 @@ public:
     ) const;
 
     /**
+     * @brief 임의 회전이 적용된 캡슐로 Sweep하여 충돌 검사
+     * @param Rotation 월드 기준 캡슐 회전 (PhysX 기본 X축 -> 원하는 축)
+     */
+    bool SweepCapsuleOriented(
+        const FVector& Start,
+        const FVector& End,
+        float Radius,
+        float HalfHeight,
+        const FQuat& Rotation,
+        FHitResult& OutHit,
+        AActor* IgnoreActor = nullptr
+    ) const;
+
+    /**
      * @brief 박스로 Sweep하여 Static 콜라이더와 충돌 검사
      */
     bool SweepBox(

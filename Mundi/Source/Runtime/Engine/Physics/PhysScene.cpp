@@ -537,16 +537,11 @@ bool FPhysScene::Initialize()
     UE_LOG("[PhysScene] Contact Modify Callback registered");
 
     // PVD Scene 클라이언트 설정
-    PxPvd* Pvd = FPhysXSharedResources::GetPvd();
-    if (Pvd && Pvd->isConnected())
+    if (PxPvdSceneClient* PvdClient = Scene->getScenePvdClient())
     {
-        PxPvdSceneClient* PvdClient = Scene->getScenePvdClient();
-        if (PvdClient)
-        {
-            PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-            PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-            PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-        }
+        PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+        PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+        PvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
 
     UE_LOG("[PhysScene] Initialized successfully with vehicle surface filtering");
@@ -803,6 +798,19 @@ bool FPhysScene::SweepCapsule(
     FHitResult& OutHit,
     AActor* IgnoreActor) const
 {
+    static const FQuat DefaultCapsuleRotation = FQuat::FromAxisAngle(FVector(0.0f, 1.0f, 0.0f), PI * 0.5f);
+    return SweepCapsuleOriented(Start, End, Radius, HalfHeight, DefaultCapsuleRotation, OutHit, IgnoreActor);
+}
+
+bool FPhysScene::SweepCapsuleOriented(
+    const FVector& Start,
+    const FVector& End,
+    float Radius,
+    float HalfHeight,
+    const FQuat& Rotation,
+    FHitResult& OutHit,
+    AActor* IgnoreActor) const
+{
     OutHit.Reset();
 
     if (!Scene)
@@ -814,33 +822,25 @@ bool FPhysScene::SweepCapsule(
     if (TotalDistance < KINDA_SMALL_NUMBER)
         return false;
 
-    Direction = Direction / TotalDistance; // Normalize
+    Direction = Direction / TotalDistance;
 
-    // PhysX Capsule Geometry (PhysX 캡슐은 X축 방향이 기본)
-    // 우리 캡슐은 Z축 방향이므로 회전 필요
-    // PhysX의 halfHeight는 원통 부분만의 반높이 (반구 제외)
-    // 전체 캡슐 높이 = 2 * (cylinderHalfHeight + radius)
     float CylinderHalfHeight = FMath::Max(0.0f, HalfHeight - Radius);
-
-    // 1) 캡슐 지오메트리 생성 (PhysX X축 기준)
     PxCapsuleGeometry CapsuleGeom(Radius, CylinderHalfHeight);
 
-    // 2) 캡슐 방향 설정 (Z-up - X-up 변환)
-    PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0)); // Y축 기준 90도 회전
-    PxTransform StartPose(PxVec3(Start.X, Start.Y, Start.Z), CapsuleRotation);
+    FQuat CapsuleRotation = Rotation;
+    CapsuleRotation.Normalize();
 
+    PxQuat PxRotation(CapsuleRotation.X, CapsuleRotation.Y, CapsuleRotation.Z, CapsuleRotation.W);
+    PxTransform StartPose(PxVec3(Start.X, Start.Y, Start.Z), PxRotation);
     PxVec3 PxDirection(Direction.X, Direction.Y, Direction.Z);
 
-    // Sweep 쿼리 설정
     PxSweepBuffer HitBuffer;
     PxHitFlags HitFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eDEFAULT;
 
-    // Static + Dynamic 모두 대상으로 하는 필터 (Dynamic 바디 위에도 올라갈 수 있도록)
     FSweepQueryFilterCallback FilterCallback(IgnoreActor);
     PxQueryFilterData FilterData;
     FilterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
-    // Read Lock 필요 (시뮬레이션과 동시 접근 방지)
     SCOPED_PHYSX_READ_LOCK(*Scene);
 
     bool bHit = Scene->sweep(
