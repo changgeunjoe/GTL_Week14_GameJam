@@ -17,7 +17,7 @@
                   }, {
                     "Gravity" : [0.000000, 0.000000, 0.000000],
                     "StartVelocity_Max" : [0.000000, 0.000000, 10.000000],
-                    "StartVelocity_Min" : [0.000000, 0.000000, 0.300000],
+                    "StartVelocity_Min" : [0.000000, 0.000000, 0.600000],
                     "StartVelocity_bUseRange" : false,
                     "Type" : "Velocity",
                     "bEnabled" : true
@@ -115,7 +115,7 @@
                   }, {
                     "Gravity" : [0.000000, 0.000000, 0.000000],
                     "StartVelocity_Max" : [0.000000, 0.000000, 20.000000],
-                    "StartVelocity_Min" : [0.000000, 0.000000, 0.500000],
+                    "StartVelocity_Min" : [0.000000, 0.000000, 1.000000],
                     "StartVelocity_bUseRange" : false,
                     "Type" : "Velocity",
                     "bEnabled" : true
@@ -179,7 +179,7 @@
                 },
                 "SpawnModule" : {
                   "BurstList" : [{
-                      "Count" : 20,
+                      "Count" : 32,
                       "CountRange" : 0,
                       "Time" : 0.300000
                     }, {
@@ -190,7 +190,7 @@
                   "SpawnRateOverTime_Max" : 10.000000,
                   "SpawnRateOverTime_Min" : 5.000000,
                   "SpawnRateOverTime_bUseRange" : true,
-                  "SpawnRateType" : 1,
+                  "SpawnRateType" : 2,
                   "SpawnRate_Max" : 40.000000,
                   "SpawnRate_Min" : 2.000000,
                   "SpawnRate_bUseRange" : true

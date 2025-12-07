@@ -42,7 +42,7 @@
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 1,
-                  "DiffuseTexture" : "Data/Textures/A_Smoke_B.PNG",
+                  "DiffuseTexture" : "Data/UI/Icons/WhiteSpot.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,

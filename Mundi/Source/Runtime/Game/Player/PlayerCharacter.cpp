@@ -1223,7 +1223,7 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
     int32 DesiredStage = 0;
     if (bShouldEvaluateCharging)
     {
-        if (PlayerParticles["Charging"].size() < 3)
+        if (PlayerParticles["Charging"].size() < 3 || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
             return;
 
         if (!bWasCharging) bWasCharging = true;
@@ -1233,17 +1233,23 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         {
             CameraManager->StartCameraShake(5, 0.0005, 0.0005, 20, 2);
             PlayerParticles["Charging"][0]->ResumeSpawning();
+            PlayerParticles["Charging"][1]->PauseSpawning();
+            PlayerParticles["Charging"][2]->PauseSpawning();
         }
         else if (Stamina < 99.0f)
         {
             CameraManager->StopCameraShake();
             CameraManager->StartCameraShake(5, 0.00055, 0.00055, 20, 1);
+            PlayerParticles["Charging"][0]->ResumeSpawning();
             PlayerParticles["Charging"][1]->ResumeSpawning();
+            PlayerParticles["Charging"][2]->PauseSpawning();
         }
         else
         {
             CameraManager->StopCameraShake();
             CameraManager->StartCameraShake(5, 0.0006, 0.0006, 20, 0);
+            PlayerParticles["Charging"][0]->ResumeSpawning();
+            PlayerParticles["Charging"][1]->ResumeSpawning();
             PlayerParticles["Charging"][2]->ResumeSpawning();
         }
     }
@@ -1253,7 +1259,8 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         CameraManager->StopCameraShake();
         for (auto& Charge : PlayerParticles["Charging"])
         {
-            Charge->PauseSpawning();
+            if(Charge)
+                Charge->PauseSpawning();
         }
     }
 }
@@ -1268,6 +1275,8 @@ void APlayerCharacter::GatherParticles()
         return;
     }
 
+    PlayerParticles["Charging"].SetNum(5);
+    PlayerParticles["WeaponRibbon"].SetNum(5);
     for (UActorComponent* Component : OwnedComponents)
     {
         if (!Component)
@@ -1294,12 +1303,12 @@ void APlayerCharacter::GatherParticles()
 
         if (ParticleName.find("Charging") != FString::npos)
         {
-            PlayerParticles["Charging"].Add(ParticleComp);
+            PlayerParticles["Charging"][ParticleComp->GetParticleIndex()] =ParticleComp;
             continue;
         }
         else if (ParticleName.find("WeaponRibbon") != FString::npos)
         {
-            PlayerParticles["WeaponRibbon"].Add(ParticleComp);
+            PlayerParticles["WeaponRibbon"][ParticleComp->GetParticleIndex()] = ParticleComp;
             continue;
         }
         PlayerParticles[ParticleName].Add(ParticleComp);

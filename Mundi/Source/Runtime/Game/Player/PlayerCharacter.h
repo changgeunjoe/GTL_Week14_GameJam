@@ -86,6 +86,7 @@ public:
     // ========================================================================
     UStatsComponent* GetStatsComponent() const { return StatsComponent; }
 
+    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
 protected:
     // ========================================================================
     // 입력 처리
@@ -356,6 +357,5 @@ protected:
     // Effect
     // Charging Effect
     void GatherParticles();
-    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
     bool bWasCharging = false;
 };
