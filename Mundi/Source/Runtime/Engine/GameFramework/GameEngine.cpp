@@ -7,6 +7,8 @@
 #include <ObjManager.h>
 #include "FAudioDevice.h"
 #include <sol/sol.hpp>
+#include "GameModeBase.h"
+#include "InputManager.h"
 
 #include "BlueprintGraph/BlueprintActionDatabase.h"
 
@@ -194,33 +196,47 @@ bool UGameEngine::Startup(HINSTANCE hInstance)
     }
 
     // 매니저 초기화
+    UI.Initialize(HWnd, RHIDevice.GetDevice(), RHIDevice.GetDeviceContext());
     INPUT.Initialize(HWnd);
 
     FObjManager::Preload();
     FAudioDevice::Preload();
     RESOURCE.PreloadParticles();
+    RESOURCE.PreloadPhysicsAssets();
 
     ///////////////////////////////////
     WorldContexts.Add(FWorldContext(NewObject<UWorld>(), EWorldType::Game));
     GWorld = WorldContexts[0].World;
     GWorld->Initialize();
     GWorld->bPie = true;
+    GWorld->InitializePhysScene();  // PhysX 물리 씬 초기화
     ///////////////////////////////////
 
-    // 시작 scene(level)을 직접 로드 
-    const FString StartupScenePath = GDataDir + "/Scenes/PlayScene.scene";
+    // 시작 scene(level)을 직접 로드
+    const FString StartupScenePath = GDataDir + "/Scenes/physicstest.scene";
     if (!GWorld->LoadLevelFromFile(UTF8ToWide(StartupScenePath)))
     {
         UE_LOG("Failed to load startup scene: %s", StartupScenePath.c_str());
         return false;
     }
 
-    // 로드된 월드의 모든 액터에 대해 BeginPlay() 호출
-    TArray<AActor*> LevelActors = GWorld->GetLevel()->GetActors();
-    for (AActor* Actor : LevelActors)
+    // GameMode 생성 및 StartPlay 호출 (PlayerController, Pawn 생성 및 BeginPlay 처리)
+    if (GWorld->GetGameMode() == nullptr)
     {
-        Actor->BeginPlay();
+        AGameModeBase* GM = GWorld->SpawnActor<AGameModeBase>(FTransform());
+        GWorld->SetGameMode(GM);
     }
+    GWorld->GetGameMode()->StartPlay();
+
+    // 마우스 숨기고 커서 잠금
+    {
+        UInputManager& Input = UInputManager::GetInstance();
+        Input.SetCursorVisible(false);
+        Input.LockCursor();
+        Input.LockCursorToCenter();
+    }
+
+    GPU_PROFILER.Initialize(&RHIDevice);
 
     bPlayActive = true;
     bRunning = true;
@@ -236,9 +252,11 @@ void UGameEngine::Tick(float DeltaSeconds)
     {
         WorldContext.World->Tick(DeltaSeconds);
     }
+
+    UI.Update(DeltaSeconds);
     INPUT.Update();
 
-    FAudioDevice::Update(); 
+    FAudioDevice::Update();
 }
 
 void UGameEngine::Render()
@@ -262,6 +280,10 @@ void UGameEngine::Render()
             Renderer->RenderSceneForView(GWorld, &CurrentViewInfo, GameViewport.get());
         }
     }
+
+    // ImGui 렌더링 (게임 UI - 체력바 등)
+    UI.Render();
+    UI.EndFrame();
 
     Renderer->EndFrame();
 }

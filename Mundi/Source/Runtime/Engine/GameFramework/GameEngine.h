@@ -39,7 +39,9 @@ private:
     void Render();
 
     void HandleUVInput(float DeltaSeconds);
-
+public:
+    //게임의 메인 뷰포트
+    std::unique_ptr<FViewport> GameViewport;
 private:
     //윈도우 핸들
     HWND HWnd = nullptr;
@@ -48,8 +50,7 @@ private:
     D3D11RHI RHIDevice;
     std::unique_ptr<URenderer> Renderer;
 
-    //게임의 메인 뷰포트
-    std::unique_ptr<FViewport> GameViewport;
+  
 
     //월드 핸들
     TArray<FWorldContext> WorldContexts;
