@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ParticleModuleSpiral.h"
 #include "../ParticleEmitter.h"
 #include "../ParticleHelper.h"
@@ -131,10 +131,10 @@ void UParticleModuleSpiral::Update(FParticleEmitterInstance* Owner, int32 Offset
         // Update particle position (center moves with velocity, spiral orbits around it)
         Particle.Location = Payload.CenterPoint + Offset2D * CurrentRadius;
 
-        if (DeltaTime > 0.0f)
-        {
-            Particle.Velocity = (Particle.Location - Particle.OldLocation) / DeltaTime;
-        }
+        //if (DeltaTime > 0.0f)
+        //{
+        //    Particle.Velocity = (Particle.Location - Particle.OldLocation) / DeltaTime;
+        //}
     }
     END_UPDATE_LOOP;
 }

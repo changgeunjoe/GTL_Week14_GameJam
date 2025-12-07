@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "PlayerCharacter.h"
 #include "StatsComponent.h"
 #include "HitboxComponent.h"
@@ -192,6 +192,8 @@ void APlayerCharacter::BeginPlay()
             UE_LOG("[PlayerCharacter] Failed to find charging animation: %s", ChargingAnimPath.c_str());
         }
     }
+
+    GatherParticles();
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -281,6 +283,8 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     {
         ProcessInput(DeltaSeconds);
     }
+
+    UpdateEffect(DeltaSeconds);
 }
 
 // ============================================================================
@@ -1227,19 +1231,19 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         const float Stamina = Stats->GetCurrentStamina();
         if (Stamina < 50.0f)
         {
-            CameraManager->StartCameraShake(5, 0.1, 0.1, 15, 2);
+            CameraManager->StartCameraShake(5, 0.0005, 0.0005, 20, 2);
             PlayerParticles["Charging"][0]->ResumeSpawning();
         }
         else if (Stamina < 99.0f)
         {
             CameraManager->StopCameraShake();
-            CameraManager->StartCameraShake(5, 0.2, 0.2, 30, 1);
+            CameraManager->StartCameraShake(5, 0.00055, 0.00055, 20, 1);
             PlayerParticles["Charging"][1]->ResumeSpawning();
         }
         else
         {
             CameraManager->StopCameraShake();
-            CameraManager->StartCameraShake(5, 0.4, 0.4, 45, 0);
+            CameraManager->StartCameraShake(5, 0.0006, 0.0006, 20, 0);
             PlayerParticles["Charging"][2]->ResumeSpawning();
         }
     }
