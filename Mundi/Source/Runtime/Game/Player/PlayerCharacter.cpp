@@ -154,13 +154,33 @@ void APlayerCharacter::Tick(float DeltaSeconds)
             // StatsComponent 틱 (스태미나 회복 등)
             Stats->TickComponent(DeltaSeconds);
 
-            // GameState에 스태미나/체력 실시간 업데이트
+            // 차징 중이면 포커스 충전
+            if (bIsCharging)
+            {
+                Stats->ChargeFocus(Stats->FocusChargeRate * DeltaSeconds);
+            }
+
+            // 막기 중이면 스태미나 강제 소모
+            if (bIsBlocking)
+            {
+                Stats->DrainStamina(Stats->BlockDrainRate * DeltaSeconds);
+
+                // 스태미나가 0이 되면 막기 강제 해제
+                if (Stats->GetCurrentStamina() <= 0.f)
+                {
+                    UE_LOG("[PlayerCharacter] Block forced stop - stamina depleted");
+                    StopBlock();
+                }
+            }
+
+            // GameState에 스태미나/체력/포커스 실시간 업데이트
             if (AGameModeBase* GM = GWorld->GetGameMode())
             {
                 if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
                 {
                     GS->OnPlayerStaminaChanged(Stats->GetCurrentStamina(), Stats->GetMaxStamina());
                     GS->OnPlayerHealthChanged(Stats->GetCurrentHealth(), Stats->GetMaxHealth());
+                    GS->OnPlayerFocusChanged(Stats->GetCurrentFocus(), Stats->GetMaxFocus());
                 }
             }
         }
@@ -431,8 +451,20 @@ void APlayerCharacter::StartBlock()
         return;
     }
 
+    // 스태미나 최소 요구량 체크
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats || Stats->GetCurrentStamina() < Stats->BlockMinRequired)
+    {
+        UE_LOG("[PlayerCharacter] Cannot block - not enough stamina (need %.0f, have %.0f)",
+               Stats ? Stats->BlockMinRequired : 0.f, Stats ? Stats->GetCurrentStamina() : 0.f);
+        return;
+    }
+
     bIsBlocking = true;
     SetCombatState(ECombatState::Blocking);
+
+    // 스태미나 회복 중지
+    Stats->PauseStaminaRegen();
 
     // 패리 윈도우 시작
     bIsParrying = true;
@@ -462,6 +494,13 @@ void APlayerCharacter::StopBlock()
     bIsBlocking = false;
     bIsParrying = false;
     ParryWindowTimer = 0.f;
+
+    // 스태미나 회복 재개
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (Stats)
+    {
+        Stats->ResumeStaminaRegen();
+    }
 
     // 가드 몽타주 정지
     if (USkeletalMeshComponent* Mesh = GetMesh())

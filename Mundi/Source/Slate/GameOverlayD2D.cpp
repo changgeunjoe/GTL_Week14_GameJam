@@ -353,7 +353,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
     // Load player Focus bar
     if (WICFactory && D2DContext)
     {
-        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Focus_Bar.png";
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Stamina_Bar.png";
 
         IWICBitmapDecoder* Decoder = nullptr;
         if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
@@ -379,7 +379,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
     // Load player Stamina bar
     if (WICFactory && D2DContext)
     {
-        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Stamina_Bar.png";
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Focus_Bar.png";
 
         IWICBitmapDecoder* Decoder = nullptr;
         if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
@@ -827,9 +827,9 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     float TargetFocus = GS->GetPlayerFocus().GetPercent();
     float TargetStamina = GS->GetPlayerStamina().GetPercent();
 
-    // Default to full if not initialized
+    // Default to full if not initialized (Focus starts at 0)
     if (GS->GetPlayerHealth().Max <= 0.0f) TargetHP = 1.0f;
-    if (GS->GetPlayerFocus().Max <= 0.0f) TargetFocus = 1.0f;
+    if (GS->GetPlayerFocus().Max <= 0.0f) TargetFocus = 0.0f;
     if (GS->GetPlayerStamina().Max <= 0.0f) TargetStamina = 1.0f;
 
     // ========== Fade-in Animation ==========

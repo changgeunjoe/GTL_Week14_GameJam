@@ -113,8 +113,8 @@ private:
     float DelayedPlayerHPTimer = 0.0f;
 
     // Player Focus bar animation (Dark Souls style)
-    float CurrentPlayerFocus = 1.0f;
-    float DelayedPlayerFocus = 1.0f;
+    float CurrentPlayerFocus = 0.0f;
+    float DelayedPlayerFocus = 0.0f;
     float DelayedPlayerFocusTimer = 0.0f;
 
     // Player Stamina bar animation (Dark Souls style)
