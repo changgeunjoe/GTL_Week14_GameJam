@@ -256,13 +256,6 @@ void ACharacter::UpdateWeaponTransform()
 
 void ACharacter::StartWeaponTrace()
 {
-	// 기본 데미지 정보로 시작
-	FDamageInfo DefaultDamage(this, 10.0f, EDamageType::Light);
-	StartWeaponTrace(DefaultDamage);
-}
-
-void ACharacter::StartWeaponTrace(const FDamageInfo& InDamageInfo)
-{
 	if (!WeaponMeshComp)
 	{
 		return;
@@ -271,11 +264,10 @@ void ACharacter::StartWeaponTrace(const FDamageInfo& InDamageInfo)
 	bWeaponTraceActive = true;
 	HitActorsThisSwing.Empty();
 
-	// 데미지 정보 설정
-	CurrentWeaponDamageInfo = InDamageInfo;
+	// 이미 설정된 CurrentWeaponDamageInfo 사용, 없으면 기본값
 	if (!CurrentWeaponDamageInfo.Instigator)
 	{
-		CurrentWeaponDamageInfo.Instigator = this;
+		CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
 	}
 
 	// 현재 무기 위치를 이전 위치로 초기화
