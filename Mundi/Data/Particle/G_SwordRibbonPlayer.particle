@@ -17,7 +17,7 @@
                   }, {
                     "TessellationFactor" : 16,
                     "TilingDistance" : 1.000000,
-                    "TrailLifetime" : 2.000000,
+                    "TrailLifetime" : 1.000000,
                     "Type" : "Ribbon",
                     "Width" : 0.500000,
                     "bEnabled" : true,
