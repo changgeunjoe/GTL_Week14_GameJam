@@ -22,6 +22,10 @@
 #include "BlueprintGraph/AnimBlueprintCompiler.h"
 
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
+#include "Source/Runtime/Engine/Collision/Collision.h"
+#include "Source/Runtime/Core/Object/Character.h"
+#include "Source/Runtime/Core/Object/CharacterMovementComponent.h"
+#include "Source/Runtime/Engine/Components/CapsuleComponent.h"
 #include "Source/Runtime/Engine/Physics/BodyInstance.h"
 #include "Source/Runtime/Engine/Physics/ConstraintInstance.h"
 #include "Source/Runtime/Engine/Physics/BodySetup.h"
@@ -303,9 +307,92 @@ void USkeletalMeshComponent::TickComponent(float DeltaTime)
                             FQuat ComponentWorldRotation = GetWorldTransform().Rotation;
                             FVector WorldDelta = ComponentWorldRotation.RotateVector(RootMotionDelta);
 
-                            // Owner 위치 업데이트
-                            FVector NewLocation = Owner->GetActorLocation() + WorldDelta;
-                            Owner->SetActorLocation(NewLocation);
+                            // ACharacter인 경우 CharacterMovementComponent를 통해 충돌 체크하며 이동
+                            ACharacter* CharacterOwner = dynamic_cast<ACharacter*>(Owner);
+                            if (CharacterOwner)
+                            {
+                                UCharacterMovementComponent* MoveComp = CharacterOwner->GetCharacterMovement();
+                                UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+
+                                if (MoveComp && PhysScene && Capsule)
+                                {
+                                    float Radius = Capsule->CapsuleRadius;
+                                    float HalfHeight = Capsule->CapsuleHalfHeight;
+                                    FVector CurrentPos = Owner->GetActorLocation();
+                                    FVector TargetPos = CurrentPos + WorldDelta;
+
+                                    // 이동 전: 목표 위치에서 오버랩 체크
+                                    FVector PenetrationNormal;
+                                    float PenetrationDepth;
+                                    bool bWouldOverlap = PhysScene->OverlapCapsuleWithMTD(
+                                        TargetPos, Radius, HalfHeight,
+                                        PenetrationNormal, PenetrationDepth, Owner);
+
+                                    if (bWouldOverlap && PenetrationDepth > 0.01f)
+                                    {
+                                        // 목표 위치에서 충돌 예상됨 - 충돌 지점까지만 이동하거나 슬라이딩
+                                        FHitResult Hit;
+                                        bool bMoved = MoveComp->SafeMoveUpdatedComponent(WorldDelta, Hit);
+
+                                        if (!bMoved && Hit.bBlockingHit)
+                                        {
+                                            // 슬라이딩 시도
+                                            FVector SlideVector = MoveComp->SlideAlongSurface(WorldDelta, Hit);
+                                            if (!SlideVector.IsZero())
+                                            {
+                                                FHitResult SlideHit;
+                                                MoveComp->SafeMoveUpdatedComponent(SlideVector, SlideHit);
+                                            }
+                                        }
+
+                                        // 이동 후에도 오버랩이면 밀어내기
+                                        FVector NewPos = Owner->GetActorLocation();
+                                        bool bStillOverlapping = PhysScene->OverlapCapsuleWithMTD(
+                                            NewPos, Radius, HalfHeight,
+                                            PenetrationNormal, PenetrationDepth, Owner);
+
+                                        if (bStillOverlapping && PenetrationDepth > KINDA_SMALL_NUMBER)
+                                        {
+                                            FVector PushOut = PenetrationNormal * (PenetrationDepth + 0.02f);
+                                            Owner->SetActorLocation(NewPos + PushOut);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // 충돌 예상 없음 - 정상 이동
+                                        FHitResult Hit;
+                                        bool bMoved = MoveComp->SafeMoveUpdatedComponent(WorldDelta, Hit);
+
+                                        if (!bMoved && Hit.bBlockingHit)
+                                        {
+                                            FVector SlideVector = MoveComp->SlideAlongSurface(WorldDelta, Hit);
+                                            if (!SlideVector.IsZero())
+                                            {
+                                                FHitResult SlideHit;
+                                                MoveComp->SafeMoveUpdatedComponent(SlideVector, SlideHit);
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (MoveComp)
+                                {
+                                    // PhysScene 또는 Capsule 없으면 기존 방식
+                                    FHitResult Hit;
+                                    MoveComp->SafeMoveUpdatedComponent(WorldDelta, Hit);
+                                }
+                                else
+                                {
+                                    // MovementComponent 없으면 직접 이동
+                                    FVector NewLocation = Owner->GetActorLocation() + WorldDelta;
+                                    Owner->SetActorLocation(NewLocation);
+                                }
+                            }
+                            else
+                            {
+                                // Character가 아니면 직접 이동
+                                FVector NewLocation = Owner->GetActorLocation() + WorldDelta;
+                                Owner->SetActorLocation(NewLocation);
+                            }
 
                             // Owner 회전 업데이트 (필요시)
                             if (!RootMotionRotDelta.IsIdentity())
@@ -1137,6 +1224,12 @@ void USkeletalMeshComponent::SetAnimationTime(float InTime)
                 }
             }
 
+            // 루트 본을 항상 원점에 고정 (루트 모션 사용 시 메시가 캡슐에서 벗어나지 않도록)
+            if (CurrentLocalSpacePose.Num() > 0)
+            {
+                CurrentLocalSpacePose[0].Translation = FVector::Zero();
+            }
+
             // 포즈 변경 사항을 스키닝에 반영
             ForceRecomputePose();
         }
@@ -1466,8 +1559,8 @@ void USkeletalMeshComponent::SetAnimationPose(const TArray<FTransform>& InPose)
         }
     }
 
-    // 루트 모션이 활성화되어 있으면 루트 본을 원점에 고정
-    if (AnimInstance && AnimInstance->IsRootMotionEnabled() && NumBones > 0)
+    // 루트 본을 항상 원점에 고정 (루트 모션 사용 시 메시가 캡슐에서 벗어나지 않도록)
+    if (NumBones > 0)
     {
         CurrentLocalSpacePose[0].Translation = FVector::Zero();
     }

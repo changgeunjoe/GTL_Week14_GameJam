@@ -44,12 +44,6 @@ public:
 	// 달리기 상태 설정
 	void SetSprinting(bool bSprint);
 
-protected:
-	void PhysWalking(float DeltaSecond, const FVector& InputVector);
-	void PhysFalling(float DeltaSecond);
-
-	void CalcVelocity(const FVector& Input, float DeltaSecond, float Friction, float BrackingDecel);
-
 	/**
 	 * @brief Sweep 검사를 통해 안전한 이동 수행
 	 * @param Delta 이동할 거리
@@ -65,6 +59,12 @@ protected:
 	 * @return 슬라이딩 후 남은 이동 벡터
 	 */
 	FVector SlideAlongSurface(const FVector& Delta, const FHitResult& Hit);
+
+protected:
+	void PhysWalking(float DeltaSecond, const FVector& InputVector);
+	void PhysFalling(float DeltaSecond);
+
+	void CalcVelocity(const FVector& Input, float DeltaSecond, float Friction, float BrackingDecel);
 
 	/**
 	 * @brief 바닥 검사 (아래로 Sweep)
