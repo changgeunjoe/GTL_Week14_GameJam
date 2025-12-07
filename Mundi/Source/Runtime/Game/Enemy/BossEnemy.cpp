@@ -8,14 +8,16 @@
 #include "AnimMontage.h"
 #include "AnimSequence.h"
 #include "ResourceManager.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 ABossEnemy::ABossEnemy()
 {
     // 보스 기본 스탯 설정
     if (StatsComponent)
     {
-        StatsComponent->MaxHealth = 500.f;
-        StatsComponent->CurrentHealth = 500.f;
+        StatsComponent->MaxHealth = 30.f;
+        StatsComponent->CurrentHealth = 30.f;
         StatsComponent->MaxStamina = 200.f;
         StatsComponent->CurrentStamina = 200.f;
     }
@@ -35,6 +37,21 @@ void ABossEnemy::BeginPlay()
 
     // 페이즈 1 시작
     CurrentPhase = 1;
+
+    // GameState에 보스 등록
+    if (UWorld* World = GetWorld())
+    {
+        if (AGameModeBase* GM = World->GetGameMode())
+        {
+            if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+            {
+                FString BossDisplayName = "흉조의 왕 모르고트";  // 보스 이름
+                float MaxHP = StatsComponent ? StatsComponent->GetMaxHealth() : 30.f;
+                GS->RegisterBoss(BossDisplayName, MaxHP);
+                UE_LOG("[BossEnemy] Registered to GameState with MaxHP: %.0f", MaxHP);
+            }
+        }
+    }
 
     // ========================================================================
     // 애니메이션 몽타주 초기화
@@ -70,6 +87,21 @@ void ABossEnemy::Tick(float DeltaSeconds)
 
     // 페이즈 전환 체크
     CheckPhaseTransition();
+
+    // GameState에 보스 체력 업데이트
+    if (StatsComponent)
+    {
+        if (UWorld* World = GetWorld())
+        {
+            if (AGameModeBase* GM = World->GetGameMode())
+            {
+                if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+                {
+                    GS->OnBossHealthChanged(StatsComponent->GetCurrentHealth());
+                }
+            }
+        }
+    }
 }
 
 // ============================================================================
