@@ -1,9 +1,11 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "SpringArmComponent.h"
 #include "World.h"
 #include "Actor.h"
 #include "Source/Runtime/Engine/Collision/Collision.h"
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
+#include "Source/Runtime/Core/Object/Pawn.h"
+#include "Source/Runtime/Core/Object/Controller.h"
 #include <cmath>
 
 USpringArmComponent::USpringArmComponent()
@@ -34,6 +36,21 @@ void USpringArmComponent::OnRegister(UWorld* InWorld)
 void USpringArmComponent::TickComponent(float DeltaTime)
 {
     Super::TickComponent(DeltaTime);
+
+    // bUsePawnControlRotation이 true이면 Pawn의 ControlRotation을 따라감
+    if (bUsePawnControlRotation)
+    {
+        if (AActor* MyOwner = GetOwner())
+        {
+            if (APawn* MyPawn = Cast<APawn>(MyOwner))
+            {
+                if (AController* MyController = MyPawn->GetController())
+                {
+                    SetWorldRotation(MyController->GetControlRotation());
+                }
+            }
+        }
+    }
 
     // Lock-on 타겟이 있으면 카메라를 타겟 방향으로 회전
     if (LockOnTarget)

@@ -7,7 +7,7 @@
 #include "AnimMontage.h"
 // For notify dispatching
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify.h"
-
+#include "Source/Runtime/Engine/GameFramework/PlayerCameraManager.h"
 IMPLEMENT_CLASS(UAnimInstance)
 
 // ============================================================
@@ -130,6 +130,8 @@ void UAnimInstance::PlaySequence(UAnimSequence* Sequence, bool bLoop, float InPl
         return;
     }
 
+    CachedOriginalPlayerCamera = TWeakObjectPtr<UCameraComponent>(GWorld->GetPlayerCameraManager()->GetCurrentCamera());
+
     CurrentPlayState.Sequence = Sequence;
     CurrentPlayState.PoseProvider = Sequence;  // IAnimPoseProvider로 설정
     CurrentPlayState.CurrentTime = 0.0f;
@@ -151,6 +153,7 @@ void UAnimInstance::PlaySequence(UAnimSequence* Sequence, EAnimLayer Layer, bool
         UE_LOG("UAnimInstance::PlaySequence - Invalid sequence");
         return;
     }
+    CachedOriginalPlayerCamera = TWeakObjectPtr<UCameraComponent>(GWorld->GetPlayerCameraManager()->GetCurrentCamera());
 
     int32 LayerIndex = (int32)Layer;
 

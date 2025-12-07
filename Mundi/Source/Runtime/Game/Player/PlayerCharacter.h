@@ -86,7 +86,6 @@ public:
     // 컴포넌트 접근
     // ========================================================================
     UStatsComponent* GetStatsComponent() const { return StatsComponent; }
-    UCameraComponent* GetFollowCamera() const { return Camera; }
 
     TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
 protected:
@@ -131,7 +130,6 @@ protected:
     UStatsComponent* StatsComponent = nullptr;
     UHitboxComponent* HitboxComponent = nullptr;
     USpringArmComponent* SpringArm = nullptr;
-    UCameraComponent* Camera = nullptr;
 
     // ========== 전투 상태 ==========
     AGameState* GS = nullptr;

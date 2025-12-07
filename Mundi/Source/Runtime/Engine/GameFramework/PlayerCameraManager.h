@@ -79,6 +79,8 @@ public:
 	void UpdateViewInfo(float DeltaTime);
 	TArray<FPostProcessModifier> GetModifiers() { return Modifiers; };
 
+	UCameraComponent* GetCurrentCamera() { return CurrentViewCamera;  }
+
 	UPROPERTY(EditAnywhere, Category = "Bloom")
 	bool bBloomSettingsEnabled = false;
 

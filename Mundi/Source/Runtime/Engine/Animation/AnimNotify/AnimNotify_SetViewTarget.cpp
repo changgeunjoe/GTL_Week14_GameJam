@@ -39,10 +39,12 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         return;
     }
 
-    APlayerCameraManager* CameraManager = World->GetPlayerCameraManager();
+    // --- Caching Logic for CameraManager ---
+   
+    APlayerCameraManager* CameraManager = GWorld->GetPlayerCameraManager();
     if (!CameraManager)
     {
-        UE_LOG("[AnimNotify_SetViewTarget] Error: PlayerCameraManager not found.");
+        UE_LOG("[AnimNotify_SetViewTarget] Error: Cached PlayerCameraManager is not valid.");
         return;
     }
 
@@ -51,11 +53,10 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
     {
         // ROLE: End Notify - Blend back to the default player camera
         
-        // 1. Get the player's default follow camera
-        UCameraComponent* OriginalPlayerCamera = Player->GetFollowCamera();
+        // 1. Get the original camera from the anim instance cache
+        UCameraComponent* OriginalPlayerCamera = AnimInstance->CachedOriginalPlayerCamera.Get();
         if (!OriginalPlayerCamera)
         {
-            UE_LOG("[AnimNotify_SetViewTarget] Warning: OriginalPlayerCamera not found. Cannot blend back.");
             return;
         }
 
@@ -69,18 +70,35 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
             UE_LOG("[AnimNotify_SetViewTarget] Destroying temporary camera actor.");
             AnimInstance->TempViewTarget->Destroy();
         }
-        // 4. Clear the pointer in the anim instance
+
+        // 4. Clear the pointers in the anim instance
         AnimInstance->TempViewTarget = nullptr;
+        AnimInstance->CachedOriginalPlayerCamera = nullptr;
     }
     else
     {
         // ROLE: Start Notify - Blend to a new temporary camera
+        
+        // 0. Cache the current camera before it changes
+        AnimInstance->CachedOriginalPlayerCamera = TWeakObjectPtr<UCameraComponent>(CameraManager->GetViewCamera());
+        UE_LOG("[AnimNotify_SetViewTarget] Cached original player camera.");
+
+        AGameState* GameState = World->GetGameMode() ? Cast<AGameState>(World->GetGameMode()->GetGameState()) : nullptr;
+        if (!GameState)
+        {
+            UE_LOG("[AnimNotify_SetViewTarget] Error: GameState not found.");
+            // Clear cache if we fail
+            AnimInstance->CachedOriginalPlayerCamera = nullptr;
+            return;
+        }
         
         // 1. Spawn a new temporary camera actor
         ACameraActor* NewCamActor = World->SpawnActor<ACameraActor>();
         if (!NewCamActor)
         {
             UE_LOG("[AnimNotify_SetViewTarget] Error: Failed to spawn ACameraActor.");
+            // Clear cache if we fail
+            AnimInstance->CachedOriginalPlayerCamera = nullptr;
             return;
         }
 
