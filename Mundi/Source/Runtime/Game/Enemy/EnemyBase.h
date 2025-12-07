@@ -41,6 +41,7 @@ public:
     // ========================================================================
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual void DuplicateSubObjects() override;
 
     // ========================================================================
     // IDamageable 구현

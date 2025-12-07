@@ -54,6 +54,12 @@ public:
     /** 강공격 */
     void HeavyAttack();
 
+    /** 대시공격 (포커스 50 소모) */
+    void DashAttack();
+
+    /** 궁극기 (포커스 100 소모) */
+    void UltimateAttack();
+
     /** 회피 (구르기) */
     void Dodge();
 
@@ -105,6 +111,15 @@ protected:
     void UpdateDodgeState(float DeltaTime);
     void UpdateEffect(float DeltaTime);
 
+    /** 스킬 차징 시작 (1=DashAttack, 2=UltimateAttack) */
+    void StartSkillCharging(int32 SkillType);
+
+    /** 스킬 차징 상태 업데이트 */
+    void UpdateSkillCharging(float DeltaTime);
+
+    /** 대기 중인 스킬 실행 */
+    void ExecutePendingSkill();
+
     /** 입력 방향을 기반으로 8방향 인덱스 반환 (0=F, 1=FR, 2=R, 3=BR, 4=B, 5=BL, 6=L, 7=FL) */
     int32 GetDodgeDirectionIndex() const;
 
@@ -153,12 +168,28 @@ protected:
     /** 약공격 몽타주 */
     UAnimMontage* LightAttackMontage = nullptr;
 
+    /** 약공격 루트 모션 활성화 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    bool bEnableLightAttackRootMotion = true;
+
+    /** 약공격 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    float LightAttackCutEndTime = 0.0f;
+
     /** 강공격 애니메이션 경로 */
     UPROPERTY(EditAnywhere, Category = "Animation|Attack")
     FString HeavyAttackAnimPath;
 
     /** 강공격 몽타주 */
     UAnimMontage* HeavyAttackMontage = nullptr;
+
+    /** 강공격 루트 모션 활성화 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    bool bEnableHeavyAttackRootMotion = true;
+
+    /** 강공격 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    float HeavyAttackCutEndTime = 0.0f;
 
     /** 대시공격 애니메이션 경로 */
     UPROPERTY(EditAnywhere, Category = "Animation|Attack")
@@ -167,12 +198,72 @@ protected:
     /** 대시공격 몽타주 */
     UAnimMontage* DashAttackMontage = nullptr;
 
+    /** 대시공격 루트 모션 활성화 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    bool bEnableDashAttackRootMotion = true;
+
+    /** 대시공격 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    float DashAttackCutEndTime = 0.0f;
+
     /** 궁극기 애니메이션 경로 */
     UPROPERTY(EditAnywhere, Category = "Animation|Attack")
     FString UltimateAttackAnimPath;
 
     /** 궁극기 몽타주 */
     UAnimMontage* UltimateAttackMontage = nullptr;
+
+    /** 궁극기 루트 모션 활성화 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    bool bEnableUltimateAttackRootMotion = true;
+
+    /** 궁극기 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Attack")
+    float UltimateAttackCutEndTime = 0.0f;
+
+    // ========== 피격 몽타주 (4방향) ==========
+    /** 피격 애니메이션 경로 - Forward */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_F;
+
+    /** 피격 애니메이션 경로 - Backward */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_B;
+
+    /** 피격 애니메이션 경로 - Right */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_R;
+
+    /** 피격 애니메이션 경로 - Left */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    FString HitAnimPath_L;
+
+    /** 피격 몽타주 배열 (4방향) - 인덱스: 0=F, 1=B, 2=R, 3=L */
+    UAnimMontage* HitMontages[4] = { nullptr };
+
+    /** 피격 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    bool bEnableHitRootMotion = false;
+
+    /** 피격 애니메이션 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Hit")
+    float HitCutEndTime = 0.0f;
+
+    // ========== 사망 몽타주 ==========
+    /** 사망 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    FString DeathAnimPath;
+
+    /** 사망 몽타주 */
+    UAnimMontage* DeathMontage = nullptr;
+
+    /** 사망 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    bool bEnableDeathRootMotion = false;
+
+    /** 사망 애니메이션 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Death")
+    float DeathCutEndTime = 0.0f;
 
     // ========== 구르기 몽타주 (8방향) ==========
     /** 구르기 애니메이션 경로 - Forward */
@@ -233,17 +324,27 @@ protected:
     /** 차징 중 여부 */
     bool bIsCharging = false;
 
+    // ========== 스킬 차징 준비 ==========
+    /** 준비 중인 스킬 타입 (0=없음, 1=DashAttack, 2=UltimateAttack) */
+    int32 PendingSkillType = 0;
+
+    /** 차징 루프 횟수 */
+    int32 ChargingLoopCount = 0;
+
+    /** 차징 루프 목표 횟수 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Charging")
+    int32 ChargingLoopTarget = 2;
+
+    /** 차징 애니메이션 길이 추적용 타이머 */
+    float ChargingLoopTimer = 0.f;
+
+    /** 차징 애니메이션 1회 길이 (초) */
+    UPROPERTY(EditAnywhere, Category = "Animation|Charging")
+    float ChargingLoopDuration = 0.5f;
+
     /** 구르기 애니메이션 끝에서 자를 시간 (초 단위) */
     UPROPERTY(EditAnywhere, Category = "Animation|Dodge")
     float DodgeAnimationCutEndTime = 0.0f;
-
-    /** 공격 시 루트 모션 활성화 여부 */
-    UPROPERTY(EditAnywhere, Category = "Animation")
-    bool bEnableAttackRootMotion = true;
-
-    /** 애니메이션 끝에서 자를 시간 (초 단위) - 제자리 복귀 애니메이션 자르기용 */
-    UPROPERTY(EditAnywhere, Category = "Animation")
-    float AnimationCutEndTime = 0.0f;
 
     // ========== 이동 ==========
     UPROPERTY(EditAnywhere, Category = "Movement")

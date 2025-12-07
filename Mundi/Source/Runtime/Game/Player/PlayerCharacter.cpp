@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "PlayerCharacter.h"
 #include "StatsComponent.h"
 #include "HitboxComponent.h"
@@ -95,6 +95,44 @@ void APlayerCharacter::BeginPlay()
     InitAttackMontage(HeavyAttackMontage, HeavyAttackAnimPath, "HeavyAttackMontage");
     InitAttackMontage(DashAttackMontage, DashAttackAnimPath, "DashAttackMontage");
     InitAttackMontage(UltimateAttackMontage, UltimateAttackAnimPath, "UltimateAttackMontage");
+
+    // 피격 몽타주 초기화 (4방향: F, B, R, L)
+    FString* HitPaths[4] = { &HitAnimPath_F, &HitAnimPath_B, &HitAnimPath_R, &HitAnimPath_L };
+    const char* HitNames[4] = { "F", "B", "R", "L" };
+
+    for (int32 i = 0; i < 4; ++i)
+    {
+        if (!HitPaths[i]->empty())
+        {
+            UAnimSequence* HitAnim = UResourceManager::GetInstance().Get<UAnimSequence>(*HitPaths[i]);
+            if (HitAnim)
+            {
+                HitMontages[i] = NewObject<UAnimMontage>();
+                HitMontages[i]->SetSourceSequence(HitAnim);
+                UE_LOG("[PlayerCharacter] HitMontage[%s] initialized: %s", HitNames[i], HitPaths[i]->c_str());
+            }
+            else
+            {
+                UE_LOG("[PlayerCharacter] Failed to find hit animation: %s", HitPaths[i]->c_str());
+            }
+        }
+    }
+
+    // 사망 몽타주 초기화
+    if (!DeathAnimPath.empty())
+    {
+        UAnimSequence* DeathAnim = UResourceManager::GetInstance().Get<UAnimSequence>(DeathAnimPath);
+        if (DeathAnim)
+        {
+            DeathMontage = NewObject<UAnimMontage>();
+            DeathMontage->SetSourceSequence(DeathAnim);
+            UE_LOG("[PlayerCharacter] DeathMontage initialized: %s", DeathAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find death animation: %s", DeathAnimPath.c_str());
+        }
+    }
 
     // 구르기 몽타주 초기화 (8방향)
     FString* DodgePaths[8] = {
@@ -235,6 +273,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 패리 윈도우 업데이트
     UpdateParryWindow(DeltaSeconds);
 
+    // 스킬 차징 업데이트
+    UpdateSkillCharging(DeltaSeconds);
+
     // 경직 중이 아니면 입력 처리
     if (CombatState != ECombatState::Staggered)
     {
@@ -286,6 +327,18 @@ void APlayerCharacter::ProcessCombatInput()
     // - 마우스 우클릭: Block -> OnStartBlock/OnStopBlock -> StartBlock/StopBlock
     // - 스페이스: Dodge -> OnDodge -> Dodge
     // - Y키: Charging -> OnStartCharging/OnStopCharging -> StartCharging/StopCharging
+
+    // I키: 무적 모드 토글 (디버그용)
+    static bool bIKeyWasPressed = false;
+    bool bIKeyIsPressed = INPUT.IsKeyDown('I');
+
+    if (bIKeyIsPressed && !bIKeyWasPressed)
+    {
+        // I키가 눌린 순간 (토글)
+        bIsInvincible = !bIsInvincible;
+        UE_LOG("[PlayerCharacter] Invincible mode %s", bIsInvincible ? "ENABLED" : "DISABLED");
+    }
+    bIKeyWasPressed = bIKeyIsPressed;
 }
 
 // ============================================================================
@@ -341,10 +394,10 @@ void APlayerCharacter::LightAttack()
         ComboCount = 0;
     }
 
-    // 무기 Sweep으로 공격 판정 시작
+    // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
     FDamageInfo DamageInfo(this, 10.f + ComboCount * 5.f, EDamageType::Light);
     DamageInfo.StaggerDuration = 0.2f + ComboCount * 0.1f;  // 콤보가 높을수록 경직 증가
-    StartWeaponTrace(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
     // 공격 애니메이션 재생 (몽타주)
     if (LightAttackMontage)
@@ -354,12 +407,12 @@ void APlayerCharacter::LightAttack()
             if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
             {
                 // 루트 모션 활성화 및 애니메이션 끝 자르기 시간 설정
-                AnimInst->SetRootMotionEnabled(bEnableAttackRootMotion);
-                AnimInst->SetAnimationCutEndTime(AnimationCutEndTime);
+                AnimInst->SetRootMotionEnabled(bEnableLightAttackRootMotion);
+                AnimInst->SetAnimationCutEndTime(LightAttackCutEndTime);
 
                 AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.01f, 1.0f);  // BlendOut 최소화
                 UE_LOG("[PlayerCharacter] Playing LightAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
-                    bEnableAttackRootMotion ? "ON" : "OFF", AnimationCutEndTime);
+                    bEnableLightAttackRootMotion ? "ON" : "OFF", LightAttackCutEndTime);
             }
         }
     }
@@ -386,14 +439,109 @@ void APlayerCharacter::HeavyAttack()
     SetCombatState(ECombatState::Attacking);
     ComboCount = 0;
 
-    // 무기 Sweep으로 강공격 판정 시작
+    // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
     FDamageInfo DamageInfo(this, 30.f, EDamageType::Heavy);
     DamageInfo.HitReaction = EHitReaction::Stagger;
     DamageInfo.StaggerDuration = 0.5f;
     DamageInfo.KnockbackForce = 200.f;
-    StartWeaponTrace(DamageInfo);
+    SetWeaponDamageInfo(DamageInfo);
 
-    // TODO: 강공격 애니메이션 재생
+    // 강공격 애니메이션 재생 (몽타주)
+    if (HeavyAttackMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableHeavyAttackRootMotion);
+                AnimInst->SetAnimationCutEndTime(HeavyAttackCutEndTime);
+
+                AnimInst->Montage_Play(HeavyAttackMontage, 0.1f, 0.1f, 1.0f);
+                UE_LOG("[PlayerCharacter] Playing HeavyAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
+                    bEnableHeavyAttackRootMotion ? "ON" : "OFF", HeavyAttackCutEndTime);
+            }
+        }
+    }
+}
+
+void APlayerCharacter::DashAttack()
+{
+    UE_LOG("[PlayerCharacter] DashAttack() called - CombatState: %d", static_cast<int>(CombatState));
+
+    // 이미 차징 중이면 무시
+    if (PendingSkillType != 0)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - already charging");
+        return;
+    }
+
+    // 상태 체크
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Dead)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - invalid state");
+        return;
+    }
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - no StatsComponent");
+        return;
+    }
+
+    // 포커스 50 이상 필요
+    if (Stats->GetCurrentFocus() < 50.f)
+    {
+        UE_LOG("[PlayerCharacter] DashAttack() blocked - not enough focus (need 50, have %.0f)",
+               Stats->GetCurrentFocus());
+        return;
+    }
+
+    // 차징 시작 (포커스는 실제 공격 시 소모)
+    StartSkillCharging(1);  // 1 = DashAttack
+}
+
+void APlayerCharacter::UltimateAttack()
+{
+    UE_LOG("[PlayerCharacter] UltimateAttack() called - CombatState: %d", static_cast<int>(CombatState));
+
+    // 이미 차징 중이면 무시
+    if (PendingSkillType != 0)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - already charging");
+        return;
+    }
+
+    // 상태 체크
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Dead)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - invalid state");
+        return;
+    }
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - no StatsComponent");
+        return;
+    }
+
+    // 포커스 100 이상 필요 (최대치)
+    if (Stats->GetCurrentFocus() < 100.f)
+    {
+        UE_LOG("[PlayerCharacter] UltimateAttack() blocked - not enough focus (need 100, have %.0f)",
+               Stats->GetCurrentFocus());
+        return;
+    }
+
+    // 차징 시작 (포커스는 실제 공격 시 소모)
+    StartSkillCharging(2);  // 2 = UltimateAttack
 }
 
 void APlayerCharacter::Dodge()
@@ -616,14 +764,22 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
     float ActualDamage = DamageInfo.Damage;
 
-    // 가드 중이면 데미지 감소
+    // 가드 중이면 데미지 완전 막기
     if (bIsBlocking && DamageInfo.bCanBeBlocked)
     {
-        ActualDamage *= 0.2f; // 80% 감소
         Stats->ConsumeStamina(Stats->BlockCostPerHit);
+        UE_LOG("[PlayerCharacter] Attack blocked! Damage negated.");
+        return 0.f;  // 데미지 0
     }
 
     Stats->ApplyDamage(ActualDamage);
+
+    // 사망 체크
+    if (!Stats->IsAlive())
+    {
+        OnDeath();
+        return ActualDamage;
+    }
 
     // 피격 반응 (가드 중이 아니거나 슈퍼아머가 아니면)
     if (!bIsBlocking)
@@ -669,8 +825,47 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
     SetCombatState(ECombatState::Staggered);
     StaggerTimer = DamageInfo.StaggerDuration;
 
-    // TODO: 피격 애니메이션 재생
-    // PlayHitReactionAnimation(Reaction);
+    // 피격 방향 계산 (0=F, 1=B, 2=R, 3=L)
+    int32 HitDirIndex = 0;  // 기본값: Forward
+    if (!DamageInfo.HitDirection.IsZero())
+    {
+        // HitDirection을 캐릭터 로컬 좌표계로 변환
+        FQuat ActorRot = GetActorRotation();
+        FVector LocalHitDir = ActorRot.Inverse().RotateVector(DamageInfo.HitDirection);
+        LocalHitDir.Z = 0.f;
+        LocalHitDir.Normalize();
+
+        // 방향 결정
+        float ForwardDot = LocalHitDir.X;  // Forward = +X
+        float RightDot = LocalHitDir.Y;    // Right = +Y
+
+        if (FMath::Abs(ForwardDot) > FMath::Abs(RightDot))
+        {
+            // 앞/뒤
+            HitDirIndex = (ForwardDot > 0.f) ? 0 : 1;  // F or B
+        }
+        else
+        {
+            // 좌/우
+            HitDirIndex = (RightDot > 0.f) ? 2 : 3;  // R or L
+        }
+    }
+
+    // 피격 애니메이션 재생
+    if (HitMontages[HitDirIndex])
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableHitRootMotion);
+                AnimInst->SetAnimationCutEndTime(HitCutEndTime);
+                AnimInst->Montage_Play(HitMontages[HitDirIndex], 0.05f, 0.1f, 1.0f);
+                const char* DirNames[4] = { "F", "B", "R", "L" };
+                UE_LOG("[PlayerCharacter] Playing Hit montage: %s", DirNames[HitDirIndex]);
+            }
+        }
+    }
 
     // 넉백 적용
     if (Reaction == EHitReaction::Knockback && DamageInfo.KnockbackForce > 0.f)
@@ -685,7 +880,20 @@ void APlayerCharacter::OnDeath()
     SetCombatState(ECombatState::Dead);
     EndWeaponTrace();
 
-    // TODO: 사망 애니메이션/래그돌
+    // 사망 애니메이션 재생
+    if (DeathMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->SetRootMotionEnabled(bEnableDeathRootMotion);
+                AnimInst->SetAnimationCutEndTime(DeathCutEndTime);
+                AnimInst->Montage_Play(DeathMontage, 0.1f, 0.0f, 1.0f);  // BlendOut 없음
+                UE_LOG("[PlayerCharacter] Playing Death montage");
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -834,6 +1042,162 @@ void APlayerCharacter::UpdateDodgeState(float DeltaTime)
                 bIsInvincible = false;
                 SetCombatState(ECombatState::Idle);
                 UE_LOG("[PlayerCharacter] Dodge finished, returning to Idle");
+            }
+        }
+    }
+}
+
+// ============================================================================
+// 스킬 차징 시스템
+// ============================================================================
+
+void APlayerCharacter::StartSkillCharging(int32 SkillType)
+{
+    UE_LOG("[PlayerCharacter] StartSkillCharging - SkillType: %d", SkillType);
+
+    // 가드 해제
+    StopBlock();
+
+    // 차징 상태 초기화
+    PendingSkillType = SkillType;
+    ChargingLoopCount = 0;
+    ChargingLoopTimer = 0.f;
+
+    // 차징 몽타주 재생
+    if (ChargingMontage)
+    {
+        if (USkeletalMeshComponent* Mesh = GetMesh())
+        {
+            if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+            {
+                AnimInst->Montage_Play(ChargingMontage, 0.1f, 0.1f, 1.0f, true);  // bLoop = true
+                UE_LOG("[PlayerCharacter] Playing Charging montage for skill (Loop target: %d)", ChargingLoopTarget);
+            }
+        }
+    }
+}
+
+void APlayerCharacter::UpdateSkillCharging(float DeltaTime)
+{
+    // 스킬 대기 중이 아니면 스킵
+    if (PendingSkillType == 0)
+    {
+        return;
+    }
+
+    // 타이머 증가
+    ChargingLoopTimer += DeltaTime;
+
+    // 루프 1회 완료 체크
+    if (ChargingLoopTimer >= ChargingLoopDuration)
+    {
+        ChargingLoopCount++;
+        ChargingLoopTimer -= ChargingLoopDuration;
+        UE_LOG("[PlayerCharacter] Charging loop %d/%d completed", ChargingLoopCount, ChargingLoopTarget);
+
+        // 목표 루프 횟수 도달
+        if (ChargingLoopCount >= ChargingLoopTarget)
+        {
+            // 차징 몽타주 정지
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->Montage_Stop(0.1f);
+                }
+            }
+
+            // 스킬 실행
+            ExecutePendingSkill();
+        }
+    }
+}
+
+void APlayerCharacter::ExecutePendingSkill()
+{
+    int32 SkillType = PendingSkillType;
+    PendingSkillType = 0;  // 초기화
+
+    UE_LOG("[PlayerCharacter] ExecutePendingSkill - SkillType: %d", SkillType);
+
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] ExecutePendingSkill blocked - no StatsComponent");
+        return;
+    }
+
+    if (SkillType == 1)  // DashAttack
+    {
+        // 포커스 50 소모
+        if (!Stats->ConsumeFocus(50.f))
+        {
+            UE_LOG("[PlayerCharacter] ExecutePendingSkill (DashAttack) blocked - ConsumeFocus failed");
+            return;
+        }
+
+        UE_LOG("[PlayerCharacter] Executing DashAttack - Focus remaining: %.0f", Stats->GetCurrentFocus());
+
+        SetCombatState(ECombatState::Attacking);
+        ComboCount = 0;
+
+        // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
+        FDamageInfo DamageInfo(this, 40.f, EDamageType::DashAttack);
+        DamageInfo.HitReaction = EHitReaction::Stagger;
+        DamageInfo.StaggerDuration = 0.6f;
+        DamageInfo.KnockbackForce = 300.f;
+        SetWeaponDamageInfo(DamageInfo);
+
+        // 대시공격 애니메이션 재생
+        if (DashAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableDashAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(DashAttackCutEndTime);
+                    AnimInst->Montage_Play(DashAttackMontage, 0.1f, 0.1f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Playing DashAttack montage");
+                }
+            }
+        }
+    }
+    else if (SkillType == 2)  // UltimateAttack
+    {
+        // 포커스 100 소모
+        if (!Stats->ConsumeFocus(100.f))
+        {
+            UE_LOG("[PlayerCharacter] ExecutePendingSkill (UltimateAttack) blocked - ConsumeFocus failed");
+            return;
+        }
+
+        UE_LOG("[PlayerCharacter] Executing UltimateAttack - Focus remaining: %.0f", Stats->GetCurrentFocus());
+
+        SetCombatState(ECombatState::Attacking);
+        ComboCount = 0;
+
+        // 데미지 정보 설정 (노티파이에서 StartWeaponTrace 호출)
+        FDamageInfo DamageInfo(this, 80.f, EDamageType::UltimateAttack);
+        DamageInfo.HitReaction = EHitReaction::Knockback;
+        DamageInfo.StaggerDuration = 1.0f;
+        DamageInfo.KnockbackForce = 500.f;
+        DamageInfo.bCanBeBlocked = false;
+        SetWeaponDamageInfo(DamageInfo);
+
+        // 궁극기 애니메이션 재생
+        if (UltimateAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableUltimateAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(UltimateAttackCutEndTime);
+                    AnimInst->Montage_Play(UltimateAttackMontage, 0.1f, 0.1f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Playing UltimateAttack montage");
+                }
             }
         }
     }

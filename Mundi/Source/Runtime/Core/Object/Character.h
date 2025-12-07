@@ -83,11 +83,8 @@ public:
 	void SetWeaponDamageInfo(const FDamageInfo& InDamageInfo) { CurrentWeaponDamageInfo = InDamageInfo; }
 	const FDamageInfo& GetWeaponDamageInfo() const { return CurrentWeaponDamageInfo; }
 
-	/** 무기 Sweep 시작 (AnimNotify에서 호출) */
+	/** 무기 Sweep 시작 (AnimNotify에서 호출, 미리 설정된 데미지 정보 사용) */
 	void StartWeaponTrace();
-
-	/** 데미지 정보와 함께 무기 Sweep 시작 */
-	void StartWeaponTrace(const FDamageInfo& InDamageInfo);
 
 	/** 무기 Sweep 종료 (AnimNotify에서 호출) */
 	void EndWeaponTrace();

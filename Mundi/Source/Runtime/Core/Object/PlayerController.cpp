@@ -64,7 +64,12 @@ void APlayerController::Tick(float DeltaSeconds)
 
 void APlayerController::SetupInput()
 {
+    UE_LOG("[PlayerController] SetupInput() called!");
+
     if (!InputComponent) return;
+
+    // 기존 바인딩 클리어 (중복 방지)
+    InputComponent->ClearAllBindings();
 
     // ========================================================================
     // 키 매핑 설정
@@ -85,7 +90,8 @@ void APlayerController::SetupInput()
     InputComponent->MapActionToKey(FName("Dodge"), VK_SPACE);
     InputComponent->MapActionToKey(FName("ToggleLockOn"), VK_MBUTTON);
     InputComponent->MapActionToKey(FName("SwitchTargetLeft"), 'Q');
-    InputComponent->MapActionToKey(FName("SwitchTargetRight"), 'E');
+    InputComponent->MapActionToKey(FName("DashAttack"), 'E');
+    InputComponent->MapActionToKey(FName("UltimateAttack"), 'R');
     InputComponent->MapActionToKey(FName("ToggleMouseLook"), VK_F11);
     InputComponent->MapActionToKey(FName("Attack"), VK_LBUTTON);
     InputComponent->MapActionToKey(FName("Sprint"), VK_SHIFT);
@@ -108,9 +114,10 @@ void APlayerController::SetupInput()
     InputComponent->BindAction(FName("Dodge"), EInputEvent::Pressed, this, &APlayerController::OnDodge);
     InputComponent->BindAction(FName("ToggleLockOn"), EInputEvent::Pressed, this, &APlayerController::OnToggleLockOn);
     InputComponent->BindAction(FName("SwitchTargetLeft"), EInputEvent::Pressed, this, &APlayerController::OnSwitchTargetLeft);
-    InputComponent->BindAction(FName("SwitchTargetRight"), EInputEvent::Pressed, this, &APlayerController::OnSwitchTargetRight);
     InputComponent->BindAction(FName("ToggleMouseLook"), EInputEvent::Pressed, this, &APlayerController::OnToggleMouseLook);
     InputComponent->BindAction(FName("Attack"), EInputEvent::Pressed, this, &APlayerController::OnAttack);
+    InputComponent->BindAction(FName("DashAttack"), EInputEvent::Pressed, this, &APlayerController::OnDashAttack);
+    InputComponent->BindAction(FName("UltimateAttack"), EInputEvent::Pressed, this, &APlayerController::OnUltimateAttack);
     InputComponent->BindAction(FName("Sprint"), EInputEvent::Pressed, this, &APlayerController::OnStartSprint);
     InputComponent->BindAction(FName("Sprint"), EInputEvent::Released, this, &APlayerController::OnStopSprint);
     InputComponent->BindAction(FName("Block"), EInputEvent::Pressed, this, &APlayerController::OnStartBlock);
@@ -149,6 +156,15 @@ void APlayerController::OnLookRight(float Value)
 
 void APlayerController::OnJump()
 {
+    // 사망 시 점프 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
+
     if (auto* Character = Cast<ACharacter>(Pawn))
     {
         Character->Jump();
@@ -235,8 +251,33 @@ void APlayerController::OnAttack()
     }
 }
 
+void APlayerController::OnDashAttack()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->DashAttack();
+    }
+}
+
+void APlayerController::OnUltimateAttack()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->UltimateAttack();
+    }
+}
+
 void APlayerController::OnStartSprint()
 {
+    // 사망 시 스프린트 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
+
     if (auto* Character = Cast<ACharacter>(Pawn))
     {
         if (auto* MovementComp = Character->GetCharacterMovement())
@@ -296,6 +337,15 @@ void APlayerController::OnStopCharging()
 void APlayerController::ApplyMovement(float DeltaTime)
 {
     if (!Pawn) return;
+
+    // 사망 시 이동 불가
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        if (!PlayerChar->IsAlive())
+        {
+            return;
+        }
+    }
 
     // 몽타주 재생 중이면 이동 입력 무시
     bool bIsMontaguePlaying = false;
