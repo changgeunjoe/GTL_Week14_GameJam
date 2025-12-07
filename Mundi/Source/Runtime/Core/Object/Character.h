@@ -40,10 +40,6 @@ public:
 	/** 무기 메시 컴포넌트 (컴포넌트는 별도 직렬화됨) */
 	UStaticMeshComponent* WeaponMeshComp = nullptr;
 
-	/** 무기 충돌 컴포넌트 (칼날 히트박스) */
-	UCapsuleComponent* WeaponCollider = nullptr;
-
-	
 	/** 무기가 부착될 본 이름 */
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	FString WeaponBoneName = "hand_r";
@@ -79,15 +75,63 @@ public:
 	/** 서브 무기 위치를 본에 맞춰 업데이트 */
 	void UpdateSubWeaponTransform();
 
-	/** 무기 충돌 활성화/비활성화 */
-	void EnableWeaponCollision(bool bEnable);
-
 	/** 무기 충돌 델리게이트 */
 	DECLARE_DELEGATE(OnWeaponHit, AActor* /*HitActor*/, const FVector& /*HitLocation*/);
 
+	/** 무기 Sweep 시작 (AnimNotify에서 호출) */
+	void StartWeaponTrace();
+
+	/** 무기 Sweep 종료 (AnimNotify에서 호출) */
+	void EndWeaponTrace();
+
+	/** 무기 Sweep 판정 수행 (Tick에서 호출) */
+	void PerformWeaponTrace();
+
+	/** 무기 Sweep 파라미터 */
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	float WeaponTraceRadius = 0.1f;      // 무기 판정 반지름
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	float WeaponTraceLength = 0.8f;      // 무기 판정 길이
+
+	/** 디버그 드로우 활성화 */
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bDrawWeaponDebug = true;
+
+	// ========================================================================
+	// 무기 디버그 렌더링 데이터 (RenderDebugVolume에서 사용)
+	// ========================================================================
+	struct FWeaponDebugData
+	{
+		FVector CurrentBasePos;
+		FVector CurrentTipPos;
+		FVector PrevBasePos;
+		FVector PrevTipPos;
+		FQuat WeaponRotation;
+		float TraceRadius;
+		bool bIsValid = false;
+	};
+	FWeaponDebugData WeaponDebugData;
+
+	/** 디버그 데이터 업데이트 (PerformWeaponTrace에서 호출) */
+	void UpdateWeaponDebugData(const FVector& BasePos, const FVector& TipPos,
+							   const FVector& PrevBase, const FVector& PrevTip,
+							   const FQuat& Rotation);
+
+	/** 디버그 데이터 초기화 */
+	void ClearWeaponDebugData();
+
 protected:
 	/** 무기 충돌 시 호출 */
-	void OnWeaponOverlap(AActor* OtherActor, const FVector& HitLocation);
+	void OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation);
+
+	/** 이전 프레임 무기 위치 (Sweep용) */
+	FVector PrevWeaponTipPos = FVector::Zero();
+	FVector PrevWeaponBasePos = FVector::Zero();
+	bool bWeaponTraceActive = false;
+
+	/** 이번 공격에서 이미 맞은 액터들 (중복 히트 방지) */
+	TArray<AActor*> HitActorsThisSwing;
 
     UCapsuleComponent* CapsuleComponent;
     UCharacterMovementComponent* CharacterMovement;

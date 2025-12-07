@@ -6,13 +6,14 @@
 #include "StaticMeshComponent.h"
 #include "ObjectMacros.h"
 #include "StaticMeshActor.h"
-#include "World.h" 
+#include "World.h"
+#include "Source/Runtime/Engine/Physics/PhysScene.h"
+#include "Collision.h" 
 ACharacter::ACharacter()
 {
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComponent");
 	//CapsuleComponent->SetSize();
     WeaponMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("WeaponMeshComponent");
-    WeaponCollider = CreateDefaultSubobject<UCapsuleComponent>("WeaponCollider");
 	SetRootComponent(CapsuleComponent);
 
 	SubWeaponMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("SubWeaponMeshComponent");
@@ -27,13 +28,6 @@ ACharacter::ACharacter()
     if (WeaponMeshComp)
     {
         WeaponMeshComp->SetupAttachment(SkeletalMeshComp);
-    }
-    if (WeaponCollider)
-    {
-        WeaponCollider->SetupAttachment(WeaponMeshComp);
-        WeaponCollider->CapsuleRadius = 0.1f;      // 반지름 10cm
-        WeaponCollider->CapsuleHalfHeight = 0.5f;  // 반높이 50cm
-        WeaponCollider->SetGenerateOverlapEvents(false);  // 기본 비활성화
     }
 	 
 
@@ -63,6 +57,12 @@ void ACharacter::Tick(float DeltaSecond)
     }
 	// 무기 트랜스폼 업데이트 (본 따라가기)
 	UpdateWeaponTransform();
+
+	// 무기 Sweep 판정 (활성화된 경우)
+	if (bWeaponTraceActive)
+	{
+		PerformWeaponTrace();
+	}
 }
 
 void ACharacter::BeginPlay()
@@ -80,7 +80,6 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
         CapsuleComponent = nullptr;
         CharacterMovement = nullptr;
         WeaponMeshComp = nullptr;
-        WeaponCollider = nullptr;
         SubWeaponMeshComp = nullptr;
         SkeletalMeshComp = nullptr;
 
@@ -121,15 +120,6 @@ void ACharacter::Serialize(const bool bInIsLoading, JSON& InOutHandle)
                     SubWeaponMeshComp = StaticMesh;
                 }
             }
-            else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
-            {
-                // WeaponMeshComp의 자식 캡슐 = WeaponCollider
-                USceneComponent* Parent = Cap->GetAttachParent();
-                if (Parent == WeaponMeshComp)
-                {
-                    WeaponCollider = Cap;
-                }
-            }
         }
 
         if (CharacterMovement)
@@ -148,7 +138,6 @@ void ACharacter::DuplicateSubObjects()
     CapsuleComponent = nullptr;
     CharacterMovement = nullptr;
     WeaponMeshComp = nullptr;
-    WeaponCollider = nullptr;
     SubWeaponMeshComp = nullptr;
     SkeletalMeshComp = nullptr;
 
@@ -190,15 +179,6 @@ void ACharacter::DuplicateSubObjects()
                 {
                     SubWeaponMeshComp = StaticMesh;
                 }
-            }
-        }
-        else if (auto* Cap = Cast<UCapsuleComponent>(Comp))
-        {
-            // WeaponMeshComp의 자식 캡슐 = WeaponCollider
-            USceneComponent* Parent = Cap->GetAttachParent();
-            if (Parent == WeaponMeshComp)
-            {
-                WeaponCollider = Cap;
             }
         }
     }
@@ -271,41 +251,107 @@ void ACharacter::UpdateWeaponTransform()
 }
 
 // ============================================================================
-// 무기 충돌 시스템
+// 무기 충돌 시스템 (Sweep 기반)
 // ============================================================================
 
-void ACharacter::EnableWeaponCollision(bool bEnable)
+void ACharacter::StartWeaponTrace()
 {
-	if (!WeaponCollider)
+	if (!WeaponMeshComp)
 	{
 		return;
 	}
 
-	// CapsuleComponent의 PhysX 기반 트리거 충돌 사용
-	WeaponCollider->EnableTriggerCollision(bEnable);
+	bWeaponTraceActive = true;
+	HitActorsThisSwing.Empty();
 
-	if (bEnable)
-	{
-		// 델리게이트 바인딩
-		WeaponCollider->OnTriggerHit.Add(
-			[this](AActor* OtherActor, const FVector& HitLocation)
-			{
-				if (OtherActor && OtherActor != this)
-				{
-					OnWeaponOverlap(OtherActor, HitLocation);
-				}
-			});
-	}
-	else
-	{
-		// 델리게이트 해제
-		WeaponCollider->OnTriggerHit.Clear();
-	}
+	// 현재 무기 위치를 이전 위치로 초기화
+	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
+	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
+
+	// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
+	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+	PrevWeaponBasePos = WeaponPos;
+	PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+
+	UE_LOG("[Character] Weapon trace started");
 }
 
-void ACharacter::OnWeaponOverlap(AActor* OtherActor, const FVector& HitLocation)
+void ACharacter::EndWeaponTrace()
 {
-	// 충돌 위치에 StaticMeshActor 스폰
+	bWeaponTraceActive = false;
+	HitActorsThisSwing.Empty();
+	ClearWeaponDebugData();
+
+	UE_LOG("[Character] Weapon trace ended");
+}
+
+void ACharacter::PerformWeaponTrace()
+{
+	if (!WeaponMeshComp || !bWeaponTraceActive)
+	{
+		return;
+	}
+
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	FPhysScene* PhysScene = World->GetPhysScene();
+	if (!PhysScene)
+	{
+		return;
+	}
+
+	// 현재 무기 위치 계산
+	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
+	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
+
+	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+	FVector CurrentBasePos = WeaponPos;
+	FVector CurrentTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+
+	// ========== 디버그 데이터 저장 (RenderDebugVolume에서 렌더링) ==========
+	if (bDrawWeaponDebug)
+	{
+		UpdateWeaponDebugData(CurrentBasePos, CurrentTipPos,
+							  PrevWeaponBasePos, PrevWeaponTipPos, WeaponRot);
+	}
+	// ========== 디버그 데이터 저장 끝 ==========
+
+	// 이전 프레임 → 현재 프레임 Sweep 수행
+	// 베이스 위치와 팁 위치 모두에서 Sweep
+	FHitResult HitResult;
+
+	// 팁 위치 Sweep (무기 끝부분)
+	if (PhysScene->SweepSphere(PrevWeaponTipPos, CurrentTipPos, WeaponTraceRadius, HitResult, this))
+	{
+		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
+		{
+			HitActorsThisSwing.Add(HitResult.HitActor);
+			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint);
+		}
+	}
+
+	// 베이스 위치 Sweep (무기 손잡이 쪽)
+	if (PhysScene->SweepSphere(PrevWeaponBasePos, CurrentBasePos, WeaponTraceRadius, HitResult, this))
+	{
+		if (HitResult.HitActor && !HitActorsThisSwing.Contains(HitResult.HitActor))
+		{
+			HitActorsThisSwing.Add(HitResult.HitActor);
+			OnWeaponHitDetected(HitResult.HitActor, HitResult.ImpactPoint);
+		}
+	}
+
+	// 현재 위치를 다음 프레임의 이전 위치로 저장
+	PrevWeaponBasePos = CurrentBasePos;
+	PrevWeaponTipPos = CurrentTipPos;
+}
+
+void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation)
+{
+	// 충돌 위치에 StaticMeshActor 스폰 (디버그용)
 	UWorld* World = GetWorld();
 	if (World)
 	{
@@ -319,8 +365,11 @@ void ACharacter::OnWeaponOverlap(AActor* OtherActor, const FVector& HitLocation)
 		}
 	}
 
+	UE_LOG("[Character] Weapon hit: %s at (%.2f, %.2f, %.2f)",
+		   HitActor->GetName().c_str(), HitLocation.X, HitLocation.Y, HitLocation.Z);
+
 	// 델리게이트 브로드캐스트
-	OnWeaponHit.Broadcast(OtherActor, HitLocation);
+	OnWeaponHit.Broadcast(HitActor, HitLocation);
 }
 
 void ACharacter::UpdateSubWeaponTransform()
@@ -357,4 +406,26 @@ void ACharacter::UpdateSubWeaponTransform()
 	// 무기 트랜스폼 설정
 	SubWeaponMeshComp->SetWorldLocation(FinalLocation);
 	SubWeaponMeshComp->SetWorldRotation(FinalRotation);
+}
+
+// ============================================================================
+// 무기 디버그 렌더링 데이터 관리
+// ============================================================================
+
+void ACharacter::UpdateWeaponDebugData(const FVector& BasePos, const FVector& TipPos,
+									   const FVector& PrevBase, const FVector& PrevTip,
+									   const FQuat& Rotation)
+{
+	WeaponDebugData.CurrentBasePos = BasePos;
+	WeaponDebugData.CurrentTipPos = TipPos;
+	WeaponDebugData.PrevBasePos = PrevBase;
+	WeaponDebugData.PrevTipPos = PrevTip;
+	WeaponDebugData.WeaponRotation = Rotation;
+	WeaponDebugData.TraceRadius = WeaponTraceRadius;
+	WeaponDebugData.bIsValid = true;
+}
+
+void ACharacter::ClearWeaponDebugData()
+{
+	WeaponDebugData.bIsValid = false;
 }

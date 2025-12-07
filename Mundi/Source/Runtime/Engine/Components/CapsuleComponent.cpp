@@ -4,6 +4,7 @@
 #include "RenderSettings.h"
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
 #include "Collision.h"
+#include "Character.h"
 #include <PxPhysicsAPI.h>
 
 using namespace physx;
@@ -265,6 +266,62 @@ void UCapsuleComponent::RenderDebugVolume(URenderer* Renderer) const
     AddHemisphereArcs(-1.0f);
 
     Renderer->AddLines(StartPoints, EndPoints, Colors);
+
+    // ========================================================================
+    // ACharacter 무기 디버그 렌더링
+    // ========================================================================
+    if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+    {
+        if (Character->bDrawWeaponDebug && Character->WeaponDebugData.bIsValid)
+        {
+            const auto& DebugData = Character->WeaponDebugData;
+
+            TArray<FVector> WeaponStartPoints;
+            TArray<FVector> WeaponEndPoints;
+            TArray<FVector4> WeaponColors;
+
+            // 무기 중심선 (베이스 → 팁) - 흰색
+            WeaponStartPoints.Add(DebugData.CurrentBasePos);
+            WeaponEndPoints.Add(DebugData.CurrentTipPos);
+            WeaponColors.Add(FVector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+            // Sweep 경로 (이전 → 현재) - 녹색
+            WeaponStartPoints.Add(DebugData.PrevBasePos);
+            WeaponEndPoints.Add(DebugData.CurrentBasePos);
+            WeaponColors.Add(FVector4(0.0f, 1.0f, 0.0f, 1.0f));
+
+            WeaponStartPoints.Add(DebugData.PrevTipPos);
+            WeaponEndPoints.Add(DebugData.CurrentTipPos);
+            WeaponColors.Add(FVector4(0.0f, 1.0f, 0.0f, 1.0f));
+
+            // 판정 범위 원 그리기
+            const int32 NumSegments = 12;
+            FVector Right = DebugData.WeaponRotation.RotateVector(FVector(1, 0, 0));
+            FVector Forward = DebugData.WeaponRotation.RotateVector(FVector(0, 1, 0));
+
+            for (int32 i = 0; i < NumSegments; ++i)
+            {
+                float Angle1 = (float)i / NumSegments * 2.0f * 3.14159f;
+                float Angle2 = (float)(i + 1) / NumSegments * 2.0f * 3.14159f;
+
+                // 팁 위치 원 - 빨간색
+                FVector P1 = DebugData.CurrentTipPos + (Right * cosf(Angle1) + Forward * sinf(Angle1)) * DebugData.TraceRadius;
+                FVector P2 = DebugData.CurrentTipPos + (Right * cosf(Angle2) + Forward * sinf(Angle2)) * DebugData.TraceRadius;
+                WeaponStartPoints.Add(P1);
+                WeaponEndPoints.Add(P2);
+                WeaponColors.Add(FVector4(1.0f, 0.0f, 0.0f, 1.0f));
+
+                // 베이스 위치 원 - 주황색
+                P1 = DebugData.CurrentBasePos + (Right * cosf(Angle1) + Forward * sinf(Angle1)) * DebugData.TraceRadius;
+                P2 = DebugData.CurrentBasePos + (Right * cosf(Angle2) + Forward * sinf(Angle2)) * DebugData.TraceRadius;
+                WeaponStartPoints.Add(P1);
+                WeaponEndPoints.Add(P2);
+                WeaponColors.Add(FVector4(1.0f, 0.5f, 0.0f, 1.0f));
+            }
+
+            Renderer->AddLines(WeaponStartPoints, WeaponEndPoints, WeaponColors);
+        }
+    }
 }
 
 void UCapsuleComponent::CreatePhysXActor()
