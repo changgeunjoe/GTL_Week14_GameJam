@@ -44,6 +44,22 @@ TArray<FString> UPropertyRenderer::CachedScriptPaths;
 TArray<const char*> UPropertyRenderer::CachedScriptItems;
 TArray<FString> UPropertyRenderer::CachedAnimSequencePaths;
 TArray<FString> UPropertyRenderer::CachedAnimSequenceItems;
+std::unordered_map<std::string, std::string> UPropertyRenderer::TextureSearchFilters;
+std::unordered_map<std::string, std::string> UPropertyRenderer::MaterialSearchFilters;
+std::unordered_map<std::string, std::string> UPropertyRenderer::StaticMeshSearchFilters;
+
+// 대소문자 무시 문자열 검색 헬퍼 함수
+static bool ContainsIgnoreCase(const std::string& haystack, const std::string& needle)
+{
+	if (needle.empty()) return true;
+
+	auto it = std::search(
+		haystack.begin(), haystack.end(),
+		needle.begin(), needle.end(),
+		[](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); }
+	);
+	return it != haystack.end();
+}
 
 static bool ItemsGetter(void* Data, int Index, const char** CItem)
 {
@@ -1359,31 +1375,92 @@ bool UPropertyRenderer::RenderStaticMeshProperty(const FProperty& Prop, void* In
 		}
 	}
 
-	// TArray<FString>을 const char* 배열로 변환
-	TArray<const char*> ItemsPtr;
-	ItemsPtr.reserve(CachedStaticMeshItems.size());
-	for (const FString& item : CachedStaticMeshItems)
-	{
-		ItemsPtr.push_back(item.c_str());
-	}
+	bool bChanged = false;
+
+	// 현재 선택된 항목의 표시 텍스트
+	const char* PreviewText = (SelectedIdx >= 0) ? CachedStaticMeshItems[SelectedIdx].c_str() : "None";
 
 	ImGui::SetNextItemWidth(240);
-	if (ImGui::Combo(Prop.Name, &SelectedIdx, ItemsPtr.data(), static_cast<int>(ItemsPtr.size())))
+	if (ImGui::BeginCombo(Prop.Name, PreviewText))
 	{
-		if (SelectedIdx >= 0 && SelectedIdx < static_cast<int>(CachedStaticMeshPaths.size()))
+		// --- 검색 필터 입력 ---
+		std::string labelKey(Prop.Name);
+		std::string& filterText = StaticMeshSearchFilters[labelKey];
+
+		// 검색 입력창
+		char filterBuffer[256] = {};
+		strncpy_s(filterBuffer, sizeof(filterBuffer), filterText.c_str(), _TRUNCATE);
+
+		ImGui::SetNextItemWidth(-1);
+		FString SearchInputID = FString("##StaticMeshSearch_") + Prop.Name;
+
+		// 콤보박스가 열렸을 때 검색창에 자동 포커스
+		if (ImGui::IsWindowAppearing())
 		{
-			// 컴포넌트별 Setter 호출
-			UObject* Object = static_cast<UObject*>(Instance);
-			if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Object))
-			{
-				StaticMeshComponent->SetStaticMesh(CachedStaticMeshPaths[SelectedIdx]);
-			}
-			else
-			{
-				*MeshPtr = UResourceManager::GetInstance().Load<UStaticMesh>(CachedStaticMeshPaths[SelectedIdx]);
-			}
-			return true;
+			ImGui::SetKeyboardFocusHere();
 		}
+
+		if (ImGui::InputTextWithHint(SearchInputID.c_str(), "Search meshes...", filterBuffer, sizeof(filterBuffer)))
+		{
+			filterText = filterBuffer;
+		}
+
+		ImGui::Separator();
+
+		// 필터링된 아이템 수 카운트
+		int filteredCount = 0;
+
+		// 메쉬 목록 렌더링
+		for (int i = 0; i < static_cast<int>(CachedStaticMeshItems.size()); ++i)
+		{
+			const char* ItemText = CachedStaticMeshItems[i].c_str();
+
+			// 검색 필터 적용
+			if (!filterText.empty())
+			{
+				if (!ContainsIgnoreCase(std::string(ItemText), filterText))
+				{
+					continue; // 필터에 맞지 않는 항목 건너뛰기
+				}
+			}
+
+			filteredCount++;
+			bool bIsSelected = (SelectedIdx == i);
+
+			if (ImGui::Selectable(ItemText, bIsSelected))
+			{
+				if (i >= 0 && i < static_cast<int>(CachedStaticMeshPaths.size()))
+				{
+					// 컴포넌트별 Setter 호출
+					UObject* Object = static_cast<UObject*>(Instance);
+					if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Object))
+					{
+						StaticMeshComponent->SetStaticMesh(CachedStaticMeshPaths[i]);
+					}
+					else
+					{
+						*MeshPtr = UResourceManager::GetInstance().Load<UStaticMesh>(CachedStaticMeshPaths[i]);
+					}
+					bChanged = true;
+
+					// 선택 후 검색 필터 초기화
+					filterText.clear();
+				}
+			}
+
+			if (bIsSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+
+		// 검색 결과가 없을 때 메시지 표시
+		if (filteredCount == 0)
+		{
+			ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No matching meshes found");
+		}
+
+		ImGui::EndCombo();
 	}
 
 	// 닫힌 콤보박스 '텍스트' 부분에 마우스를 올렸을 때 전체 경로 툴팁
@@ -1391,16 +1468,16 @@ bool UPropertyRenderer::RenderStaticMeshProperty(const FProperty& Prop, void* In
 	{
 		ImGui::BeginTooltip();
 
-		// 1. 원본 경로 표시 (CurrentTexturePath는 null일 때 "None"을 가짐)
+		// 1. 원본 경로 표시
 		ImGui::TextUnformatted(CurrentPath.c_str());
 
-		// 2. CurrentTexture가 유효하고 캐시 파일 경로가 있다면 추가로 표시
+		// 2. 캐시 파일 경로가 있다면 추가로 표시
 		if ((*MeshPtr))
 		{
 			const FString& CachedPath = (*MeshPtr)->GetCacheFilePath();
 			if (!CachedPath.empty())
 			{
-				ImGui::Separator(); // 원본 경로와 구분하기 위해 선 추가
+				ImGui::Separator();
 				ImGui::Text("Cache: %s", CachedPath.c_str());
 			}
 		}
@@ -1408,7 +1485,7 @@ bool UPropertyRenderer::RenderStaticMeshProperty(const FProperty& Prop, void* In
 		ImGui::EndTooltip();
 	}
 
-	return false;
+	return bChanged;
 }
 
 bool UPropertyRenderer::RenderMaterialProperty(const FProperty& Prop, void* Instance)
@@ -1479,27 +1556,71 @@ bool UPropertyRenderer::RenderSingleMaterialSlot(const char* Label, UMaterialInt
 	ImGui::SetNextItemWidth(240);
 	if (ImGui::BeginCombo(Label, CurrentMaterialPath.c_str()))
 	{
-		// "None" 옵션
-		bool bIsNoneSelected = (CurrentMaterial == nullptr);
-		if (ImGui::Selectable(CachedMaterialItems[0], bIsNoneSelected))
+		// --- 검색 필터 입력 ---
+		std::string labelKey(Label);
+		std::string& filterText = MaterialSearchFilters[labelKey];
+
+		// 검색 입력창
+		char filterBuffer[256] = {};
+		strncpy_s(filterBuffer, sizeof(filterBuffer), filterText.c_str(), _TRUNCATE);
+
+		ImGui::SetNextItemWidth(-1);
+		FString SearchInputID = FString("##MaterialSearch_") + Label;
+
+		// 콤보박스가 열렸을 때 검색창에 자동 포커스
+		if (ImGui::IsWindowAppearing())
 		{
-			bElementChanged = true;
-			if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(OwningObject))
-			{
-				PrimitiveComponent->SetMaterial(MaterialIndex, nullptr);
-			}
-			else
-			{
-				*MaterialPtr = nullptr;
-			}
+			ImGui::SetKeyboardFocusHere();
 		}
-		if (bIsNoneSelected) ImGui::SetItemDefaultFocus();
+
+		if (ImGui::InputTextWithHint(SearchInputID.c_str(), "Search materials...", filterBuffer, sizeof(filterBuffer)))
+		{
+			filterText = filterBuffer;
+		}
+
+		ImGui::Separator();
+
+		// 필터링된 아이템 수 카운트
+		int filteredCount = 0;
+
+		// "None" 옵션 (필터가 비어있거나 "none"을 포함할 때만 표시)
+		if (filterText.empty() || ContainsIgnoreCase("None", filterText))
+		{
+			filteredCount++;
+			bool bIsNoneSelected = (CurrentMaterial == nullptr);
+			if (ImGui::Selectable(CachedMaterialItems[0], bIsNoneSelected))
+			{
+				bElementChanged = true;
+				if (UPrimitiveComponent* PrimitiveComponent = Cast<UPrimitiveComponent>(OwningObject))
+				{
+					PrimitiveComponent->SetMaterial(MaterialIndex, nullptr);
+				}
+				else
+				{
+					*MaterialPtr = nullptr;
+				}
+				// 선택 후 검색 필터 초기화
+				filterText.clear();
+			}
+			if (bIsNoneSelected) ImGui::SetItemDefaultFocus();
+		}
 
 		// 캐시된 머티리얼 목록
 		for (int j = 0; j < (int)CachedMaterialPaths.size(); ++j)
 		{
 			const FString& Path = CachedMaterialPaths[j];
 			const char* DisplayName = CachedMaterialItems[j + 1];
+
+			// 검색 필터 적용
+			if (!filterText.empty())
+			{
+				if (!ContainsIgnoreCase(std::string(DisplayName), filterText))
+				{
+					continue; // 필터에 맞지 않는 항목 건너뛰기
+				}
+			}
+
+			filteredCount++;
 			bool bIsSelected = (CurrentMaterialPath == Path);
 
 			if (ImGui::Selectable(DisplayName, bIsSelected))
@@ -1513,8 +1634,16 @@ bool UPropertyRenderer::RenderSingleMaterialSlot(const char* Label, UMaterialInt
 				{
 					*MaterialPtr = UResourceManager::GetInstance().Load<UMaterial>(Path);
 				}
+				// 선택 후 검색 필터 초기화
+				filterText.clear();
 			}
 			if (bIsSelected) ImGui::SetItemDefaultFocus();
+		}
+
+		// 검색 결과가 없을 때 메시지 표시
+		if (filteredCount == 0)
+		{
+			ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No matching materials found");
 		}
 
 		ImGui::EndCombo();
@@ -1766,16 +1895,54 @@ bool UPropertyRenderer::RenderTextureSelectionCombo(const char* Label, UTexture*
 
 	if (ImGui::BeginCombo(Label, PreviewText))
 	{
+		// --- 검색 필터 입력 ---
+		std::string labelKey(Label);
+		std::string& filterText = TextureSearchFilters[labelKey];
+
+		// 검색 입력창
+		char filterBuffer[256] = {};
+		strncpy_s(filterBuffer, sizeof(filterBuffer), filterText.c_str(), _TRUNCATE);
+
+		ImGui::SetNextItemWidth(-1);
+		FString SearchInputID = FString("##TextureSearch_") + Label;
+
+		// 콤보박스가 열렸을 때 검색창에 자동 포커스
+		if (ImGui::IsWindowAppearing())
+		{
+			ImGui::SetKeyboardFocusHere();
+		}
+
+		if (ImGui::InputTextWithHint(SearchInputID.c_str(), "Search textures...", filterBuffer, sizeof(filterBuffer)))
+		{
+			filterText = filterBuffer;
+		}
+
+		ImGui::Separator();
+
 		// --- 콤보박스 드롭다운 리스트 렌더링 ---
 
 		// 드롭다운 리스트 내부의 아이템 간 수직 간격 설정
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 1.0f));
 
+		// 필터링된 아이템 수 카운트
+		int filteredCount = 0;
+
 		// 텍스처 리스트 (미리보기 포함) - "None" 옵션(i=0)을 루프에 포함
 		for (int i = 0; i < (int)CachedTextureItems.size(); ++i)
 		{
-			bool is_selected = (SelectedTextureIdx == i);
 			const char* ItemText = CachedTextureItems[i];
+
+			// 검색 필터 적용 (빈 필터는 모든 항목 표시, "None"은 항상 표시)
+			if (!filterText.empty() && i > 0)
+			{
+				if (!ContainsIgnoreCase(std::string(ItemText), filterText))
+				{
+					continue; // 필터에 맞지 않는 항목 건너뛰기
+				}
+			}
+
+			filteredCount++;
+			bool is_selected = (SelectedTextureIdx == i);
 
 			UTexture* previewTexture = nullptr;
 			FString TexturePath = "None";
@@ -1799,6 +1966,9 @@ bool UPropertyRenderer::RenderTextureSelectionCombo(const char* Label, UTexture*
 				// OutNewTexture에 선택된 텍스처를 할당합니다.
 				OutNewTexture = SelectedTexture;
 				bChanged = true;
+
+				// 선택 후 검색 필터 초기화
+				filterText.clear();
 			}
 			ImVec2 NextItemCursorPos = ImGui::GetCursorPos(); // 다음 아이템 위치 저장
 
@@ -1856,6 +2026,12 @@ bool UPropertyRenderer::RenderTextureSelectionCombo(const char* Label, UTexture*
 
 			// --- 어설션 해결을 위해 Dummy 위젯 추가 ---
 			ImGui::Dummy(ImVec2(0.0f, 0.0f));
+		}
+
+		// 검색 결과가 없을 때 메시지 표시
+		if (filteredCount == 0)
+		{
+			ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No matching textures found");
 		}
 
 		// PushStyleVar로 변경했던 스타일을 원래대로 복원합니다.
