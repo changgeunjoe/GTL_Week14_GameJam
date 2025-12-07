@@ -26,6 +26,7 @@ private:
     void DrawDeathScreen(float ScreenW, float ScreenH, const wchar_t* Text, bool bIsVictory);
     void DrawBossHealthBar(float ScreenW, float ScreenH, float DeltaTime);
     void DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTime);
+    void DrawDebugStats(float ScreenW, float ScreenH);  // 디버그: 보스/플레이어 상태
 
     // Create gradient brush for the banner (recreated per-frame due to screen size changes)
     ID2D1LinearGradientBrush* CreateBannerGradientBrush(float ScreenW, float ScreenH, float Opacity);
@@ -77,6 +78,7 @@ private:
     IDWriteTextFormat* SubtitleFormat = nullptr;  // Smaller font for "Press any key"
     IDWriteTextFormat* DeathTextFormat = nullptr; // "YOU DIED" / "DEMIGOD FELLED" format
     IDWriteTextFormat* BossNameFormat = nullptr;  // Boss name above health bar
+    IDWriteTextFormat* DebugTextFormat = nullptr; // Debug info text
 
     // Brushes
     ID2D1SolidColorBrush* TextBrush = nullptr;        // Title text color
@@ -113,8 +115,8 @@ private:
     float DelayedPlayerHPTimer = 0.0f;
 
     // Player Focus bar animation (Dark Souls style)
-    float CurrentPlayerFocus = 1.0f;
-    float DelayedPlayerFocus = 1.0f;
+    float CurrentPlayerFocus = 0.0f;
+    float DelayedPlayerFocus = 0.0f;
     float DelayedPlayerFocusTimer = 0.0f;
 
     // Player Stamina bar animation (Dark Souls style)

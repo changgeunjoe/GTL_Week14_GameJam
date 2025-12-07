@@ -135,3 +135,33 @@ void UStatsComponent::RestoreFullStamina()
     TimeSinceStaminaUse = StaminaRegenDelay; // 즉시 회복 가능 상태로
  //   OnStaminaChanged.Broadcast(CurrentStamina, MaxStamina);
 }
+
+// ============================================================================
+// 포커스 관련
+// ============================================================================
+
+void UStatsComponent::ChargeFocus(float Amount)
+{
+    if (Amount <= 0.f)
+    {
+        return;
+    }
+
+    CurrentFocus = FMath::Min(MaxFocus, CurrentFocus + Amount);
+}
+
+bool UStatsComponent::ConsumeFocus(float Amount)
+{
+    if (Amount <= 0.f)
+    {
+        return true;
+    }
+
+    if (CurrentFocus < Amount)
+    {
+        return false; // 포커스 부족
+    }
+
+    CurrentFocus -= Amount;
+    return true;
+}

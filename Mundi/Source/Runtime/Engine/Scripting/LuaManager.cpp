@@ -15,6 +15,8 @@
 #include "CombatTypes.h"
 #include "SkeletalMeshComponent.h"
 #include "AnimInstance.h"
+#include "PlayerCharacter.h"
+#include "StatsComponent.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -303,6 +305,137 @@ FLuaManager::FLuaManager()
             return Pawn->GetGameObject();
         }
     );
+
+    // ========================================================================
+    // 플레이어 상태 조회 함수들 (보스 AI용)
+    // ========================================================================
+
+    // 플레이어 전투 상태 반환 (문자열)
+    // "Idle", "Attacking", "Dodging", "Blocking", "Parrying", "Staggered", "Knockback", "Dead"
+    SharedLib.set_function("GetPlayerCombatState",
+        []() -> std::string
+        {
+            if (!GWorld) return "Unknown";
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return "Unknown";
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return "Unknown";
+
+            ECombatState State = Player->GetCombatState();
+            switch (State)
+            {
+            case ECombatState::Idle:      return "Idle";
+            case ECombatState::Attacking: return "Attacking";
+            case ECombatState::Dodging:   return "Dodging";
+            case ECombatState::Blocking:  return "Blocking";
+            case ECombatState::Parrying:  return "Parrying";
+            case ECombatState::Staggered: return "Staggered";
+            case ECombatState::Knockback: return "Knockback";
+            case ECombatState::Dead:      return "Dead";
+            default:                      return "Unknown";
+            }
+        }
+    );
+
+    // 플레이어가 회피 중인지 (무적 상태)
+    SharedLib.set_function("IsPlayerDodging",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Dodging;
+        }
+    );
+
+    // 플레이어가 공격 중인지
+    SharedLib.set_function("IsPlayerAttacking",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Attacking;
+        }
+    );
+
+    // 플레이어가 가드 중인지
+    SharedLib.set_function("IsPlayerBlocking",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsBlocking();
+        }
+    );
+
+    // 플레이어가 패리 중인지
+    SharedLib.set_function("IsPlayerParrying",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsParrying();
+        }
+    );
+
+    // 플레이어가 무적 상태인지 (회피 중 등)
+    SharedLib.set_function("IsPlayerInvincible",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsInvincible();
+        }
+    );
+
+    // 플레이어가 경직 상태인지
+    SharedLib.set_function("IsPlayerStaggered",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Staggered;
+        }
+    );
+
+    // 플레이어가 살아있는지
+    SharedLib.set_function("IsPlayerAlive",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsAlive();
+        }
+    );
+
     SharedLib.set_function("AddMovementInput",
         [](FGameObject& GameObject, FVector Direction, float Scale)
         {
@@ -396,6 +529,122 @@ FLuaManager::FLuaManager()
                     Boss->SetMontagePlayRate(NewPlayRate);
                 }
             }
+        });
+
+    // 보스 패턴 이름 설정 (디버그 오버레이용)
+    // 사용법: SetBossPatternName(Obj, "PunishAttack")
+    SharedLib.set_function("SetBossPatternName", [](FGameObject& Obj, const FString& PatternName)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetCurrentPatternName(PatternName);
+                }
+            }
+        });
+
+    // 보스 AI 상태 설정 (디버그 오버레이용)
+    // 사용법: SetBossAIState(Obj, "Strafing")
+    SharedLib.set_function("SetBossAIState", [](FGameObject& Obj, const FString& State)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetAIState(State);
+                }
+            }
+        });
+
+    // 보스 이동 타입 설정 (디버그 오버레이용)
+    // 사용법: SetBossMovementType(Obj, "Strafe_L")
+    SharedLib.set_function("SetBossMovementType", [](FGameObject& Obj, const FString& Type)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetMovementType(Type);
+                }
+            }
+        });
+
+    // 보스와 플레이어 사이 거리 설정 (디버그 오버레이용)
+    // 사용법: SetBossDistanceToPlayer(Obj, 5.5)
+    SharedLib.set_function("SetBossDistanceToPlayer", [](FGameObject& Obj, float Distance)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetDistanceToPlayer(Distance);
+                }
+            }
+        });
+
+    // ========================================================================
+    // StatsComponent Lua 바인딩
+    // ========================================================================
+
+    // 현재 체력 가져오기
+    // 사용법: local hp = GetCurrentHealth(Obj)
+    SharedLib.set_function("GetCurrentHealth", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    float hp = Stats->GetCurrentHealth();
+                    UE_LOG("[Lua] GetCurrentHealth: %.1f (Owner: %s)", hp, Owner->GetName().c_str());
+                    return hp;
+                }
+                UE_LOG("[Lua] GetCurrentHealth: StatsComponent not found on %s", Owner->GetName().c_str());
+            }
+            UE_LOG("[Lua] GetCurrentHealth: Owner is null");
+            return 0.f;
+        });
+
+    // 최대 체력 가져오기
+    // 사용법: local maxHp = GetMaxHealth(Obj)
+    SharedLib.set_function("GetMaxHealth", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->GetMaxHealth();
+                }
+            }
+            return 0.f;
+        });
+
+    // 체력 퍼센트 가져오기 (0.0 ~ 1.0)
+    // 사용법: local percent = GetHealthPercent(Obj)
+    SharedLib.set_function("GetHealthPercent", [](FGameObject& Obj) -> float
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->GetHealthPercent();
+                }
+            }
+            return 0.f;
+        });
+
+    // 생존 여부 확인
+    // 사용법: local alive = IsAlive(Obj)
+    SharedLib.set_function("IsAlive", [](FGameObject& Obj) -> bool
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                {
+                    return Stats->IsAlive();
+                }
+            }
+            return false;
         });
 
     // 히트박스 활성화 (Lua용)

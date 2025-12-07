@@ -103,6 +103,25 @@ public:
     UPROPERTY(EditAnywhere, Category = "Stamina Cost")
     float ParryCost = 10.f;
 
+    UPROPERTY(EditAnywhere, Category = "Stamina Cost", Tooltip = "막기 시작에 필요한 최소 스태미나")
+    float BlockMinRequired = 20.f;
+
+    UPROPERTY(EditAnywhere, Category = "Stamina Cost", Tooltip = "막기 중 초당 스태미나 소모량")
+    float BlockDrainRate = 25.f;
+
+    /** 스태미나 회복을 일시 중지합니다. */
+    void PauseStaminaRegen() { bCanRegenStamina = false; }
+
+    /** 스태미나 회복을 재개합니다. */
+    void ResumeStaminaRegen() { bCanRegenStamina = true; TimeSinceStaminaUse = 0.f; }
+
+    /** 스태미나를 강제로 소모합니다 (0 이하로 내려가면 0으로 클램프) */
+    void DrainStamina(float Amount)
+    {
+        CurrentStamina = FMath::Max(0.f, CurrentStamina - Amount);
+        TimeSinceStaminaUse = 0.f;
+    }
+    
     // ========================================================================
     // HP 스탯
     // ========================================================================
@@ -122,10 +141,39 @@ public:
     float CurrentStamina = 100.f;
 
     UPROPERTY(EditAnywhere, Category = "Stamina", Tooltip = "초당 회복량")
-    float StaminaRegenRate = 20.f;
+    float StaminaRegenRate = 10.f;
 
     UPROPERTY(EditAnywhere, Category = "Stamina", Tooltip = "사용 후 회복 시작까지 딜레이")
-    float StaminaRegenDelay = 1.0f;
+    float StaminaRegenDelay = 20.0f;
+
+    // ========================================================================
+    // 포커스 관련
+    // ========================================================================
+
+    /** 포커스를 충전합니다. (Max를 넘지 않음) */
+    void ChargeFocus(float Amount);
+
+    /** 포커스를 소모합니다. */
+    bool ConsumeFocus(float Amount);
+
+    /** 포커스 퍼센트 (0.0 ~ 1.0) */
+    float GetFocusPercent() const { return MaxFocus > 0.f ? CurrentFocus / MaxFocus : 0.f; }
+
+    /** Getter */
+    float GetCurrentFocus() const { return CurrentFocus; }
+    float GetMaxFocus() const { return MaxFocus; }
+
+    // ========================================================================
+    // 포커스 스탯
+    // ========================================================================
+    UPROPERTY(EditAnywhere, Category = "Focus")
+    float MaxFocus = 100.f;
+
+    UPROPERTY(EditAnywhere, Category = "Focus")
+    float CurrentFocus = 0.f;
+
+    UPROPERTY(EditAnywhere, Category = "Focus", Tooltip = "차징 시 초당 충전량")
+    float FocusChargeRate = 30.f;
 
 private:
     float TimeSinceStaminaUse = 0.f;

@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 #include <d2d1_1.h>
 #include <dwrite.h>
@@ -16,6 +16,14 @@
 #include "D3D11RHI.h"
 #include "FViewport.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
+#include "PlayerCharacter.h"
+#include "PlayerController.h"
+#include "BossEnemy.h"
+#include "ObjectIterator.h"
+#include "Source/Runtime/Game/Combat/StatsComponent.h"
+#include "Source/Runtime/Engine/Components/SkeletalMeshComponent.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Animation/AnimMontage.h"
 
 #ifdef _EDITOR
 #include "USlateManager.h"
@@ -166,6 +174,23 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         {
             BossNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             BossNameFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+        }
+
+        // Debug text format - small monospace for stats display
+        DWriteFactory->CreateTextFormat(
+            L"Consolas",
+            nullptr,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            14.0f,
+            L"en-us",
+            &DebugTextFormat);
+
+        if (DebugTextFormat)
+        {
+            DebugTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            DebugTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
         }
     }
 
@@ -353,7 +378,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
     // Load player Focus bar
     if (WICFactory && D2DContext)
     {
-        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Focus_Bar.png";
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Stamina_Bar.png";
 
         IWICBitmapDecoder* Decoder = nullptr;
         if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
@@ -379,7 +404,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
     // Load player Stamina bar
     if (WICFactory && D2DContext)
     {
-        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Stamina_Bar.png";
+        FWideString BarPath = UTF8ToWide(GDataDir) + L"/UI/Icons/TX_Gauge_Focus_Bar.png";
 
         IWICBitmapDecoder* Decoder = nullptr;
         if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BarPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
@@ -489,6 +514,7 @@ void UGameOverlayD2D::ReleaseD2DResources()
     SafeRelease(SubtitleBrush);
     SafeRelease(DeathTextBrush);
     SafeRelease(VictoryTextBrush);
+    SafeRelease(DebugTextFormat);
     SafeRelease(BossNameFormat);
     SafeRelease(DeathTextFormat);
     SafeRelease(SubtitleFormat);
@@ -827,9 +853,9 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     float TargetFocus = GS->GetPlayerFocus().GetPercent();
     float TargetStamina = GS->GetPlayerStamina().GetPercent();
 
-    // Default to full if not initialized
+    // Default to full if not initialized (Focus starts at 0)
     if (GS->GetPlayerHealth().Max <= 0.0f) TargetHP = 1.0f;
-    if (GS->GetPlayerFocus().Max <= 0.0f) TargetFocus = 1.0f;
+    if (GS->GetPlayerFocus().Max <= 0.0f) TargetFocus = 0.0f;
     if (GS->GetPlayerStamina().Max <= 0.0f) TargetStamina = 1.0f;
 
     // ========== Fade-in Animation ==========
@@ -973,6 +999,176 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     DrawSingleBar(StaminaBarY, CurrentPlayerStamina, DelayedPlayerStamina, PlayerStaminaBarBitmap);
 }
 
+void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
+{
+    if (!DebugTextFormat || !SubtitleBrush)
+    {
+        return;
+    }
+
+    if (!GWorld)
+    {
+        return;
+    }
+
+    // ========================================================================
+    // 플레이어 상태 수집
+    // ========================================================================
+    FString PlayerStateStr = "Unknown";
+    FString PlayerAttackStr = "None";
+    float PlayerHP = 0.f;
+    float PlayerMaxHP = 100.f;
+    bool bPlayerBlocking = false;
+    bool bPlayerInvincible = false;
+
+    AGameModeBase* GameMode = GWorld->GetGameMode();
+    if (GameMode && GameMode->PlayerController)
+    {
+        APawn* Pawn = GameMode->PlayerController->GetPawn();
+        APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+        if (Player)
+        {
+            ECombatState State = Player->GetCombatState();
+            switch (State)
+            {
+            case ECombatState::Idle:      PlayerStateStr = "Idle"; break;
+            case ECombatState::Attacking: PlayerStateStr = "Attacking"; break;
+            case ECombatState::Dodging:   PlayerStateStr = "Dodging"; break;
+            case ECombatState::Blocking:  PlayerStateStr = "Blocking"; break;
+            case ECombatState::Parrying:  PlayerStateStr = "Parrying"; break;
+            case ECombatState::Staggered: PlayerStateStr = "Staggered"; break;
+            case ECombatState::Knockback: PlayerStateStr = "Knockback"; break;
+            case ECombatState::Dead:      PlayerStateStr = "Dead"; break;
+            default:                      PlayerStateStr = "Unknown"; break;
+            }
+
+            // 현재 무기 데미지 타입 (스킬) 가져오기
+            EDamageType DmgType = Player->GetWeaponDamageInfo().DamageType;
+            switch (DmgType)
+            {
+            case EDamageType::Light:          PlayerAttackStr = "Light"; break;
+            case EDamageType::Heavy:          PlayerAttackStr = "Heavy"; break;
+            case EDamageType::Special:        PlayerAttackStr = "Special"; break;
+            case EDamageType::Parried:        PlayerAttackStr = "Parried"; break;
+            case EDamageType::DashAttack:     PlayerAttackStr = "DashAttack"; break;
+            case EDamageType::UltimateAttack: PlayerAttackStr = "UltimateAttack"; break;
+            default:                          PlayerAttackStr = "Unknown"; break;
+            }
+
+            bPlayerBlocking = Player->IsBlocking();
+            bPlayerInvincible = Player->IsInvincible();
+
+            // GetStatsComponent() 또는 GetComponent()로 찾기
+            UStatsComponent* Stats = Player->GetStatsComponent();
+            if (!Stats)
+            {
+                Stats = Cast<UStatsComponent>(Player->GetComponent(UStatsComponent::StaticClass()));
+            }
+            if (Stats)
+            {
+                PlayerHP = Stats->CurrentHealth;
+                PlayerMaxHP = Stats->MaxHealth;
+            }
+        }
+    }
+
+    // ========================================================================
+    // 보스 상태 수집
+    // ========================================================================
+    FString BossAIStateStr = "No Boss";
+    FString BossMovementStr = "None";
+    FString BossAttackStr = "None";
+    int32 BossPhase = 0;
+    float BossHP = 0.f;
+    float BossMaxHP = 100.f;
+    float BossDistToPlayer = 0.f;
+    bool bBossSuperArmor = false;
+
+    // 월드의 모든 Actor에서 BossEnemy 찾기
+    for (AActor* Actor : GWorld->GetActors())
+    {
+        ABossEnemy* Boss = Cast<ABossEnemy>(Actor);
+        if (Boss && Boss->IsAlive())
+        {
+            BossPhase = Boss->GetPhase();
+
+            // Lua에서 설정한 AI 상태
+            BossAIStateStr = Boss->GetAIState();
+            BossMovementStr = Boss->GetMovementType();
+            BossAttackStr = Boss->GetCurrentPatternName();
+            BossDistToPlayer = Boss->GetDistanceToPlayer();
+
+            bBossSuperArmor = Boss->HasSuperArmor();
+
+            if (UStatsComponent* Stats = Boss->GetStatsComponent())
+            {
+                BossHP = Stats->CurrentHealth;
+                BossMaxHP = Stats->MaxHealth;
+            }
+            break;  // 첫 번째 보스만
+        }
+    }
+
+    // ========================================================================
+    // 디버그 텍스트 그리기
+    // ========================================================================
+    SubtitleBrush->SetOpacity(0.9f);
+
+    // 배경 반투명 박스
+    ID2D1SolidColorBrush* BgBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.7f), &BgBrush);
+
+    float BoxX = 10.f;
+    float BoxY = 60.f;  // FPS 아래로 이동
+    float BoxW = 280.f;
+    float BoxH = 280.f;  // Attack 라인 추가로 높이 증가
+
+    if (BgBrush)
+    {
+        D2D1_RECT_F BgRect = D2D1::RectF(BoxX, BoxY, BoxX + BoxW, BoxY + BoxH);
+        D2DContext->FillRectangle(BgRect, BgBrush);
+        SafeRelease(BgBrush);
+    }
+
+    // 텍스트 내용 구성
+    wchar_t DebugText[1024];
+    swprintf_s(DebugText, 1024,
+        L"=== PLAYER ===\n"
+        L"State: %hs\n"
+        L"Attack: %hs\n"
+        L"HP: %.0f / %.0f\n"
+        L"Blocking: %hs\n"
+        L"Invincible: %hs\n"
+        L"\n"
+        L"=== BOSS ===\n"
+        L"Phase: %d\n"
+        L"AI State: %hs\n"
+        L"Movement: %hs\n"
+        L"Attack: %hs\n"
+        L"Distance: %.1fm\n"
+        L"HP: %.0f / %.0f\n"
+        L"SuperArmor: %hs",
+        PlayerStateStr.c_str(),
+        PlayerAttackStr.c_str(),
+        PlayerHP, PlayerMaxHP,
+        bPlayerBlocking ? "Yes" : "No",
+        bPlayerInvincible ? "Yes" : "No",
+        BossPhase,
+        BossAIStateStr.c_str(),
+        BossMovementStr.c_str(),
+        BossAttackStr.c_str(),
+        BossDistToPlayer,
+        BossHP, BossMaxHP,
+        bBossSuperArmor ? "Yes" : "No"
+    );
+
+    D2D1_RECT_F TextRect = D2D1::RectF(BoxX + 10.f, BoxY + 5.f, BoxX + BoxW - 10.f, BoxY + BoxH - 5.f);
+    D2DContext->DrawTextW(DebugText, static_cast<UINT32>(wcslen(DebugText)),
+        DebugTextFormat, TextRect, SubtitleBrush);
+
+    SubtitleBrush->SetOpacity(1.0f);
+}
+
 void UGameOverlayD2D::Draw()
 {
     if (!bInitialized || !SwapChain || !D2DContext || !TitleFormat || !SubtitleFormat || !TextBrush)
@@ -1104,6 +1300,9 @@ void UGameOverlayD2D::Draw()
     default:
         break;
     }
+
+    // 디버그 상태는 항상 표시 (FPS처럼)
+    DrawDebugStats(ScreenW, ScreenH);
 
     // Pop clip and reset transform
     D2DContext->PopAxisAlignedClip();

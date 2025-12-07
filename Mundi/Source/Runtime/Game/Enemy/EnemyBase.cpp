@@ -23,6 +23,35 @@ AEnemyBase::AEnemyBase()
     HitboxComponent->SetBoxExtent(FVector(60.f, 60.f, 60.f));
 }
 
+void AEnemyBase::DuplicateSubObjects()
+{
+    Super::DuplicateSubObjects();
+
+    // 프리팹 로드 후 컴포넌트 포인터 재바인딩
+    StatsComponent = nullptr;
+    HitboxComponent = nullptr;
+    LockOnIndicator = nullptr;
+
+    for (UActorComponent* Comp : GetOwnedComponents())
+    {
+        if (auto* Stats = Cast<UStatsComponent>(Comp))
+        {
+            StatsComponent = Stats;
+        }
+        else if (auto* Hitbox = Cast<UHitboxComponent>(Comp))
+        {
+            HitboxComponent = Hitbox;
+        }
+        else if (auto* Billboard = Cast<UBillboardComponent>(Comp))
+        {
+            LockOnIndicator = Billboard;
+        }
+    }
+
+    UE_LOG("[EnemyBase] DuplicateSubObjects - StatsComponent: %p, HitboxComponent: %p",
+           StatsComponent, HitboxComponent);
+}
+
 void AEnemyBase::BeginPlay()
 {
     Super::BeginPlay();
@@ -56,6 +85,17 @@ void AEnemyBase::BeginPlay()
     {
         HitboxComponent->SetOwnerActor(this);
     }
+
+    // 무기 충돌 시 데미지 처리 등록
+    OnWeaponHit.Add([this](AActor* HitActor, const FDamageInfo& DamageInfo) {
+        if (IDamageable* Target = GetDamageable(HitActor))
+        {
+            if (Target->CanBeHit())
+            {
+                Target->TakeDamage(DamageInfo);
+            }
+        }
+    });
 
     // AI 컨트롤러 생성 및 빙의
     UWorld* World = GetWorld();
@@ -334,12 +374,17 @@ void AEnemyBase::ExecuteAttackPattern(int PatternIndex)
 
 float AEnemyBase::TakeDamage(const FDamageInfo& DamageInfo)
 {
+    UE_LOG("[EnemyBase] TakeDamage called! Damage: %.1f, CurrentHP: %.1f",
+           DamageInfo.Damage, StatsComponent ? StatsComponent->GetCurrentHealth() : -1.f);
+
     if (!CanBeHit())
     {
+        UE_LOG("[EnemyBase] TakeDamage blocked - CanBeHit() returned false");
         return 0.f;
     }
 
     StatsComponent->ApplyDamage(DamageInfo.Damage);
+    UE_LOG("[EnemyBase] After ApplyDamage - CurrentHP: %.1f", StatsComponent->GetCurrentHealth());
 
     // 슈퍼아머가 없으면 피격 반응
     if (!bHasSuperArmor)

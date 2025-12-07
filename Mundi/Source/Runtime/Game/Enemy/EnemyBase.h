@@ -41,6 +41,7 @@ public:
     // ========================================================================
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual void DuplicateSubObjects() override;
 
     // ========================================================================
     // IDamageable 구현
@@ -127,7 +128,11 @@ protected:
 
 
     // ========== 컴포넌트 ==========
+    //UPROPERTY(EditAnywhere, Category = "Components")
     UStatsComponent* StatsComponent = nullptr;
+
+    // 나중에 발차기용
+    //UPROPERTY(EditAnywhere, Category = "Components")
     UHitboxComponent* HitboxComponent = nullptr;
     UBillboardComponent* LockOnIndicator = nullptr;
 

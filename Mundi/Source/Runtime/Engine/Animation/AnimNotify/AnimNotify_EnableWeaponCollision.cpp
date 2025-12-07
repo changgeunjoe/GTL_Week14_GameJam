@@ -29,10 +29,17 @@ void UAnimNotify_EnableWeaponCollision::Notify(USkeletalMeshComponent* MeshComp,
         return;
     }
 
-    // 무기 충돌 활성화/비활성화
-    Character->EnableWeaponCollision(bEnable);
+    // 무기 Sweep 시작/종료
+    if (bEnable)
+    {
+        Character->StartWeaponTrace();
+    }
+    else
+    {
+        Character->EndWeaponTrace();
+    }
 
-    UE_LOG("[AnimNotify_EnableWeaponCollision] Weapon collision %s on %s",
-           bEnable ? "enabled" : "disabled",
+    UE_LOG("[AnimNotify_EnableWeaponCollision] Weapon trace %s on %s",
+           bEnable ? "started" : "ended",
            Owner->GetName().c_str());
 }

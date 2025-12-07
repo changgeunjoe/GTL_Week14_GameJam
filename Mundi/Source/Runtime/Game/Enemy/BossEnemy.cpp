@@ -8,14 +8,16 @@
 #include "AnimMontage.h"
 #include "AnimSequence.h"
 #include "ResourceManager.h"
+#include "GameModeBase.h"
+#include "GameState.h"
 
 ABossEnemy::ABossEnemy()
 {
     // 보스 기본 스탯 설정
     if (StatsComponent)
     {
-        StatsComponent->MaxHealth = 500.f;
-        StatsComponent->CurrentHealth = 500.f;
+        StatsComponent->MaxHealth = 30.f;
+        StatsComponent->CurrentHealth = 30.f;
         StatsComponent->MaxStamina = 200.f;
         StatsComponent->CurrentStamina = 200.f;
     }
@@ -31,10 +33,42 @@ ABossEnemy::ABossEnemy()
 
 void ABossEnemy::BeginPlay()
 {
+    // Super::BeginPlay 전에 StatsComponent 값 확인
+    UE_LOG("[BossEnemy] BEFORE Super::BeginPlay - StatsComponent: %p, MaxHealth: %.1f, CurrentHealth: %.1f",
+           StatsComponent,
+           StatsComponent ? StatsComponent->MaxHealth : -1.f,
+           StatsComponent ? StatsComponent->CurrentHealth : -1.f);
+
     Super::BeginPlay();
+
+    // 보스 스탯 강제 설정 (프리팹에서 로드 시 값이 0일 수 있음)
+    if (StatsComponent)
+    {
+        StatsComponent->MaxHealth = 500.f;
+        StatsComponent->CurrentHealth = 500.f;
+        StatsComponent->MaxStamina = 200.f;
+        StatsComponent->CurrentStamina = 200.f;
+        UE_LOG("[BossEnemy] Stats initialized - MaxHealth: %.1f, CurrentHealth: %.1f",
+               StatsComponent->MaxHealth, StatsComponent->CurrentHealth);
+    }
 
     // 페이즈 1 시작
     CurrentPhase = 1;
+
+    // GameState에 보스 등록
+    if (UWorld* World = GetWorld())
+    {
+        if (AGameModeBase* GM = World->GetGameMode())
+        {
+            if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+            {
+                FString BossDisplayName = "흉조의 왕 모르고트";  // 보스 이름
+                float MaxHP = StatsComponent ? StatsComponent->GetMaxHealth() : 30.f;
+                GS->RegisterBoss(BossDisplayName, MaxHP);
+                UE_LOG("[BossEnemy] Registered to GameState with MaxHP: %.0f", MaxHP);
+            }
+        }
+    }
 
     // ========================================================================
     // 애니메이션 몽타주 초기화
@@ -62,6 +96,15 @@ void ABossEnemy::BeginPlay()
     InitMontage(ChargeStartMontage, ChargeStartAnimPath, "ChargeStart");
     InitMontage(ChargeAttackMontage, ChargeAttackAnimPath, "ChargeAttack");
     InitMontage(SpinAttackMontage, SpinAttackAnimPath, "SpinAttack");
+
+    // 콤보 애니메이션 몽타주 초기화
+    InitMontage(Slash_1_Montage, Slash_1_AnimPath, "Slash_1");
+    InitMontage(Slash_2_Montage, Slash_2_AnimPath, "Slash_2");
+    InitMontage(Slash_3_Montage, Slash_3_AnimPath, "Slash_3");
+    InitMontage(Spin_1_Montage, Spin_1_AnimPath, "Spin_1");
+    InitMontage(Spin_2_Montage, Spin_2_AnimPath, "Spin_2");
+    InitMontage(Smash_1_Montage, Smash_1_AnimPath, "Smash_1");
+    InitMontage(Smash_2_Montage, Smash_2_AnimPath, "Smash_2");
 }
 
 void ABossEnemy::Tick(float DeltaSeconds)
@@ -70,6 +113,21 @@ void ABossEnemy::Tick(float DeltaSeconds)
 
     // 페이즈 전환 체크
     CheckPhaseTransition();
+
+    // GameState에 보스 체력 업데이트
+    if (StatsComponent)
+    {
+        if (UWorld* World = GetWorld())
+        {
+            if (AGameModeBase* GM = World->GetGameMode())
+            {
+                if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+                {
+                    GS->OnBossHealthChanged(StatsComponent->GetCurrentHealth());
+                }
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -107,6 +165,7 @@ void ABossEnemy::ExecuteAttackPattern(int PatternIndex)
 
 void ABossEnemy::Attack_LightCombo()
 {
+    CurrentPatternName = "LightCombo";
     FDamageInfo DamageInfo;
     DamageInfo.Instigator = this;
     DamageInfo.Damage = 20.f;
@@ -130,6 +189,7 @@ void ABossEnemy::Attack_LightCombo()
 
 void ABossEnemy::Attack_HeavySlam()
 {
+    CurrentPatternName = "HeavySlam";
     FDamageInfo DamageInfo;
     DamageInfo.Instigator = this;
     DamageInfo.Damage = 40.f;
@@ -155,6 +215,7 @@ void ABossEnemy::Attack_HeavySlam()
 
 void ABossEnemy::Attack_ChargeAttack()
 {
+    CurrentPatternName = "ChargeAttack";
     FDamageInfo DamageInfo;
     DamageInfo.Instigator = this;
     DamageInfo.Damage = 35.f;
@@ -188,6 +249,7 @@ void ABossEnemy::Attack_ChargeAttack()
 
 void ABossEnemy::Attack_SpinAttack()
 {
+    CurrentPatternName = "SpinAttack";
     FDamageInfo DamageInfo;
     DamageInfo.Instigator = this;
     DamageInfo.Damage = 25.f;
@@ -217,6 +279,9 @@ void ABossEnemy::Attack_SpinAttack()
 
 bool ABossEnemy::PlayMontageByName(const FString& MontageName, float BlendIn, float BlendOut, float PlayRate)
 {
+    // 현재 패턴 이름 저장
+    CurrentPatternName = MontageName;
+
     UAnimMontage* Montage = nullptr;
 
     // 몽타주 이름으로 찾기
@@ -230,6 +295,21 @@ bool ABossEnemy::PlayMontageByName(const FString& MontageName, float BlendIn, fl
         Montage = ChargeAttackMontage;
     else if (MontageName == "SpinAttack")
         Montage = SpinAttackMontage;
+    // 콤보 애니메이션
+    else if (MontageName == "Slash_1")
+        Montage = Slash_1_Montage;
+    else if (MontageName == "Slash_2")
+        Montage = Slash_2_Montage;
+    else if (MontageName == "Slash_3")
+        Montage = Slash_3_Montage;
+    else if (MontageName == "Spin_1")
+        Montage = Spin_1_Montage;
+    else if (MontageName == "Spin_2")
+        Montage = Spin_2_Montage;
+    else if (MontageName == "Smash_1")
+        Montage = Smash_1_Montage;
+    else if (MontageName == "Smash_2")
+        Montage = Smash_2_Montage;
 
     if (!Montage || !GetMesh())
     {

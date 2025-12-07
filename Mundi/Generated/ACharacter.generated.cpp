@@ -41,6 +41,9 @@ BEGIN_PROPERTIES(ACharacter)
     ADD_PROPERTY(FString, SubWeaponBoneName, "SubWeapon", true)
     ADD_PROPERTY(FVector, SubWeaponOffset, "SubWeapon", true)
     ADD_PROPERTY(FVector, SubWeaponRotationOffset, "SubWeapon", true)
+    ADD_PROPERTY(float, WeaponTraceRadius, "Weapon", true)
+    ADD_PROPERTY(float, WeaponTraceLength, "Weapon", true)
+    ADD_PROPERTY(bool, bDrawWeaponDebug, "Weapon", true)
 END_PROPERTIES()
 
 // ===== Lua Binding =====
