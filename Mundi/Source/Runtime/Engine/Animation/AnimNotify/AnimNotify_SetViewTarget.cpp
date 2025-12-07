@@ -54,7 +54,7 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         // ROLE: End Notify - Blend back to the default player camera
         
         // 1. Get the original camera from the anim instance cache
-        UCameraComponent* OriginalPlayerCamera = AnimInstance->CachedOriginalPlayerCamera.Get();
+        UCameraComponent* OriginalPlayerCamera = CameraManager->GetSpringArmCamera();
         if (!OriginalPlayerCamera)
         {
             return;

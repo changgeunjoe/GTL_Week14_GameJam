@@ -78,6 +78,33 @@
       "Kind" : "Single",
       "NotifyName" : "Particle: Off: WeaponRibbon",
       "TriggerTime" : 0.931631
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.006619
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.433548
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.678452
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

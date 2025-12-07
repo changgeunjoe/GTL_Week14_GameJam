@@ -33,6 +33,7 @@ public:
 	void RegisterView(UCameraComponent* RegisterViewTarget);
 	void UnregisterView(UCameraComponent* UnregisterViewTarget);
 	UCameraComponent* GetViewCamera() { return CurrentViewCamera; }
+	UCameraComponent* GetSpringArmCamera() { return CachedSpringArmCamera; }
 	void SetViewCamera(UCameraComponent* NewViewTarget);
 	void SetViewCameraWithBlend(UCameraComponent* NewViewTarget, float InBlendTime);
 
@@ -79,8 +80,6 @@ public:
 	void UpdateViewInfo(float DeltaTime);
 	TArray<FPostProcessModifier> GetModifiers() { return Modifiers; };
 
-	UCameraComponent* GetCurrentCamera() { return CurrentViewCamera;  }
-
 	UPROPERTY(EditAnywhere, Category = "Bloom")
 	bool bBloomSettingsEnabled = false;
 
@@ -105,6 +104,7 @@ protected:
 
 private:
 	UCameraComponent* CurrentViewCamera{};
+	UCameraComponent* CachedSpringArmCamera{};
 
 	FMinimalViewInfo CurrentViewInfo{};
 	FMinimalViewInfo BlendStartViewInfo{};
