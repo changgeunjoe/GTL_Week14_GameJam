@@ -261,7 +261,7 @@ void UConsoleWidget::AddLog(const char* fmt, ...)
 
 	if (strstr(buf, "[error]") != nullptr)
 	{
-		USlateManager::GetInstance().ForceOpenConsole();
+		//USlateManager::GetInstance().ForceOpenConsole();
 	}
 	
 	std::lock_guard<std::mutex> lock(LogMutex); 
@@ -277,7 +277,7 @@ void UConsoleWidget::VAddLog(const char* fmt, va_list args)
 
 	if (strstr(buf, "[error]") != nullptr)
 	{
-		USlateManager::GetInstance().ForceOpenConsole();
+		//USlateManager::GetInstance().ForceOpenConsole();
 	}
 
 	std::lock_guard<std::mutex> lock(LogMutex); 

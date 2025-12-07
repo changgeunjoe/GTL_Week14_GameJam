@@ -89,6 +89,16 @@ static SGraphEditorWindow* g_AnimationGraphEditorWindow = nullptr;
 
 static bool IsMouseInViewportWindow(const FVector2D& MousePos)
 {
+    // PIE 모드일 때 메인 뷰포트 영역 체크
+    if (GEngine.IsPIEActive())
+    {
+        SViewportWindow* MainViewport = USlateManager::GetInstance().GetMainViewport();
+        if (MainViewport && MainViewport->IsHover(MousePos))
+        {
+            return true;
+        }
+    }
+
     // 스켈레탈 메시 뷰어의 뷰포트 영역 체크
     if (g_SkeletalViewerWindow && g_SkeletalViewerWindow->IsHover(MousePos))
     {
@@ -784,8 +794,8 @@ void USlateManager::ProcessInput()
         CloseSkeletalMeshViewer();
     }
 
-    // 단축키로 기즈모 모드 변경
-    if (World->GetGizmoActor())
+    // 단축키로 기즈모 모드 변경 (PIE 모드가 아닐 때만)
+    if (!GEngine.IsPIEActive() && World->GetGizmoActor())
         World->GetGizmoActor()->ProcessGizmoModeSwitch();
 }
 

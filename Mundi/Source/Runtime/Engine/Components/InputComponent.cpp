@@ -222,6 +222,10 @@ bool UInputComponent::CheckKeyState(int32 Key, EInputEvent EventType)
     else if (Key == VK_MBUTTON)
     {
         bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::MiddleButton);
+        if (bCurrentlyDown)
+        {
+            UE_LOG("[InputComponent] MButton Down detected! (MiddleButton state = true)");
+        }
     }
     else
     {
@@ -234,6 +238,10 @@ bool UInputComponent::CheckKeyState(int32 Key, EInputEvent EventType)
     switch (EventType)
     {
     case EInputEvent::Pressed:
+        if (Key == VK_SPACE && bCurrentlyDown && !bWasDown)
+        {
+            UE_LOG("[InputComponent] Space Pressed!");
+        }
         return bCurrentlyDown && !bWasDown;
     case EInputEvent::Released:
         return !bCurrentlyDown && bWasDown;

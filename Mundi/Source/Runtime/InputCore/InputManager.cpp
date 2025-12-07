@@ -188,16 +188,17 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_LBUTTONDOWN:
-        UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s", IsUIHover ? "TRUE (blocked)" : "FALSE (allowed)");
-        if (!IsUIHover)  // ImGui가 마우스를 사용하지 않을 때만
+        UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s",
+               IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(LeftButton, true);
             UE_LOG("[InputManager] Left Mouse Down - MouseButtons[Left] = true");
         }
         break;
-        
+
     case WM_LBUTTONUP:
-        if (!IsUIHover)  // ImGui가 마우스를 사용하지 않을 때만
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(LeftButton, false);
             if (bEnableDebugLogging) UE_LOG("InputManager: Left Mouse UP\n");
@@ -205,7 +206,7 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_RBUTTONDOWN:
-        if (!IsUIHover)
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(RightButton, true);
             if (bEnableDebugLogging) UE_LOG("InputManager: Right Mouse DOWN");
@@ -223,21 +224,24 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
         
     case WM_MBUTTONDOWN:
-        if (!IsUIHover)
+        UE_LOG("[InputManager] WM_MBUTTONDOWN received - IsUIHover: %s, PIE: %s",
+               IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(MiddleButton, true);
+            UE_LOG("[InputManager] Middle Mouse Down - MouseButtons[Middle] = true");
         }
         break;
 
     case WM_MBUTTONUP:
-        if (!IsUIHover)
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(MiddleButton, false);
         }
         break;
         
     case WM_XBUTTONDOWN:
-        if (!IsUIHover)
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             // X버튼 구분 (X1, X2)
             WORD XButton = GET_XBUTTON_WPARAM(wParam);
@@ -247,9 +251,9 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
                 UpdateMouseButton(XButton2, true);
         }
         break;
-        
+
     case WM_XBUTTONUP:
-        if (!IsUIHover)
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             // X버튼 구분 (X1, X2)
             WORD XButton = GET_XBUTTON_WPARAM(wParam);
@@ -261,7 +265,7 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         break;
 
     case WM_MOUSEWHEEL:
-        if (!IsUIHover)
+        if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             // 휠 델타값 추출 (HIWORD에서 signed short로 캐스팅)
             short wheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
@@ -280,7 +284,8 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
     case WM_SYSKEYDOWN:
         // IsKeyBoardCapture만 체크 - 텍스트 입력 중일 때만 차단
         // IsUIHover는 마우스 위치 기준이므로 키보드 입력은 차단하면 안 됨
-        if (!IsKeyBoardCapture)
+        // PIE 모드일 때는 게임 입력을 우선하여 항상 허용
+        if (!IsKeyBoardCapture || GEngine.IsPIEActive())
         {
             // Virtual Key Code 추출
             int KeyCode = static_cast<int>(wParam);
@@ -295,15 +300,16 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
             }
         }
         break;
-        
+
     case WM_KEYUP:
     case WM_SYSKEYUP:
-        if (!IsKeyBoardCapture)  // ImGui가 키보드를 사용하지 않을 때만
+        // PIE 모드일 때는 게임 입력을 우선하여 항상 허용
+        if (!IsKeyBoardCapture || GEngine.IsPIEActive())
         {
             // Virtual Key Code 추출
             int KeyCode = static_cast<int>(wParam);
             UpdateKeyState(KeyCode, false);
-            
+
             // 디버그 출력
             if (bEnableDebugLogging)
             {

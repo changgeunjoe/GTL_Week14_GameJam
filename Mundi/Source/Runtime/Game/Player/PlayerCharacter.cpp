@@ -35,12 +35,23 @@ void APlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
-    // 델리게이트 바인딩
-    if (StatsComponent)
+    // PIE 모드일 때만 StatsComponent 초기화
+    if (GWorld && GWorld->bPie)
     {
-        // StatsComponent->OnHealthChanged.AddDynamic(this, &APlayerCharacter::HandleHealthChanged);
-        // StatsComponent->OnStaminaChanged.AddDynamic(this, &APlayerCharacter::HandleStaminaChanged);
-        // StatsComponent->OnDeath.AddDynamic(this, &APlayerCharacter::HandleDeath);
+        // GetComponent로 StatsComponent 찾기
+        UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+        if (Stats)
+        {
+            // 시작 시 풀 HP/스태미나 설정
+            Stats->RestoreFullHealth();
+            Stats->RestoreFullStamina();
+            UE_LOG("[PlayerCharacter] StatsComponent initialized - HP: %.0f, Stamina: %.0f",
+                   Stats->GetCurrentHealth(), Stats->GetCurrentStamina());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] WARNING: StatsComponent not found!");
+        }
     }
 
     // 히트박스 소유자 설정
@@ -98,6 +109,28 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 
     // SubWeapon 트랜스폼 업데이트 (PlayerCharacter만 사용)
     UpdateSubWeaponTransform();
+
+    // PIE 모드일 때만 StatsComponent 틱 및 GameState 업데이트
+    if (GWorld && GWorld->bPie)
+    {
+        // 매번 GetComponent로 StatsComponent 찾기 (포인터 손상 방지)
+        UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+        if (Stats)
+        {
+            // StatsComponent 틱 (스태미나 회복 등)
+            Stats->TickComponent(DeltaSeconds);
+
+            // GameState에 스태미나/체력 실시간 업데이트
+            if (AGameModeBase* GM = GWorld->GetGameMode())
+            {
+                if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+                {
+                    GS->OnPlayerStaminaChanged(Stats->GetCurrentStamina(), Stats->GetMaxStamina());
+                    GS->OnPlayerHealthChanged(Stats->GetCurrentHealth(), Stats->GetMaxHealth());
+                }
+            }
+        }
+    }
 
     // Only process gameplay when in Fighting state
     if (AGameModeBase* GM = GWorld ? GWorld->GetGameMode() : nullptr)
@@ -222,8 +255,16 @@ void APlayerCharacter::LightAttack()
         return;
     }
 
+    // StatsComponent 찾기
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        UE_LOG("[PlayerCharacter] LightAttack() blocked - no StatsComponent");
+        return;
+    }
+
     // 스태미나 체크
-    if (!StatsComponent->ConsumeStamina(StatsComponent->LightAttackCost))
+    if (!Stats->ConsumeStamina(Stats->LightAttackCost))
     {
         UE_LOG("[PlayerCharacter] LightAttack() blocked - not enough stamina");
         return; // 스태미나 부족
@@ -280,7 +321,8 @@ void APlayerCharacter::HeavyAttack()
         return;
     }
 
-    if (!StatsComponent->ConsumeStamina(StatsComponent->HeavyAttackCost))
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats || !Stats->ConsumeStamina(Stats->HeavyAttackCost))
     {
         return;
     }
@@ -306,7 +348,8 @@ void APlayerCharacter::Dodge()
         return;
     }
 
-    if (!StatsComponent->ConsumeStamina(StatsComponent->DodgeCost))
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats || !Stats->ConsumeStamina(Stats->DodgeCost))
     {
         return;
     }
@@ -405,16 +448,22 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
         return 0.f;
     }
 
+    UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+    if (!Stats)
+    {
+        return 0.f;
+    }
+
     float ActualDamage = DamageInfo.Damage;
 
     // 가드 중이면 데미지 감소
     if (bIsBlocking && DamageInfo.bCanBeBlocked)
     {
         ActualDamage *= 0.2f; // 80% 감소
-        StatsComponent->ConsumeStamina(StatsComponent->BlockCostPerHit);
+        Stats->ConsumeStamina(Stats->BlockCostPerHit);
     }
 
-    StatsComponent->ApplyDamage(ActualDamage);
+    Stats->ApplyDamage(ActualDamage);
 
     // 피격 반응 (가드 중이 아니거나 슈퍼아머가 아니면)
     if (!bIsBlocking)
@@ -427,7 +476,8 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
 bool APlayerCharacter::IsAlive() const
 {
-    return StatsComponent && StatsComponent->IsAlive();
+    UStatsComponent* Stats = Cast<UStatsComponent>(const_cast<APlayerCharacter*>(this)->GetComponent(UStatsComponent::StaticClass()));
+    return Stats && Stats->IsAlive();
 }
 
 bool APlayerCharacter::CanBeHit() const

@@ -12,7 +12,7 @@ local DEBUG_LOG = true  -- false로 바꾸면 로그 끔
 
 local function Log(msg)
     if DEBUG_LOG then
-        print("[BossAI] " .. msg)
+        -- print("[BossAI] " .. msg)
     end
 end
 
