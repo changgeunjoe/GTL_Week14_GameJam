@@ -345,12 +345,17 @@ void AEnemyBase::ExecuteAttackPattern(int PatternIndex)
 
 float AEnemyBase::TakeDamage(const FDamageInfo& DamageInfo)
 {
+    UE_LOG("[EnemyBase] TakeDamage called! Damage: %.1f, CurrentHP: %.1f",
+           DamageInfo.Damage, StatsComponent ? StatsComponent->GetCurrentHealth() : -1.f);
+
     if (!CanBeHit())
     {
+        UE_LOG("[EnemyBase] TakeDamage blocked - CanBeHit() returned false");
         return 0.f;
     }
 
     StatsComponent->ApplyDamage(DamageInfo.Damage);
+    UE_LOG("[EnemyBase] After ApplyDamage - CurrentHP: %.1f", StatsComponent->GetCurrentHealth());
 
     // 슈퍼아머가 없으면 피격 반응
     if (!bHasSuperArmor)

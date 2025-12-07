@@ -33,7 +33,24 @@ ABossEnemy::ABossEnemy()
 
 void ABossEnemy::BeginPlay()
 {
+    // Super::BeginPlay 전에 StatsComponent 값 확인
+    UE_LOG("[BossEnemy] BEFORE Super::BeginPlay - StatsComponent: %p, MaxHealth: %.1f, CurrentHealth: %.1f",
+           StatsComponent,
+           StatsComponent ? StatsComponent->MaxHealth : -1.f,
+           StatsComponent ? StatsComponent->CurrentHealth : -1.f);
+
     Super::BeginPlay();
+
+    // 보스 스탯 강제 설정 (프리팹에서 로드 시 값이 0일 수 있음)
+    if (StatsComponent)
+    {
+        StatsComponent->MaxHealth = 500.f;
+        StatsComponent->CurrentHealth = 100.f;
+        StatsComponent->MaxStamina = 200.f;
+        StatsComponent->CurrentStamina = 200.f;
+        UE_LOG("[BossEnemy] Stats initialized - MaxHealth: %.1f, CurrentHealth: %.1f",
+               StatsComponent->MaxHealth, StatsComponent->CurrentHealth);
+    }
 
     // 페이즈 1 시작
     CurrentPhase = 1;

@@ -127,7 +127,11 @@ protected:
 
 
     // ========== 컴포넌트 ==========
+    //UPROPERTY(EditAnywhere, Category = "Components")
     UStatsComponent* StatsComponent = nullptr;
+
+    // 나중에 발차기용
+    //UPROPERTY(EditAnywhere, Category = "Components")
     UHitboxComponent* HitboxComponent = nullptr;
     UBillboardComponent* LockOnIndicator = nullptr;
 
