@@ -17,6 +17,7 @@ public:
     void Shutdown();
 
     bool IsPlayActive() const { return bPlayActive; }
+    bool IsPIEActive() const { return bPlayActive; }  // Game 모드에서는 PlayActive와 동일
 
     HWND GetHWND() const { return HWnd; }
 

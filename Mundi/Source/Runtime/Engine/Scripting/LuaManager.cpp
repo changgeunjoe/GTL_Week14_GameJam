@@ -15,6 +15,7 @@
 #include "CombatTypes.h"
 #include "SkeletalMeshComponent.h"
 #include "AnimInstance.h"
+#include "PlayerCharacter.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -303,6 +304,137 @@ FLuaManager::FLuaManager()
             return Pawn->GetGameObject();
         }
     );
+
+    // ========================================================================
+    // 플레이어 상태 조회 함수들 (보스 AI용)
+    // ========================================================================
+
+    // 플레이어 전투 상태 반환 (문자열)
+    // "Idle", "Attacking", "Dodging", "Blocking", "Parrying", "Staggered", "Knockback", "Dead"
+    SharedLib.set_function("GetPlayerCombatState",
+        []() -> std::string
+        {
+            if (!GWorld) return "Unknown";
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return "Unknown";
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return "Unknown";
+
+            ECombatState State = Player->GetCombatState();
+            switch (State)
+            {
+            case ECombatState::Idle:      return "Idle";
+            case ECombatState::Attacking: return "Attacking";
+            case ECombatState::Dodging:   return "Dodging";
+            case ECombatState::Blocking:  return "Blocking";
+            case ECombatState::Parrying:  return "Parrying";
+            case ECombatState::Staggered: return "Staggered";
+            case ECombatState::Knockback: return "Knockback";
+            case ECombatState::Dead:      return "Dead";
+            default:                      return "Unknown";
+            }
+        }
+    );
+
+    // 플레이어가 회피 중인지 (무적 상태)
+    SharedLib.set_function("IsPlayerDodging",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Dodging;
+        }
+    );
+
+    // 플레이어가 공격 중인지
+    SharedLib.set_function("IsPlayerAttacking",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Attacking;
+        }
+    );
+
+    // 플레이어가 가드 중인지
+    SharedLib.set_function("IsPlayerBlocking",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsBlocking();
+        }
+    );
+
+    // 플레이어가 패리 중인지
+    SharedLib.set_function("IsPlayerParrying",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsParrying();
+        }
+    );
+
+    // 플레이어가 무적 상태인지 (회피 중 등)
+    SharedLib.set_function("IsPlayerInvincible",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsInvincible();
+        }
+    );
+
+    // 플레이어가 경직 상태인지
+    SharedLib.set_function("IsPlayerStaggered",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->GetCombatState() == ECombatState::Staggered;
+        }
+    );
+
+    // 플레이어가 살아있는지
+    SharedLib.set_function("IsPlayerAlive",
+        []() -> bool
+        {
+            if (!GWorld) return false;
+            AGameModeBase* GameMode = GWorld->GetGameMode();
+            if (!GameMode || !GameMode->PlayerController) return false;
+            APawn* Pawn = GameMode->PlayerController->GetPawn();
+            APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+            if (!Player) return false;
+            return Player->IsAlive();
+        }
+    );
+
     SharedLib.set_function("AddMovementInput",
         [](FGameObject& GameObject, FVector Direction, float Scale)
         {

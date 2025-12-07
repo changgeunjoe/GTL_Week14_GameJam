@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 
 #include <d2d1_1.h>
 #include <dwrite.h>
@@ -16,6 +16,14 @@
 #include "D3D11RHI.h"
 #include "FViewport.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
+#include "PlayerCharacter.h"
+#include "PlayerController.h"
+#include "BossEnemy.h"
+#include "ObjectIterator.h"
+#include "Source/Runtime/Game/Combat/StatsComponent.h"
+#include "Source/Runtime/Engine/Components/SkeletalMeshComponent.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Animation/AnimMontage.h"
 
 #ifdef _EDITOR
 #include "USlateManager.h"
@@ -166,6 +174,23 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         {
             BossNameFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             BossNameFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+        }
+
+        // Debug text format - small monospace for stats display
+        DWriteFactory->CreateTextFormat(
+            L"Consolas",
+            nullptr,
+            DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STYLE_NORMAL,
+            DWRITE_FONT_STRETCH_NORMAL,
+            14.0f,
+            L"en-us",
+            &DebugTextFormat);
+
+        if (DebugTextFormat)
+        {
+            DebugTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+            DebugTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_NEAR);
         }
     }
 
@@ -489,6 +514,7 @@ void UGameOverlayD2D::ReleaseD2DResources()
     SafeRelease(SubtitleBrush);
     SafeRelease(DeathTextBrush);
     SafeRelease(VictoryTextBrush);
+    SafeRelease(DebugTextFormat);
     SafeRelease(BossNameFormat);
     SafeRelease(DeathTextFormat);
     SafeRelease(SubtitleFormat);
@@ -973,6 +999,168 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     DrawSingleBar(StaminaBarY, CurrentPlayerStamina, DelayedPlayerStamina, PlayerStaminaBarBitmap);
 }
 
+void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
+{
+    if (!DebugTextFormat || !SubtitleBrush)
+    {
+        return;
+    }
+
+    if (!GWorld)
+    {
+        return;
+    }
+
+    // ========================================================================
+    // 플레이어 상태 수집
+    // ========================================================================
+    FString PlayerStateStr = "Unknown";
+    float PlayerHP = 0.f;
+    float PlayerMaxHP = 100.f;
+    bool bPlayerBlocking = false;
+    bool bPlayerInvincible = false;
+
+    AGameModeBase* GameMode = GWorld->GetGameMode();
+    if (GameMode && GameMode->PlayerController)
+    {
+        APawn* Pawn = GameMode->PlayerController->GetPawn();
+        APlayerCharacter* Player = Cast<APlayerCharacter>(Pawn);
+        if (Player)
+        {
+            ECombatState State = Player->GetCombatState();
+            switch (State)
+            {
+            case ECombatState::Idle:      PlayerStateStr = "Idle"; break;
+            case ECombatState::Attacking: PlayerStateStr = "Attacking"; break;
+            case ECombatState::Dodging:   PlayerStateStr = "Dodging"; break;
+            case ECombatState::Blocking:  PlayerStateStr = "Blocking"; break;
+            case ECombatState::Parrying:  PlayerStateStr = "Parrying"; break;
+            case ECombatState::Staggered: PlayerStateStr = "Staggered"; break;
+            case ECombatState::Knockback: PlayerStateStr = "Knockback"; break;
+            case ECombatState::Dead:      PlayerStateStr = "Dead"; break;
+            default:                      PlayerStateStr = "Unknown"; break;
+            }
+
+            bPlayerBlocking = Player->IsBlocking();
+            bPlayerInvincible = Player->IsInvincible();
+
+            if (UStatsComponent* Stats = Player->GetStatsComponent())
+            {
+                PlayerHP = Stats->CurrentHealth;
+                PlayerMaxHP = Stats->MaxHealth;
+            }
+        }
+    }
+
+    // ========================================================================
+    // 보스 상태 수집
+    // ========================================================================
+    FString BossStateStr = "No Boss";
+    FString BossAttackStr = "None";
+    int32 BossPhase = 0;
+    float BossHP = 0.f;
+    float BossMaxHP = 100.f;
+    bool bBossSuperArmor = false;
+
+    // 월드의 모든 Actor에서 BossEnemy 찾기
+    for (AActor* Actor : GWorld->GetActors())
+    {
+        ABossEnemy* Boss = Cast<ABossEnemy>(Actor);
+        if (Boss && Boss->IsAlive())
+        {
+            BossPhase = Boss->GetPhase();
+
+            // 보스 상태 (몽타주 재생 여부로 공격 중인지 판단)
+            if (USkeletalMeshComponent* Mesh = Boss->GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    if (AnimInst->Montage_IsPlaying())
+                    {
+                        BossStateStr = "Attacking";
+                        // 현재 재생 중인 몽타주 이름 가져오기
+                        if (UAnimMontage* CurrentMontage = AnimInst->Montage_GetCurrentMontage())
+                        {
+                            BossAttackStr = CurrentMontage->GetName();
+                        }
+                        else
+                        {
+                            BossAttackStr = "Montage Playing";
+                        }
+                    }
+                    else
+                    {
+                        BossStateStr = "Idle";
+                        BossAttackStr = "None";
+                    }
+                }
+            }
+
+            bBossSuperArmor = Boss->HasSuperArmor();
+
+            if (UStatsComponent* Stats = Boss->GetStatsComponent())
+            {
+                BossHP = Stats->CurrentHealth;
+                BossMaxHP = Stats->MaxHealth;
+            }
+            break;  // 첫 번째 보스만
+        }
+    }
+
+    // ========================================================================
+    // 디버그 텍스트 그리기
+    // ========================================================================
+    SubtitleBrush->SetOpacity(0.9f);
+
+    // 배경 반투명 박스
+    ID2D1SolidColorBrush* BgBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.7f), &BgBrush);
+
+    float BoxX = 10.f;
+    float BoxY = 60.f;  // FPS 아래로 이동
+    float BoxW = 280.f;
+    float BoxH = 200.f;
+
+    if (BgBrush)
+    {
+        D2D1_RECT_F BgRect = D2D1::RectF(BoxX, BoxY, BoxX + BoxW, BoxY + BoxH);
+        D2DContext->FillRectangle(BgRect, BgBrush);
+        SafeRelease(BgBrush);
+    }
+
+    // 텍스트 내용 구성
+    wchar_t DebugText[1024];
+    swprintf_s(DebugText, 1024,
+        L"=== PLAYER ===\n"
+        L"State: %hs\n"
+        L"HP: %.0f / %.0f\n"
+        L"Blocking: %hs\n"
+        L"Invincible: %hs\n"
+        L"\n"
+        L"=== BOSS ===\n"
+        L"Phase: %d\n"
+        L"State: %hs\n"
+        L"Attack: %hs\n"
+        L"HP: %.0f / %.0f\n"
+        L"SuperArmor: %hs",
+        PlayerStateStr.c_str(),
+        PlayerHP, PlayerMaxHP,
+        bPlayerBlocking ? "Yes" : "No",
+        bPlayerInvincible ? "Yes" : "No",
+        BossPhase,
+        BossStateStr.c_str(),
+        BossAttackStr.c_str(),
+        BossHP, BossMaxHP,
+        bBossSuperArmor ? "Yes" : "No"
+    );
+
+    D2D1_RECT_F TextRect = D2D1::RectF(BoxX + 10.f, BoxY + 5.f, BoxX + BoxW - 10.f, BoxY + BoxH - 5.f);
+    D2DContext->DrawTextW(DebugText, static_cast<UINT32>(wcslen(DebugText)),
+        DebugTextFormat, TextRect, SubtitleBrush);
+
+    SubtitleBrush->SetOpacity(1.0f);
+}
+
 void UGameOverlayD2D::Draw()
 {
     if (!bInitialized || !SwapChain || !D2DContext || !TitleFormat || !SubtitleFormat || !TextBrush)
@@ -1104,6 +1292,9 @@ void UGameOverlayD2D::Draw()
     default:
         break;
     }
+
+    // 디버그 상태는 항상 표시 (FPS처럼)
+    DrawDebugStats(ScreenW, ScreenH);
 
     // Pop clip and reset transform
     D2DContext->PopAxisAlignedClip();
