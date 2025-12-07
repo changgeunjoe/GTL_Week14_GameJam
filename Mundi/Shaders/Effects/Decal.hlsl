@@ -47,12 +47,14 @@ cbuffer DecalBuffer : register(b6)
 
 // --- 텍스처 리소스 ---
 Texture2D g_DecalTexColor : register(t0);
+Texture2D g_DecalTexNormal : register(t1);
 TextureCubeArray g_ShadowAtlasCube : register(t8);
 Texture2D g_ShadowAtlas2D : register(t9);
 Texture2D<float2> g_VSMShadowAtlas : register(t10);
 TextureCubeArray<float2> g_VSMShadowCube : register(t11);
 
 SamplerState g_Sample : register(s0);
+SamplerState g_Sample2 : register(s1);
 SamplerComparisonState g_ShadowSample : register(s2);
 SamplerState g_VSMSampler : register(s3);
 
@@ -74,6 +76,8 @@ struct PS_INPUT
 #if defined(LIGHTING_MODEL_GOURAUD) || defined(LIGHTING_MODEL_LAMBERT) || defined(LIGHTING_MODEL_PHONG)
     float3 worldPos : POSITION1;    // 조명 계산용
     float3 normal : NORMAL0;        // 조명 계산용
+    float3 tangent : TEXCOORD1;     // 노멀맵용
+    float3 bitangent : TEXCOORD2;   // 노멀맵용
 
     #ifdef LIGHTING_MODEL_GOURAUD
         float4 litColor : COLOR0;   // Pre-calculated lighting (Gouraud)
@@ -102,6 +106,14 @@ PS_INPUT mainVS(VS_INPUT input)
     // 조명 계산을 위한 데이터
     output.worldPos = worldPos.xyz;
     output.normal = normalize(mul(input.normal, (float3x3) WorldInverseTranspose));
+
+    // TBN 계산 (노멀맵용)
+    float3 T = normalize(mul(input.Tangent.xyz, (float3x3) WorldInverseTranspose));
+    float3 N = output.normal;
+    T = normalize(T - dot(T, N) * N);
+    float3 B = cross(N, T) * input.Tangent.w;
+    output.tangent = T;
+    output.bitangent = B;
 
     #ifdef LIGHTING_MODEL_GOURAUD
         // Gouraud: Vertex shader에서 조명 계산
@@ -141,7 +153,7 @@ float4 mainPS(PS_INPUT input) : SV_TARGET
 {
     // 부동 소수점 오차 무시를 위해 Epsilon 사용
     static const float Epsilon = 1e-6f; // 0.000001f
-    
+
     // 1. Decal projection 범위 체크
     float3 ndc = input.decalPos.xyz / input.decalPos.w;
 
@@ -171,6 +183,16 @@ float4 mainPS(PS_INPUT input) : SV_TARGET
 #elif defined(LIGHTING_MODEL_LAMBERT) || defined(LIGHTING_MODEL_PHONG)
     // Lambert/Phong: PS에서 조명 계산
     float3 normal = normalize(input.normal);
+
+    // 노멀맵 적용
+    float4 normalSample = g_DecalTexNormal.Sample(g_Sample2, uv);
+    if (normalSample.a > 0.0f)
+    {
+        float3 normalMap = normalSample.xyz * 2.0f - 1.0f;
+        float3x3 TBN = float3x3(normalize(input.tangent), normalize(input.bitangent), normalize(input.normal));
+        normal = normalize(mul(normalMap, TBN));
+    }
+
     float4 baseColor = decalTexture;
     float specPower = 32.0f;
     float4 viewPos = mul(float4(input.worldPos, 1.0f), ViewMatrix);
