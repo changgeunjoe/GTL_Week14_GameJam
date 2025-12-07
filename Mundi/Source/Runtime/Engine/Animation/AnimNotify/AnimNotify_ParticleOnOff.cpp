@@ -32,11 +32,11 @@ void UAnimNotify_ParticleOnOff::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 		{
 			if (bActivate)
 			{
-				ParticleComp->ActivateSystem();
+				ParticleComp->ResumeSpawning();
 			}
 			else
 			{
-				ParticleComp->DeactivateSystem();
+				ParticleComp->PauseSpawning();
 			}
 		}
 	}

@@ -38,6 +38,9 @@ public:
 	void PauseSimulation() { bTickEnabled = false; }
 	void ResumeSimulation() { bTickEnabled = true; }
 
+	void PauseSpawning() { bSuppressSpawning = true; }
+	void ResumeSpawning() { bSuppressSpawning = false; }
+
 	// Template accessor
 	void SetTemplate(UParticleSystem* InTemplate) { Template = InTemplate; InitParticles(); }
 	UParticleSystem* GetTemplate() const { return Template; }

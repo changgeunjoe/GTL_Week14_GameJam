@@ -2,21 +2,21 @@
   "Notifies" : [{
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-
+        "bActivate" : true
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: On",
-      "TriggerTime" : 0.006597
+      "TriggerTime" : 0.008246
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-
+        "bActivate" : false
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: Off",
-      "TriggerTime" : 0.936806
+      "TriggerTime" : 0.933506
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
