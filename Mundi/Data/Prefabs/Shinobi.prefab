@@ -79,7 +79,7 @@
       "CurrentHealth" : 100.000000,
       "CurrentStamina" : 0.000000,
       "DodgeCost" : 20.000000,
-      "FocusChargeRate" : 15.000000,
+      "FocusChargeRate" : 60.000000,
       "HeavyAttackCost" : 30.000000,
       "LightAttackCost" : 20.000000,
       "MaxFocus" : 100.000000,

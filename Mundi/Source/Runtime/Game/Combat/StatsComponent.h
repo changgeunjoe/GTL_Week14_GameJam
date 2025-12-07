@@ -173,7 +173,7 @@ public:
     float CurrentFocus = 0.f;
 
     UPROPERTY(EditAnywhere, Category = "Focus", Tooltip = "차징 시 초당 충전량")
-    float FocusChargeRate = 30.f;
+    float FocusChargeRate = 60.f;
 
 private:
     float TimeSinceStaminaUse = 0.f;
