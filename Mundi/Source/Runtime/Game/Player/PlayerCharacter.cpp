@@ -751,11 +751,12 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
     float ActualDamage = DamageInfo.Damage;
 
-    // 가드 중이면 데미지 감소
+    // 가드 중이면 데미지 완전 막기
     if (bIsBlocking && DamageInfo.bCanBeBlocked)
     {
-        ActualDamage *= 0.2f; // 80% 감소
         Stats->ConsumeStamina(Stats->BlockCostPerHit);
+        UE_LOG("[PlayerCharacter] Attack blocked! Damage negated.");
+        return 0.f;  // 데미지 0
     }
 
     Stats->ApplyDamage(ActualDamage);
