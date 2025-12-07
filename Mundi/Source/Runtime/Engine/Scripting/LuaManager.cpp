@@ -530,6 +530,58 @@ FLuaManager::FLuaManager()
             }
         });
 
+    // 보스 패턴 이름 설정 (디버그 오버레이용)
+    // 사용법: SetBossPatternName(Obj, "PunishAttack")
+    SharedLib.set_function("SetBossPatternName", [](FGameObject& Obj, const FString& PatternName)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetCurrentPatternName(PatternName);
+                }
+            }
+        });
+
+    // 보스 AI 상태 설정 (디버그 오버레이용)
+    // 사용법: SetBossAIState(Obj, "Strafing")
+    SharedLib.set_function("SetBossAIState", [](FGameObject& Obj, const FString& State)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetAIState(State);
+                }
+            }
+        });
+
+    // 보스 이동 타입 설정 (디버그 오버레이용)
+    // 사용법: SetBossMovementType(Obj, "Strafe_L")
+    SharedLib.set_function("SetBossMovementType", [](FGameObject& Obj, const FString& Type)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetMovementType(Type);
+                }
+            }
+        });
+
+    // 보스와 플레이어 사이 거리 설정 (디버그 오버레이용)
+    // 사용법: SetBossDistanceToPlayer(Obj, 5.5)
+    SharedLib.set_function("SetBossDistanceToPlayer", [](FGameObject& Obj, float Distance)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                {
+                    Boss->SetDistanceToPlayer(Distance);
+                }
+            }
+        });
+
     // 히트박스 활성화 (Lua용)
     // 사용법: EnableHitbox(Obj, damage, damageType, extentX, extentY, extentZ)
     // damageType: "Light", "Heavy", "Special"
