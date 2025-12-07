@@ -4,6 +4,7 @@
 #include "CameraComponent.h"
 #include "SpringArmComponent.h"
 #include "TargetingComponent.h"
+#include "InputManager.h"
 #include "InputComponent.h"
 #include <windows.h>
 #include <cmath>
@@ -85,6 +86,16 @@ void APlayerController::SetupInput()
     InputComponent->MapAxisToMouseX(FName("LookRight"), 1.0f);
     InputComponent->MapAxisToMouseY(FName("LookUp"), 1.0f);
 
+    // ========================
+    // Gamepad Mappings (equivalents)
+    // ========================
+    // Left stick -> Move
+    InputComponent->MapAxisToGamepad(FName("MoveForward"), UInputManager::EGamepadAxis::LeftY, 1.0f);
+    InputComponent->MapAxisToGamepad(FName("MoveRight"),   UInputManager::EGamepadAxis::LeftX, 1.0f);
+    // Right stick -> Look
+    InputComponent->MapAxisToGamepad(FName("LookRight"), UInputManager::EGamepadAxis::RightX, 1.0f);
+    InputComponent->MapAxisToGamepad(FName("LookUp"),    UInputManager::EGamepadAxis::RightY, 1.0f);
+
     // 액션 키
     InputComponent->MapActionToKey(FName("Jump"), 'F');
     InputComponent->MapActionToKey(FName("Dodge"), VK_SPACE);
@@ -97,6 +108,18 @@ void APlayerController::SetupInput()
     InputComponent->MapActionToKey(FName("Sprint"), VK_SHIFT);
     InputComponent->MapActionToKey(FName("Block"), VK_RBUTTON);
     InputComponent->MapActionToKey(FName("Charging"), 'Y');
+
+    // Gamepad actions
+    InputComponent->MapActionToGamepad(FName("Jump"),            UInputManager::EGamepadButton::A);
+    InputComponent->MapActionToGamepad(FName("Dodge"),           UInputManager::EGamepadButton::B);
+    InputComponent->MapActionToGamepad(FName("ToggleLockOn"),    UInputManager::EGamepadButton::RightThumb);
+    InputComponent->MapActionToGamepad(FName("SwitchTargetLeft"),UInputManager::EGamepadButton::DPadLeft);
+    InputComponent->MapActionToGamepad(FName("DashAttack"),      UInputManager::EGamepadButton::RightShoulder);
+    InputComponent->MapActionToGamepad(FName("UltimateAttack"),  UInputManager::EGamepadButton::LeftShoulder);
+    InputComponent->MapActionToGamepad(FName("Attack"),          UInputManager::EGamepadButton::X);
+    InputComponent->MapActionToGamepad(FName("Sprint"),          UInputManager::EGamepadButton::RightTriggerBtn);
+    InputComponent->MapActionToGamepad(FName("Block"),           UInputManager::EGamepadButton::LeftTriggerBtn);
+    InputComponent->MapActionToGamepad(FName("Charging"),        UInputManager::EGamepadButton::Y);
 
     // ========================================================================
     // 바인딩 설정

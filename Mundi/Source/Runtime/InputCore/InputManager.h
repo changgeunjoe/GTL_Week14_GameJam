@@ -2,6 +2,10 @@
 
 #include <windows.h>
 #include <cmath>
+#include <memory>
+
+// DirectXTK GamePad
+#include "GamePad.h"
 
 #include "Object.h"
 #include "Vector.h"
@@ -118,4 +122,64 @@ private:
 
     // 뷰포트 윈도우 체크 콜백
     ViewportCheckCallback ViewportChecker = nullptr;
+
+public:
+    // ========================
+    // Gamepad Support (XInput)
+    // ========================
+    enum class EGamepadButton : uint16_t
+    {
+        A,
+        B,
+        X,
+        Y,
+        LeftShoulder,
+        RightShoulder,
+        LeftTriggerBtn,   // treated as button via threshold
+        RightTriggerBtn,  // treated as button via threshold
+        Back,
+        Start,
+        LeftThumb,
+        RightThumb,
+        DPadUp,
+        DPadDown,
+        DPadLeft,
+        DPadRight,
+    };
+
+    enum class EGamepadAxis : uint8_t
+    {
+        LeftX,
+        LeftY,
+        RightX,
+        RightY,
+        LeftTrigger,
+        RightTrigger,
+    };
+
+    // Controller 0 by default (single-player)
+    void SetGamepadPlayerIndex(int index) { GamepadPlayerIndex = index; }
+    bool IsGamepadConnected() const { return bGamepadConnected; }
+
+    bool IsGamepadButtonDown(EGamepadButton Button) const;
+    bool IsGamepadButtonPressed(EGamepadButton Button) const;
+    bool IsGamepadButtonReleased(EGamepadButton Button) const;
+
+    // Returns -1..1 for sticks, 0..1 for triggers
+    float GetGamepadAxis(EGamepadAxis Axis) const;
+
+    // Trigger-as-button threshold (0..1)
+    void SetTriggerButtonThreshold(float t) { TriggerButtonThreshold = (t < 0.f ? 0.f : (t > 1.f ? 1.f : t)); }
+    float GetTriggerButtonThreshold() const { return TriggerButtonThreshold; }
+
+private:
+    // ================
+    // Gamepad members
+    // ================
+    std::unique_ptr<DirectX::GamePad> Gamepad;
+    DirectX::GamePad::State GamepadState{};
+    DirectX::GamePad::State PrevGamepadState{};
+    bool bGamepadConnected = false;
+    int GamepadPlayerIndex = 0;
+    float TriggerButtonThreshold = 0.5f;
 };

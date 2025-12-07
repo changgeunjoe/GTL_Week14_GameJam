@@ -75,6 +75,23 @@ void UInputComponent::MapAxisToKey(const FName& AxisName, int32 Key, float Scale
     AxisKeyMappings.Add(Mapping);
 }
 
+void UInputComponent::MapActionToGamepad(const FName& ActionName, UInputManager::EGamepadButton Button)
+{
+    FInputActionGamepadMapping Mapping;
+    Mapping.ActionName = ActionName;
+    Mapping.Button = Button;
+    ActionGamepadMappings.Add(Mapping);
+}
+
+void UInputComponent::MapAxisToGamepad(const FName& AxisName, UInputManager::EGamepadAxis Axis, float Scale)
+{
+    FInputAxisGamepadMapping Mapping;
+    Mapping.AxisName = AxisName;
+    Mapping.Axis = Axis;
+    Mapping.Scale = Scale;
+    AxisGamepadMappings.Add(Mapping);
+}
+
 void UInputComponent::MapAxisToMouseX(const FName& AxisName, float Scale)
 {
     MouseXAxisName = AxisName;
@@ -190,6 +207,35 @@ void UInputComponent::ProcessActionBindings()
         }
         PreviousKeyStates[Mapping.Key] = bCurrentlyDown;
     }
+
+    // Process gamepad action mappings
+    if (InputManager.IsGamepadConnected())
+    {
+        for (const FInputActionGamepadMapping& GPMap : ActionGamepadMappings)
+        {
+            if (IsActionBlocked(GPMap.ActionName))
+                continue;
+
+            for (const FInputActionBinding& Binding : ActionBindings)
+            {
+                if (Binding.ActionName == GPMap.ActionName)
+                {
+                    bool fire = false;
+                    switch (Binding.EventType)
+                    {
+                    case EInputEvent::Pressed:  fire = InputManager.IsGamepadButtonPressed(GPMap.Button); break;
+                    case EInputEvent::Released: fire = InputManager.IsGamepadButtonReleased(GPMap.Button); break;
+                    case EInputEvent::Held:     fire = InputManager.IsGamepadButtonDown(GPMap.Button); break;
+                    default: break;
+                    }
+                    if (fire && Binding.Callback)
+                    {
+                        Binding.Callback();
+                    }
+                }
+            }
+        }
+    }
 }
 
 void UInputComponent::ProcessAxisBindings()
@@ -297,6 +343,18 @@ float UInputComponent::GetAxisValue(const FName& AxisName)
             if (InputManager.IsKeyDown(Mapping.Key))
             {
                 Value += Mapping.Scale;
+            }
+        }
+    }
+
+    // Gamepad axis contributions
+    if (InputManager.IsGamepadConnected())
+    {
+        for (const FInputAxisGamepadMapping& GPMap : AxisGamepadMappings)
+        {
+            if (GPMap.AxisName == AxisName)
+            {
+                Value += InputManager.GetGamepadAxis(GPMap.Axis) * GPMap.Scale;
             }
         }
     }
