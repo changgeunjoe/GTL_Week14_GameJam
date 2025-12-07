@@ -10,9 +10,9 @@
 UCLASS(DisplayName = "파티클 컴포넌트", Description = "파티클을 생성하는 컴포넌트")
 class UParticleSystemComponent : public UPrimitiveComponent
 {
-public: 
+public:
 	GENERATED_REFLECTION_BODY()
-	DECLARE_DELEGATE(OnParticleSystemFinished, UParticleSystemComponent*);
+		DECLARE_DELEGATE(OnParticleSystemFinished, UParticleSystemComponent*);
 
 public:
 	UParticleSystemComponent();
@@ -39,7 +39,9 @@ public:
 	void ResumeSimulation() { bTickEnabled = true; }
 
 	void PauseSpawning() { bSuppressSpawning = true; }
-	void ResumeSpawning() { bSuppressSpawning = false; }
+	void ResumeSpawning() { bSuppressSpawning = false;  bTickEnabled = true; }
+
+	bool IsSpawning() { return !bSuppressSpawning; }
 
 	// Template accessor
 	void SetTemplate(UParticleSystem* InTemplate) { Template = InTemplate; InitParticles(); }
@@ -54,6 +56,9 @@ public:
 	void RenderDebugVolume(class URenderer* Renderer) const override;
 
 	FString GetParticleName() { return ParticleName; }
+	void SetParticleIndex(int inIdx) { ParticleIndex = inIdx; }
+	int GetParticleIndex() { return ParticleIndex; }
+
 private:
 	// sprite, mesh 나눠 BuildBatch
 	void BuildSpriteParticleBatch(TArray<FDynamicEmitterDataBase*>& EmitterRenderData, TArray<FMeshBatchElement>& OutMeshBatchElements, const FSceneView* View);
@@ -79,6 +84,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Particle", DisplayName = "파티클 이름")
 	FString ParticleName = "";
+
+	UPROPERTY(EditAnywhere, Category = "Particle", DisplayName = "파티클 인덱스")
+	int ParticleIndex = 0;
 
 	// Runtime Data
 	TArray<FParticleEmitterInstance*> EmitterInstances;	

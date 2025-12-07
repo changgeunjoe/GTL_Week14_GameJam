@@ -3227,10 +3227,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
 
 						if (ImGui::InputText("Particle Name", ParticleNameBuffer, sizeof(ParticleNameBuffer)))
 						{
-							ParticleOnOffNotify->ParticleName = ParticleNameBuffer;
-							MarkNotifiesDirty(State);
+						    ParticleOnOffNotify->ParticleName = ParticleNameBuffer;
+						    MarkNotifiesDirty(State);
 						}
-						if (ImGui::IsItemHovered())
+                        if (ImGui::IsItemHovered())
 						{
 							ImGui::SetTooltip("Name of the particle component to target.\nLeave empty or use 'All' to target all particles.");
 						}

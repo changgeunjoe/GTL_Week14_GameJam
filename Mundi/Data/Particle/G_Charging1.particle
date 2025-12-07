@@ -10,15 +10,15 @@
                     "bEnabled" : true
                   }, {
                     "StartSize_Max" : [10.000000, 10.000000, 10.000000],
-                    "StartSize_Min" : [3.000000, 3.000000, 3.000000],
+                    "StartSize_Min" : [2.500000, 2.500000, 2.500000],
                     "StartSize_bUseRange" : false,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [0.000000, 0.000000, 0.000000],
-                    "Point2Time" : 3.000000,
-                    "Point2Value" : [1.000000, 1.000000, 1.000000],
+                    "Point2Time" : 0.673854,
+                    "Point2Value" : [0.750000, 0.750000, 0.750000],
                     "Type" : "SizeMultiplyLife",
                     "bEnabled" : true,
                     "bMultiplyX" : true,
@@ -42,7 +42,7 @@
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 1,
-                  "DiffuseTexture" : "Data/Textures/A_Smoke_B.PNG",
+                  "DiffuseTexture" : "Data/UI/Icons/WhiteSpot.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,
@@ -83,21 +83,21 @@
                 "LODIndex" : 0,
                 "Modules" : [{
                     "Lifetime_Max" : 1.000000,
-                    "Lifetime_Min" : 2.000000,
+                    "Lifetime_Min" : 1.000000,
                     "Lifetime_bUseRange" : false,
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
                     "StartSize_Max" : [10.000000, 10.000000, 10.000000],
-                    "StartSize_Min" : [3.000000, 3.000000, 3.000000],
+                    "StartSize_Min" : [2.500000, 2.500000, 2.500000],
                     "StartSize_bUseRange" : false,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [0.000000, 0.000000, 0.000000],
-                    "Point2Time" : 3.000000,
-                    "Point2Value" : [1.000000, 1.000000, 1.000000],
+                    "Point2Time" : 0.700809,
+                    "Point2Value" : [0.750000, 0.750000, 0.750000],
                     "Type" : "SizeMultiplyLife",
                     "bEnabled" : true,
                     "bMultiplyX" : true,

@@ -13,6 +13,7 @@ class UAnimMontage;
 class UParticleSystem;
 class UParticleSystemComponent;
 class UCamMod_Shake;
+class AGameState;
 
 // ============================================================================
 // APlayerCharacter - 플레이어 캐릭터 예시
@@ -86,6 +87,7 @@ public:
     // ========================================================================
     UStatsComponent* GetStatsComponent() const { return StatsComponent; }
 
+    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
 protected:
     // ========================================================================
     // 입력 처리
@@ -131,6 +133,7 @@ protected:
     UCameraComponent* Camera = nullptr;
 
     // ========== 전투 상태 ==========
+    AGameState* GS = nullptr;
     ECombatState CombatState = ECombatState::Idle;
 
     // ========== 상태 플래그 ==========
@@ -356,6 +359,5 @@ protected:
     // Effect
     // Charging Effect
     void GatherParticles();
-    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
     bool bWasCharging = false;
 };

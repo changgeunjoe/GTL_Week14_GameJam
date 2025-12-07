@@ -5,6 +5,7 @@ IMPLEMENT_CLASS(UAnimNotifyParticleComponent)
 
 UAnimNotifyParticleComponent::UAnimNotifyParticleComponent()
 {
+	ParticleIndex = 0;
 }
 
 void UAnimNotifyParticleComponent::SetForcedLifeTime(float InSeconds)

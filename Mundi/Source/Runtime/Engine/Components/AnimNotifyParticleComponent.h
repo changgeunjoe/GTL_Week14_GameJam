@@ -9,6 +9,8 @@ public:
 
     UAnimNotifyParticleComponent();
 
+	int ParticleIndex = 0;
+
     void TickComponent(float DeltaTime) override;
 
     void SetForcedLifeTime(float InSeconds);
