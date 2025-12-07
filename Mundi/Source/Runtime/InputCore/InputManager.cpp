@@ -22,6 +22,9 @@ UInputManager::UInputManager()
     memset(PreviousMouseButtons, false, sizeof(PreviousMouseButtons));
     memset(KeyStates, false, sizeof(KeyStates));
     memset(PreviousKeyStates, false, sizeof(PreviousKeyStates));
+
+    // Initialize gamepad helper
+    Gamepad = std::make_unique<DirectX::GamePad>();
 }
 
 UInputManager::~UInputManager()
@@ -114,6 +117,19 @@ void UInputManager::Update()
 
     memcpy(PreviousMouseButtons, MouseButtons, sizeof(MouseButtons));
     memcpy(PreviousKeyStates, KeyStates, sizeof(KeyStates));
+
+    // Poll gamepad state (player index)
+    PrevGamepadState = GamepadState;
+    GamepadState = {};
+    if (Gamepad)
+    {
+        auto state = Gamepad->GetState(GamepadPlayerIndex, DirectX::GamePad::DEAD_ZONE_INDEPENDENT_AXES);
+        bGamepadConnected = state.IsConnected();
+        if (bGamepadConnected)
+        {
+            GamepadState = state;
+        }
+    }
 }
 
 void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -500,5 +516,67 @@ void UInputManager::LockCursorToCenter()
         // 동기화 (첫 프레임 델타 0)
         MousePosition = LockedCursorPosition;
         PreviousMousePosition = LockedCursorPosition;
+    }
+}
+
+// ========================
+// Gamepad helpers
+// ========================
+static inline bool IM_GetGamepadButtonBit(const DirectX::GamePad::State& st, UInputManager::EGamepadButton btn, float trigThreshold)
+{
+    switch (btn)
+    {
+    case UInputManager::EGamepadButton::A:            return st.buttons.a;
+    case UInputManager::EGamepadButton::B:            return st.buttons.b;
+    case UInputManager::EGamepadButton::X:            return st.buttons.x;
+    case UInputManager::EGamepadButton::Y:            return st.buttons.y;
+    case UInputManager::EGamepadButton::LeftShoulder: return st.buttons.leftShoulder;
+    case UInputManager::EGamepadButton::RightShoulder:return st.buttons.rightShoulder;
+    case UInputManager::EGamepadButton::LeftTriggerBtn:  return st.triggers.left  >= trigThreshold;
+    case UInputManager::EGamepadButton::RightTriggerBtn: return st.triggers.right >= trigThreshold;
+    case UInputManager::EGamepadButton::Back:         return st.buttons.back;
+    case UInputManager::EGamepadButton::Start:        return st.buttons.start;
+    case UInputManager::EGamepadButton::LeftThumb:    return st.buttons.leftStick;
+    case UInputManager::EGamepadButton::RightThumb:   return st.buttons.rightStick;
+    case UInputManager::EGamepadButton::DPadUp:       return st.dpad.up;
+    case UInputManager::EGamepadButton::DPadDown:     return st.dpad.down;
+    case UInputManager::EGamepadButton::DPadLeft:     return st.dpad.left;
+    case UInputManager::EGamepadButton::DPadRight:    return st.dpad.right;
+    default: return false;
+    }
+}
+
+bool UInputManager::IsGamepadButtonDown(EGamepadButton Button) const
+{
+    if (!bGamepadConnected) return false;
+    return IM_GetGamepadButtonBit(GamepadState, Button, TriggerButtonThreshold);
+}
+
+bool UInputManager::IsGamepadButtonPressed(EGamepadButton Button) const
+{
+    if (!bGamepadConnected) return false;
+    return IM_GetGamepadButtonBit(GamepadState, Button, TriggerButtonThreshold)
+        && !IM_GetGamepadButtonBit(PrevGamepadState, Button, TriggerButtonThreshold);
+}
+
+bool UInputManager::IsGamepadButtonReleased(EGamepadButton Button) const
+{
+    if (!bGamepadConnected) return false;
+    return !IM_GetGamepadButtonBit(GamepadState, Button, TriggerButtonThreshold)
+        &&  IM_GetGamepadButtonBit(PrevGamepadState, Button, TriggerButtonThreshold);
+}
+
+float UInputManager::GetGamepadAxis(EGamepadAxis Axis) const
+{
+    if (!bGamepadConnected) return 0.0f;
+    switch (Axis)
+    {
+    case EGamepadAxis::LeftX:       return GamepadState.thumbSticks.leftX;  // -1..1
+    case EGamepadAxis::LeftY:       return GamepadState.thumbSticks.leftY;  // -1..1 (up positive)
+    case EGamepadAxis::RightX:      return GamepadState.thumbSticks.rightX; // -1..1
+    case EGamepadAxis::RightY:      return GamepadState.thumbSticks.rightY; // -1..1
+    case EGamepadAxis::LeftTrigger: return GamepadState.triggers.left;      // 0..1
+    case EGamepadAxis::RightTrigger:return GamepadState.triggers.right;     // 0..1
+    default: return 0.0f;
     }
 }

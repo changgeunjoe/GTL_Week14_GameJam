@@ -45,7 +45,7 @@ void UAnimNotify_ParticleOnOff::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 					CompName = ParticleComp->GetName();
 				}
 
-				if (CompName == ParticleName)
+				if (CompName.find(ParticleName) != FString::npos)
 				{
 					bMatch = true;
 				}

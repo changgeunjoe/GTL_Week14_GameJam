@@ -410,6 +410,7 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
         {
             const UAnimNotify_ParticleOnOff* ParticleOnOff = static_cast<const UAnimNotify_ParticleOnOff*>(Evt.Notify);
             Data["bActivate"] = ParticleOnOff->bActivate;
+            Data["ParticleName"] = ParticleOnOff->ParticleName.c_str();
         }
         else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayCamera>())
         {
@@ -643,6 +644,10 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 if (DataPtr->hasKey("bActivate"))
                 {
                     ParticleOnOff->bActivate = DataPtr->at("bActivate").ToBool();
+                }
+                if (DataPtr->hasKey("ParticleName"))
+                {
+                    ParticleOnOff->ParticleName = DataPtr->at("ParticleName").ToString();
                 }
             }
             Evt.Notify = ParticleOnOff;

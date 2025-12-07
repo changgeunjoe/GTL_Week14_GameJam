@@ -252,6 +252,78 @@ IXAudio2SourceVoice* FAudioDevice::PlaySound3D(USound* SoundToPlay, const FVecto
     return voice;
 }
 
+IXAudio2SourceVoice* FAudioDevice::PlaySound2D(USound* SoundToPlay, float Volume, bool bIsLooping)
+{
+    if (bIsShuttingDown || !pXAudio2 || !pMasteringVoice || !SoundToPlay)
+        return nullptr;
+
+    const WAVEFORMATEX& fmt = SoundToPlay->GetWaveFormat();
+    const uint8* pcm = SoundToPlay->GetPCMData();
+    const uint32 size = SoundToPlay->GetPCMSize();
+    if (!pcm || size == 0)
+        return nullptr;
+
+    IXAudio2SourceVoice* voice = nullptr;
+    HRESULT hr = pXAudio2->CreateSourceVoice(&voice, &fmt);
+    if (FAILED(hr) || !voice)
+    {
+        UE_LOG("[Audio] CreateSourceVoice failed: 0x%08x", static_cast<UINT32>(hr));
+        return nullptr;
+    }
+
+    XAUDIO2_BUFFER buf{};
+    buf.pAudioData = pcm;
+    buf.AudioBytes = size;
+    if (bIsLooping)
+    {
+        if (fmt.nBlockAlign > 0)
+        {
+            const uint32 totalFrames = size / fmt.nBlockAlign;
+            if (totalFrames > 0)
+            {
+                buf.LoopBegin = 0;
+                buf.LoopLength = totalFrames;
+                buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+                buf.Flags = 0;
+            }
+            else
+            {
+                buf.Flags = XAUDIO2_END_OF_STREAM;
+            }
+        }
+        else
+        {
+            buf.Flags = XAUDIO2_END_OF_STREAM;
+        }
+    }
+    else
+    {
+        buf.Flags = XAUDIO2_END_OF_STREAM;
+    }
+
+    hr = voice->SubmitSourceBuffer(&buf);
+    if (FAILED(hr))
+    {
+        UE_LOG("[Audio] SubmitSourceBuffer failed: 0x%08x", static_cast<UINT32>(hr));
+        voice->DestroyVoice();
+        return nullptr;
+    }
+
+    voice->SetVolume(Volume);
+    // No 3D positioning - sound plays at center (equal left/right)
+
+    hr = voice->Start(0);
+    if (FAILED(hr))
+    {
+        UE_LOG("[Audio] Start voice failed: 0x%08x", static_cast<UINT32>(hr));
+        voice->DestroyVoice();
+        return nullptr;
+    }
+
+    RegisterVoice(voice);
+    return voice;
+}
+
 void FAudioDevice::SetListenerPosition(const FVector& Position, const FVector& ForwardVec, const FVector& UpVec)
 {
     Listener.Position = X3DAUDIO_VECTOR{ Position.X, Position.Y, Position.Z };
@@ -446,6 +518,38 @@ void FAudioDevice::PlaySoundAtLocationOneShot(USound* Sound, const FVector& Pos,
 
     OneShotVoices.push_back(voice);
 }
+
+void FAudioDevice::PlaySound2DOneShot(USound* Sound, float Volume, float Pitch)
+{
+    if (bIsShuttingDown || !pXAudio2 || !pMasteringVoice || !Sound) return;
+
+    const WAVEFORMATEX& fmt = Sound->GetWaveFormat();
+    const uint8* pcm = Sound->GetPCMData();
+    const uint32 size = Sound->GetPCMSize();
+    if (!pcm || size == 0) return;
+
+    IXAudio2SourceVoice* voice = nullptr;
+    HRESULT hr = pXAudio2->CreateSourceVoice(&voice, &fmt);
+    if (FAILED(hr) || !voice) return;
+
+    XAUDIO2_BUFFER buf{};
+    buf.pAudioData = pcm;
+    buf.AudioBytes = size;
+    buf.Flags = XAUDIO2_END_OF_STREAM;
+
+    hr = voice->SubmitSourceBuffer(&buf);
+    if (FAILED(hr)) { voice->DestroyVoice(); return; }
+
+    voice->SetVolume(Volume);
+    if (Pitch > 0.f) voice->SetFrequencyRatio(Pitch);
+    // No 3D positioning - plays centered
+
+    hr = voice->Start(0);
+    if (FAILED(hr)) { voice->DestroyVoice(); return; }
+
+    OneShotVoices.push_back(voice);
+}
+
 void FAudioDevice::StopSound(IXAudio2SourceVoice* pSourceVoice)
 {
     // XAudio2가 이미 종료되었으면 voice 조작 불가 (crash 방지)

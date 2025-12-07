@@ -47,6 +47,9 @@ public:
     UPROPERTY(EditAnywhere, Category="Audio", Tooltip="Auto play on BeginPlay")
     bool  bAutoPlay;
 
+    UPROPERTY(EditAnywhere, Category="Audio", Tooltip="Use 3D spatial audio (position-based panning). Disable for UI/music.")
+    bool  bIs3D;
+
     // Duplication
     virtual void DuplicateSubObjects() override;
 

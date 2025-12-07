@@ -4,6 +4,8 @@
 #include <functional>
 #include <unordered_map>
 
+#include "InputManager.h"
+
 // 입력 이벤트 타입
 enum class EInputEvent
 {
@@ -44,6 +46,21 @@ struct FInputAxisKeyMapping
     FName AxisName;
     int32 Key;
     float Scale = 1.0f; // 양수/음수로 방향 지정
+};
+
+// Gamepad action mapping
+struct FInputActionGamepadMapping
+{
+    FName ActionName;
+    UInputManager::EGamepadButton Button;
+};
+
+// Gamepad axis mapping
+struct FInputAxisGamepadMapping
+{
+    FName AxisName;
+    UInputManager::EGamepadAxis Axis;
+    float Scale = 1.0f;
 };
 
 // ============================================================================
@@ -94,6 +111,10 @@ public:
     void MapActionToKey(const FName& ActionName, int32 Key, bool bShift = false, bool bCtrl = false, bool bAlt = false);
     void MapAxisToKey(const FName& AxisName, int32 Key, float Scale = 1.0f);
 
+    // Gamepad mappings
+    void MapActionToGamepad(const FName& ActionName, UInputManager::EGamepadButton Button);
+    void MapAxisToGamepad(const FName& AxisName, UInputManager::EGamepadAxis Axis, float Scale = 1.0f);
+
     // 마우스 축 매핑
     void MapAxisToMouseX(const FName& AxisName, float Scale = 1.0f);
     void MapAxisToMouseY(const FName& AxisName, float Scale = 1.0f);
@@ -130,6 +151,8 @@ private:
 
     TArray<FInputActionKeyMapping> ActionKeyMappings;
     TArray<FInputAxisKeyMapping> AxisKeyMappings;
+    TArray<FInputActionGamepadMapping> ActionGamepadMappings;
+    TArray<FInputAxisGamepadMapping> AxisGamepadMappings;
 
     // 마우스 축 매핑
     FName MouseXAxisName;
