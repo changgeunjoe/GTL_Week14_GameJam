@@ -565,7 +565,7 @@ void APlayerCharacter::Dodge()
 
     StopBlock();
     SetCombatState(ECombatState::Dodging);
-    bIsInvincible = true;
+    // Dodge는 피격 모션만 무시, 데미지는 받음 (bIsInvincible 설정 안 함)
 
     // 입력 방향에 따라 8방향 구르기 몽타주 선택
     int32 DodgeIndex = GetDodgeDirectionIndex();
@@ -785,8 +785,8 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
         return ActualDamage;
     }
 
-    // 피격 반응 (가드 중이 아니거나 슈퍼아머가 아니면)
-    if (!bIsBlocking)
+    // 피격 반응 (가드 중이 아니고, Dodging 중이 아닐 때만)
+    if (!bIsBlocking && CombatState != ECombatState::Dodging)
     {
         OnHitReaction(DamageInfo.HitReaction, DamageInfo);
     }
@@ -822,13 +822,16 @@ void APlayerCharacter::OnHitReaction(EHitReaction Reaction, const FDamageInfo& D
         return;
     }
 
-    // 대쉬 공격/궁극기 사용 중에는 피격 몽타주 스킵 (슈퍼아머)
-    EDamageType CurrentAttackType = GetWeaponDamageInfo().DamageType;
-    if (CurrentAttackType == EDamageType::DashAttack || CurrentAttackType == EDamageType::UltimateAttack)
+    // 대쉬 공격/궁극기 사용 중에는 피격 몽타주 스킵 (슈퍼아머) - 실제 공격 중일 때만
+    if (CombatState == ECombatState::Attacking)
     {
-        UE_LOG("[PlayerCharacter] Hit reaction skipped - %s has super armor",
-            CurrentAttackType == EDamageType::DashAttack ? "DashAttack" : "UltimateAttack");
-        return;
+        EDamageType CurrentAttackType = GetWeaponDamageInfo().DamageType;
+        if (CurrentAttackType == EDamageType::DashAttack || CurrentAttackType == EDamageType::UltimateAttack)
+        {
+            UE_LOG("[PlayerCharacter] Hit reaction skipped - %s has super armor",
+                CurrentAttackType == EDamageType::DashAttack ? "DashAttack" : "UltimateAttack");
+            return;
+        }
     }
 
     // 현재 공격/회피 중단
