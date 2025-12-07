@@ -42,6 +42,7 @@ BEGIN_PROPERTIES(UAudioComponent)
     ADD_PROPERTY(float, Pitch, "Audio", true, "Pitch (frequency ratio)")
     ADD_PROPERTY(bool, bIsLooping, "Audio", true, "Loop playback")
     ADD_PROPERTY(bool, bAutoPlay, "Audio", true, "Auto play on BeginPlay")
+    ADD_PROPERTY(bool, bIs3D, "Audio", true, "Use 3D spatial audio (position-based panning). Disable for UI/music.")
 END_PROPERTIES()
 
 // ===== Lua Binding =====

@@ -18,6 +18,7 @@ UAudioComponent::UAudioComponent()
     , Pitch(1.0f)
     , bIsLooping(false)
     , bAutoPlay(true)
+    , bIs3D(false)
     , bIsPlaying(false)
 {
 }
@@ -53,8 +54,12 @@ void UAudioComponent::TickComponent(float DeltaTime)
 
     if (bIsPlaying && SourceVoice)
     {
-        FVector CurrentLocation = GetWorldLocation();
-        FAudioDevice::UpdateSoundPosition(SourceVoice, CurrentLocation);
+        // Only update 3D position if spatial audio is enabled
+        if (bIs3D)
+        {
+            FVector CurrentLocation = GetWorldLocation();
+            FAudioDevice::UpdateSoundPosition(SourceVoice, CurrentLocation);
+        }
 
         if (!bIsLooping)
         {
@@ -113,8 +118,16 @@ void UAudioComponent::PlaySlot(uint32 SlotIndex)
     if (!Selected) return;
     //if (bIsPlaying) return;
 
-    FVector CurrentLocation = GetWorldLocation();
-    SourceVoice = FAudioDevice::PlaySound3D(Selected, CurrentLocation, Volume, bIsLooping);
+    if (bIs3D)
+    {
+        FVector CurrentLocation = GetWorldLocation();
+        SourceVoice = FAudioDevice::PlaySound3D(Selected, CurrentLocation, Volume, bIsLooping);
+    }
+    else
+    {
+        SourceVoice = FAudioDevice::PlaySound2D(Selected, Volume, bIsLooping);
+    }
+
     if (SourceVoice)
     {
         SourceVoice->SetFrequencyRatio(Pitch);
