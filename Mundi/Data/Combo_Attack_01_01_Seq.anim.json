@@ -35,6 +35,24 @@
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision: Disable",
       "TriggerTime" : 0.401257
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "Data/Audio/SFX/Slashes/wav/combo_attack_01_01_seq_slash.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: combo_attack_01_01_seq_slash.wav",
+      "TriggerTime" : 0.013195
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "Data/Audio/ShinobiVoices/combo_attack_01_01_seq_voice.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: combo_attack_01_01_seq_voice.wav",
+      "TriggerTime" : 0.219358
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

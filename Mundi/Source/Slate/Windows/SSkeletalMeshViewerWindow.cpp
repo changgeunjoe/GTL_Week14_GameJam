@@ -2769,6 +2769,26 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                 }
                             }
                         }
+
+                        // Volume slider
+                        if (ImGui::DragFloat("Volume", &PS->Volume, 0.01f, 0.0f, 1.0f, "%.2f"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::SetTooltip("Sound amplitude/loudness (0.0 to 1.0)");
+                        }
+
+                        // 3D spatial audio toggle
+                        if (ImGui::Checkbox("3D Spatial Audio", &PS->bIs3D))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        if (ImGui::IsItemHovered())
+                        {
+                            ImGui::SetTooltip("Enable position-based stereo panning.\nDisable for UI sounds or music.");
+                        }
                     }
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_EnableHitbox>())
                     {
