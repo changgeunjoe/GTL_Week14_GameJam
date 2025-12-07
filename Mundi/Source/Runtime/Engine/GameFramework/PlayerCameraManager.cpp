@@ -255,6 +255,18 @@ void APlayerCameraManager::StartCameraShake(float InDuration, float AmpLoc, floa
 	ActiveModifiers.Add(ShakeModifier);
 }
 
+void APlayerCameraManager::StopCameraShake()
+{
+	for (int32 i = ActiveModifiers.Num() - 1; i >= 0; --i)
+	{
+		if (Cast<UCamMod_Shake>(ActiveModifiers[i]))
+		{
+			DeleteObject(ActiveModifiers[i]);
+			ActiveModifiers.RemoveAt(i);
+		}
+	}
+}
+
 void APlayerCameraManager::StartFade(float InDuration, float FromAlpha, float ToAlpha, const FLinearColor& InColor,
 	int32 InPriority)
 {

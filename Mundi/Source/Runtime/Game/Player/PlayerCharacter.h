@@ -1,14 +1,18 @@
-#pragma once
+﻿#pragma once
 
 #include "Character.h"
 #include "IDamageable.h"
 #include "CombatTypes.h"
+#include "Source/Runtime/Core/Containers/UEContainer.h"
 #include "APlayerCharacter.generated.h"
 class UStatsComponent;
 class UHitboxComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UAnimMontage;
+class UParticleSystem;
+class UParticleSystemComponent;
+class UCamMod_Shake;
 
 // ============================================================================
 // APlayerCharacter - 플레이어 캐릭터 예시
@@ -99,6 +103,7 @@ protected:
     void UpdateParryWindow(float DeltaTime);
     void UpdateStagger(float DeltaTime);
     void UpdateDodgeState(float DeltaTime);
+    void UpdateEffect(float DeltaTime);
 
     /** 입력 방향을 기반으로 8방향 인덱스 반환 (0=F, 1=FR, 2=R, 3=BR, 4=B, 5=BL, 6=L, 7=FL) */
     int32 GetDodgeDirectionIndex() const;
@@ -246,4 +251,10 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     float RotationSpeed = 10.f;
+
+    // Effect
+    // Charging Effect
+    void GatherParticles();
+    TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
+    bool bWasCharging = false;
 };
