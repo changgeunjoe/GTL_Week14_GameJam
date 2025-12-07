@@ -1,13 +1,22 @@
 {
   "Notifies" : [{
-      "Class" : "UAnimNotify_PlaySound",
+      "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-        "SoundPath" : "Data/Audio/JumpSound.wav"
+
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "PlaySound: JumpSound.wav",
-      "TriggerTime" : 0.242898
+      "NotifyName" : "Particle: On",
+      "TriggerTime" : 0.006597
+    }, {
+      "Class" : "UAnimNotify_ParticleOnOff",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Particle: Off",
+      "TriggerTime" : 0.936806
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
