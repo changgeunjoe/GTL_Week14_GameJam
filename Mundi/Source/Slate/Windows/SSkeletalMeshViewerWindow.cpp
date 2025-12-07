@@ -19,6 +19,7 @@
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayParticle.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayCamera.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ParticleOnOff.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_SetViewTarget.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -2493,6 +2494,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+                    else if (ImGui::MenuItem("Set View Target (Blend)"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_SetViewTarget* NewNotify = NewObject<UAnimNotify_SetViewTarget>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("SetViewTarget");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                                MarkNotifiesDirty(State);
+                            }
+                        }
+                    }
                     ImGui::EndMenu();
                 }
 
@@ -2595,8 +2614,32 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         
 
                         // Styling
-                        ImU32 FillCol = IM_COL32(100, 100, 255, bHover ? 140 : 100);
-                        ImU32 LineCol = IM_COL32(200, 200, 255, 150);
+                        ImU32 FillCol = IM_COL32(80, 80, 80, bHover ? 140 : 100); // Default gray
+                        ImU32 LineCol = IM_COL32(150, 150, 150, 150);
+
+                        if (Notify.Notify)
+                        {
+                            if (Notify.Notify->IsA<UAnimNotify_PlaySound>()) {
+                                FillCol = IM_COL32(100, 100, 255, bHover ? 140 : 100); // Blue
+                                LineCol = IM_COL32(200, 200, 255, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_PlayParticle>()) {
+                                FillCol = IM_COL32(100, 255, 100, bHover ? 140 : 100); // Green
+                                LineCol = IM_COL32(200, 255, 200, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_EnableWeaponCollision>()) {
+                                FillCol = IM_COL32(255, 100, 100, bHover ? 140 : 100); // Red
+                                LineCol = IM_COL32(255, 200, 200, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_ParticleOnOff>()) {
+                                FillCol = IM_COL32(255, 255, 100, bHover ? 140 : 100); // Yellow
+                                LineCol = IM_COL32(255, 255, 200, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_PlayCamera>()) {
+                                FillCol = IM_COL32(255, 165, 100, bHover ? 140 : 100); // Orange
+                                LineCol = IM_COL32(255, 220, 200, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_SetViewTarget>()) {
+                                FillCol = IM_COL32(150, 100, 255, bHover ? 140 : 100); // Purple
+                                LineCol = IM_COL32(220, 200, 255, 150);
+                            }
+                        }
+
                         DrawList->AddRectFilled(
                             ImVec2(ViewXStart, P.y),
                             ImVec2(ViewXEnd, P.y + Size.y),
@@ -2626,6 +2669,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_ParticleOnOff>())
                             {
                                 Label = "ParticleOnOff";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_SetViewTarget>())
+                            {
+                                Label = "SetViewTarget";
                             }
                             else
                             {
@@ -3199,10 +3246,49 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         ImGui::Separator();
 
                         // Enable/Disable 토글
-                        ImGui::Checkbox("Enable Collision", &WeaponNotify->bEnable);
-
+                        if (ImGui::Checkbox("Enable Collision", &WeaponNotify->bEnable))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
                         // 라벨 업데이트
                         Evt.NotifyName = FName(WeaponNotify->bEnable ? "WeaponCollision: Enable" : "WeaponCollision: Disable");
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_SetViewTarget>())
+                    {
+                        UAnimNotify_SetViewTarget* VT = static_cast<UAnimNotify_SetViewTarget*>(Evt.Notify);
+
+                        ImGui::Text("Set View Target (Blend)");
+                        ImGui::Separator();
+
+                        if (ImGui::Checkbox("Blend Back To Default", &VT->bBlendBackToDefault))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        if (ImGui::DragFloat("Blend Time", &VT->BlendTime, 0.05f, 0.0f, 10.0f, "%.2fs"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+
+                        ImGui::Separator();
+
+                        if (VT->bBlendBackToDefault)
+                        {
+                            ImGui::BeginDisabled();
+                        }
+
+                        if (ImGui::DragFloat3("Relative Location", &VT->RelativeLocation.X, 1.0f, -10000.0f, 10000.0f, "%.1f"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        if (ImGui::DragFloat3("Relative Rotation", &VT->RelativeRotation.X, 1.0f, -360.0f, 360.0f, "%.1f"))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+
+                        if (VT->bBlendBackToDefault)
+                        {
+                            ImGui::EndDisabled();
+                        }
                     }
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_ParticleOnOff>())
                     {

@@ -86,6 +86,7 @@ public:
     // 컴포넌트 접근
     // ========================================================================
     UStatsComponent* GetStatsComponent() const { return StatsComponent; }
+    UCameraComponent* GetFollowCamera() const { return Camera; }
 
     TMap<FString, TArray<UParticleSystemComponent*>> PlayerParticles;
 protected:
