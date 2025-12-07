@@ -14,6 +14,7 @@ struct FMaterialInfo
 
     FString DiffuseTextureFileName;
     FString NormalTextureFileName;
+    FString ORMTextureFileName;		// ORM: Occlusion (R), Roughness (G), Metallic (B)
     FString AmbientTextureFileName;
     FString SpecularTextureFileName;
     FString EmissiveTextureFileName;
@@ -46,6 +47,8 @@ struct FMaterialInfo
             Serialization::WriteString(Ar, Info.EmissiveTextureFileName);
             Serialization::WriteString(Ar, Info.TransparencyTextureFileName);
             Serialization::WriteString(Ar, Info.SpecularExponentTextureFileName);
+            // Note: ORMTextureFileName은 기존 파일 호환성을 위해 직렬화하지 않음
+            // ORM 텍스처는 에디터에서 MID를 통해 설정하거나 런타임에 할당해야 함
         }
         else if (Ar.IsLoading())
         {
@@ -56,6 +59,7 @@ struct FMaterialInfo
             Serialization::ReadString(Ar, Info.EmissiveTextureFileName);
             Serialization::ReadString(Ar, Info.TransparencyTextureFileName);
             Serialization::ReadString(Ar, Info.SpecularExponentTextureFileName);
+            // Note: ORMTextureFileName은 기존 파일 호환성을 위해 직렬화하지 않음
         }
 
         Ar << Info.TransmissionFilter;

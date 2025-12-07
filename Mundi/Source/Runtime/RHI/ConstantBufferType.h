@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 // b0 in VS    
 #include "Color.h"
 #include "LightManager.h"
@@ -9,7 +9,7 @@ struct ModelBufferType // b0
     FMatrix ModelInverseTranspose;  // For correct normal transformation with non-uniform scale
 };
 
-struct ViewProjBufferType // b1 고유번호 고정
+struct ViewProjBufferType // b1 ê³ ìœ ë²ˆí˜¸ ê³ ì •
 {
     FMatrix View;
     FMatrix Proj;
@@ -47,7 +47,7 @@ struct PostProcessBufferType // b0
     float Near;
     float Far;
     int IsOrthographic; // 0 = Perspective, 1 = Orthographic
-    float Padding; // 16바이트 정렬을 위한 패딩
+    float Padding; // 16ë°”ì´íŠ¸ ì •ë ¬ì„ ìœ„í•œ íŒ¨ë”©
 };
 
 struct FogBufferType // b2
@@ -57,16 +57,16 @@ struct FogBufferType // b2
     float StartDistance;
     float FogCutoffDistance;
 
-    FVector4 FogInscatteringColor; // 16 bytes alignment 위해 중간에 넣음
+    FVector4 FogInscatteringColor; // 16 bytes alignment ìœ„í•´ ì¤‘ê°„ì— ë„£ìŒ
 
     float FogMaxOpacity;
     float FogHeight; // fog base height
-    float Padding[2]; // 16바이트 정렬을 위한 패딩
+    float Padding[2]; // 16ë°”ì´íŠ¸ ì •ë ¬ì„ ìœ„í•œ íŒ¨ë”©
 };
 
 struct alignas(16) FFadeInOutBufferType // b2
 {
-    FLinearColor FadeColor = FLinearColor(0, 0, 0, 1);  //보통 (0, 0, 0, 1)
+    FLinearColor FadeColor = FLinearColor(0, 0, 0, 1);  //ë³´í†µ (0, 0, 0, 1)
     
     float Opacity = 0.0f;   // 0~1
     float Weight  = 1.0f;
@@ -78,10 +78,10 @@ struct alignas(16) FVinetteBufferType // b2
 {
     FLinearColor Color;
     
-    float     Radius    = 0.35f;                        // 효과 시작 반경(0~1)
-    float     Softness  = 0.25f;                        // 페더 폭(0~1)
-    float     Intensity = 1.0f;                       // 컬러 블렌드 강도 (0~1)
-    float     Roundness = 2.0f;                       // 1=마름모, 2= 원형, >1 더 네모에 가깝게
+    float     Radius    = 0.35f;                        // íš¨ê³¼ ì‹œìž‘ ë°˜ê²½(0~1)
+    float     Softness  = 0.25f;                        // íŽ˜ë” í­(0~1)
+    float     Intensity = 1.0f;                       // ì»¬ëŸ¬ ë¸”ë Œë“œ ê°•ë„ (0~1)
+    float     Roundness = 2.0f;                       // 1=ë§ˆë¦„ëª¨, 2= ì›í˜•, >1 ë” ë„¤ëª¨ì— ê°€ê¹ê²Œ
     
     float     Weight    = 1.0f;
     float     _Pad0[3];
@@ -106,13 +106,13 @@ static_assert(sizeof(FGammaCorrectionBufferType) % 16 == 0, "CB must be 16-byte 
 // DOF Setup Pass (b2)
 struct alignas(16) FDOFSetupBufferType
 {
-    float FocalDistance;           // m (초점 거리)
-    float FocalRegion;             // m (완전 선명 영역)
-    float NearTransitionRegion;    // m (근경 블러 전환 영역)
-    float FarTransitionRegion;     // m (원경 블러 전환 영역)
+    float FocalDistance;           // m (ì´ˆì  ê±°ë¦¬)
+    float FocalRegion;             // m (ì™„ì „ ì„ ëª… ì˜ì—­)
+    float NearTransitionRegion;    // m (ê·¼ê²½ ë¸”ëŸ¬ ì „í™˜ ì˜ì—­)
+    float FarTransitionRegion;     // m (ì›ê²½ ë¸”ëŸ¬ ì „í™˜ ì˜ì—­)
 
-    float MaxNearBlurSize;         // pixels (근경 최대 블러)
-    float MaxFarBlurSize;          // pixels (원경 최대 블러)
+    float MaxNearBlurSize;         // pixels (ê·¼ê²½ ìµœëŒ€ ë¸”ëŸ¬)
+    float MaxFarBlurSize;          // pixels (ì›ê²½ ìµœëŒ€ ë¸”ëŸ¬)
     float NearClip;
     float FarClip;
 
@@ -125,7 +125,7 @@ static_assert(sizeof(FDOFSetupBufferType) % 16 == 0, "CB must be 16-byte aligned
 struct alignas(16) FDOFBlurBufferType
 {
     FVector2D BlurDirection;       // (1,0) = Horizontal, (0,1) = Vertical
-    float BlurRadius;              // 블러 반경 스케일
+    float BlurRadius;              // ë¸”ëŸ¬ ë°˜ê²½ ìŠ¤ì¼€ì¼
     int32 IsFarField;              // 1 = Far Field, 0 = Near Field
 };
 static_assert(sizeof(FDOFBlurBufferType) % 16 == 0, "CB must be 16-byte aligned");
@@ -133,34 +133,34 @@ static_assert(sizeof(FDOFBlurBufferType) % 16 == 0, "CB must be 16-byte aligned"
 // DOF Recombine Pass (b2)
 struct alignas(16) FDOFRecombineBufferType
 {
-    float FocalDistance;           // m (초점 거리)
-    float FocalRegion;             // m (완전 선명 영역)
-    float NearTransitionRegion;    // m (근경 블러 전환 영역)
-    float FarTransitionRegion;     // m (원경 블러 전환 영역)
+    float FocalDistance;           // m (ì´ˆì  ê±°ë¦¬)
+    float FocalRegion;             // m (ì™„ì „ ì„ ëª… ì˜ì—­)
+    float NearTransitionRegion;    // m (ê·¼ê²½ ë¸”ëŸ¬ ì „í™˜ ì˜ì—­)
+    float FarTransitionRegion;     // m (ì›ê²½ ë¸”ëŸ¬ ì „í™˜ ì˜ì—­)
 
-    float MaxNearBlurSize;         // pixels (근경 최대 블러)
-    float MaxFarBlurSize;          // pixels (원경 최대 블러)
+    float MaxNearBlurSize;         // pixels (ê·¼ê²½ ìµœëŒ€ ë¸”ëŸ¬)
+    float MaxFarBlurSize;          // pixels (ì›ê²½ ìµœëŒ€ ë¸”ëŸ¬)
     float NearClip;
     float FarClip;
 
     int32 IsOrthographic;
     float _Pad0;
-    FVector2D ViewRectMinUV;       // ViewRect 시작 UV (게임 영역)
+    FVector2D ViewRectMinUV;       // ViewRect ì‹œìž‘ UV (ê²Œìž„ ì˜ì—­)
 
-    FVector2D ViewRectMaxUV;       // ViewRect 끝 UV (게임 영역)
+    FVector2D ViewRectMaxUV;       // ViewRect ë UV (ê²Œìž„ ì˜ì—­)
     FVector2D _Pad1;
 };
 static_assert(sizeof(FDOFRecombineBufferType) % 16 == 0, "CB must be 16-byte aligned");
 
 struct FXAABufferType // b2
 {
-    FVector2D InvScreenSize; // 1.0f / ScreenSize (픽셀 하나의 크기)
-    float SpanMax;           // 최대 탐색 범위 (8.0f 권장)
-    float ReduceMul;         // 감쇠 승수 (1/8 = 0.125f 권장)
+    FVector2D InvScreenSize; // 1.0f / ScreenSize (í”½ì…€ í•˜ë‚˜ì˜ í¬ê¸°)
+    float SpanMax;           // ìµœëŒ€ íƒìƒ‰ ë²”ìœ„ (8.0f ê¶Œìž¥)
+    float ReduceMul;         // ê°ì‡  ìŠ¹ìˆ˜ (1/8 = 0.125f ê¶Œìž¥)
 
-    float ReduceMin;         // 최소 감쇠 값 (1/128 = 0.0078125f 권장)
-    float SubPixBlend;       // 서브픽셀 블렌딩 강도 (0.75~1.0 권장)
-    float Padding[2];        // 16바이트 정렬
+    float ReduceMin;         // ìµœì†Œ ê°ì‡  ê°’ (1/128 = 0.0078125f ê¶Œìž¥)
+    float SubPixBlend;       // ì„œë¸Œí”½ì…€ ë¸”ë Œë”© ê°•ë„ (0.75~1.0 ê¶Œìž¥)
+    float Padding[2];        // 16ë°”ì´íŠ¸ ì •ë ¬
 };
 
 // b0 in PS
@@ -204,7 +204,7 @@ struct FPixelConstBufferType
     uint32 bHasMaterial;
     uint32 bHasDiffuseTexture;
     uint32 bHasNormalTexture;
-	float Padding; // 16바이트 정렬을 위한 패딩
+	uint32 bHasORMTexture;	// ORM í…ìŠ¤ì²˜ ìœ ë¬´ (Occlusion, Roughness, Metallic)
 };
 
 struct ColorBufferType // b3
@@ -224,7 +224,7 @@ struct FLightBufferType
     FVector2D Padding;
 };
 
-// b10 고유번호 고정
+// b10 ê³ ìœ ë²ˆí˜¸ ê³ ì •
 struct FViewportConstants
 {
     // x = Viewport TopLeftX
@@ -233,8 +233,8 @@ struct FViewportConstants
     // w = Viewport Height
     FVector4 ViewportRect;
 
-    // x = Screen Width (전체 렌더 타겟 너비)
-    // y = Screen Height (전체 렌더 타겟 높이)
+    // x = Screen Width (ì „ì²´ ë Œë” íƒ€ê²Ÿ ë„ˆë¹„)
+    // y = Screen Height (ì „ì²´ ë Œë” íƒ€ê²Ÿ ë†’ì´)
     // z = 1.0f / Screen Width
     // w = 1.0f / Screen Height
     FVector4 ScreenSize;
@@ -246,42 +246,42 @@ struct CameraBufferType // b7
     float Padding;
 };
 
-// b11: 타일 기반 라이트 컬링 상수 버퍼
+// b11: íƒ€ì¼ ê¸°ë°˜ ë¼ì´íŠ¸ ì»¬ë§ ìƒìˆ˜ ë²„í¼
 struct FTileCullingBufferType
 {
-    uint32 TileSize;          // 타일 크기 (픽셀, 기본 16)
-    uint32 TileCountX;        // 가로 타일 개수
-    uint32 TileCountY;        // 세로 타일 개수
-    uint32 bUseTileCulling;   // 타일 컬링 활성화 여부 (0=비활성화, 1=활성화)
-    uint32 ViewportStartX;    // 뷰포트 시작 X 좌표
-    uint32 ViewportStartY;    // 뷰포트 시작 Y 좌표
+    uint32 TileSize;          // íƒ€ì¼ í¬ê¸° (í”½ì…€, ê¸°ë³¸ 16)
+    uint32 TileCountX;        // ê°€ë¡œ íƒ€ì¼ ê°œìˆ˜
+    uint32 TileCountY;        // ì„¸ë¡œ íƒ€ì¼ ê°œìˆ˜
+    uint32 bUseTileCulling;   // íƒ€ì¼ ì»¬ë§ í™œì„±í™” ì—¬ë¶€ (0=ë¹„í™œì„±í™”, 1=í™œì„±í™”)
+    uint32 ViewportStartX;    // ë·°í¬íŠ¸ ì‹œìž‘ X ì¢Œí‘œ
+    uint32 ViewportStartY;    // ë·°í¬íŠ¸ ì‹œìž‘ Y ì¢Œí‘œ
     uint32 Padding[2];
 };
 
 struct FPointLightShadowBufferType
 {
-    FMatrix LightViewProjection[6]; // 각 큐브맵 면에 대한 뷰-프로젝션 행렬 (6개)
-    FVector LightPosition;          // 라이트의 월드 공간 위치
-    float FarPlane;                 // 섀도우 맵의 원거리 평면 (깊이 범위 계산용)
-    uint32 LightIndex;              // 현재 렌더링 중인 라이트 인덱스
-    FVector Padding;                // 16바이트 정렬
+    FMatrix LightViewProjection[6]; // ê° íë¸Œë§µ ë©´ì— ëŒ€í•œ ë·°-í”„ë¡œì ì…˜ í–‰ë ¬ (6ê°œ)
+    FVector LightPosition;          // ë¼ì´íŠ¸ì˜ ì›”ë“œ ê³µê°„ ìœ„ì¹˜
+    float FarPlane;                 // ì„€ë„ìš° ë§µì˜ ì›ê±°ë¦¬ í‰ë©´ (ê¹Šì´ ë²”ìœ„ ê³„ì‚°ìš©)
+    uint32 LightIndex;              // í˜„ìž¬ ë Œë”ë§ ì¤‘ì¸ ë¼ì´íŠ¸ ì¸ë±ìŠ¤
+    FVector Padding;                // 16ë°”ì´íŠ¸ ì •ë ¬
 };
 
-// b2: SubUV 파라미터 (파티클 스프라이트 시트 애니메이션용)
+// b2: SubUV íŒŒë¼ë¯¸í„° (íŒŒí‹°í´ ìŠ¤í”„ë¼ì´íŠ¸ ì‹œíŠ¸ ì• ë‹ˆë©”ì´ì…˜ìš©)
 struct FSubUVBufferType
 {
-    int32 SubImages_Horizontal;  // NX (가로 타일 수)
-    int32 SubImages_Vertical;    // NY (세로 타일 수)
+    int32 SubImages_Horizontal;  // NX (ê°€ë¡œ íƒ€ì¼ ìˆ˜)
+    int32 SubImages_Vertical;    // NY (ì„¸ë¡œ íƒ€ì¼ ìˆ˜)
     int32 InterpMethod;          // 0=None, 1=LinearBlend
-    float Padding0;              // 16바이트 정렬
+    float Padding0;              // 16ë°”ì´íŠ¸ ì •ë ¬
 };
 
-// b3: 파티클 이미터 파라미터
+// b3: íŒŒí‹°í´ ì´ë¯¸í„° íŒŒë¼ë¯¸í„°
 struct FParticleEmitterType
 {
     uint32 ScreenAlignment;  // Screen Alignment (0 - Camera, 1 - Velocity)
     uint32 BlendMode;        // EMaterialBlendMode
-    FVector2D Padding0;      // 16바이트 정렬
+    FVector2D Padding0;      // 16ë°”ì´íŠ¸ ì •ë ¬
 };
 
 #define CONSTANT_BUFFER_INFO(TYPE, SLOT, VS, PS) \
@@ -289,7 +289,7 @@ constexpr uint32 TYPE##Slot = SLOT;\
 constexpr bool TYPE##IsVS = VS;\
 constexpr bool TYPE##IsPS = PS;
 
-//매크로를 인자로 받고 그 매크로 함수에 버퍼 전달
+//ë§¤í¬ë¡œë¥¼ ì¸ìžë¡œ ë°›ê³  ê·¸ ë§¤í¬ë¡œ í•¨ìˆ˜ì— ë²„í¼ ì „ë‹¬
 #define CONSTANT_BUFFER_LIST(MACRO) \
 MACRO(ModelBufferType)              \
 MACRO(DecalBufferType)              \
@@ -315,16 +315,16 @@ MACRO(FPointLightShadowBufferType)  \
 MACRO(FSubUVBufferType) \
 MACRO(FParticleEmitterType)
 
-// 16 바이트 패딩 어썰트
+// 16 ë°”ì´íŠ¸ íŒ¨ë”© ì–´ì°íŠ¸
 #define STATIC_ASSERT_CBUFFER_ALIGNMENT(Type) \
     static_assert(sizeof(Type) % 16 == 0, "[ " #Type " ] Bad Size. Needs 16-Byte Padding.");
 CONSTANT_BUFFER_LIST(STATIC_ASSERT_CBUFFER_ALIGNMENT)
 
-//VS, PS 세팅은 함수 파라미터로 결정하게 하는게 훨씬 나을듯 나중에 수정 필요
-//그리고 UV Scroll 상수버퍼도 처리해줘야함
+//VS, PS ì„¸íŒ…ì€ í•¨ìˆ˜ íŒŒë¼ë¯¸í„°ë¡œ ê²°ì •í•˜ê²Œ í•˜ëŠ”ê²Œ í›¨ì”¬ ë‚˜ì„ë“¯ ë‚˜ì¤‘ì— ìˆ˜ì • í•„ìš”
+//ê·¸ë¦¬ê³  UV Scroll ìƒìˆ˜ë²„í¼ë„ ì²˜ë¦¬í•´ì¤˜ì•¼í•¨
 CONSTANT_BUFFER_INFO(ModelBufferType, 0, true, false)
 CONSTANT_BUFFER_INFO(PostProcessBufferType, 0, false, true)
-CONSTANT_BUFFER_INFO(ViewProjBufferType, 1, true, true) // b1 카메라 행렬 고정
+CONSTANT_BUFFER_INFO(ViewProjBufferType, 1, true, true) // b1 ì¹´ë©”ë¼ í–‰ë ¬ ê³ ì •
 CONSTANT_BUFFER_INFO(FogBufferType, 2, false, true)
 CONSTANT_BUFFER_INFO(FFadeInOutBufferType, 2, false, true)
 CONSTANT_BUFFER_INFO(FGammaCorrectionBufferType, 2, false, true)
@@ -335,16 +335,16 @@ CONSTANT_BUFFER_INFO(FDOFSetupBufferType, 2, false, true)      // b2, PS only (D
 CONSTANT_BUFFER_INFO(FDOFBlurBufferType, 2, false, true)       // b2, PS only (DOF Blur Pass)
 CONSTANT_BUFFER_INFO(FDOFRecombineBufferType, 2, false, true)  // b2, PS only (DOF Recombine Pass)
 CONSTANT_BUFFER_INFO(ColorBufferType, 3, true, true)   // b3 color
-CONSTANT_BUFFER_INFO(FPixelConstBufferType, 4, true, true) // GOURAUD에도 사용되므로 VS도 true
+CONSTANT_BUFFER_INFO(FPixelConstBufferType, 4, true, true) // GOURAUDì—ë„ ì‚¬ìš©ë˜ë¯€ë¡œ VSë„ true
 CONSTANT_BUFFER_INFO(DecalBufferType, 6, true, true)
 CONSTANT_BUFFER_INFO(FireballBufferType, 6, false, true)
-CONSTANT_BUFFER_INFO(CameraBufferType, 7, true, true)  // b7, VS+PS (UberLit.hlsl과 일치)
+CONSTANT_BUFFER_INFO(CameraBufferType, 7, true, true)  // b7, VS+PS (UberLit.hlslê³¼ ì¼ì¹˜)
 CONSTANT_BUFFER_INFO(FLightBufferType, 8, true, true)
-CONSTANT_BUFFER_INFO(FViewportConstants, 10, true, true)   // 뷰 포트 크기에 따라 전체 화면 복사를 보정하기 위해 설정 (10번 고유번호로 사용)
-CONSTANT_BUFFER_INFO(FTileCullingBufferType, 11, false, true)  // b11, PS only (UberLit.hlsl과 일치)
+CONSTANT_BUFFER_INFO(FViewportConstants, 10, true, true)   // ë·° í¬íŠ¸ í¬ê¸°ì— ë”°ë¼ ì „ì²´ í™”ë©´ ë³µì‚¬ë¥¼ ë³´ì •í•˜ê¸° ìœ„í•´ ì„¤ì • (10ë²ˆ ê³ ìœ ë²ˆí˜¸ë¡œ ì‚¬ìš©)
+CONSTANT_BUFFER_INFO(FTileCullingBufferType, 11, false, true)  // b11, PS only (UberLit.hlslê³¼ ì¼ì¹˜)
 CONSTANT_BUFFER_INFO(FPointLightShadowBufferType, 12, true, true)  // b12, VS+PS
-CONSTANT_BUFFER_INFO(FSubUVBufferType, 2, true, true)  // b2, VS+PS (ParticleSprite.hlsl용)
-CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlsl용)
+CONSTANT_BUFFER_INFO(FSubUVBufferType, 2, true, true)  // b2, VS+PS (ParticleSprite.hlslìš©)
+CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlslìš©)
 
 
 

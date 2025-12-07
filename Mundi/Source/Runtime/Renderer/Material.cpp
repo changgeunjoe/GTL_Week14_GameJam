@@ -107,6 +107,8 @@ bool UMaterial::HasTexture(EMaterialTextureSlot Slot) const
 		return !MaterialInfo.DiffuseTextureFileName.empty();
 	case EMaterialTextureSlot::Normal:
 		return !MaterialInfo.NormalTextureFileName.empty();
+	case EMaterialTextureSlot::ORM:
+		return !MaterialInfo.ORMTextureFileName.empty();
 	default:
 		return false;
 	}
@@ -114,8 +116,8 @@ bool UMaterial::HasTexture(EMaterialTextureSlot Slot) const
 
 void UMaterial::ResolveTextures()
 {
-	auto& RM = UResourceManager::GetInstance();
-	size_t MaxSlots = static_cast<size_t>(EMaterialTextureSlot::Max);
+    auto& RM = UResourceManager::GetInstance();
+    size_t MaxSlots = static_cast<size_t>(EMaterialTextureSlot::Max);
 
 	// 배열 크기가 Enum 크기와 맞는지 확인 (안전장치)
 	if (ResolvedTextures.size() != MaxSlots)
@@ -133,6 +135,97 @@ void UMaterial::ResolveTextures()
 		ResolvedTextures[static_cast<int32>(EMaterialTextureSlot::Normal)] = RM.Load<UTexture>(MaterialInfo.NormalTextureFileName, false);
 	else
 		ResolvedTextures[static_cast<int32>(EMaterialTextureSlot::Normal)] = nullptr; // 또는 기본 노멀 텍스처
+
+    // Try to resolve ORM: explicit path first
+    if (!MaterialInfo.ORMTextureFileName.empty())
+    {
+        ResolvedTextures[static_cast<int32>(EMaterialTextureSlot::ORM)] = RM.Load<UTexture>(MaterialInfo.ORMTextureFileName, false);
+    }
+    else
+    {
+        // Heuristic: derive ORM from Diffuse path using common naming (BaseColor -> ORM, _Diffuse -> _ORM, _BC -> _ORM)
+        UTexture*& OutSlot = ResolvedTextures[static_cast<int32>(EMaterialTextureSlot::ORM)];
+        OutSlot = nullptr;
+
+        if (!MaterialInfo.DiffuseTextureFileName.empty())
+        {
+            try
+            {
+                namespace fs = std::filesystem;
+                fs::path diffPath(MaterialInfo.DiffuseTextureFileName);
+                fs::path dir = diffPath.parent_path();
+                std::string fname = diffPath.filename().string();
+                std::string ext = diffPath.extension().string();
+                std::vector<std::string> candidates;
+
+                auto addCandidate = [&](std::string s)
+                {
+                    candidates.push_back((dir / s).string());
+                };
+
+                auto replaceAllCaseInsensitive = [](std::string s, const std::string& from, const std::string& to)
+                {
+                    std::string lower = s; std::string lfrom = from;
+                    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+                    std::transform(lfrom.begin(), lfrom.end(), lfrom.begin(), ::tolower);
+                    size_t pos = 0;
+                    while ((pos = lower.find(lfrom, pos)) != std::string::npos)
+                    {
+                        s.replace(pos, from.size(), to);
+                        lower.replace(pos, from.size(), to);
+                        pos += to.size();
+                    }
+                    return s;
+                };
+
+                // 1) BaseColor -> ORM
+                {
+                    std::string s = fname;
+                    s = replaceAllCaseInsensitive(s, "BaseColor", "ORM");
+                    if (s != fname) addCandidate(s);
+                }
+                // 2) _Diffuse -> _ORM
+                {
+                    std::string s = fname;
+                    s = replaceAllCaseInsensitive(s, "_Diffuse", "_ORM");
+                    if (s != fname) addCandidate(s);
+                }
+                // 3) _BC -> _ORM
+                {
+                    std::string s = fname;
+                    s = replaceAllCaseInsensitive(s, "_BC", "_ORM");
+                    if (s != fname) addCandidate(s);
+                }
+                // 4) If name follows T_*_<something>.ext try T_*_ORM.ext
+                {
+                    std::string s = fname;
+                    size_t lastUnderscore = s.rfind('_');
+                    if (lastUnderscore != std::string::npos)
+                    {
+                        std::string prefix = s.substr(0, lastUnderscore);
+                        addCandidate(prefix + "_ORM" + ext);
+                    }
+                }
+
+                // Pick the first that exists
+                for (const std::string& cand : candidates)
+                {
+                    if (fs::exists(fs::path(cand)))
+                    {
+                        MaterialInfo.ORMTextureFileName = cand;
+                        OutSlot = RM.Load<UTexture>(MaterialInfo.ORMTextureFileName, false);
+                        break;
+                    }
+                }
+            }
+            catch (...)
+            {
+                // Best-effort; ignore errors
+            }
+        }
+
+        // leave null if none found
+    }
 }
 
 void UMaterial::SetMaterialInfo(const FMaterialInfo& InMaterialInfo)
@@ -441,8 +534,11 @@ const FMaterialInfo& UMaterialInstanceDynamic::GetMaterialInfo() const
 			case EMaterialTextureSlot::Normal:
 				CachedMaterialInfo.NormalTextureFileName = TexturePath;
 				break;
+			case EMaterialTextureSlot::ORM:
+				CachedMaterialInfo.ORMTextureFileName = TexturePath;
+				break;
 				// 참고: FMaterialInfo에 정의된 다른 텍스처(Ambient, Specular 등)를
-				// 런타임에 오버라이드하려면, EMaterialTextureSlot enum에도 
+				// 런타임에 오버라이드하려면, EMaterialTextureSlot enum에도
 				// 해당 항목들을 추가하고 여기에 case문을 추가해야 합니다.
 			}
 		}
