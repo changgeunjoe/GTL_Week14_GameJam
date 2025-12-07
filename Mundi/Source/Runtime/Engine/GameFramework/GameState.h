@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameStateBase.h"
 #include "AGameState.generated.h"
 
@@ -26,6 +26,7 @@ struct FStaminaState
     float Current = 0.0f;
     float Max = 0.0f;
     float GetPercent() const { return (Max > 0.0f) ? (Current / Max) : 0.0f; }
+    float GetStamina() const { return Current; }
     void Set(float InCurrent, float InMax) { Current = InCurrent; Max = InMax; }
 };
 
@@ -34,6 +35,7 @@ struct FFocusState
     float Current = 0.0f;
     float Max = 0.0f;
     float GetPercent() const { return (Max > 0.0f) ? (Current / Max) : 0.0f; }
+    float GetFocus() const { return Current; }
     void Set(float InCurrent, float InMax) { Current = InCurrent; Max = InMax; }
 };
 

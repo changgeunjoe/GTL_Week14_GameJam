@@ -17,8 +17,8 @@
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [0.000000, 0.000000, 0.000000],
-                    "Point2Time" : 3.000000,
-                    "Point2Value" : [1.000000, 1.000000, 1.000000],
+                    "Point2Time" : 0.673854,
+                    "Point2Value" : [0.750000, 0.750000, 0.750000],
                     "Type" : "SizeMultiplyLife",
                     "bEnabled" : true,
                     "bMultiplyX" : true,
@@ -96,8 +96,8 @@
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [0.000000, 0.000000, 0.000000],
-                    "Point2Time" : 3.000000,
-                    "Point2Value" : [1.000000, 1.000000, 1.000000],
+                    "Point2Time" : 0.700809,
+                    "Point2Value" : [0.750000, 0.750000, 0.750000],
                     "Type" : "SizeMultiplyLife",
                     "bEnabled" : true,
                     "bMultiplyX" : true,

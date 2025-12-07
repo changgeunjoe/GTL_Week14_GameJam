@@ -194,6 +194,18 @@ void APlayerCharacter::BeginPlay()
     }
 
     GatherParticles();
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -355,8 +367,10 @@ void APlayerCharacter::ProcessCombatInput()
             static bool bCursorIsVisible = false;
             bCursorIsVisible = !bCursorIsVisible;
             UInputManager::GetInstance().SetCursorVisible(bCursorIsVisible);
+            UInputManager::GetInstance().ReleaseCursor();
         }
     }
+    
     bUKeyWasPressed = bUKeyIsPressed;
 }
 
@@ -1239,21 +1253,21 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
 
     if (bShouldEvaluateCharging)
     {
-        if (PlayerParticles["Charging"].size() < 3 || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
+        if (PlayerParticles["Charging"].size() < 3 || !GS ||!PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
             return;
 
         if (!bWasCharging) bWasCharging = true;
 
-        const float Stamina = Stats->GetCurrentStamina();
-        UE_LOG("%f", Stamina);
-        if (Stamina < 50.0f)
+        const float Focus = GS->GetPlayerFocus().GetFocus();
+        UE_LOG("%f", Focus);
+        if (Focus < 50.0f)
         {
             CameraManager->StartCameraShake(5, 0.0005, 0.0005, 20, 2);
             PlayerParticles["Charging"][0]->ResumeSpawning();
             PlayerParticles["Charging"][1]->PauseSpawning();
             PlayerParticles["Charging"][2]->PauseSpawning();
         }
-        else if (Stamina < 99.0f)
+        else if (Focus < 99.0f)
         {
             CameraManager->StopCameraShake();
             CameraManager->StartCameraShake(5, 0.00055, 0.00055, 20, 1);
