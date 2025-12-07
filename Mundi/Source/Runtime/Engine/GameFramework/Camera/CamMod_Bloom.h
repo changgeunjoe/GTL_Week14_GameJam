@@ -20,15 +20,15 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Bloom")
-	float Threshold = 1.0f;
+	float Threshold = 0.8f;
 
 	UPROPERTY(EditAnywhere, Category = "Bloom")
-	float SoftKnee = 0.5f;
+	float SoftKnee = 0.9f;
 
 	UPROPERTY(EditAnywhere, Category = "Bloom")
 	float Intensity = 1.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Bloom")
-	float BlurRadius = 1.0f;
+	float BlurRadius = 1.5f;
 };
 

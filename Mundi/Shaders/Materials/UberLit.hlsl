@@ -311,26 +311,33 @@ PS_OUTPUT mainPS(PS_INPUT Input)
     //{
     //    uv += UVScrollSpeed * UVScrollTime;
     //}
-    
+
+    // 텍스처 샘플링 (머트리얼 색상은 Gouraud는 VS에서 적용됨)
+    float4 texColor = g_DiffuseTexColor.Sample(g_Sample, uv);
+    // sRGB to Linear 변환 (감마 보정 - 텍스처가 sRGB 공간에 저장되어 있음)
+    texColor.rgb = pow(texColor.rgb, 2.2f);
+
+    // Alpha cutout: 텍스처의 알파가 임계값 이하면 픽셀 폐기 (투명 배경 처리)
+    if (bHasTexture && texColor.a < 0.5f)
+    {
+        discard;
+    }
 
 #ifdef VIEWMODE_WORLD_NORMAL
     // World Normal 시각화: Normal 벡터를 색상으로 변환
     // Normal 범위: -1~1 → 색상 범위: 0~1
     float3 normalColor = Input.Normal * 0.5 + 0.5;
-    
+
     if(bHasNormalTexture)
     {
         normalColor = g_NormalTexColor.Sample(g_Sample2, uv);
         normalColor = normalColor * 2.0f - 1.0f;
         normalColor = normalize(mul(normalColor, Input.TBN));
     }
-    
+
     Output.Color = float4(normalColor, 1.0);
     return Output;
 #endif
-    
-    // 텍스처 샘플링 (머트리얼 색상은 Gouraud는 VS에서 적용됨)
-    float4 texColor = g_DiffuseTexColor.Sample(g_Sample, uv);
 
     // 머트리얼의 SpecularExponent 사용, 머트리얼이 없으면 기본값 사용
     float specPower = bHasMaterial ? Material.SpecularExponent : 32.0f;

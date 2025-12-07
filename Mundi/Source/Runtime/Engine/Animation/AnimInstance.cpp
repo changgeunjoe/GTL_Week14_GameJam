@@ -624,7 +624,7 @@ void UAnimInstance::GetPoseForLayer(int32 LayerIndex, TArray<FTransform>& OutPos
 // Montage API
 // ============================================================
 
-void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float BlendOut, float PlayRate)
+void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float BlendOut, float PlayRate, bool bLoop)
 {
     if (!Montage)
     {
@@ -645,10 +645,13 @@ void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float Ble
         return;
     }
 
+    // 루프 설정: 파라미터로 전달된 값 또는 몽타주 자체의 bLoop 사용
+    bool bShouldLoop = bLoop || Montage->bLoop;
+
     // 끝에서 자를 시간 계산 (EffectivePlayLength) - 초 단위
     float EffectivePlayLength = PlayLength;
     UE_LOG("Montage_Play: AnimationCutEndTime=%.3f, PlayLength=%.3f", AnimationCutEndTime, PlayLength);
-    if (AnimationCutEndTime > 0.0f)
+    if (AnimationCutEndTime > 0.0f && !bShouldLoop)  // 루프일 때는 끝 자르기 안 함
     {
         EffectivePlayLength = FMath::Max(PlayLength - AnimationCutEndTime, 0.1f);  // 최소 0.1초
         UE_LOG("Montage_Play: Trimming %.3fs, PlayLength: %.3f -> EffectivePlayLength: %.3f",
@@ -667,11 +670,12 @@ void UAnimInstance::Montage_Play(UAnimMontage* Montage, float BlendIn, float Ble
     MontageState.BlendOutStartTime = EffectivePlayLength - MontageState.BlendOutTime;  // 잘린 길이 기준
     MontageState.bIsBlendingOut = false;
     MontageState.EffectivePlayLength = EffectivePlayLength;  // 저장
+    MontageState.bIsLooping = bShouldLoop;  // 루프 설정
 
     bMontageActive = true;
 
-    UE_LOG("Montage_Play: %s (BlendIn: %.2f, BlendOut: %.2f, PlayRate: %.2f)",
-        Montage->ObjectName.ToString().c_str(), BlendIn, BlendOut, PlayRate);
+    UE_LOG("Montage_Play: %s (BlendIn: %.2f, BlendOut: %.2f, PlayRate: %.2f, Loop: %s)",
+        Montage->ObjectName.ToString().c_str(), BlendIn, BlendOut, PlayRate, bShouldLoop ? "true" : "false");
 }
 
 void UAnimInstance::Montage_Stop(float BlendOut)
@@ -758,6 +762,20 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     MontageState.PreviousTime = MontageState.CurrentTime;
     MontageState.CurrentTime += DeltaSeconds * MontageState.PlayRate;
 
+    // 루프 처리: 재생 시간이 끝을 넘으면 처음으로 되돌림
+    if (MontageState.bIsLooping && !MontageState.bIsBlendingOut)
+    {
+        float PlayLength = MontageState.Montage->GetPlayLength();
+        if (MontageState.CurrentTime >= PlayLength)
+        {
+            MontageState.CurrentTime = fmodf(MontageState.CurrentTime, PlayLength);
+            MontageState.PreviousTime = 0.0f;  // 노티파이 처리를 위해 리셋
+
+            // 루프 시 블렌드 인을 다시 하지 않도록 (Weight가 0으로 떨어지는 것 방지)
+            MontageState.BlendInTime = 0.0f;
+        }
+    }
+
     // ============================================================
     // 몽타주 노티파이 처리
     // ============================================================
@@ -811,8 +829,8 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     {
         TargetWeight = MontageState.CurrentTime / MontageState.BlendInTime;
     }
-    // 블렌드 아웃 구간 (강제 또는 자연 종료)
-    else if (MontageState.bIsBlendingOut || MontageState.CurrentTime >= MontageState.BlendOutStartTime)
+    // 블렌드 아웃 구간 (강제 또는 자연 종료) - 루프 중이면 자연 블렌드아웃 안 함
+    else if (MontageState.bIsBlendingOut || (!MontageState.bIsLooping && MontageState.CurrentTime >= MontageState.BlendOutStartTime))
     {
         float BlendOutProgress;
         if (MontageState.bIsBlendingOut)
@@ -841,10 +859,10 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
         const int32 NumBones = DataModel->GetNumBoneTracks();
         MontagePose.SetNum(NumBones);
 
-        // 포즈 평가 시간을 EffectivePlayLength로 클램프 (제자리 복귀 방지)
+        // 포즈 평가 시간을 EffectivePlayLength로 클램프 (제자리 복귀 방지, 루프 중이면 클램프 안 함)
         float MaxEvalTime = (MontageState.EffectivePlayLength > 0.0f) ? MontageState.EffectivePlayLength : PlayLength;
-        float PoseEvalTime = FMath::Min(MontageState.CurrentTime, MaxEvalTime);
-        FAnimExtractContext Context(PoseEvalTime, false);  // 루프 안 함
+        float PoseEvalTime = MontageState.bIsLooping ? MontageState.CurrentTime : FMath::Min(MontageState.CurrentTime, MaxEvalTime);
+        FAnimExtractContext Context(PoseEvalTime, MontageState.bIsLooping);
         FPoseContext PoseContext(NumBones);
         SourceSequence->GetAnimationPose(PoseContext, Context);
         MontagePose = PoseContext.Pose;
@@ -864,12 +882,12 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     // ============================================================
     bool bShouldEnd = false;
 
-    // 자연 종료: 재생 시간 초과 (EffectivePlayLength는 끝 프레임 자르기 적용됨)
-    if (MontageState.CurrentTime >= MontageState.EffectivePlayLength)
+    // 자연 종료: 재생 시간 초과 (루프가 아닐 때만)
+    if (!MontageState.bIsLooping && MontageState.CurrentTime >= MontageState.EffectivePlayLength)
     {
         bShouldEnd = true;
     }
-    // 강제 종료: 블렌드 아웃 완료
+    // 강제 종료: 블렌드 아웃 완료 (Montage_Stop 호출 시)
     else if (MontageState.bIsBlendingOut && MontageState.CurrentWeight <= 0.0f)
     {
         bShouldEnd = true;
