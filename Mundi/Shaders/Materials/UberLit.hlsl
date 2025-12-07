@@ -338,6 +338,8 @@ PS_OUTPUT mainPS(PS_INPUT Input)
         normalColor = g_NormalTexColor.Sample(g_Sample2, uv);
         normalColor = normalColor * 2.0f - 1.0f;
         normalColor = normalize(mul(normalColor, Input.TBN));
+        // 노말 텍스처 경로도 색상 범위 [0,1]로 변환 필요
+        normalColor = normalColor * 0.5 + 0.5;
     }
 
     Output.Color = float4(normalColor, 1.0);
@@ -566,11 +568,12 @@ PS_OUTPUT mainPS(PS_INPUT Input)
     float3 diffuseColor = baseColor.rgb * (1.0f - metallic) + 0.02f * metallic;
     float3 F0Dielectric = bHasMaterial ? Material.SpecularColor : float3(0.04f, 0.04f, 0.04f);
     float3 specularColorPBR = lerp(F0Dielectric, baseColor.rgb, metallic);
-    // Ensure a minimum F0 so highlights don’t disappear for black albedo metals
+    // Ensure a minimum F0 so highlights don't disappear for black albedo metals
     specularColorPBR = max(specularColorPBR, float3(0.04f, 0.04f, 0.04f));
-    // Heuristic: if asset authoring uses black baseColor for metals, fallback to bright metal F0
+    // Heuristic: if asset authoring uses black baseColor for metals, fallback to typical metal F0
+    // 0.56 is typical for iron/steel, more realistic than 0.90 (silver/chrome)
     float luma = dot(baseColor.rgb, float3(0.2126f, 0.7152f, 0.0722f));
-    float3 defaultMetalF0 = float3(0.90f, 0.90f, 0.90f);
+    float3 defaultMetalF0 = float3(0.56f, 0.56f, 0.56f);
     if (metallic > 0.5f && luma < 0.05f)
     {
         specularColorPBR = lerp(F0Dielectric, defaultMetalF0, metallic);
