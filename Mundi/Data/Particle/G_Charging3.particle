@@ -20,8 +20,8 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
-                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
+                    "StartLocation_Max" : [0.350000, 0.350000, 0.350000],
+                    "StartLocation_Min" : [-0.350000, -0.350000, -0.350000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
                     "bEnabled" : true
@@ -91,8 +91,8 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
-                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
+                    "StartLocation_Max" : [0.350000, 0.350000, 0.350000],
+                    "StartLocation_Min" : [-0.350000, -0.350000, -0.350000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
                     "bEnabled" : true
@@ -162,8 +162,8 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
-                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
+                    "StartLocation_Max" : [0.350000, 0.350000, 0.350000],
+                    "StartLocation_Min" : [-0.350000, -0.350000, -0.350000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
                     "bEnabled" : true
@@ -233,8 +233,8 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
-                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
+                    "StartLocation_Max" : [0.350000, 0.350000, 0.350000],
+                    "StartLocation_Min" : [-0.350000, -0.350000, -0.350000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
                     "bEnabled" : true
