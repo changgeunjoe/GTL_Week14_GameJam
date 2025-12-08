@@ -2,7 +2,7 @@
   "Notifies" : [{
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (3).wav"
+        "SoundPath" : "Data/Audio/ShinobiVoices/audio (3).wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -11,7 +11,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Footsteps/wav/Banks17_534.wav"
+        "SoundPath" : "Data/Audio/SFX/Footsteps/wav/Banks17_534.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

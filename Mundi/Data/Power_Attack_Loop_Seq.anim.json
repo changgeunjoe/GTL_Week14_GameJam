@@ -2,7 +2,7 @@
   "Notifies" : [{
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Minimum_9.wav"
+        "SoundPath" : "Data/Audio/SFX/Minimum_9.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

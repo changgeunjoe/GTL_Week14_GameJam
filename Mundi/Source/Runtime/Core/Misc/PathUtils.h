@@ -246,6 +246,43 @@ inline FString ConvertDataPathToCachePath(const FString& InAssetPath)
 }
 
 /**
+ * @brief 절대 경로를 Data 디렉토리 기준 상대 경로로 변환합니다.
+ * @details JSON 직렬화 등에서 다른 컴퓨터에서도 동작할 수 있도록 상대 경로로 저장할 때 사용합니다.
+ *          예: "C:/Users/Jungle/Documents/Project/Mundi/Data/Audio/SFX/sound.wav" -> "Data/Audio/SFX/sound.wav"
+ * @param InPath 변환할 경로 문자열
+ * @return Data 디렉토리 기준 상대 경로 (변환 실패 시 원본 경로)
+ */
+inline FString MakePathRelativeToData(const FString& InPath)
+{
+	if (InPath.empty()) return InPath;
+
+	FString NormalizedPath = NormalizePath(InPath);
+
+	// Look for "/Data/" in the path (case-insensitive)
+	// This handles absolute paths like "C:/Users/.../Data/Audio/..."
+	const char* DataMarkers[] = { "/Data/", "/data/", "\\Data\\", "\\data\\" };
+	for (const char* Marker : DataMarkers)
+	{
+		size_t Pos = NormalizedPath.find(Marker);
+		if (Pos != FString::npos)
+		{
+			// Return "Data/" + everything after "/Data/"
+			return "Data/" + NormalizedPath.substr(Pos + 6); // 6 = length of "/Data/"
+		}
+	}
+
+	// Check if it already starts with "Data/" (already relative) - return as is
+	if (NormalizedPath.length() >= 5 &&
+		(_strnicmp(NormalizedPath.c_str(), "Data/", 5) == 0 || _strnicmp(NormalizedPath.c_str(), "data/", 5) == 0))
+	{
+		return NormalizedPath; // Already in correct format
+	}
+
+	// Return original path if no Data directory found
+	return NormalizedPath;
+}
+
+/**
  * 에셋(예: mtl) 내부에서 참조된 경로를 해석하여
  * 엔진이 사용하는 (현재 작업 디렉토리 기준) 상대 경로로 변환합니다.
  */
