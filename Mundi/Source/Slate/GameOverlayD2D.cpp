@@ -583,7 +583,7 @@ ID2D1LinearGradientBrush* UGameOverlayD2D::CreateBannerGradientBrush(float Scree
 // Draw Functions
 // ============================================================================
 
-void UGameOverlayD2D::DrawStartMenu(float ScreenW, float ScreenH)
+void UGameOverlayD2D::DrawPressAnyKey(float ScreenW, float ScreenH)
 {
     // Draw logo in background (centered, match height of screen)
     if (LogoBitmap && LogoWidth > 0 && LogoHeight > 0)
@@ -623,6 +623,111 @@ void UGameOverlayD2D::DrawStartMenu(float ScreenW, float ScreenH)
         SubtitleFormat,
         SubtitleRect,
         SubtitleBrush);
+}
+
+void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
+{
+    if (!D2DContext || !TitleFormat || !SubtitleFormat || !TextBrush || !SubtitleBrush)
+    {
+        return;
+    }
+
+    // Draw logo in background
+    if (LogoBitmap && LogoWidth > 0 && LogoHeight > 0)
+    {
+        float TargetH = ScreenH;
+        float Scale = TargetH / LogoHeight;
+        float ScaledW = LogoWidth * Scale;
+        float ScaledH = TargetH;
+
+        float DrawX = (ScreenW - ScaledW) * 0.5f;
+        float DrawY = (ScreenH - ScaledH) * 0.5f;
+
+        D2D1_RECT_F LogoRect = D2D1::RectF(DrawX, DrawY, DrawX + ScaledW, DrawY + ScaledH);
+        D2DContext->DrawBitmap(LogoBitmap, LogoRect, 0.3f);  // 반투명
+    }
+
+    // Title
+    const wchar_t* TitleText = L"Jelden Jing";
+    D2D1_RECT_F TitleRect = D2D1::RectF(0, ScreenH * 0.25f, ScreenW, ScreenH * 0.35f);
+    TextBrush->SetOpacity(1.0f);
+    D2DContext->DrawTextW(TitleText, static_cast<UINT32>(wcslen(TitleText)),
+        TitleFormat, TitleRect, TextBrush);
+
+    // Menu buttons
+    const wchar_t* StartText = L"Start Game";
+    const wchar_t* TutorialText = L"Tutorial";
+    const wchar_t* ExitText = L"Exit";
+
+    float MenuY = ScreenH * 0.50f;
+    float LineSpacing = 80.0f;
+    float ButtonWidth = 300.0f;
+    float ButtonHeight = 60.0f;
+    float ButtonX = (ScreenW - ButtonWidth) * 0.5f;
+
+    // 버튼 브러시
+    ID2D1SolidColorBrush* ButtonBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+
+    SubtitleBrush->SetOpacity(1.0f);
+
+    // 마우스 위치
+    float MouseXf = static_cast<float>(CurrentMouseX);
+    float MouseYf = static_cast<float>(CurrentMouseY);
+
+    // Start Game 버튼
+    StartGameButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bStartHover = (MouseXf >= StartGameButtonRect.left && MouseXf <= StartGameButtonRect.right &&
+                        MouseYf >= StartGameButtonRect.top && MouseYf <= StartGameButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(StartGameButtonRect, bStartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(StartGameButtonRect, SubtitleBrush, bStartHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F StartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+    D2DContext->DrawTextW(StartText, static_cast<UINT32>(wcslen(StartText)),
+        SubtitleFormat, StartTextRect, SubtitleBrush);
+
+    MenuY += LineSpacing;
+
+    // Tutorial 버튼
+    TutorialButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bTutorialHover = (MouseXf >= TutorialButtonRect.left && MouseXf <= TutorialButtonRect.right &&
+                           MouseYf >= TutorialButtonRect.top && MouseYf <= TutorialButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(TutorialButtonRect, bTutorialHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(TutorialButtonRect, SubtitleBrush, bTutorialHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F TutorialTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+    D2DContext->DrawTextW(TutorialText, static_cast<UINT32>(wcslen(TutorialText)),
+        SubtitleFormat, TutorialTextRect, SubtitleBrush);
+
+    MenuY += LineSpacing;
+
+    // Exit 버튼
+    ExitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bExitHover = (MouseXf >= ExitButtonRect.left && MouseXf <= ExitButtonRect.right &&
+                       MouseYf >= ExitButtonRect.top && MouseYf <= ExitButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(ExitButtonRect, bExitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(ExitButtonRect, SubtitleBrush, bExitHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F ExitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+    D2DContext->DrawTextW(ExitText, static_cast<UINT32>(wcslen(ExitText)),
+        SubtitleFormat, ExitTextRect, SubtitleBrush);
+
+    SafeRelease(ButtonBrush);
+    SafeRelease(ButtonHoverBrush);
+}
+
+void UGameOverlayD2D::DrawStartMenu(float ScreenW, float ScreenH)
+{
+    // 호환성을 위해 DrawPressAnyKey로 리디렉션
+    DrawPressAnyKey(ScreenW, ScreenH);
 }
 
 void UGameOverlayD2D::DrawDeathScreen(float ScreenW, float ScreenH, const wchar_t* Text, bool bIsVictory)
@@ -1036,45 +1141,154 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
         TextBrush);
 
     // 메뉴 옵션들
-    const wchar_t* ResumeText = L"Press ESC to Resume";
-    const wchar_t* RestartText = L"Press G to Restart";
-    const wchar_t* QuitText = L"Press Q to Quit";
+    const wchar_t* ResumeText = L"Resume";
+    const wchar_t* RestartText = L"Restart";
+    const wchar_t* QuitText = L"Quit";
 
     float MenuY = ScreenH * 0.45f;
-    float LineSpacing = 60.0f;
+    float LineSpacing = 80.0f;
+    float ButtonWidth = 300.0f;
+    float ButtonHeight = 60.0f;
+    float ButtonX = (ScreenW - ButtonWidth) * 0.5f;
+
+    // 버튼 배경 브러시
+    ID2D1SolidColorBrush* ButtonBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
 
     SubtitleBrush->SetOpacity(1.0f);
 
-    // Resume
-    D2D1_RECT_F ResumeRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    // 마우스 위치
+    float MouseXf = static_cast<float>(CurrentMouseX);
+    float MouseYf = static_cast<float>(CurrentMouseY);
+
+    // Resume 버튼
+    ResumeButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bResumeHover = (MouseXf >= ResumeButtonRect.left && MouseXf <= ResumeButtonRect.right &&
+                         MouseYf >= ResumeButtonRect.top && MouseYf <= ResumeButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(ResumeButtonRect, bResumeHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(ResumeButtonRect, SubtitleBrush, bResumeHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F ResumeTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
         ResumeText,
         static_cast<UINT32>(wcslen(ResumeText)),
         SubtitleFormat,
-        ResumeRect,
+        ResumeTextRect,
         SubtitleBrush);
 
     MenuY += LineSpacing;
 
-    // Restart
-    D2D1_RECT_F RestartRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    // Restart 버튼
+    RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
+                          MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(RestartButtonRect, bRestartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, bRestartHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
         RestartText,
         static_cast<UINT32>(wcslen(RestartText)),
         SubtitleFormat,
-        RestartRect,
+        RestartTextRect,
         SubtitleBrush);
 
     MenuY += LineSpacing;
 
-    // Quit
-    D2D1_RECT_F QuitRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    // Quit 버튼
+    QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
+                       MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(QuitButtonRect, bQuitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, bQuitHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
         QuitText,
         static_cast<UINT32>(wcslen(QuitText)),
         SubtitleFormat,
-        QuitRect,
+        QuitTextRect,
         SubtitleBrush);
+
+    SafeRelease(ButtonBrush);
+    SafeRelease(ButtonHoverBrush);
+}
+
+void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
+{
+    if (!D2DContext || !SubtitleFormat || !SubtitleBrush)
+    {
+        return;
+    }
+
+    // 메뉴 옵션들
+    const wchar_t* RestartText = L"Restart";
+    const wchar_t* QuitText = L"Quit";
+
+    float MenuY = ScreenH * 0.60f;  // 화면 하단 쪽에 표시
+    float LineSpacing = 80.0f;
+    float ButtonWidth = 300.0f;
+    float ButtonHeight = 60.0f;
+    float ButtonX = (ScreenW - ButtonWidth) * 0.5f;
+
+    // 버튼 배경 브러시
+    ID2D1SolidColorBrush* ButtonBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+
+    SubtitleBrush->SetOpacity(1.0f);
+
+    // 마우스 위치
+    float MouseXf = static_cast<float>(CurrentMouseX);
+    float MouseYf = static_cast<float>(CurrentMouseY);
+
+    // Restart 버튼
+    RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
+                          MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(RestartButtonRect, bRestartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, bRestartHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+    D2DContext->DrawTextW(
+        RestartText,
+        static_cast<UINT32>(wcslen(RestartText)),
+        SubtitleFormat,
+        RestartTextRect,
+        SubtitleBrush);
+
+    MenuY += LineSpacing;
+
+    // Quit 버튼
+    QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+    bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
+                       MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
+    if (ButtonBrush && ButtonHoverBrush)
+    {
+        D2DContext->FillRectangle(QuitButtonRect, bQuitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, bQuitHover ? 3.0f : 2.0f);
+    }
+    D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+    D2DContext->DrawTextW(
+        QuitText,
+        static_cast<UINT32>(wcslen(QuitText)),
+        SubtitleFormat,
+        QuitTextRect,
+        SubtitleBrush);
+
+    SafeRelease(ButtonBrush);
+    SafeRelease(ButtonHoverBrush);
 }
 
 void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
@@ -1274,7 +1488,8 @@ void UGameOverlayD2D::Draw()
     EGameFlowState FlowState = GS->GetGameFlowState();
 
     // Only draw for specific states
-    bool bShouldDraw = (FlowState == EGameFlowState::StartMenu ||
+    bool bShouldDraw = (FlowState == EGameFlowState::PressAnyKey ||
+                        FlowState == EGameFlowState::MainMenu ||
                         FlowState == EGameFlowState::Fighting ||
                         FlowState == EGameFlowState::Paused ||
                         FlowState == EGameFlowState::Victory ||
@@ -1359,8 +1574,12 @@ void UGameOverlayD2D::Draw()
     // Draw based on current state
     switch (FlowState)
     {
-    case EGameFlowState::StartMenu:
-        DrawStartMenu(ScreenW, ScreenH);
+    case EGameFlowState::PressAnyKey:
+        DrawPressAnyKey(ScreenW, ScreenH);
+        break;
+
+    case EGameFlowState::MainMenu:
+        DrawMainMenu(ScreenW, ScreenH);
         break;
 
     case EGameFlowState::Fighting:
@@ -1378,10 +1597,20 @@ void UGameOverlayD2D::Draw()
 
     case EGameFlowState::Defeat:
         DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
+        // 일정 시간 후 메뉴 표시
+        if (DeathScreenTimer >= DeathMenuShowDelay)
+        {
+            DrawDeathMenu(ScreenW, ScreenH);
+        }
         break;
 
     case EGameFlowState::Victory:
         DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
+        // 일정 시간 후 메뉴 표시
+        if (DeathScreenTimer >= DeathMenuShowDelay)
+        {
+            DrawDeathMenu(ScreenW, ScreenH);
+        }
         break;
 
     default:
@@ -1400,4 +1629,109 @@ void UGameOverlayD2D::Draw()
 
     SafeRelease(TargetBmp);
     SafeRelease(Surface);
+}
+
+void UGameOverlayD2D::UpdateMousePosition(int32 MouseX, int32 MouseY)
+{
+    CurrentMouseX = MouseX;
+    CurrentMouseY = MouseY;
+}
+
+void UGameOverlayD2D::HandleMouseClick(int32 MouseX, int32 MouseY)
+{
+    if (!GWorld)
+    {
+        return;
+    }
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    AGameState* GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
+
+    EGameFlowState FlowState = GS->GetGameFlowState();
+
+    // 일시정지, 죽음/승리, 메인메뉴 상태가 아니면 무시
+    if (FlowState != EGameFlowState::Paused &&
+        FlowState != EGameFlowState::Defeat &&
+        FlowState != EGameFlowState::Victory &&
+        FlowState != EGameFlowState::MainMenu)
+    {
+        return;
+    }
+
+    // 죽음/승리 메뉴가 아직 표시되지 않았으면 무시
+    if ((FlowState == EGameFlowState::Defeat || FlowState == EGameFlowState::Victory) &&
+        DeathScreenTimer < DeathMenuShowDelay)
+    {
+        return;
+    }
+
+    float MouseXf = static_cast<float>(MouseX);
+    float MouseYf = static_cast<float>(MouseY);
+
+    // MainMenu 버튼 클릭 체크
+    if (FlowState == EGameFlowState::MainMenu)
+    {
+        // Start Game 버튼
+        if (MouseXf >= StartGameButtonRect.left && MouseXf <= StartGameButtonRect.right &&
+            MouseYf >= StartGameButtonRect.top && MouseYf <= StartGameButtonRect.bottom)
+        {
+            GS->EnterBossIntro();
+            return;
+        }
+
+        // Tutorial 버튼
+        if (MouseXf >= TutorialButtonRect.left && MouseXf <= TutorialButtonRect.right &&
+            MouseYf >= TutorialButtonRect.top && MouseYf <= TutorialButtonRect.bottom)
+        {
+            // TODO: 튜토리얼 화면으로 전환 (향후 구현)
+            return;
+        }
+
+        // Exit 버튼
+        if (MouseXf >= ExitButtonRect.left && MouseXf <= ExitButtonRect.right &&
+            MouseYf >= ExitButtonRect.top && MouseYf <= ExitButtonRect.bottom)
+        {
+            GM->QuitGame();
+            return;
+        }
+    }
+
+    // Resume 버튼 클릭 체크 (일시정지 상태에서만)
+    if (FlowState == EGameFlowState::Paused)
+    {
+        if (MouseXf >= ResumeButtonRect.left && MouseXf <= ResumeButtonRect.right &&
+            MouseYf >= ResumeButtonRect.top && MouseYf <= ResumeButtonRect.bottom)
+        {
+            // Resume 동작 (GameModeBase에서 처리)
+            GM->ResumeGame();
+            return;
+        }
+    }
+
+    // Restart 버튼 클릭 체크
+    if (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
+        MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom)
+    {
+        // Restart 동작
+        GM->RestartGame();
+        return;
+    }
+
+    // Quit 버튼 클릭 체크
+    if (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
+        MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom)
+    {
+        // Quit 동작
+        GM->QuitGame();
+        return;
+    }
 }

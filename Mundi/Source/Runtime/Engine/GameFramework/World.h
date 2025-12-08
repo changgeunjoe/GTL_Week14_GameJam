@@ -152,6 +152,9 @@ public:
     void SetPaused(bool bInPaused) { bPaused = bInPaused; }
     bool IsPaused() const { return bPaused; }
 
+    // Restart - 재시작을 위한 정리 함수
+    void CleanupForRestart();
+
 private:
     bool DestroyActor(AActor* Actor);   // 즉시 삭제
 
