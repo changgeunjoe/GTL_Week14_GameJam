@@ -17,6 +17,26 @@
       "Kind" : "Single",
       "NotifyName" : "ComboWindow: Disable",
       "TriggerTime" : 0.316293
+    }, {
+      "Class" : "UAnimNotify_ParticleOnOff",
+      "Data" : {
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Particle: On: WeaponRibbon",
+      "TriggerTime" : 0.001649
+    }, {
+      "Class" : "UAnimNotify_ParticleOnOff",
+      "Data" : {
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Particle: Off: WeaponRibbon",
+      "TriggerTime" : 0.800017
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
