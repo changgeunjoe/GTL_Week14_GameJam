@@ -129,7 +129,7 @@ public:
     ~FLightManager();
 
     void SetOwningWorld(UWorld* InWorld) { OwningWorld = InWorld; }
-    void Initialize(D3D11RHI* RHIDevice, uint32 InShadowAtlasSize2D = 8192, uint32 InAtlasSizeCube = 1024, uint32 InCubeArrayCount = 8);
+    void Initialize(D3D11RHI* RHIDevice, uint32 InShadowAtlasSize2D = 4096, uint32 InAtlasSizeCube = 1024, uint32 InCubeArrayCount = 8);
     void Release();
 
     void UpdateLightBuffer(D3D11RHI* RHIDevice);
@@ -186,7 +186,7 @@ private:
     ID3D11Texture2D* ShadowAtlasTexture2D = nullptr;
     ID3D11DepthStencilView* ShadowAtlasDSV2D = nullptr;
     ID3D11ShaderResourceView* ShadowAtlasSRV2D = nullptr; // t9
-    uint32 ShadowAtlasSize2D = 8192;
+    uint32 ShadowAtlasSize2D = 4096; // 최적화: 8192→4096 (4배 빠름, 품질 거의 동일)
 
     // Atlas 2: 큐브맵 아틀라스 (Point Light용)
     ID3D11Texture2D* ShadowAtlasTextureCube = nullptr; // TextureCubeArray 리소스
