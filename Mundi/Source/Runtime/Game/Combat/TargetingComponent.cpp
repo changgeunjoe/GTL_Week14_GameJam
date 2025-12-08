@@ -5,6 +5,7 @@
 #include "Actor.h"
 #include "World.h"
 #include "EnemyBase.h"
+#include "BossEnemy.h"
 #include "PlayerController.h"
 #include <cmath>
 
@@ -211,14 +212,14 @@ TArray<AActor*> UTargetingComponent::FindPotentialTargets() const
     EnsureOwnerPawn();
     if (!World || !OwnerPawn) return ValidTargets;
 
-    // Find all enemies in the world
-    TArray<AEnemyBase*> Enemies = World->FindActors<AEnemyBase>();
+    // Find only boss enemies in the world
+    TArray<ABossEnemy*> Bosses = World->FindActors<ABossEnemy>();
 
-    for (AEnemyBase* Enemy : Enemies)
+    for (ABossEnemy* Boss : Bosses)
     {
-        if (IsValidTarget(Enemy))
+        if (IsValidTarget(Boss))
         {
-            ValidTargets.Add(Enemy);
+            ValidTargets.Add(Boss);
         }
     }
 

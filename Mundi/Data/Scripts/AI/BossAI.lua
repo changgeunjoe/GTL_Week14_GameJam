@@ -1588,7 +1588,7 @@ function Tick(Delta)
             print("Boss is dead, playing death animation")
 
             -- 죽음 애니메이션 재생 (DeathMontage 사용)
-            local success = PlayBossMontage(Obj, "Death")
+            local success = PlayBossMontage(Obj, "Death",1.3)
             if success then
                 print("Death animation played successfully")
             else

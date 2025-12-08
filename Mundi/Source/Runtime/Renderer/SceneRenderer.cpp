@@ -764,11 +764,8 @@ void FSceneRenderer::GatherVisibleProxies()
 					}
 					else if (UBillboardComponent* BillboardComponent = Cast<UBillboardComponent>(PrimitiveComponent); BillboardComponent && bUseBillboard)
 					{
-						FAABB WorldAABB = BillboardComponent->GetWorldAABB();
-						if (IsAABBVisible(ViewFrustum, WorldAABB))
-						{
-							Proxies.Billboards.Add(BillboardComponent);
-						}
+						// 빌보드는 프러스텀 컬링 제외 (항상 렌더링)
+						Proxies.Billboards.Add(BillboardComponent);
 					}
 					else if (UDecalComponent* DecalComponent = Cast<UDecalComponent>(PrimitiveComponent); DecalComponent && bDrawDecals)
 					{

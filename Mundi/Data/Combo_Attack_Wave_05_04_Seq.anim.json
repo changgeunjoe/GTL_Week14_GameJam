@@ -1,23 +1,5 @@
 {
   "Notifies" : [{
-      "Class" : "UAnimNotify_ComboWindow",
-      "Data" : {
-
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "ComboWindow: Enable",
-      "TriggerTime" : 0.007231
-    }, {
-      "Class" : "UAnimNotify_ComboWindow",
-      "Data" : {
-
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "ComboWindow: Disable",
-      "TriggerTime" : 0.316293
-    }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
         "bEnable" : true
@@ -25,7 +7,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision",
-      "TriggerTime" : 0.028035
+      "TriggerTime" : 0.117173
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
@@ -34,7 +16,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision: Disable",
-      "TriggerTime" : 0.265509
+      "TriggerTime" : 0.369673
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

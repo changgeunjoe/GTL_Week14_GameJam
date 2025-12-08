@@ -1,0 +1,14 @@
+{
+  "Notifies" : [{
+      "Class" : "UAnimNotify_PauseAnimation",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PauseAnimation",
+      "TriggerTime" : 2.437922
+    }],
+  "Type" : "AnimSequenceMeta",
+  "Version" : 1
+}
