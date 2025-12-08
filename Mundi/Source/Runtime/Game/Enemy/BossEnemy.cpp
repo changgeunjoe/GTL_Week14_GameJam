@@ -10,6 +10,7 @@
 #include "ResourceManager.h"
 #include "GameModeBase.h"
 #include "GameState.h"
+#include "BillboardComponent.h"
 
 ABossEnemy::ABossEnemy()
 {
@@ -96,7 +97,7 @@ void ABossEnemy::BeginPlay()
     InitMontage(ChargeStartMontage, ChargeStartAnimPath, "ChargeStart");
     InitMontage(ChargeAttackMontage, ChargeAttackAnimPath, "ChargeAttack");
     InitMontage(SpinAttackMontage, SpinAttackAnimPath, "SpinAttack");
-
+    InitMontage(PunishAttackMontage, PunishAttackAnimPath, "PunishAttack");
     // 콤보 애니메이션 몽타주 초기화
     InitMontage(Slash_1_Montage, Slash_1_AnimPath, "Slash_1");
     InitMontage(Slash_2_Montage, Slash_2_AnimPath, "Slash_2");
@@ -105,6 +106,45 @@ void ABossEnemy::BeginPlay()
     InitMontage(Spin_2_Montage, Spin_2_AnimPath, "Spin_2");
     InitMontage(Smash_1_Montage, Smash_1_AnimPath, "Smash_1");
     InitMontage(Smash_2_Montage, Smash_2_AnimPath, "Smash_2");
+
+    // 죽음 애니메이션 몽타주 초기화
+    UE_LOG("[BossEnemy] Initializing Death montage with path: %s", DeathAnimPath.c_str());
+    InitMontage(DeathMontage, DeathAnimPath, "Death");
+    if (DeathMontage)
+    {
+        UE_LOG("[BossEnemy] Death montage successfully initialized");
+    }
+    else
+    {
+        UE_LOG("[BossEnemy] WARNING: Death montage is NULL after initialization!");
+    }
+
+    // ========================================================================
+    // LockOnIndicator를 spine_01 본에 붙이기 위한 준비
+    // ========================================================================
+    // LockOnIndicator 컴포넌트 찾기
+    const TSet<UActorComponent*>& Components = GetOwnedComponents();
+    for (UActorComponent* Component : Components)
+    {
+        if (Component && Component->GetName() == "LockOnIndicator")
+        {
+            LockOnIndicator = Cast<UBillboardComponent>(Component);
+            if (LockOnIndicator && GetMesh())
+            {
+                // spine_01 본의 인덱스 찾기
+                LockOnBoneIndex = GetMesh()->GetBoneIndexByName(FName("spine_01"));
+                if (LockOnBoneIndex != INDEX_NONE)
+                {
+                    UE_LOG("[BossEnemy] LockOnIndicator found, will follow spine_01 bone (index: %d)", LockOnBoneIndex);
+                }
+                else
+                {
+                    UE_LOG("[BossEnemy] WARNING: spine_01 bone not found!");
+                }
+            }
+            break;
+        }
+    }
 }
 
 void ABossEnemy::Tick(float DeltaSeconds)
@@ -128,6 +168,32 @@ void ABossEnemy::Tick(float DeltaSeconds)
             }
         }
     }
+
+    // LockOnIndicator를 spine_01 본 위치로 업데이트
+    if (LockOnIndicator && GetMesh() && LockOnBoneIndex != INDEX_NONE)
+    {
+        FTransform BoneTransform = GetMesh()->GetBoneWorldTransform(LockOnBoneIndex);
+        LockOnIndicator->SetWorldLocation(BoneTransform.Translation);
+    }
+}
+
+void ABossEnemy::OnDeath()
+{
+    //Super::OnDeath();
+
+    //// 죽음 애니메이션은 Lua에서 처리
+
+    //// GameState에 승리 알림
+    //if (UWorld* World = GetWorld())
+    //{
+    //    if (AGameModeBase* GM = World->GetGameMode())
+    //    {
+    //        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+    //        {
+    //            GS->EnterVictory();
+    //        }
+    //    }
+    //}
 }
 
 // ============================================================================
@@ -296,6 +362,10 @@ bool ABossEnemy::PlayMontageByName(const FString& MontageName, float BlendIn, fl
         Montage = ChargeAttackMontage;
     else if (MontageName == "SpinAttack")
         Montage = SpinAttackMontage;
+    else if (MontageName == "Death")
+        Montage = DeathMontage;
+    else if (MontageName == "PunishAttack")
+        Montage = PunishAttackMontage;
     // 콤보 애니메이션
     else if (MontageName == "Slash_1")
         Montage = Slash_1_Montage;

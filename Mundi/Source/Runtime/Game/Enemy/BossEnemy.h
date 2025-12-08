@@ -23,6 +23,7 @@ public:
     // ========================================================================
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual void OnDeath() override;
 
     // ========================================================================
     // 보스 전용 공격 패턴
@@ -131,6 +132,14 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Animation|Combo")
     FString Smash_2_AnimPath;
 
+    // ========== 죽음 애니메이션 ==========
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    FString DeathAnimPath;
+
+    // ========== 죽음 애니메이션 ==========
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    FString PunishAttackAnimPath;
+
     // ========== 공격 애니메이션 몽타주 ==========
     UAnimMontage* LightComboMontage = nullptr;
     UAnimMontage* HeavySlamMontage = nullptr;
@@ -147,10 +156,19 @@ protected:
     UAnimMontage* Smash_1_Montage = nullptr;
     UAnimMontage* Smash_2_Montage = nullptr;
 
+    // ========== 죽음 애니메이션 몽타주 ==========
+    UAnimMontage* DeathMontage = nullptr;
+
+    UAnimMontage* PunishAttackMontage = nullptr;
+
     // ========== 애니메이션 설정 ==========
     UPROPERTY(EditAnywhere, Category = "Animation")
     bool bEnableAttackRootMotion = true;
 
     UPROPERTY(EditAnywhere, Category = "Animation")
     float AnimationCutEndTime = 0.0f;
+
+    // ========== LockOnIndicator ==========
+    class UBillboardComponent* LockOnIndicator = nullptr;
+    int32 LockOnBoneIndex = INDEX_NONE;
 };
