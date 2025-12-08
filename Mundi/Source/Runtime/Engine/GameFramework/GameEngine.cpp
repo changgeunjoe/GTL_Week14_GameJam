@@ -303,6 +303,9 @@ void UGameEngine::MainLoop()
         float DeltaSeconds = static_cast<float>((CurrTime.QuadPart - PrevTime.QuadPart) / double(Frequency.QuadPart));
         PrevTime = CurrTime;
 
+        // DeltaTime 제한 제거 (프레임 제한 없음)
+        // DeltaSeconds = FMath::Min(DeltaSeconds, 1.0f / 30.0f); // 이 줄 삭제됨
+
         // 처리할 메시지가 더 이상 없을때 까지 수행
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
