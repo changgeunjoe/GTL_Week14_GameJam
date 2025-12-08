@@ -137,7 +137,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
             &SubtitleFormat);
 
         if (SubtitleFormat)
-        {
+        { 
             SubtitleFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             SubtitleFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         }
