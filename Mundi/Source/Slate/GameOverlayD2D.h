@@ -27,6 +27,7 @@ private:
     void DrawBossHealthBar(float ScreenW, float ScreenH, float DeltaTime);
     void DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTime);
     void DrawDebugStats(float ScreenW, float ScreenH);  // 디버그: 보스/플레이어 상태
+    void DrawPauseMenu(float ScreenW, float ScreenH);   // 일시정지 메뉴
 
     // Create gradient brush for the banner (recreated per-frame due to screen size changes)
     ID2D1LinearGradientBrush* CreateBannerGradientBrush(float ScreenW, float ScreenH, float Opacity);
