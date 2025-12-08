@@ -1,6 +1,6 @@
 {
   "Actors" : {
-    "10211" : {
+    "10487" : {
       "ObjectName" : "ADirectionalLightActor_3",
       "OwnedComponents" : [{
           "CascadedAreaColorDebugValue" : 0.000000,
@@ -8,7 +8,7 @@
           "CascadedCount" : 4,
           "CascadedLinearBlendingValue" : 0.500000,
           "CascadedOverlapValue" : 0.200000,
-          "Id" : 10213,
+          "Id" : 10489,
           "Intensity" : 0.200000,
           "LightColor" : [1.000000, 0.788689, 0.687259, 1.000000],
           "ObjectName" : "DirectionalLightComponent",
@@ -29,16 +29,16 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10213,
+      "RootComponentId" : 10489,
       "Tag" : "",
       "Type" : "ADirectionalLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10214" : {
+    "10490" : {
       "ObjectName" : "AAmbientLightActor_3",
       "OwnedComponents" : [{
-          "Id" : 10216,
+          "Id" : 10492,
           "Intensity" : 0.100000,
           "LightColor" : [1.000000, 0.479241, 0.254826, 1.000000],
           "ObjectName" : "AmbientLightComponent",
@@ -58,20 +58,20 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10216,
+      "RootComponentId" : 10492,
       "Tag" : "",
       "Type" : "AAmbientLightActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10217" : {
-      "BloomBlurRadiusSetting" : 1.500000,
-      "BloomIntensitySetting" : 1.000000,
+    "10493" : {
+      "BloomBlurRadiusSetting" : 1.400000,
+      "BloomIntensitySetting" : 0.800000,
       "BloomSoftKneeSetting" : 0.900000,
       "BloomThresholdSetting" : 0.800000,
       "ObjectName" : "APlayerCameraManager_3",
       "OwnedComponents" : [{
-          "Id" : 10218,
+          "Id" : 10494,
           "ObjectName" : "DefaultSceneComponent",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -83,14 +83,14 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10218,
+      "RootComponentId" : 10494,
       "Tag" : "",
       "Type" : "APlayerCameraManager",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true,
       "bBloomSettingsEnabled" : true
     },
-    "10220" : {
+    "10496" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -102,7 +102,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10222,
+          "Id" : 10498,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -246,13 +246,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10222,
+      "RootComponentId" : 10498,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10233" : {
+    "10509" : {
       "ObjectName" : "스태틱 메시_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -264,7 +264,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10235,
+          "Id" : 10511,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -349,13 +349,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10235,
+      "RootComponentId" : 10511,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10240" : {
+    "10516" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -367,7 +367,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10242,
+          "Id" : 10518,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -452,13 +452,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10242,
+      "RootComponentId" : 10518,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10247" : {
+    "10523" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -470,7 +470,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10249,
+          "Id" : 10525,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -525,13 +525,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10249,
+      "RootComponentId" : 10525,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10254" : {
+    "10530" : {
       "ObjectName" : "스태틱 메시_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -543,7 +543,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10256,
+          "Id" : 10532,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -628,19 +628,19 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10256,
+      "RootComponentId" : 10532,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10263" : {
+    "10539" : {
       "ObjectName" : "빈 액터_0",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
-          "Id" : 10264,
+          "Id" : 10540,
           "ObjectName" : "UParticleSystemComponent_1",
-          "ParentId" : 10265,
+          "ParentId" : 10541,
           "ParticleIndex" : 0,
           "ParticleName" : "",
           "RelativeLocation" : [0.000000, -1.148703, 0.000000],
@@ -660,7 +660,7 @@
           "bUseAsyncSimulation" : true,
           "bUseGpuInstancing" : false
         }, {
-          "Id" : 10265,
+          "Id" : 10541,
           "ObjectName" : "DefaultSceneComponent",
           "ParentId" : 0,
           "RelativeLocation" : [4.413352, 9.416862, 7.822547],
@@ -672,13 +672,13 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10265,
+      "RootComponentId" : 10541,
       "Tag" : "",
       "Type" : "AEmptyActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10266" : {
+    "10542" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -690,7 +690,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10268,
+          "Id" : 10544,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -805,13 +805,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10268,
+      "RootComponentId" : 10544,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10277" : {
+    "10553" : {
       "ObjectName" : "스태틱 메시_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -823,7 +823,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10279,
+          "Id" : 10555,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -923,13 +923,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10279,
+      "RootComponentId" : 10555,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10287" : {
+    "10563" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -941,7 +941,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10289,
+          "Id" : 10565,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -982,13 +982,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10289,
+      "RootComponentId" : 10565,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10293" : {
+    "10569" : {
       "ObjectName" : "스태틱 메시_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1000,7 +1000,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10295,
+          "Id" : 10571,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1100,13 +1100,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10295,
+      "RootComponentId" : 10571,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10303" : {
+    "10579" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1118,7 +1118,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10305,
+          "Id" : 10581,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1203,13 +1203,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10305,
+      "RootComponentId" : 10581,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10312" : {
+    "10588" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1221,7 +1221,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10314,
+          "Id" : 10590,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1260,13 +1260,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10314,
+      "RootComponentId" : 10590,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10318" : {
+    "10594" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1278,7 +1278,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10320,
+          "Id" : 10596,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1319,13 +1319,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10320,
+      "RootComponentId" : 10596,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10324" : {
+    "10600" : {
       "ObjectName" : "스태틱 메시_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1337,7 +1337,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10326,
+          "Id" : 10602,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1408,13 +1408,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10326,
+      "RootComponentId" : 10602,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10332" : {
+    "10608" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1426,7 +1426,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10334,
+          "Id" : 10610,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1525,13 +1525,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10334,
+      "RootComponentId" : 10610,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10342" : {
+    "10618" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1543,7 +1543,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10344,
+          "Id" : 10620,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1643,19 +1643,19 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10344,
+      "RootComponentId" : 10620,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10352" : {
+    "10628" : {
       "ObjectName" : "Sky Sphere_0",
       "OwnedComponents" : [{
           "GroundColor" : [0.100000, 0.100000, 0.100000, 1.000000],
           "HorizonColor" : [0.054054, 0.013417, 0.002713, 1.000000],
           "HorizonFalloff" : 1.000000,
-          "Id" : 10354,
+          "Id" : 10630,
           "ObjectName" : "SkySphereComponent",
           "OverallBrightness" : 1.000000,
           "ParentId" : 0,
@@ -1675,13 +1675,13 @@
           "bIsVisible" : true,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10354,
+      "RootComponentId" : 10630,
       "Tag" : "",
       "Type" : "ASkySphereActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10355" : {
+    "10631" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1693,7 +1693,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10357,
+          "Id" : 10633,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1736,11 +1736,11 @@
         }, {
           "AttenuationRadius" : 26.400000,
           "FalloffExponent" : 0.422000,
-          "Id" : 10361,
+          "Id" : 10637,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
           "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10357,
+          "ParentId" : 10633,
           "RelativeLocation" : [0.000000, -233.350449, 10.598874],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -1759,22 +1759,22 @@
           "bTickEnabled" : true,
           "bUseInverseSquareFalloff" : false
         }],
-      "RootComponentId" : 10357,
+      "RootComponentId" : 10633,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10362" : {
+    "10638" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AttenuationRadius" : 24.400000,
           "FalloffExponent" : 0.747000,
-          "Id" : 10364,
+          "Id" : 10640,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
           "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10365,
+          "ParentId" : 10641,
           "RelativeLocation" : [0.000000, 34.586262, 1.057491],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -1802,7 +1802,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10365,
+          "Id" : 10641,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1843,15 +1843,40 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10365,
+      "RootComponentId" : 10641,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10369" : {
+    "10645" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
+          "AttenuationRadius" : 34.900002,
+          "FalloffExponent" : 0.372000,
+          "Id" : 10651,
+          "Intensity" : 1.000000,
+          "LightColor" : [1.000000, 0.527810, 0.324324, 1.000000],
+          "ObjectName" : "UPointLightComponent_1",
+          "ParentId" : 10647,
+          "RelativeLocation" : [0.000000, 34.586262, 1.057491],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "ShadowBias" : 0.003350,
+          "ShadowResolutionScale" : 1024,
+          "ShadowSharpen" : 0.500000,
+          "ShadowSlopeBias" : 0.006240,
+          "SourceRadius" : 0.000000,
+          "Temperature" : 6500.000000,
+          "Type" : "UPointLightComponent",
+          "bCastShadows" : false,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCameraLightPerspective" : false,
+          "bTickEnabled" : true,
+          "bUseInverseSquareFalloff" : false
+        }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [36.585510, 91.218681, 31.777048],
           "CapsuleHalfHeight" : 31.777048,
@@ -1861,7 +1886,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10371,
+          "Id" : 10647,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1901,39 +1926,14 @@
           "bOverrideCollisionSetting" : false,
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
-        }, {
-          "AttenuationRadius" : 34.900002,
-          "FalloffExponent" : 0.372000,
-          "Id" : 10375,
-          "Intensity" : 1.000000,
-          "LightColor" : [1.000000, 0.527810, 0.324324, 1.000000],
-          "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10371,
-          "RelativeLocation" : [0.000000, 34.586262, 1.057491],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "ShadowBias" : 0.003350,
-          "ShadowResolutionScale" : 1024,
-          "ShadowSharpen" : 0.500000,
-          "ShadowSlopeBias" : 0.006240,
-          "SourceRadius" : 0.000000,
-          "Temperature" : 6500.000000,
-          "Type" : "UPointLightComponent",
-          "bCastShadows" : false,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCameraLightPerspective" : false,
-          "bTickEnabled" : true,
-          "bUseInverseSquareFalloff" : false
         }],
-      "RootComponentId" : 10371,
+      "RootComponentId" : 10647,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10376" : {
+    "10652" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -1945,7 +1945,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10378,
+          "Id" : 10654,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -1986,13 +1986,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10378,
+      "RootComponentId" : 10654,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10382" : {
+    "10658" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2004,7 +2004,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10384,
+          "Id" : 10660,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2045,13 +2045,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10384,
+      "RootComponentId" : 10660,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10388" : {
+    "10664" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2063,7 +2063,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10390,
+          "Id" : 10666,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2104,13 +2104,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10390,
+      "RootComponentId" : 10666,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10394" : {
+    "10670" : {
       "ObjectName" : "AStaticMeshActor_3",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2122,7 +2122,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10396,
+          "Id" : 10672,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2163,13 +2163,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10396,
+      "RootComponentId" : 10672,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10400" : {
+    "10676" : {
       "ObjectName" : "AStaticMeshActor_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2181,7 +2181,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10402,
+          "Id" : 10678,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2222,13 +2222,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10402,
+      "RootComponentId" : 10678,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10406" : {
+    "10682" : {
       "ObjectName" : "AStaticMeshActor_5",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2240,7 +2240,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10408,
+          "Id" : 10684,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2281,13 +2281,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10408,
+      "RootComponentId" : 10684,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10412" : {
+    "10688" : {
       "ObjectName" : "AStaticMeshActor_6",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2299,7 +2299,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10414,
+          "Id" : 10690,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2340,13 +2340,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10414,
+      "RootComponentId" : 10690,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10418" : {
+    "10694" : {
       "ObjectName" : "AStaticMeshActor_7",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2358,7 +2358,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10420,
+          "Id" : 10696,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2399,13 +2399,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10420,
+      "RootComponentId" : 10696,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10424" : {
+    "10700" : {
       "ObjectName" : "AStaticMeshActor_8",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2417,7 +2417,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10426,
+          "Id" : 10702,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2458,13 +2458,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10426,
+      "RootComponentId" : 10702,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10430" : {
+    "10706" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2476,7 +2476,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10432,
+          "Id" : 10708,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2620,13 +2620,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10432,
+      "RootComponentId" : 10708,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10443" : {
+    "10719" : {
       "ObjectName" : "AStaticMeshActor_9",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2638,7 +2638,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10445,
+          "Id" : 10721,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2679,13 +2679,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10445,
+      "RootComponentId" : 10721,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10449" : {
+    "10725" : {
       "ObjectName" : "AStaticMeshActor_10",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2697,7 +2697,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10451,
+          "Id" : 10727,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2738,13 +2738,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10451,
+      "RootComponentId" : 10727,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10455" : {
+    "10731" : {
       "ObjectName" : "AStaticMeshActor_11",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2756,7 +2756,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10457,
+          "Id" : 10733,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2797,15 +2797,40 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10457,
+      "RootComponentId" : 10733,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10461" : {
+    "10737" : {
       "ObjectName" : "AStaticMeshActor_12",
       "OwnedComponents" : [{
+          "AttenuationRadius" : 28.799999,
+          "FalloffExponent" : 0.298000,
+          "Id" : 10743,
+          "Intensity" : 1.000000,
+          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
+          "ObjectName" : "UPointLightComponent_1",
+          "ParentId" : 10739,
+          "RelativeLocation" : [0.000000, 9.513091, 0.059739],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "ShadowBias" : 0.003350,
+          "ShadowResolutionScale" : 1024,
+          "ShadowSharpen" : 0.500000,
+          "ShadowSlopeBias" : 0.006240,
+          "SourceRadius" : 0.000000,
+          "Temperature" : 6500.000000,
+          "Type" : "UPointLightComponent",
+          "bCastShadows" : false,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCameraLightPerspective" : false,
+          "bTickEnabled" : true,
+          "bUseInverseSquareFalloff" : false
+        }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [36.585510, 91.218681, 31.777048],
           "CapsuleHalfHeight" : 31.777048,
@@ -2815,7 +2840,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10463,
+          "Id" : 10739,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2855,48 +2880,23 @@
           "bOverrideCollisionSetting" : false,
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
-        }, {
-          "AttenuationRadius" : 28.799999,
-          "FalloffExponent" : 0.298000,
-          "Id" : 10467,
-          "Intensity" : 1.000000,
-          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
-          "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10463,
-          "RelativeLocation" : [0.000000, 9.513091, 0.059739],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "ShadowBias" : 0.003350,
-          "ShadowResolutionScale" : 1024,
-          "ShadowSharpen" : 0.500000,
-          "ShadowSlopeBias" : 0.006240,
-          "SourceRadius" : 0.000000,
-          "Temperature" : 6500.000000,
-          "Type" : "UPointLightComponent",
-          "bCastShadows" : false,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCameraLightPerspective" : false,
-          "bTickEnabled" : true,
-          "bUseInverseSquareFalloff" : false
         }],
-      "RootComponentId" : 10463,
+      "RootComponentId" : 10739,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10468" : {
+    "10744" : {
       "ObjectName" : "AStaticMeshActor_13",
       "OwnedComponents" : [{
           "AttenuationRadius" : 75.099998,
           "FalloffExponent" : 2.361000,
-          "Id" : 10474,
+          "Id" : 10746,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
           "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10470,
+          "ParentId" : 10747,
           "RelativeLocation" : [27.956390, -20.070087, -67.946228],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -2924,7 +2924,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10470,
+          "Id" : 10747,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -2965,13 +2965,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10470,
+      "RootComponentId" : 10747,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10475" : {
+    "10751" : {
       "ObjectName" : "AStaticMeshActor_14",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -2983,7 +2983,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10477,
+          "Id" : 10753,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3068,13 +3068,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10477,
+      "RootComponentId" : 10753,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10482" : {
+    "10758" : {
       "ObjectName" : "AStaticMeshActor_15",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -3086,7 +3086,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10484,
+          "Id" : 10760,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3185,13 +3185,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10484,
+      "RootComponentId" : 10760,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10492" : {
+    "10768" : {
       "ObjectName" : "AStaticMeshActor_16",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -3203,7 +3203,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10494,
+          "Id" : 10770,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3303,13 +3303,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10494,
+      "RootComponentId" : 10770,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10502" : {
+    "10778" : {
       "ObjectName" : "스태틱 메시_3",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -3321,7 +3321,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10504,
+          "Id" : 10780,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3421,20 +3421,20 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10504,
+      "RootComponentId" : 10780,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10512" : {
+    "10788" : {
       "ObjectName" : "ADecalActor_0",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10516,
+          "Id" : 10792,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3450,20 +3450,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10516,
+      "RootComponentId" : 10792,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10517" : {
+    "10793" : {
       "ObjectName" : "ADecalActor_0",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10519,
+          "Id" : 10795,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3479,20 +3479,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10519,
+      "RootComponentId" : 10795,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10520" : {
+    "10796" : {
       "ObjectName" : "ADecalActor_1",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10522,
+          "Id" : 10798,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3508,20 +3508,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10522,
+      "RootComponentId" : 10798,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10523" : {
+    "10799" : {
       "ObjectName" : "ADecalActor_2",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10525,
+          "Id" : 10801,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3537,20 +3537,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10525,
+      "RootComponentId" : 10801,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10526" : {
+    "10802" : {
       "ObjectName" : "ADecalActor_3",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10528,
+          "Id" : 10804,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3566,20 +3566,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10528,
+      "RootComponentId" : 10804,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10529" : {
+    "10805" : {
       "ObjectName" : "ADecalActor_4",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 10531,
+          "Id" : 10807,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -3595,15 +3595,40 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10531,
+      "RootComponentId" : 10807,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10532" : {
+    "10808" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
+          "AttenuationRadius" : 26.600000,
+          "FalloffExponent" : 0.704000,
+          "Id" : 10814,
+          "Intensity" : 1.000000,
+          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
+          "ObjectName" : "UPointLightComponent_1",
+          "ParentId" : 10810,
+          "RelativeLocation" : [0.000000, 34.586262, 1.057491],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "ShadowBias" : 0.003350,
+          "ShadowResolutionScale" : 1024,
+          "ShadowSharpen" : 0.500000,
+          "ShadowSlopeBias" : 0.006240,
+          "SourceRadius" : 0.000000,
+          "Temperature" : 6500.000000,
+          "Type" : "UPointLightComponent",
+          "bCastShadows" : false,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCameraLightPerspective" : false,
+          "bTickEnabled" : true,
+          "bUseInverseSquareFalloff" : false
+        }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [36.585510, 91.218681, 31.777048],
           "CapsuleHalfHeight" : 31.777048,
@@ -3613,7 +3638,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10534,
+          "Id" : 10810,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3653,39 +3678,14 @@
           "bOverrideCollisionSetting" : false,
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
-        }, {
-          "AttenuationRadius" : 26.600000,
-          "FalloffExponent" : 0.704000,
-          "Id" : 10538,
-          "Intensity" : 1.000000,
-          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
-          "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10534,
-          "RelativeLocation" : [0.000000, 34.586262, 1.057491],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "ShadowBias" : 0.003350,
-          "ShadowResolutionScale" : 1024,
-          "ShadowSharpen" : 0.500000,
-          "ShadowSlopeBias" : 0.006240,
-          "SourceRadius" : 0.000000,
-          "Temperature" : 6500.000000,
-          "Type" : "UPointLightComponent",
-          "bCastShadows" : false,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCameraLightPerspective" : false,
-          "bTickEnabled" : true,
-          "bUseInverseSquareFalloff" : false
         }],
-      "RootComponentId" : 10534,
+      "RootComponentId" : 10810,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10539" : {
+    "10815" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -3697,7 +3697,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10541,
+          "Id" : 10817,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -3841,13 +3841,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10541,
+      "RootComponentId" : 10817,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10552" : {
+    "10828" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -3859,7 +3859,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10554,
+          "Id" : 10830,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4003,22 +4003,22 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10554,
+      "RootComponentId" : 10830,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10565" : {
+    "10841" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AttenuationRadius" : 27.500000,
           "FalloffExponent" : 1.283000,
-          "Id" : 10567,
+          "Id" : 10843,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
           "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10568,
+          "ParentId" : 10844,
           "RelativeLocation" : [0.000000, 9.513091, 0.059739],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -4046,7 +4046,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10568,
+          "Id" : 10844,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4087,13 +4087,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10568,
+      "RootComponentId" : 10844,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10572" : {
+    "10848" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4105,7 +4105,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10574,
+          "Id" : 10850,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4205,13 +4205,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10574,
+      "RootComponentId" : 10850,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10582" : {
+    "10858" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4223,7 +4223,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10584,
+          "Id" : 10860,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4323,22 +4323,22 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10584,
+      "RootComponentId" : 10860,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10592" : {
+    "10868" : {
       "ObjectName" : "AStaticMeshActor_3",
       "OwnedComponents" : [{
           "AttenuationRadius" : 14.100000,
           "FalloffExponent" : 0.774000,
-          "Id" : 10594,
+          "Id" : 10870,
           "Intensity" : 1.000000,
           "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
           "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10595,
+          "ParentId" : 10871,
           "RelativeLocation" : [0.000000, 9.513091, 0.059739],
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -4366,7 +4366,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10595,
+          "Id" : 10871,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4407,13 +4407,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10595,
+      "RootComponentId" : 10871,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10599" : {
+    "10875" : {
       "ObjectName" : "AStaticMeshActor_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4425,7 +4425,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10601,
+          "Id" : 10877,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4510,13 +4510,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10601,
+      "RootComponentId" : 10877,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10606" : {
+    "10882" : {
       "ObjectName" : "AStaticMeshActor_5",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4528,7 +4528,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10608,
+          "Id" : 10884,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4613,13 +4613,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10608,
+      "RootComponentId" : 10884,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10615" : {
+    "10891" : {
       "ObjectName" : "AStaticMeshActor_6",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4631,7 +4631,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10617,
+          "Id" : 10893,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4731,13 +4731,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10617,
+      "RootComponentId" : 10893,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10625" : {
+    "10901" : {
       "ObjectName" : "AStaticMeshActor_7",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4749,7 +4749,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10627,
+          "Id" : 10903,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4849,13 +4849,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10627,
+      "RootComponentId" : 10903,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10635" : {
+    "10911" : {
       "ObjectName" : "AStaticMeshActor_8",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4867,7 +4867,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10637,
+          "Id" : 10913,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -4952,13 +4952,13 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10637,
+      "RootComponentId" : 10913,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10642" : {
+    "10918" : {
       "ObjectName" : "AStaticMeshActor_9",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
@@ -4970,7 +4970,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 3,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10644,
+          "Id" : 10920,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5055,40 +5055,15 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 10644,
+      "RootComponentId" : 10920,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "10649" : {
+    "10925" : {
       "ObjectName" : "AStaticMeshActor_10",
       "OwnedComponents" : [{
-          "AttenuationRadius" : 36.700001,
-          "FalloffExponent" : 0.244000,
-          "Id" : 10651,
-          "Intensity" : 1.000000,
-          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
-          "ObjectName" : "UPointLightComponent_1",
-          "ParentId" : 10652,
-          "RelativeLocation" : [0.000000, 9.513091, 0.059739],
-          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-          "RelativeScale" : [1.000000, 1.000000, 1.000000],
-          "ShadowBias" : 0.003350,
-          "ShadowResolutionScale" : 1024,
-          "ShadowSharpen" : 0.500000,
-          "ShadowSlopeBias" : 0.006240,
-          "SourceRadius" : 0.000000,
-          "Temperature" : 6500.000000,
-          "Type" : "UPointLightComponent",
-          "bCastShadows" : false,
-          "bHiddenInGame" : false,
-          "bIsActive" : true,
-          "bIsVisible" : true,
-          "bOverrideCameraLightPerspective" : false,
-          "bTickEnabled" : true,
-          "bUseInverseSquareFalloff" : false
-        }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [36.585510, 91.218681, 31.777048],
           "CapsuleHalfHeight" : 31.777048,
@@ -5098,7 +5073,7 @@
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 10652,
+          "Id" : 10928,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5138,26 +5113,51 @@
           "bOverrideCollisionSetting" : false,
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
+        }, {
+          "AttenuationRadius" : 36.700001,
+          "FalloffExponent" : 0.244000,
+          "Id" : 10927,
+          "Intensity" : 1.000000,
+          "LightColor" : [1.000000, 0.621726, 0.324324, 1.000000],
+          "ObjectName" : "UPointLightComponent_1",
+          "ParentId" : 10928,
+          "RelativeLocation" : [0.000000, 9.513091, 0.059739],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [1.000000, 1.000000, 1.000000],
+          "ShadowBias" : 0.003350,
+          "ShadowResolutionScale" : 1024,
+          "ShadowSharpen" : 0.500000,
+          "ShadowSlopeBias" : 0.006240,
+          "SourceRadius" : 0.000000,
+          "Temperature" : 6500.000000,
+          "Type" : "UPointLightComponent",
+          "bCastShadows" : false,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCameraLightPerspective" : false,
+          "bTickEnabled" : true,
+          "bUseInverseSquareFalloff" : false
         }],
-      "RootComponentId" : 10652,
+      "RootComponentId" : 10928,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13161" : {
+    "10932" : {
       "ObjectName" : "스태틱 메시_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13162,
+          "Id" : 10934,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5171,7 +5171,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [17.405376, 11.901021, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5185,25 +5185,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13162,
+      "RootComponentId" : 10934,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13912" : {
+    "10937" : {
       "ObjectName" : "AStaticMeshActor_0",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13913,
+          "Id" : 10939,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5217,7 +5217,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [9.071027, 18.536077, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5231,25 +5231,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13913,
+      "RootComponentId" : 10939,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13914" : {
+    "10942" : {
       "ObjectName" : "AStaticMeshActor_1",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13915,
+          "Id" : 10944,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5263,7 +5263,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [36.041988, 8.221014, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5277,25 +5277,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13915,
+      "RootComponentId" : 10944,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13916" : {
+    "10947" : {
       "ObjectName" : "AStaticMeshActor_2",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13917,
+          "Id" : 10949,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5309,7 +5309,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [36.041988, 8.221014, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5323,25 +5323,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13917,
+      "RootComponentId" : 10949,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13920" : {
+    "10952" : {
       "ObjectName" : "AStaticMeshActor_4",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13921,
+          "Id" : 10954,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5355,7 +5355,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [12.288879, 15.313625, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5369,25 +5369,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13921,
+      "RootComponentId" : 10954,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13922" : {
+    "10957" : {
       "ObjectName" : "AStaticMeshActor_5",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13923,
+          "Id" : 10959,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5401,7 +5401,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [29.944138, 12.284216, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5415,25 +5415,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13923,
+      "RootComponentId" : 10959,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13924" : {
+    "10962" : {
       "ObjectName" : "AStaticMeshActor_6",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13925,
+          "Id" : 10964,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5447,7 +5447,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [21.078663, 15.313625, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5461,25 +5461,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13925,
+      "RootComponentId" : 10964,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13926" : {
+    "10967" : {
       "ObjectName" : "AStaticMeshActor_7",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13927,
+          "Id" : 10969,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5493,7 +5493,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [14.398115, 27.955242, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5507,25 +5507,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13927,
+      "RootComponentId" : 10969,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13928" : {
+    "10972" : {
       "ObjectName" : "AStaticMeshActor_8",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13929,
+          "Id" : 10974,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5539,7 +5539,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [9.813280, 15.072628, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5553,25 +5553,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13929,
+      "RootComponentId" : 10974,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13930" : {
+    "10977" : {
       "ObjectName" : "AStaticMeshActor_9",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13931,
+          "Id" : 10979,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5585,7 +5585,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [13.779017, 14.060749, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5599,25 +5599,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13931,
+      "RootComponentId" : 10979,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13932" : {
+    "10982" : {
       "ObjectName" : "AStaticMeshActor_10",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13933,
+          "Id" : 10984,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5631,7 +5631,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [12.055871, 12.209568, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5645,25 +5645,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13933,
+      "RootComponentId" : 10984,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "13934" : {
+    "10987" : {
       "ObjectName" : "AStaticMeshActor_11",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 13935,
+          "Id" : 10989,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5677,7 +5677,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [13.779017, 47.485741, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5691,25 +5691,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 13935,
+      "RootComponentId" : 10989,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14757" : {
+    "10992" : {
       "ObjectName" : "AStaticMeshActor_12",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14758,
+          "Id" : 10994,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5723,7 +5723,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [25.324707, 12.209568, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5737,25 +5737,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14758,
+      "RootComponentId" : 10994,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14759" : {
+    "10997" : {
       "ObjectName" : "AStaticMeshActor_13",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14760,
+          "Id" : 10999,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5769,7 +5769,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [45.675220, 12.209568, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5783,25 +5783,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14760,
+      "RootComponentId" : 10999,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14761" : {
+    "11002" : {
       "ObjectName" : "AStaticMeshActor_14",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14762,
+          "Id" : 11004,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5815,7 +5815,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [29.944138, 12.284216, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5829,25 +5829,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14762,
+      "RootComponentId" : 11004,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14763" : {
+    "11007" : {
       "ObjectName" : "AStaticMeshActor_15",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14764,
+          "Id" : 11009,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5861,7 +5861,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [9.805431, 24.215267, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5875,25 +5875,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14764,
+      "RootComponentId" : 11009,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14765" : {
+    "11012" : {
       "ObjectName" : "AStaticMeshActor_16",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14766,
+          "Id" : 11014,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5907,7 +5907,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [9.805431, 33.210255, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5921,25 +5921,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14766,
+      "RootComponentId" : 11014,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "14767" : {
+    "11017" : {
       "ObjectName" : "AStaticMeshActor_17",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 14768,
+          "Id" : 11019,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5953,7 +5953,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 15.019442],
           "RelativeScale" : [9.810526, 11.799442, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -5967,25 +5967,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 14768,
+      "RootComponentId" : 11019,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15626" : {
+    "11022" : {
       "ObjectName" : "AStaticMeshActor_18",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15627,
+          "Id" : 11024,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -5999,7 +5999,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 15.019442],
           "RelativeScale" : [9.810526, 11.799442, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6013,25 +6013,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15627,
+      "RootComponentId" : 11024,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15628" : {
+    "11027" : {
       "ObjectName" : "AStaticMeshActor_19",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15629,
+          "Id" : 11029,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6045,7 +6045,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [9.805431, 10.137657, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6059,25 +6059,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15629,
+      "RootComponentId" : 11029,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15630" : {
+    "11032" : {
       "ObjectName" : "AStaticMeshActor_20",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15631,
+          "Id" : 11034,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6091,7 +6091,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [23.021313, 7.097363, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6105,25 +6105,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15631,
+      "RootComponentId" : 11034,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15632" : {
+    "11037" : {
       "ObjectName" : "AStaticMeshActor_21",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15633,
+          "Id" : 11039,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6137,7 +6137,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [5.654976, 38.107132, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6151,25 +6151,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15633,
+      "RootComponentId" : 11039,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15634" : {
+    "11042" : {
       "ObjectName" : "AStaticMeshActor_22",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15635,
+          "Id" : 11044,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6183,7 +6183,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [7.591997, 6.238524, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6197,25 +6197,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15635,
+      "RootComponentId" : 11044,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15636" : {
+    "11047" : {
       "ObjectName" : "AStaticMeshActor_23",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15637,
+          "Id" : 11049,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6229,7 +6229,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [7.591997, 12.609135, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6243,25 +6243,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15637,
+      "RootComponentId" : 11049,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15638" : {
+    "11052" : {
       "ObjectName" : "AStaticMeshActor_24",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15639,
+          "Id" : 11054,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6275,7 +6275,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 28.800983],
           "RelativeScale" : [6.025386, 6.832856, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6289,25 +6289,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15639,
+      "RootComponentId" : 11054,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "15640" : {
+    "11057" : {
       "ObjectName" : "AStaticMeshActor_25",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 15641,
+          "Id" : 11059,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6321,7 +6321,7 @@
           "RelativeRotationEuler" : [0.000000, 0.000000, -0.689123],
           "RelativeScale" : [8.531577, 5.309331, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6335,25 +6335,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 15641,
+      "RootComponentId" : 11059,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16547" : {
+    "11062" : {
       "ObjectName" : "AStaticMeshActor_26",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16548,
+          "Id" : 11064,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6367,7 +6367,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [12.288879, 9.194408, 7.692367],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6381,25 +6381,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16548,
+      "RootComponentId" : 11064,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16549" : {
+    "11067" : {
       "ObjectName" : "AStaticMeshActor_27",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16550,
+          "Id" : 11069,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6413,7 +6413,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6427,25 +6427,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16550,
+      "RootComponentId" : 11069,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16551" : {
+    "11072" : {
       "ObjectName" : "AStaticMeshActor_28",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16552,
+          "Id" : 11074,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6459,7 +6459,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6473,25 +6473,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16552,
+      "RootComponentId" : 11074,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16553" : {
+    "11077" : {
       "ObjectName" : "AStaticMeshActor_29",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16554,
+          "Id" : 11079,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6505,7 +6505,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6519,25 +6519,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16554,
+      "RootComponentId" : 11079,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16555" : {
+    "11082" : {
       "ObjectName" : "AStaticMeshActor_30",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16556,
+          "Id" : 11084,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6551,7 +6551,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6565,25 +6565,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16556,
+      "RootComponentId" : 11084,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16557" : {
+    "11087" : {
       "ObjectName" : "AStaticMeshActor_31",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16558,
+          "Id" : 11089,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6597,7 +6597,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 90.000008],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6611,25 +6611,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16558,
+      "RootComponentId" : 11089,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16559" : {
+    "11092" : {
       "ObjectName" : "AStaticMeshActor_32",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16560,
+          "Id" : 11094,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6643,7 +6643,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 90.000008],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6657,25 +6657,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16560,
+      "RootComponentId" : 11094,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16561" : {
+    "11097" : {
       "ObjectName" : "AStaticMeshActor_33",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16562,
+          "Id" : 11099,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6689,7 +6689,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 90.000008],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6703,25 +6703,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16562,
+      "RootComponentId" : 11099,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16563" : {
+    "11102" : {
       "ObjectName" : "AStaticMeshActor_34",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16564,
+          "Id" : 11104,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6735,7 +6735,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6749,25 +6749,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16564,
+      "RootComponentId" : 11104,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16565" : {
+    "11107" : {
       "ObjectName" : "AStaticMeshActor_35",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16566,
+          "Id" : 11109,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6781,7 +6781,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6795,25 +6795,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16566,
+      "RootComponentId" : 11109,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16567" : {
+    "11112" : {
       "ObjectName" : "AStaticMeshActor_36",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16568,
+          "Id" : 11114,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6827,7 +6827,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6841,25 +6841,25 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16568,
+      "RootComponentId" : 11114,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "16569" : {
+    "11117" : {
       "ObjectName" : "AStaticMeshActor_37",
       "OwnedComponents" : [{
           "AngularDampingOverride" : 0.050000,
-          "BoxExtent" : [50.000000, 0.000000, 0.000000],
-          "CapsuleHalfHeight" : 44.000000,
-          "CapsuleRadius" : 22.000000,
+          "BoxExtent" : [0.500000, 0.500000, 0.500000],
+          "CapsuleHalfHeight" : 0.500000,
+          "CapsuleRadius" : 0.250000,
           "CollisionEnabled_Internal" : 2,
           "CollisionOffset" : [0.000000, 0.000000, 0.000000],
           "CollisionRotation" : [0.000000, 0.000000, 0.000000],
           "CollisionType" : 1,
           "FrictionCombineModeOverride" : 2,
-          "Id" : 16570,
+          "Id" : 11119,
           "LinearDampingOverride" : 0.010000,
           "MassOverride" : 10.000000,
           "MaterialSlots" : [{
@@ -6873,7 +6873,7 @@
           "RelativeRotationEuler" : [0.000000, -0.000000, 90.000008],
           "RelativeScale" : [2.571319, 0.957947, 1.306961],
           "RestitutionCombineModeOverride" : 2,
-          "SphereRadius" : 50.000000,
+          "SphereRadius" : 0.500000,
           "StaticMesh" : "Data/cube-tex.obj",
           "Type" : "UStaticMeshComponent",
           "bBlockComponent" : false,
@@ -6887,20 +6887,20 @@
           "bSimulatePhysics" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 16570,
+      "RootComponentId" : 11119,
       "Tag" : "",
       "Type" : "AStaticMeshActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17542" : {
+    "11122" : {
       "ObjectName" : "ADecalActor_0",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17543,
+          "Id" : 11124,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -6916,20 +6916,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17543,
+      "RootComponentId" : 11124,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17546" : {
+    "11125" : {
       "ObjectName" : "ADecalActor_1",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17547,
+          "Id" : 11127,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -6945,20 +6945,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17547,
+      "RootComponentId" : 11127,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17550" : {
+    "11128" : {
       "ObjectName" : "ADecalActor_2",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17551,
+          "Id" : 11130,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -6974,20 +6974,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17551,
+      "RootComponentId" : 11130,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17554" : {
+    "11131" : {
       "ObjectName" : "ADecalActor_3",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17555,
+          "Id" : 11133,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7003,20 +7003,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17555,
+      "RootComponentId" : 11133,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17558" : {
+    "11134" : {
       "ObjectName" : "ADecalActor_4",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17559,
+          "Id" : 11136,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7032,20 +7032,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17559,
+      "RootComponentId" : 11136,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17562" : {
+    "11137" : {
       "ObjectName" : "ADecalActor_5",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17563,
+          "Id" : 11139,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7061,20 +7061,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17563,
+      "RootComponentId" : 11139,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17566" : {
+    "11140" : {
       "ObjectName" : "ADecalActor_6",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17567,
+          "Id" : 11142,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7090,20 +7090,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17567,
+      "RootComponentId" : 11142,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17570" : {
+    "11143" : {
       "ObjectName" : "ADecalActor_7",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17571,
+          "Id" : 11145,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7119,20 +7119,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17571,
+      "RootComponentId" : 11145,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17574" : {
+    "11146" : {
       "ObjectName" : "ADecalActor_8",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17575,
+          "Id" : 11148,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7148,20 +7148,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17575,
+      "RootComponentId" : 11148,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "17578" : {
+    "11149" : {
       "ObjectName" : "ADecalActor_9",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 17579,
+          "Id" : 11151,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7177,20 +7177,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 17579,
+      "RootComponentId" : 11151,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "18573" : {
+    "11152" : {
       "ObjectName" : "ADecalActor_10",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 18574,
+          "Id" : 11154,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7206,20 +7206,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 18574,
+      "RootComponentId" : 11154,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "18577" : {
+    "11155" : {
       "ObjectName" : "ADecalActor_11",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 18578,
+          "Id" : 11157,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7235,20 +7235,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 18578,
+      "RootComponentId" : 11157,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     },
-    "18581" : {
+    "11158" : {
       "ObjectName" : "ADecalActor_12",
       "OwnedComponents" : [{
           "CollisionEnabled_Internal" : 2,
           "DecalOpacity" : 1.000000,
           "DecalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_BaseColor.PNG",
           "FadeSpeed" : 0.000000,
-          "Id" : 18582,
+          "Id" : 11160,
           "NormalTexture" : "Data/Textures/Sicka Dynasty/Game/SICKA_DYNASTY/Textures/T_DeadLeaves_Normal.PNG",
           "ObjectName" : "DecalComponent",
           "ParentId" : 0,
@@ -7264,20 +7264,20 @@
           "bOverrideCollisionSetting" : false,
           "bTickEnabled" : true
         }],
-      "RootComponentId" : 18582,
+      "RootComponentId" : 11160,
       "Tag" : "",
       "Type" : "ADecalActor",
       "bActorHiddenInGame" : false,
       "bActorIsActive" : true
     }
   },
-  "NextUUID" : 19582,
+  "NextUUID" : 16047,
   "PerspectiveCamera" : {
     "FOV" : [60.000000],
     "FarClip" : [2000.000000],
-    "Location" : [13.378538, 25.276478, 14.853810],
+    "Location" : [13.346148, 24.990623, 14.717741],
     "NearClip" : [0.100000],
-    "Rotation" : [0.000000, 23.799667, -80.205482]
+    "Rotation" : [0.000000, 27.699680, -89.605484]
   },
   "Version" : 1
 }
