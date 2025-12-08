@@ -223,6 +223,24 @@
       "Kind" : "Single",
       "NotifyName" : "Particle: Off: Charged",
       "TriggerTime" : 1.747516
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "FarTransition" : 5.000000,
+          "FocalDistance" : 5.000000,
+          "FocalRegion" : 0.500000,
+          "MaxFarBlur" : 32.000000,
+          "MaxNearBlur" : 32.000000,
+          "NearTransition" : 2.000000,
+          "Priority" : 0,
+          "Type" : "DOF"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.388869
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

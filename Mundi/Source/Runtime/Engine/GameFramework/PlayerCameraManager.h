@@ -58,7 +58,8 @@ public:
 		float FarTransitionRegion = 5.0f,    // m
 		float MaxNearBlurSize = 32.0f,       // pixels
 		float MaxFarBlurSize = 32.0f,        // pixels
-		int32 InPriority = 0
+		int32 InPriority = 0,
+		float Duration = -1.0f               // <0: 무한 / >=0: 지속 시간 (초)
 	); 
 
 public:

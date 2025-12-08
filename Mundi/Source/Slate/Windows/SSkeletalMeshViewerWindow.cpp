@@ -3254,6 +3254,12 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             {
                                 MarkNotifiesDirty(State);
                             }
+                            if (ImGui::DragFloat("Duration##DOF", &CameraNotify->DOFSettings.Duration, 0.01f, -1.0f, 10.0f, "%.2f"))
+                            {
+                                MarkNotifiesDirty(State);
+                            }
+                            ImGui::SameLine();
+                            ImGui::TextDisabled("(-1: Infinite)");
                             if (ImGui::InputInt("Priority##DOF", &CameraNotify->DOFSettings.Priority))
                             {
                                 MarkNotifiesDirty(State);

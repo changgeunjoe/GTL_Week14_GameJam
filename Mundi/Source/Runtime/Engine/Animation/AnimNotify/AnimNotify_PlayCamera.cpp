@@ -79,7 +79,8 @@ void UAnimNotify_PlayCamera::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
             DOFSettings.FarTransition,
             DOFSettings.MaxNearBlur,
             DOFSettings.MaxFarBlur,
-            DOFSettings.Priority);
+            DOFSettings.Priority,
+            DOFSettings.Duration);
         break;
     case ECameraNotifyEffect::HitStop:
         World->RequestHitStop(HitStopSettings.Duration, HitStopSettings.Dilation);
