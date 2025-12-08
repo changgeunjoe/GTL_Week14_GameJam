@@ -284,6 +284,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_StandAlone|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_StandAlone|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <ClCompile Include="Shaders\Sky\Sky.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_StandAlone|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_StandAlone|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="SnippetVehicle4W.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_StandAlone|x64'">true</ExcludedFromBuild>
@@ -302,6 +308,7 @@
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PauseAnimation.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_SetViewTarget.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\AnimNotifyParticleComponent.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\Components\SkySphereComponent.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Bloom.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Animation\AnimMontage.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_DOF.cpp" />
@@ -309,6 +316,7 @@
     <ClCompile Include="Source\Runtime\Engine\GameFramework\Camera\CamMod_Gamma.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\GameState.cpp" />
     <ClCompile Include="Source\Runtime\Engine\GameFramework\GameStateBase.cpp" />
+    <ClCompile Include="Source\Runtime\Engine\GameFramework\SkySphereActor.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleEventReceiverSpawn.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleRibbon.cpp" />
     <ClCompile Include="Source\Runtime\Engine\Components\ParticleSystemComponent.cpp" />
@@ -525,6 +533,7 @@
     <ClCompile Include="Source\Runtime\Renderer\PostProcessing\PostProcessing.cpp" />
     <ClCompile Include="Source\Runtime\Renderer\PostProcessing\VignettePass.cpp" />
     <ClCompile Include="Source\Runtime\Renderer\SceneView.cpp" />
+    <ClCompile Include="Source\Runtime\Renderer\SkySphereGenerator.cpp" />
     <ClCompile Include="Source\Runtime\Renderer\TileLightCuller.cpp" />
     <ClCompile Include="Source\Slate\Widgets\PropertyRenderer.cpp" />
     <ClCompile Include="Source\Slate\Windows\AnimGraph\BlendSpacePreviewWindow.cpp" />
@@ -743,6 +752,8 @@
     <ClCompile Include="Generated\AEnemyAIController.generated.cpp" />
     <ClCompile Include="Generated\UTargetingComponent.generated.cpp" />
     <ClCompile Include="Generated\UCamMod_Bloom.generated.cpp" />
+    <ClCompile Include="Generated\USkySphereComponent.generated.cpp" />
+    <ClCompile Include="Generated\ASkySphereActor.generated.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Common\LightingBuffers.hlsl">
@@ -955,6 +966,8 @@
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_PauseAnimation.h" />
     <ClInclude Include="Source\Runtime\Engine\Animation\AnimNotify\AnimNotify_SetViewTarget.h" />
     <ClInclude Include="Source\Runtime\Engine\Components\AnimNotifyParticleComponent.h" />
+    <ClInclude Include="Source\Runtime\Engine\Components\SkySphereComponent.h" />
+    <ClInclude Include="Source\Runtime\Engine\GameFramework\SkySphereActor.h" />
     <ClInclude Include="Source\Runtime\Engine\Particle\Modules\ParticleModuleSpiral.h" />
     <ClInclude Include="Source\Runtime\Game\Combat\ITargetable.h" />
     <ClInclude Include="Source\Runtime\Game\Combat\TargetingComponent.h" />
@@ -1089,6 +1102,7 @@
     <ClInclude Include="Source\Runtime\Renderer\PostProcessing\VignettePass.h" />
     <ClInclude Include="Source\Runtime\Renderer\SceneView.h" />
     <ClInclude Include="Source\Runtime\Renderer\SkinningStats.h" />
+    <ClInclude Include="Source\Runtime\Renderer\SkySphereGenerator.h" />
     <ClInclude Include="Source\Runtime\Renderer\TileCullingStats.h" />
     <ClInclude Include="Source\Runtime\Renderer\TileLightCuller.h" />
     <ClInclude Include="Source\Runtime\RHI\SwapGuard.h" />
@@ -1272,6 +1286,8 @@
     <ClInclude Include="Generated\AEnemyAIController.generated.h" />
     <ClInclude Include="Generated\UTargetingComponent.generated.h" />
     <ClInclude Include="Generated\UCamMod_Bloom.generated.h" />
+    <ClInclude Include="Generated\USkySphereComponent.generated.h" />
+    <ClInclude Include="Generated\ASkySphereActor.generated.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
