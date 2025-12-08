@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <d2d1_1.h>
 #include <dwrite.h>
 #include <wincodec.h>
@@ -63,6 +63,14 @@ private:
     float LogoWidth = 0.f;
     float LogoHeight = 0.f;
 
+    // Credit image
+    ID2D1Bitmap* CreditBitmap = nullptr;
+    float CreditWidth = 0.f;
+    float CreditHeight = 0.f;
+
+    // Black background for credit screen
+    ID2D1Bitmap* BlackBitmap = nullptr;
+
     // Boss health bar images
     ID2D1Bitmap* BossFrameBitmap = nullptr;   // TX_Bar_Frame_Enemy.PNG
     ID2D1Bitmap* BossBarBitmap = nullptr;     // TX_Gauge_EnemyHP_Bar.PNG (red)
@@ -106,6 +114,7 @@ private:
     float DeathHoldDuration = 3.0f;     // Time to hold at full opacity
     float DeathFadeOutDuration = 1.0f;  // Time to fade out
     float DeathMenuShowDelay = 2.0f;    // "YOU DIED" 후 메뉴 표시까지 딜레이 (초)
+    float CreditShowDelay = 3.0f;       // 메뉴 표시 1초 후 크레딧 표시 (DeathMenuShowDelay + 1.0f)
 
     // Boss health bar animation (Dark Souls style)
     float CurrentBossHealth = 1.0f;     // Red bar - snaps immediately to actual health

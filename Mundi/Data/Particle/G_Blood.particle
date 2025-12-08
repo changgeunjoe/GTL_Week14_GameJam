@@ -9,7 +9,7 @@
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
-                    "StartSize_Max" : [1.000000, 1.000000, 1.000000],
+                    "StartSize_Max" : [0.700000, 0.700000, 0.700000],
                     "StartSize_Min" : [0.300000, 0.300000, 0.300000],
                     "StartSize_bUseRange" : true,
                     "Type" : "Size",

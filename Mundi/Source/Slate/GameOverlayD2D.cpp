@@ -225,6 +225,63 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         }
     }
 
+    // Load credit image
+    if (WICFactory && D2DContext)
+    {
+        FWideString CreditPath = UTF8ToWide(GDataDir) + L"/Textures/Credit.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(CreditPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        if (SUCCEEDED(D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &CreditBitmap)))
+                        {
+                            D2D1_SIZE_F Size = CreditBitmap->GetSize();
+                            CreditWidth = Size.width;
+                            CreditHeight = Size.height;
+                        }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
+    // Load black background image
+    if (WICFactory && D2DContext)
+    {
+        FWideString BlackPath = UTF8ToWide(GDataDir) + L"/Textures/Black.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BlackPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &BlackBitmap);
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
     // Load boss health bar frame image
     if (WICFactory && D2DContext)
     {
@@ -502,6 +559,8 @@ void UGameOverlayD2D::EnsureInitialized()
 void UGameOverlayD2D::ReleaseD2DResources()
 {
     SafeRelease(LogoBitmap);
+    SafeRelease(CreditBitmap);
+    SafeRelease(BlackBitmap);
     SafeRelease(BossFrameBitmap);
     SafeRelease(BossBarBitmap);
     SafeRelease(BossBarYellowBitmap);
@@ -1241,6 +1300,26 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
         return;
     }
 
+    // 1. 먼저 전체 화면을 검은색으로 칠하기
+    if (BlackBitmap)
+    {
+        // Black.png 사용
+        D2D1_RECT_F FullScreenRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+        D2DContext->DrawBitmap(BlackBitmap, FullScreenRect, 1.0f);
+    }
+    else
+    {
+        // 이미지 없으면 검은 브러시로 칠하기
+        ID2D1SolidColorBrush* BlackBrush = nullptr;
+        D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f), &BlackBrush);
+        if (BlackBrush)
+        {
+            D2D1_RECT_F FullScreenRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+            D2DContext->FillRectangle(FullScreenRect, BlackBrush);
+            SafeRelease(BlackBrush);
+        }
+    }
+
     // 메뉴 옵션들
     const wchar_t* RestartText = L"Restart";
     const wchar_t* QuitText = L"Quit";
@@ -1301,6 +1380,23 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
 
     SafeRelease(ButtonBrush);
     SafeRelease(ButtonHoverBrush);
+
+    // 2. 크레딧 이미지 표시 (검은 화면 위에)
+    if (CreditBitmap && CreditWidth > 0 && CreditHeight > 0)
+    {
+        // 화면 중앙에 크레딧 표시 (화면 너비의 50% 크기)
+        float MaxCreditW = ScreenW * 0.5f;
+        float Scale = MaxCreditW / CreditWidth;
+        float ScaledW = CreditWidth * Scale;
+        float ScaledH = CreditHeight * Scale;
+
+        // 화면 중앙에 배치
+        float CreditX = (ScreenW - ScaledW) * 0.5f;
+        float CreditY = (ScreenH - ScaledH) * 0.07f;
+
+        D2D1_RECT_F CreditRect = D2D1::RectF(CreditX, CreditY, CreditX + ScaledW, CreditY + ScaledH);
+        D2DContext->DrawBitmap(CreditBitmap, CreditRect, 1.0f);
+    }
 }
 
 void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
@@ -1612,20 +1708,38 @@ void UGameOverlayD2D::Draw()
         break;
 
     case EGameFlowState::Defeat:
-        DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
-        // 일정 시간 후 메뉴 표시
-        if (DeathScreenTimer >= DeathMenuShowDelay)
+        // YOU DIED 애니메이션 총 시간 = FadeIn(1.5) + Hold(3.0) + FadeOut(1.0) = 5.5초
         {
-            DrawDeathMenu(ScreenW, ScreenH);
+            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+
+            // 애니메이션이 끝나기 전에는 YOU DIED만 표시
+            if (DeathScreenTimer < DeathAnimationTotalTime)
+            {
+                DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
+            }
+            else
+            {
+                // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
+                DrawDeathMenu(ScreenW, ScreenH);
+            }
         }
         break;
 
     case EGameFlowState::Victory:
-        DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
-        // 일정 시간 후 메뉴 표시
-        if (DeathScreenTimer >= DeathMenuShowDelay)
+        // DEMIGOD FELLED 애니메이션 총 시간 = 5.5초
         {
-            DrawDeathMenu(ScreenW, ScreenH);
+            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+
+            // 애니메이션이 끝나기 전에는 DEMIGOD FELLED만 표시
+            if (DeathScreenTimer < DeathAnimationTotalTime)
+            {
+                DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
+            }
+            else
+            {
+                // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
+                DrawDeathMenu(ScreenW, ScreenH);
+            }
         }
         break;
 
