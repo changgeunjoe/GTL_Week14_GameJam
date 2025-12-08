@@ -6,6 +6,7 @@
 class UCapsuleComponent;
 class USkeletalMeshComponent;
 class UCharacterMovementComponent;
+class UParticleSystem;
  
 UCLASS(DisplayName = "캐릭터", Description = "캐릭터 액터")
 class ACharacter : public APawn
@@ -24,6 +25,12 @@ public:
 	// 캐릭터 고유 기능
 	virtual void Jump();
 	virtual void StopJumping();
+
+	/** 피격 이펙트 파티클 */
+	UParticleSystem* FleshImpactParticle = nullptr;
+
+	/** 방어 이펙트 파티클 */
+	UParticleSystem* BlockImpactParticle = nullptr;
 	 
 	UCapsuleComponent* GetCapsuleComponent() const { return CapsuleComponent; }
 	UCharacterMovementComponent* GetCharacterMovement() const { return CharacterMovement; }
