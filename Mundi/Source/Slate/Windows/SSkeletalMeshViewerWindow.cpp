@@ -2867,13 +2867,13 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         }
 
                         // Volume slider
-                        if (ImGui::DragFloat("Volume", &PS->Volume, 0.01f, 0.0f, 1.0f, "%.2f"))
+                        if (ImGui::DragFloat("Volume", &PS->Volume, 0.01f, 0.0f, 3.0f, "%.2f"))
                         {
                             MarkNotifiesDirty(State);
                         }
                         if (ImGui::IsItemHovered())
                         {
-                            ImGui::SetTooltip("Sound amplitude/loudness (0.0 to 1.0)");
+                            ImGui::SetTooltip("Sound amplitude/loudness (0.0 to 3.0)");
                         }
 
                         // 3D spatial audio toggle
