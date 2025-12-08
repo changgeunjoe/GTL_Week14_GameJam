@@ -666,9 +666,8 @@ void FSceneRenderer::PrepareView()
 
 void FSceneRenderer::GatherVisibleProxies()
 {
-	// NOTE: 일단 컴포넌트 단위와 데칼 관련 이슈 해결까지 컬링 무시
-	//// 절두체 컬링 수행 -> 결과가 멤버 변수 PotentiallyVisibleActors에 저장됨
-	//PerformFrustumCulling();
+	// Frustum Culling 활성화
+	const FFrustum& ViewFrustum = View->ViewFrustum;
 	FSkinningStatManager::GetInstance().ResetStats();
 
 	const bool bDrawStaticMeshes = World->GetRenderSettings().IsShowFlagEnabled(EEngineShowFlags::SF_StaticMeshes);
@@ -750,20 +749,30 @@ void FSceneRenderer::GatherVisibleProxies()
 						}
 						else if (MeshComponent->IsA(USkinnedMeshComponent::StaticClass()))
 						{
-						    bShouldAdd = bDrawSkeletalMeshes;							
+						    bShouldAdd = bDrawSkeletalMeshes;
 						}
 
+						// Frustum Culling 적용
 						if (bShouldAdd)
 						{
-							Proxies.Meshes.Add(MeshComponent);
+							FAABB WorldAABB = MeshComponent->GetWorldAABB();
+							if (IsAABBVisible(ViewFrustum, WorldAABB))
+							{
+								Proxies.Meshes.Add(MeshComponent);
+							}
 						}
 					}
 					else if (UBillboardComponent* BillboardComponent = Cast<UBillboardComponent>(PrimitiveComponent); BillboardComponent && bUseBillboard)
 					{
-						Proxies.Billboards.Add(BillboardComponent);
+						FAABB WorldAABB = BillboardComponent->GetWorldAABB();
+						if (IsAABBVisible(ViewFrustum, WorldAABB))
+						{
+							Proxies.Billboards.Add(BillboardComponent);
+						}
 					}
 					else if (UDecalComponent* DecalComponent = Cast<UDecalComponent>(PrimitiveComponent); DecalComponent && bDrawDecals)
 					{
+						// Decal은 투영 기반이므로 일단 컬링 제외 (추후 OBB 기반 컬링 추가 필요)
 						Proxies.Decals.Add(DecalComponent);
 					}
 					else if (ULineComponent* LineComponent = Cast<ULineComponent>(PrimitiveComponent))
@@ -772,7 +781,14 @@ void FSceneRenderer::GatherVisibleProxies()
 					}
 					else if (UParticleSystemComponent* ParticleComponent = Cast<UParticleSystemComponent>(PrimitiveComponent))
 					{
-						if (bDrawParticle) { Proxies.Particles.Add(ParticleComponent); }
+						if (bDrawParticle)
+						{
+							FAABB WorldAABB = ParticleComponent->GetWorldAABB();
+							if (IsAABBVisible(ViewFrustum, WorldAABB))
+							{
+								Proxies.Particles.Add(ParticleComponent);
+							}
+						}
 					}
 				}
 				else
@@ -944,13 +960,14 @@ void FSceneRenderer::PerformFrustumCulling()
 	PotentiallyVisibleComponents.clear();	// 할 필요 없는데 명목적으로 초기화
 
 	// Todo: 프로스텀 컬링 수행, 추후 프로스텀 컬링이 컴포넌트 단위로 변경되면 적용
+	// NOTE: 현재는 GatherVisibleProxies에서 직접 컬링 수행 중
 
 	//World->GetPartitionManager()->FrustumQuery(ViewFrustum)
 
 	//for (AActor* Actor : World->GetActors())
 	//{
 	//	if (!Actor || Actor->GetActorHiddenInEditor()) continue;
-
+	//
 	//	// 절두체 컬링을 통과한 액터만 목록에 추가
 	//	if (ViewFrustum.Intersects(Actor->GetBounds()))
 	//	{
