@@ -383,7 +383,7 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
         if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlaySound>())
         {
             const UAnimNotify_PlaySound* PS = static_cast<const UAnimNotify_PlaySound*>(Evt.Notify);
-            FString Path = (PS && PS->Sound) ? PS->Sound->GetFilePath() : "";
+            FString Path = (PS && PS->Sound) ? MakePathRelativeToData(PS->Sound->GetFilePath()) : "";
             Data["SoundPath"] = Path.c_str();
         }
         else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayParticle>())

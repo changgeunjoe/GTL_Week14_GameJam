@@ -11,7 +11,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Crash/Banks0_945.wav"
+        "SoundPath" : "Data/Audio/SFX/Crash/Banks0_945.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -20,7 +20,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Crash/Banks0_979.wav"
+        "SoundPath" : "Data/Audio/SFX/Crash/Banks0_979.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

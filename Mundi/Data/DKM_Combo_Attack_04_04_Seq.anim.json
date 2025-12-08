@@ -20,7 +20,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Crash/Banks17_660.wav"
+        "SoundPath" : "Data/Audio/SFX/Crash/Banks17_660.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

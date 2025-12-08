@@ -11,7 +11,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (7).wav"
+        "SoundPath" : "Data/Audio/ShinobiVoices/audio (7).wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

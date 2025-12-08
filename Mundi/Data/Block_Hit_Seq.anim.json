@@ -17,7 +17,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Slashes/wav/Banks17_666.wav"
+        "SoundPath" : "Data/Audio/SFX/Slashes/wav/Banks17_666.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",

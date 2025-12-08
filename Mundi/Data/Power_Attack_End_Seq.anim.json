@@ -179,7 +179,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks0_925.wav"
+        "SoundPath" : "Data/Audio/SFX/Magic/Banks0_925.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -188,7 +188,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_65.wav"
+        "SoundPath" : "Data/Audio/SFX/Magic/Banks10_65.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -197,7 +197,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_64.wav"
+        "SoundPath" : "Data/Audio/SFX/Magic/Banks10_64.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
