@@ -51,7 +51,7 @@ APlayerCameraManager::~APlayerCameraManager()
 	ActiveModifiers.Empty();
 
 	CurrentViewCamera = nullptr;
-
+	CachedSpringArmCamera = nullptr;
 	CachedViewport = nullptr;
 }
 
@@ -94,6 +94,7 @@ void APlayerCameraManager::DuplicateSubObjects()
 
 	// Reset camera references as they need to be found in the new PIE world.
 	CurrentViewCamera = nullptr;
+	CachedSpringArmCamera = nullptr;
 	CachedViewport = nullptr;
 
 	// Reset blending state.
@@ -143,6 +144,10 @@ void APlayerCameraManager::RegisterView(UCameraComponent* RegisterViewTarget)
 	if (!CurrentViewCamera)
 	{
 		CurrentViewCamera = RegisterViewTarget;
+		if (CachedSpringArmCamera == nullptr)
+		{
+			CachedSpringArmCamera = RegisterViewTarget;
+		}
 	}
 }
 

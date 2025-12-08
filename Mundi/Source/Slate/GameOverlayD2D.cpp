@@ -1110,11 +1110,15 @@ void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
             switch (State)
             {
             case ECombatState::Idle:      PlayerStateStr = "Idle"; break;
+            case ECombatState::Walking:   PlayerStateStr = "Walking"; break;
+            case ECombatState::Running:   PlayerStateStr = "Running"; break;
+            case ECombatState::Jumping:   PlayerStateStr = "Jumping"; break;
             case ECombatState::Attacking: PlayerStateStr = "Attacking"; break;
             case ECombatState::Dodging:   PlayerStateStr = "Dodging"; break;
             case ECombatState::Blocking:  PlayerStateStr = "Blocking"; break;
             case ECombatState::Parrying:  PlayerStateStr = "Parrying"; break;
             case ECombatState::Staggered: PlayerStateStr = "Staggered"; break;
+            case ECombatState::Charging:  PlayerStateStr = "Charging"; break;
             case ECombatState::Knockback: PlayerStateStr = "Knockback"; break;
             case ECombatState::Dead:      PlayerStateStr = "Dead"; break;
             default:                      PlayerStateStr = "Unknown"; break;

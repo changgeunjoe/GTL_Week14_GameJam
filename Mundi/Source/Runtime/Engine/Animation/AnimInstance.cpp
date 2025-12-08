@@ -30,6 +30,12 @@ void UAnimInstance::Initialize(USkeletalMeshComponent* InComponent)
 
 void UAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
+    // 애니메이션이 일시정지된 경우 업데이트 스킵
+    if (bPaused)
+    {
+        return;
+    }
+
     // ============================================================
     // 1. 상태머신 처리
     // ============================================================
