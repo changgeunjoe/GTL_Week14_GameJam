@@ -73,6 +73,12 @@ private:
     float CreditWidth = 0.f;
     float CreditHeight = 0.f;
 
+    // Tutorial image
+    ID2D1Bitmap* TutorialBitmap = nullptr;
+    float TutorialWidth = 0.f;
+    float TutorialHeight = 0.f;
+    bool bShowTutorial = false;
+
     // Black background for credit screen
     ID2D1Bitmap* BlackBitmap = nullptr;
 

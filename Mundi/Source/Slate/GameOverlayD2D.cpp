@@ -256,6 +256,37 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         }
     }
 
+    // Load tutorial image
+    if (WICFactory && D2DContext)
+    {
+        FWideString TutorialPath = UTF8ToWide(GDataDir) + L"/UI/Tutorial.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(TutorialPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        if (SUCCEEDED(D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &TutorialBitmap)))
+                        {
+                            D2D1_SIZE_F Size = TutorialBitmap->GetSize();
+                            TutorialWidth = Size.width;
+                            TutorialHeight = Size.height;
+                        }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
     // Load black background image
     if (WICFactory && D2DContext)
     {
@@ -560,6 +591,7 @@ void UGameOverlayD2D::ReleaseD2DResources()
 {
     SafeRelease(LogoBitmap);
     SafeRelease(CreditBitmap);
+    SafeRelease(TutorialBitmap);
     SafeRelease(BlackBitmap);
     SafeRelease(BossFrameBitmap);
     SafeRelease(BossBarBitmap);
@@ -1732,6 +1764,44 @@ void UGameOverlayD2D::Draw()
     // 키보드/게임패드 네비게이션 처리
     HandleKeyboardNavigation();
 
+    // Tutorial 화면 표시 (다른 UI보다 우선)
+    if (bShowTutorial && TutorialBitmap)
+    {
+        // 검은 배경
+        if (BlackBitmap)
+        {
+            D2D1_RECT_F BlackRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+            D2DContext->DrawBitmap(BlackBitmap, BlackRect, 1.0f);
+        }
+
+        // 튜토리얼 이미지를 화면 중앙에 표시 (화면에 맞게 스케일)
+        float Scale = std::min(ScreenW / TutorialWidth, ScreenH / TutorialHeight);
+        float DrawW = TutorialWidth * Scale;
+        float DrawH = TutorialHeight * Scale;
+        float DrawX = (ScreenW - DrawW) * 0.5f;
+        float DrawY = (ScreenH - DrawH) * 0.5f;
+
+        D2D1_RECT_F TutorialRect = D2D1::RectF(DrawX, DrawY, DrawX + DrawW, DrawY + DrawH);
+        D2DContext->DrawBitmap(TutorialBitmap, TutorialRect, 1.0f);
+
+        // "Press any key to return" 텍스트
+        if (SubtitleFormat && SubtitleBrush)
+        {
+            const wchar_t* ReturnText = L"Press any key to return";
+            D2D1_RECT_F TextRect = D2D1::RectF(0, ScreenH - 60.0f, ScreenW, ScreenH - 20.0f);
+            D2DContext->DrawTextW(ReturnText, static_cast<UINT32>(wcslen(ReturnText)),
+                SubtitleFormat, TextRect, SubtitleBrush);
+        }
+
+        // 튜토리얼 화면에서는 다른 UI 그리지 않음
+        D2DContext->PopAxisAlignedClip();
+        D2DContext->SetTransform(D2D1::Matrix3x2F::Identity());
+        D2DContext->EndDraw();
+        SafeRelease(TargetBmp);
+        SafeRelease(Surface);
+        return;
+    }
+
     // Draw based on current state
     switch (FlowState)
     {
@@ -1826,6 +1896,13 @@ void UGameOverlayD2D::UpdateMousePosition(int32 MouseX, int32 MouseY)
 
 void UGameOverlayD2D::HandleMouseClick(int32 MouseX, int32 MouseY)
 {
+    // 튜토리얼 화면이 표시 중이면 클릭 시 닫기
+    if (bShowTutorial)
+    {
+        bShowTutorial = false;
+        return;
+    }
+
     if (!GWorld)
     {
         return;
@@ -1882,7 +1959,7 @@ void UGameOverlayD2D::HandleMouseClick(int32 MouseX, int32 MouseY)
         if (MouseXf >= TutorialButtonRect.left && MouseXf <= TutorialButtonRect.right &&
             MouseYf >= TutorialButtonRect.top && MouseYf <= TutorialButtonRect.bottom)
         {
-            // TODO: 튜토리얼 화면으로 전환 (향후 구현)
+            bShowTutorial = true;
             return;
         }
 
@@ -2006,7 +2083,7 @@ void UGameOverlayD2D::SelectCurrentMenuItem()
             GS->EnterBossIntro();
             break;
         case 1:  // Tutorial
-            // TODO: 튜토리얼 화면으로 전환
+            bShowTutorial = true;
             break;
         case 2:  // Exit
             GM->QuitGame();
@@ -2052,6 +2129,21 @@ void UGameOverlayD2D::SelectCurrentMenuItem()
 
 void UGameOverlayD2D::HandleKeyboardNavigation()
 {
+    // 튜토리얼 화면에서 아무 키나 누르면 닫기
+    if (bShowTutorial)
+    {
+        bool bEnterPressed = (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0;
+        bool bEscPressed = (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0;
+        bool bSpacePressed = (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+
+        if ((bEnterPressed && !bWasEnterPressed) || bEscPressed || bSpacePressed)
+        {
+            bShowTutorial = false;
+            bWasEnterPressed = bEnterPressed;
+        }
+        return;
+    }
+
     if (!GWorld)
     {
         return;

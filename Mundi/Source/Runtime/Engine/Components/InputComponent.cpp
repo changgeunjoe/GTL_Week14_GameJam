@@ -486,16 +486,42 @@ float UInputComponent::GetAxisValue(const FName& AxisName)
     UInputManager& InputManager = UInputManager::GetInstance();
     float Value = 0.0f;
 
-    // 마우스 축 체크 - add to Value instead of returning early (allows gamepad to also contribute)
+    // 마우스 축 체크 - mouse values should not be clamped (pixel deltas can be large)
     if (AxisName == MouseXAxisName)
     {
         FVector2D MouseDelta = InputManager.GetMouseDelta();
-        Value += MouseDelta.X * MouseXScale;
+        Value = MouseDelta.X * MouseXScale;
+
+        // Also add gamepad contribution if connected (gamepad values are -1 to 1)
+        if (InputManager.IsGamepadConnected())
+        {
+            for (const FInputAxisGamepadMapping& GPMap : AxisGamepadMappings)
+            {
+                if (GPMap.AxisName == AxisName)
+                {
+                    Value += InputManager.GetGamepadAxis(GPMap.Axis) * GPMap.Scale;
+                }
+            }
+        }
+        return Value;  // Return without clamping for mouse axes
     }
     if (AxisName == MouseYAxisName)
     {
         FVector2D MouseDelta = InputManager.GetMouseDelta();
-        Value += MouseDelta.Y * MouseYScale;
+        Value = MouseDelta.Y * MouseYScale;
+
+        // Also add gamepad contribution if connected
+        if (InputManager.IsGamepadConnected())
+        {
+            for (const FInputAxisGamepadMapping& GPMap : AxisGamepadMappings)
+            {
+                if (GPMap.AxisName == AxisName)
+                {
+                    Value += InputManager.GetGamepadAxis(GPMap.Axis) * GPMap.Scale;
+                }
+            }
+        }
+        return Value;  // Return without clamping for mouse axes
     }
 
     // 키보드 축 체크 - 매핑된 모든 키의 값을 합산
@@ -522,6 +548,6 @@ float UInputComponent::GetAxisValue(const FName& AxisName)
         }
     }
 
-    // -1 ~ 1 범위로 클램프
+    // -1 ~ 1 범위로 클램프 (only for non-mouse axes)
     return FMath::Clamp(Value, -1.0f, 1.0f);
 }

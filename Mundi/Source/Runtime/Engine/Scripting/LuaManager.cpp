@@ -798,6 +798,60 @@ FLuaManager::FLuaManager()
             }
         });
 
+    // 안개 높이 감쇠 설정 (높을수록 안개가 낮은 곳에 집중)
+    // 사용법: SetFogHeightFalloff(0.5)
+    SharedLib.set_function("SetFogHeightFalloff", [](float Falloff)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetFogHeightFalloff(Falloff);
+                    return;
+                }
+            }
+        });
+
+    // 안개 색상 설정 (RGB, 0~1 범위)
+    // 사용법: SetFogColor(0.5, 0.2, 0.1) -- 붉은 안개
+    SharedLib.set_function("SetFogColor", [](float R, float G, float B)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetFogInscatteringColor(FLinearColor(R, G, B, 1.0f));
+                    return;
+                }
+            }
+        });
+
+    // 안개 컷오프 거리 설정 (이 거리 이후로는 안개 없음)
+    // 사용법: SetFogCutoffDistance(5000)
+    SharedLib.set_function("SetFogCutoffDistance", [](float Distance)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetFogCutoffDistance(Distance);
+                    return;
+                }
+            }
+        });
+
     // 히트박스 활성화 (Lua용)
     // 사용법: EnableHitbox(Obj, damage, damageType, extentX, extentY, extentZ)
     // damageType: "Light", "Heavy", "Special"
