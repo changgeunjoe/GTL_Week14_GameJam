@@ -7,16 +7,16 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks0_955.wav",
-      "TriggerTime" : 0.295385
+      "TriggerTime" : 0.219512
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Footsteps/wav/Banks0_956.wav"
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Footsteps/wav/Banks0_957.wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "PlaySound: Banks0_956.wav",
-      "TriggerTime" : 0.869744
+      "NotifyName" : "PlaySound: Banks0_957.wav",
+      "TriggerTime" : 0.539837
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

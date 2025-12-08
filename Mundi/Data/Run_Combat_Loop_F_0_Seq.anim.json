@@ -7,7 +7,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks0_955.wav",
-      "TriggerTime" : 0.295385
+      "TriggerTime" : 0.185366
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
@@ -16,7 +16,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks0_956.wav",
-      "TriggerTime" : 0.869744
+      "TriggerTime" : 0.539837
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
