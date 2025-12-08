@@ -1,53 +1,12 @@
 {
   "Notifies" : [{
-      "Class" : "UAnimNotify_PlayCamera",
-      "Data" : {
-        "Camera" : {
-          "Dilation" : 0.250000,
-          "Duration" : 0.400000,
-          "Type" : "Slomo"
-        }
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "Invalid",
-      "TriggerTime" : 0.081083
-    }, {
-      "Class" : "UAnimNotify_PlayCamera",
-      "Data" : {
-        "Camera" : {
-          "Dilation" : 0.250000,
-          "Duration" : 0.200000,
-          "Type" : "Slomo"
-        }
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "Invalid",
-      "TriggerTime" : 0.177060
-    }, {
-      "Class" : "UAnimNotify_PlayParticle",
-      "Data" : {
-        "AttachBone" : "Invalid",
-        "AttachToOwner" : false,
-        "LifeTime" : 0.000000,
-        "LocationOffset" : [0.000000, 0.000000, 0.000000],
-        "ParticlePath" : "",
-        "RotationOffset" : [0.000000, 0.000000, 0.000000],
-        "ScaleOffset" : [1.000000, 1.000000, 1.000000]
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "Invalid",
-      "TriggerTime" : 0.004964
-    }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
         "bEnable" : true
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision",
+      "NotifyName" : "WeaponCollision: Enable",
       "TriggerTime" : 0.025089
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
@@ -67,7 +26,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: On: WeaponRibbon",
-      "TriggerTime" : 0.004964
+      "TriggerTime" : 0.000000
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
@@ -77,31 +36,122 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: Off: WeaponRibbon",
-      "TriggerTime" : 0.931631
+      "TriggerTime" : 0.929976
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.010000,
+          "Duration" : 1.000000,
+          "Type" : "HitStop"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.938084
     }, {
       "Class" : "UAnimNotify_SetViewTarget",
       "Data" : {
-        "BlendTime" : 0.500000,
-        "RelativeLocation" : [0.000000, -10.000000, 10.000000],
+        "BlendTime" : 0.080000,
+        "RelativeLocation" : [-1.500000, 0.000000, -0.500000],
+        "RelativeRotation" : [0.000000, -0.173648, 0.000000, 0.984808],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 1.104840
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "AmpLoc" : 0.150000,
+          "AmpRot" : 0.150000,
+          "Duration" : 0.500000,
+          "Frequency" : 10.000000,
+          "Priority" : 0,
+          "Type" : "Shake"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 1.084660
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.010000,
+        "RelativeLocation" : [-3.000000, 0.000000, 0.000000],
         "RelativeRotation" : [0.000000, 0.000000, 0.000000, 1.000000],
         "bBlendBackToDefault" : false
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "SetViewTarget",
-      "TriggerTime" : 0.006619
+      "TriggerTime" : 0.000000
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.080000,
+          "Duration" : 2.000000,
+          "Type" : "Slomo"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.000165
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Dilation" : 0.250000,
+          "Duration" : 2.000000,
+          "Type" : "Slomo"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.493119
     }, {
       "Class" : "UAnimNotify_SetViewTarget",
       "Data" : {
-        "BlendTime" : 0.500000,
-        "RelativeLocation" : [0.000000, 0.000000, 15.000000],
-        "RelativeRotation" : [0.000000, 0.707107, 0.000000, 0.707107],
+        "BlendTime" : 0.050000,
+        "RelativeLocation" : [-3.000000, 0.000000, -1.000000],
+        "RelativeRotation" : [0.000000, -0.258819, 0.000000, 0.965926],
         "bBlendBackToDefault" : false
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "SetViewTarget",
-      "TriggerTime" : 0.433548
+      "TriggerTime" : 0.005130
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.020000,
+        "RelativeLocation" : [-2.500000, -1.500000, 6.000000],
+        "RelativeRotation" : [0.000000, 0.573576, 0.000000, 0.819152],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.812488
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.100000,
+        "RelativeLocation" : [6.000000, 6.000000, 0.000000],
+        "RelativeRotation" : [-0.086824, -0.007596, -0.992404, 0.086824],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.516286
     }, {
       "Class" : "UAnimNotify_SetViewTarget",
       "Data" : {
@@ -113,7 +163,19 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "SetViewTarget",
-      "TriggerTime" : 0.678452
+      "TriggerTime" : 1.774742
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.200000,
+        "RelativeLocation" : [0.000000, -500.000000, 200.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.000000, 1.000000],
+        "bBlendBackToDefault" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.030448
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
