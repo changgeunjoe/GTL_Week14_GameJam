@@ -353,6 +353,22 @@ protected:
     /** 가드 몽타주 */
     UAnimMontage* BlockMontage = nullptr;
 
+    // ========== 가드 브레이크 몽타주 ==========
+    /** 가드 브레이크 애니메이션 경로 (넘어지는 모션) */
+    UPROPERTY(EditAnywhere, Category = "Animation|GuardBreak")
+    FString GuardBreakAnimPath;
+
+    /** 가드 브레이크 몽타주 */
+    UAnimMontage* GuardBreakMontage = nullptr;
+
+    /** 가드 브레이크 시 루트 모션 활성화 여부 */
+    UPROPERTY(EditAnywhere, Category = "Animation|GuardBreak")
+    bool bEnableGuardBreakRootMotion = true;
+
+    /** 가드 브레이크 애니메이션 끝에서 자를 시간 */
+    UPROPERTY(EditAnywhere, Category = "Animation|GuardBreak")
+    float GuardBreakCutEndTime = 0.0f;
+
     // ========== 차징 몽타주 ==========
     /** 차징 애니메이션 경로 (루프) */
     UPROPERTY(EditAnywhere, Category = "Animation|Charging")

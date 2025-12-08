@@ -14,7 +14,8 @@ enum class EDamageType
     Special,         // 특수기 - 넉백
     Parried,         // 패리당함 - 큰 경직
     DashAttack,      // 대쉬공격
-    UltimateAttack   // 궁극기
+    UltimateAttack,  // 궁극기
+    GuardBreak       // 가드 브레이크 - 가드 무력화
 };
 
 // ============================================================================
@@ -102,6 +103,12 @@ struct FDamageInfo
         case EDamageType::Parried:
             HitReaction = EHitReaction::Stagger;
             StaggerDuration = 1.5f;
+            break;
+        case EDamageType::GuardBreak:
+            HitReaction = EHitReaction::Knockback;
+            StaggerDuration = 1.0f;
+            KnockbackForce = 300.f;
+            bCanBeBlocked = false;  // 가드로 막을 수 없음 (가드 무력화)
             break;
         }
     }

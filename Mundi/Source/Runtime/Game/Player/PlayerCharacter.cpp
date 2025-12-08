@@ -177,6 +177,22 @@ void APlayerCharacter::BeginPlay()
         }
     }
 
+    // 가드 브레이크 몽타주 초기화 (넘어지는 모션)
+    if (!GuardBreakAnimPath.empty())
+    {
+        UAnimSequence* GuardBreakAnim = UResourceManager::GetInstance().Get<UAnimSequence>(GuardBreakAnimPath);
+        if (GuardBreakAnim)
+        {
+            GuardBreakMontage = NewObject<UAnimMontage>();
+            GuardBreakMontage->SetSourceSequence(GuardBreakAnim);
+            UE_LOG("[PlayerCharacter] GuardBreakMontage initialized: %s", GuardBreakAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find guard break animation: %s", GuardBreakAnimPath.c_str());
+        }
+    }
+
     // 차징 몽타주 초기화 (루프)
     if (!ChargingAnimPath.empty())
     {
@@ -888,7 +904,46 @@ float APlayerCharacter::TakeDamage(const FDamageInfo& DamageInfo)
 
     float ActualDamage = DamageInfo.Damage;
 
-    // 가드 중이면 데미지 완전 막기
+    // 가드 브레이크 처리 - 가드 중에 GuardBreak 공격이 들어오면 가드 무력화
+    if (bIsBlocking && DamageInfo.DamageType == EDamageType::GuardBreak)
+    {
+        UE_LOG("[PlayerCharacter] Guard Break! Block broken.");
+
+        // 가드 해제
+        StopBlock();
+
+        // 상태 변경
+        SetCombatState(ECombatState::Staggered);
+        StaggerTimer = DamageInfo.StaggerDuration;
+
+        // 가드 브레이크 몽타주 재생 (넘어지는 모션)
+        if (GuardBreakMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableGuardBreakRootMotion);
+                    AnimInst->SetAnimationCutEndTime(GuardBreakCutEndTime);
+                    AnimInst->Montage_Play(GuardBreakMontage, 0.1f, 0.2f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Playing GuardBreak montage");
+                }
+            }
+        }
+
+        // 데미지 적용
+        Stats->ApplyDamage(ActualDamage);
+
+        // 사망 체크
+        if (!Stats->IsAlive())
+        {
+            OnDeath();
+        }
+
+        return ActualDamage;
+    }
+
+    // 일반 가드 중이면 데미지 완전 막기
     if (bIsBlocking && DamageInfo.bCanBeBlocked)
     {
         Stats->ConsumeStamina(Stats->BlockCostPerHit);

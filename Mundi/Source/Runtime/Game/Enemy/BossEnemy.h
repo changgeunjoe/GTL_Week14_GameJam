@@ -43,7 +43,7 @@ public:
 
     /** 현재 공격 패턴 이름 */
     const FString& GetCurrentPatternName() const { return CurrentPatternName; }
-    void SetCurrentPatternName(const FString& Name) { CurrentPatternName = Name; }
+    void SetCurrentPatternName(const FString& Name);
 
     /** AI 상태 (디버그용) */
     const FString& GetAIState() const { return AIState; }

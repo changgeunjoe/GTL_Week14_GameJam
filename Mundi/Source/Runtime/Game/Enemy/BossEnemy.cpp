@@ -341,6 +341,32 @@ void ABossEnemy::Attack_SpinAttack()
 }
 
 // ============================================================================
+// 패턴 이름 설정 (Lua용)
+// ============================================================================
+
+void ABossEnemy::SetCurrentPatternName(const FString& Name)
+{
+    CurrentPatternName = Name;
+
+    // GuardBreak 패턴일 때 데미지 정보 설정
+    if (Name == "GuardBreak")
+    {
+        FDamageInfo DamageInfo;
+        DamageInfo.Instigator = this;
+        DamageInfo.Damage = 30.f;
+        DamageInfo.DamageType = EDamageType::GuardBreak;
+        DamageInfo.HitReaction = EHitReaction::Knockback;
+        DamageInfo.StaggerDuration = 1.0f;
+        DamageInfo.KnockbackForce = 300.f;
+        DamageInfo.bCanBeBlocked = false;
+
+        bHasSuperArmor = true;
+        SetWeaponDamageInfo(DamageInfo);
+        UE_LOG("[BossEnemy] GuardBreak damage info set");
+    }
+}
+
+// ============================================================================
 // 몽타주 재생 (Lua용)
 // ============================================================================
 
