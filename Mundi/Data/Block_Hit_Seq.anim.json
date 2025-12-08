@@ -4,7 +4,7 @@
       "Data" : {
         "AttachBone" : "Invalid",
         "AttachToOwner" : true,
-        "LifeTime" : 2.000000,
+        "LifeTime" : 1.000000,
         "LocationOffset" : [-0.180000, -0.170000, 1.000000],
         "ParticlePath" : "Data/Particle/G_Charging1.particle",
         "RotationOffset" : [0.000000, 0.000000, 0.000000],

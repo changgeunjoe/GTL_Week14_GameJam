@@ -48,14 +48,15 @@ void AActor::BeginPlay()
 	
 	// NOTE: 아직 InitializeComponent/BeginPlay 순서가 완벽히 보장되지 않음 (PIE 시작 순간에는 지연 생성 처리 필요)
 	// 컴포넌트들 Initialize/BeginPlay 순회
-	for (UActorComponent* Comp : OwnedComponents)
+	TArray<UActorComponent*> ComponentsCopy(OwnedComponents.begin(), OwnedComponents.end());
+	for (UActorComponent* Comp : ComponentsCopy)
 	{
 		if (Comp)
 		{
 			Comp->InitializeComponent();
 		}
 	}
-	for (UActorComponent* Comp : OwnedComponents)
+	for (UActorComponent* Comp : ComponentsCopy)
 	{
 		if (Comp)
 		{
