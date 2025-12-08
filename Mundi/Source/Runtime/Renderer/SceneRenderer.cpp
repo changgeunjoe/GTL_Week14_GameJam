@@ -255,8 +255,8 @@ void FSceneRenderer::RenderShadowMaps()
 	if (!LightManager) return;
 
 	// 2. 그림자 캐스터(Caster) 메시 수집
-	// NOTE: 카메라 프러스텀 컬링된 Proxies.Meshes 대신, 모든 액터에서 그림자 캐스터를 수집
-	// 카메라 뒤에 있는 오브젝트도 광원 시점에서 그림자를 드리울 수 있기 때문
+	// 카메라 Frustum 컬링을 적용하여 보이는 오브젝트만 그림자 캐스터로 수집
+	const FFrustum& ViewFrustum = View->ViewFrustum;
 	TArray<FMeshBatchElement> ShadowMeshBatches;
 	for (AActor* Actor : World->GetActors())
 	{
@@ -267,11 +267,25 @@ void FSceneRenderer::RenderShadowMaps()
 
 		for (USceneComponent* Component : Actor->GetSceneComponents())
 		{
-			UMeshComponent* MeshComponent = Cast<UMeshComponent>(Component);
-			if (MeshComponent && MeshComponent->IsCastShadows() && MeshComponent->IsVisible())
+			if (!Component)
 			{
-				MeshComponent->CollectMeshBatches(ShadowMeshBatches, View);
+				continue;
 			}
+
+			UMeshComponent* MeshComponent = Cast<UMeshComponent>(Component);
+			if (!MeshComponent || !MeshComponent->IsCastShadows() || !MeshComponent->IsVisible())
+			{
+				continue;
+			}
+
+			// 카메라 Frustum 컬링
+			FAABB WorldAABB = MeshComponent->GetWorldAABB();
+			if (!IsAABBVisible(ViewFrustum, WorldAABB))
+			{
+				continue;
+			}
+
+			MeshComponent->CollectMeshBatches(ShadowMeshBatches, View);
 		}
 	}
 
