@@ -109,6 +109,7 @@ void APlayerCameraManager::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentViewCamera = GetWorld()->FindComponent<UCameraComponent>();
+	CachedSpringArmCamera = GetWorld()->FindComponent<UCameraComponent>();
 	if (!CurrentViewCamera)
 	{
 		UE_LOG("[warning] 현재 월드에 카메라가 없습니다. (Editor에서만 Editor 전용 카메라로 Fallback 처리됨)");

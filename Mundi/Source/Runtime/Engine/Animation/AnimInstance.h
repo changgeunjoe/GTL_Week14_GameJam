@@ -7,6 +7,9 @@ class UAnimationStateMachine;
 class UAnimSequence;
 class UAnimMontage;
 class USkeletalMeshComponent;
+class ACameraActor;
+class APlayerCameraManager;
+
 
 /**
  * @brief 애니메이션 재생 상태를 관리하는 구조체
@@ -154,6 +157,11 @@ class UAnimInstance : public UObject
     friend class UAnimationStateMachine;
 
 public:
+    /** Transient pointer for the temporary camera created by UAnimNotify_SetViewTarget */
+	TWeakObjectPtr<ACameraActor> TempViewTarget;
+    /** Cached original player camera to blend back to after a temporary view target is used. */
+    TWeakObjectPtr<UCameraComponent> CachedOriginalPlayerCamera;
+
     UAnimInstance() = default;
     virtual ~UAnimInstance() = default;
 

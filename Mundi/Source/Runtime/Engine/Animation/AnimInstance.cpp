@@ -7,7 +7,7 @@
 #include "AnimMontage.h"
 // For notify dispatching
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify.h"
-
+#include "Source/Runtime/Engine/GameFramework/PlayerCameraManager.h"
 IMPLEMENT_CLASS(UAnimInstance)
 
 // ============================================================

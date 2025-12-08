@@ -33,6 +33,7 @@ public:
 	void RegisterView(UCameraComponent* RegisterViewTarget);
 	void UnregisterView(UCameraComponent* UnregisterViewTarget);
 	UCameraComponent* GetViewCamera() { return CurrentViewCamera; }
+	UCameraComponent* GetSpringArmCamera() { return CachedSpringArmCamera; }
 	void SetViewCamera(UCameraComponent* NewViewTarget);
 	void SetViewCameraWithBlend(UCameraComponent* NewViewTarget, float InBlendTime);
 
@@ -103,6 +104,7 @@ protected:
 
 private:
 	UCameraComponent* CurrentViewCamera{};
+	UCameraComponent* CachedSpringArmCamera{};
 
 	FMinimalViewInfo CurrentViewInfo{};
 	FMinimalViewInfo BlendStartViewInfo{};

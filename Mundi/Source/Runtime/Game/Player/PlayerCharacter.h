@@ -130,7 +130,6 @@ protected:
     UStatsComponent* StatsComponent = nullptr;
     UHitboxComponent* HitboxComponent = nullptr;
     USpringArmComponent* SpringArm = nullptr;
-    UCameraComponent* Camera = nullptr;
 
     // ========== 전투 상태 ==========
     AGameState* GS = nullptr;
