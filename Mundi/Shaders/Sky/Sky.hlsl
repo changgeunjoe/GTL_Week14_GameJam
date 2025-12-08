@@ -56,12 +56,13 @@ float ComputeSunDisk(float3 viewDir, float3 sunDir, float diskSize, float intens
     float sunDot = dot(viewDir, -sunDir);
 
     // Map diskSize (0-1) to actual angular threshold
-    // diskSize of 0.05 gives roughly 3 degree sun disk
-    float diskAngle = diskSize * 0.1f;
+    // Make the disk significantly smaller for the same UI value
+    // Previous scale (0.1) produced a larger-than-desired disk
+    float diskAngle = diskSize * 0.02f;
     float diskEdge = 1.0f - diskAngle;
 
     // Sharp disk with soft edge
-    float disk = smoothstep(diskEdge - 0.005f, diskEdge + 0.002f, sunDot);
+    float disk = smoothstep(diskEdge - 0.002f, diskEdge + 0.001f, sunDot);
 
     // Soft glow around sun
     float glowFalloff = 8.0f / max(diskSize, 0.01f);
