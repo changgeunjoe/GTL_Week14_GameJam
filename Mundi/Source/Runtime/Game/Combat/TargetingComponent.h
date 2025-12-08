@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ActorComponent.h"
 #include "UTargetingComponent.generated.h"
