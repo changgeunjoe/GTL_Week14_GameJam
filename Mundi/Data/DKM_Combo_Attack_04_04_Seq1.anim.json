@@ -17,6 +17,15 @@
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision: Disable",
       "TriggerTime" : 0.975393
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Crash/Banks17_660.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks17_660.wav",
+      "TriggerTime" : 0.378289
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

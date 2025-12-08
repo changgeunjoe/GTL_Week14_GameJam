@@ -7,16 +7,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks10_679.wav",
-      "TriggerTime" : 0.407230
-    }, {
-      "Class" : "UAnimNotify_PlaySound",
-      "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Slashes/wav/Banks10_125.wav"
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "PlaySound: Banks10_125.wav",
-      "TriggerTime" : 1.112432
+      "TriggerTime" : 0.274105
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
@@ -25,7 +16,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks10_679.wav",
-      "TriggerTime" : 1.883851
+      "TriggerTime" : 0.523441
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
