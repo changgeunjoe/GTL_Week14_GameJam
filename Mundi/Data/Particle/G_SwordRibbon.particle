@@ -59,8 +59,8 @@
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
                   "SpawnRateType" : 0,
-                  "SpawnRate_Max" : 40.000000,
-                  "SpawnRate_Min" : 40.000000,
+                  "SpawnRate_Max" : 20.000000,
+                  "SpawnRate_Min" : 20.000000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true
@@ -247,8 +247,8 @@
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
                   "SpawnRateType" : 0,
-                  "SpawnRate_Max" : 40.000000,
-                  "SpawnRate_Min" : 40.000000,
+                  "SpawnRate_Max" : 20.000000,
+                  "SpawnRate_Min" : 20.000000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true

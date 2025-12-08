@@ -101,6 +101,33 @@ namespace
     */
 }
 
+FFrustum CreateFrustumFromViewInfo(const FVector& Location, const FQuat& Rotation, float FOV, float AspectRatio, float NearClip, float FarClip)
+{
+    // 회전 행렬에서 방향 벡터 추출
+    // Forward=+X, Right=+Y, Up=+Z (엔진 좌표계)
+    const FMatrix RotMatrix = Rotation.ToMatrix();
+    const FVector4 Origin = FVector4::FromPoint(Location);
+    const FVector4 Forward = FVector4::FromDirection(FVector(RotMatrix.VRows[0].X, RotMatrix.VRows[0].Y, RotMatrix.VRows[0].Z));
+    const FVector4 Right = FVector4::FromDirection(FVector(RotMatrix.VRows[1].X, RotMatrix.VRows[1].Y, RotMatrix.VRows[1].Z));
+    const FVector4 Up = FVector4::FromDirection(FVector(RotMatrix.VRows[2].X, RotMatrix.VRows[2].Y, RotMatrix.VRows[2].Z));
+
+    const float FovRad = DegreesToRadians(FOV);
+
+    // Far 평면에서의 절반 높이/너비
+    const float HalfVSide = FarClip * tanf(FovRad * 0.5f);
+    const float HalfHSide = HalfVSide * AspectRatio;
+    const FVector4 FrontMultFar = FVector4(Forward.X * FarClip, Forward.Y * FarClip, Forward.Z * FarClip, 0.0f);
+
+    FFrustum Result;
+    Result.NearFace = MakePlane(Origin + Forward * NearClip, Forward);
+    Result.FarFace = MakePlane(Origin + FrontMultFar, Forward * -1.0f);
+    Result.RightFace = MakePlane(Origin, Cross3(FrontMultFar + Right * HalfHSide, Up));
+    Result.LeftFace = MakePlane(Origin, Cross3(Up, FrontMultFar - Right * HalfHSide));
+    Result.TopFace = MakePlane(Origin, Cross3(Right, FrontMultFar + Up * HalfVSide));
+    Result.BottomFace = MakePlane(Origin, Cross3(FrontMultFar - Up * HalfVSide, Right));
+    return Result;
+}
+
 FFrustum CreateFrustumFromCamera(const UCameraComponent& Camera, float OverrideAspect)
 {
     // 카메라 파라미터
@@ -179,13 +206,14 @@ bool IsAABBVisible(const FFrustum& Frustum, const FAABB& Bound)
     const FVector Extents3 = (Bound.Max - Bound.Min) * 0.5f; // 항상 양수
     const FVector4 Center = FVector4::FromPoint(Center3);
     const FVector4 Extents = FVector4::FromDirection(Extents3); // 항상 양수
-    // 6면 모두 통과해야 절두체의 안쪽이므로 "보이는 것"
+    // 측면 4개만 체크 (Near/Far는 제외하여 카메라 앞뒤로 잘리는 문제 방지)
     return Intersects(Frustum.LeftFace, Center, Extents) &&
         Intersects(Frustum.RightFace, Center, Extents) &&
         Intersects(Frustum.TopFace, Center, Extents) &&
-        Intersects(Frustum.BottomFace, Center, Extents) &&
-        Intersects(Frustum.NearFace, Center, Extents) &&
-        Intersects(Frustum.FarFace, Center, Extents);
+        Intersects(Frustum.BottomFace, Center, Extents);
+        // Near/Far 체크 제거
+        // Intersects(Frustum.NearFace, Center, Extents) &&
+        // Intersects(Frustum.FarFace, Center, Extents);
 }
 
 bool IsAABBIntersects(const FFrustum& F, const FAABB& B)

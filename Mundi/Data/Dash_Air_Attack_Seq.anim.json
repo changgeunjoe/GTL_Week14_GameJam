@@ -3,46 +3,15 @@
       "Class" : "UAnimNotify_PlayCamera",
       "Data" : {
         "Camera" : {
-          "Dilation" : 0.250000,
-          "Duration" : 0.150000,
+          "Dilation" : 0.100000,
+          "Duration" : 3.500000,
           "Type" : "Slomo"
         }
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Invalid",
-      "TriggerTime" : 0.100813
-    }, {
-      "Class" : "UAnimNotify_PlayCamera",
-      "Data" : {
-        "Camera" : {
-          "AmpLoc" : 0.450000,
-          "AmpRot" : 0.450000,
-          "Duration" : 0.050000,
-          "Frequency" : 15.000000,
-          "Priority" : 0,
-          "Type" : "Shake"
-        }
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "Invalid",
-      "TriggerTime" : 0.354472
-    }, {
-      "Class" : "UAnimNotify_PlayParticle",
-      "Data" : {
-        "AttachBone" : "Invalid",
-        "AttachToOwner" : false,
-        "LifeTime" : 0.000000,
-        "LocationOffset" : [0.000000, 0.000000, 0.000000],
-        "ParticlePath" : "",
-        "RotationOffset" : [0.000000, 0.000000, 0.000000],
-        "ScaleOffset" : [1.000000, 1.000000, 1.000000]
-      },
-      "Duration" : 0.000000,
-      "Kind" : "Single",
-      "NotifyName" : "Invalid",
-      "TriggerTime" : 0.214634
+      "TriggerTime" : 0.174837
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
@@ -51,7 +20,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision",
-      "TriggerTime" : 0.068293
+      "TriggerTime" : 0.067534
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
@@ -59,8 +28,60 @@
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision",
+      "NotifyName" : "WeaponCollision: Disable",
       "TriggerTime" : 0.637398
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.010000,
+        "RelativeLocation" : [5.500000, 0.000000, 0.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.996195, 0.087156],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.162128
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.400000,
+        "RelativeLocation" : [0.000000, -500.000000, 200.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.000000, 1.000000],
+        "bBlendBackToDefault" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.566555
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.010000,
+        "RelativeLocation" : [-2.000000, 0.000000, 0.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.000000, 1.000000],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.401098
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "AmpLoc" : 0.050000,
+          "AmpRot" : 0.050000,
+          "Duration" : 0.350000,
+          "Frequency" : 10.000000,
+          "Priority" : 0,
+          "Type" : "Shake"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.411925
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
@@ -70,7 +91,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: On: WeaponRibbon",
-      "TriggerTime" : 0.003252
+      "TriggerTime" : 0.004039
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
@@ -80,7 +101,22 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: Off: WeaponRibbon",
-      "TriggerTime" : 0.655285
+      "TriggerTime" : 0.565854
+    }, {
+      "Class" : "UAnimNotify_PlayParticle",
+      "Data" : {
+        "AttachBone" : "Invalid",
+        "AttachToOwner" : true,
+        "LifeTime" : 1.700000,
+        "LocationOffset" : [0.000000, 0.000000, 1.000000],
+        "ParticlePath" : "Data/Particle/G_Ember.particle",
+        "RotationOffset" : [0.000000, 0.000000, 0.000000],
+        "ScaleOffset" : [1.000000, 1.000000, 1.000000]
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlayParticle: G_Ember.particle",
+      "TriggerTime" : 0.006425
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

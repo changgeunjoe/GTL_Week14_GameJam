@@ -20,10 +20,16 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
-                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
+                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [0.934363, 0.334725, 0.046899, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {
@@ -85,10 +91,16 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
-                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
+                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [0.933333, 0.333333, 0.047059, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {
@@ -150,10 +162,16 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.250000, 0.250000, 0.250000],
-                    "StartLocation_Min" : [-0.250000, -0.250000, -0.250000],
+                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
+                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [0.933333, 0.333333, 0.047059, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {
@@ -215,10 +233,16 @@
                     "CylinderRadius" : 100.000000,
                     "DistributionType" : 0,
                     "SphereRadius" : 100.000000,
-                    "StartLocation_Max" : [0.250000, 0.500000, 0.250000],
-                    "StartLocation_Min" : [-0.250000, -0.255000, -0.250000],
+                    "StartLocation_Max" : [0.400000, 0.400000, 0.400000],
+                    "StartLocation_Min" : [-0.400000, -0.400000, -0.400000],
                     "StartLocation_bUseRange" : true,
                     "Type" : "Location",
+                    "bEnabled" : true
+                  }, {
+                    "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
+                    "StartColor_Min" : [0.933333, 0.333333, 0.047059, 1.000000],
+                    "StartColor_bUseRange" : false,
+                    "Type" : "Color",
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {

@@ -512,6 +512,13 @@ void UAnimInstance::AdvancePlayState(FAnimationPlayState& PlayState, float Delta
         return;
     }
 
+    // CutEndTime 적용 - 애니메이션 끝에서 자를 시간
+    float EffectivePlayLength = PlayLength;
+    if (AnimationCutEndTime > 0.0f && !PlayState.bIsLooping)
+    {
+        EffectivePlayLength = FMath::Max(PlayLength - AnimationCutEndTime, 0.1f);
+    }
+
     if (PlayState.bIsLooping)
     {
         if (PlayState.CurrentTime >= PlayLength)
@@ -519,9 +526,9 @@ void UAnimInstance::AdvancePlayState(FAnimationPlayState& PlayState, float Delta
             PlayState.CurrentTime = FMath::Fmod(PlayState.CurrentTime, PlayLength);
         }
     }
-    else if (PlayState.CurrentTime >= PlayLength)
+    else if (PlayState.CurrentTime >= EffectivePlayLength)
     {
-        PlayState.CurrentTime = PlayLength;
+        PlayState.CurrentTime = EffectivePlayLength;
         PlayState.bIsPlaying = false;
     }
 }

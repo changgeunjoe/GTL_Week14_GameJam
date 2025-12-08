@@ -103,6 +103,9 @@ public:
     /** 이 상태에서 루트 모션을 사용할지 여부 */
     bool bEnableRootMotion = false;
 
+    /** 애니메이션 끝에서 자를 시간 (초 단위) */
+    float AnimationCutEndTime = 0.0f;
+
     virtual void Serialize(const bool bInIsLoading, JSON& InOutHandle) override;
 
     // --- UEdGraphNode 인터페이스 ---

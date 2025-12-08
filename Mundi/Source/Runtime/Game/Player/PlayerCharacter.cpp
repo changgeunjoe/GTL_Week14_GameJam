@@ -282,6 +282,38 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 구르기 상태 업데이트
     UpdateDodgeState(DeltaSeconds);
 
+    // 점프 딜레이 업데이트
+    if (bJumpPending)
+    {
+        JumpDelayTimer += DeltaSeconds;
+        if (JumpDelayTimer >= JumpDelayTime)
+        {
+            bJumpPending = false;
+            JumpDelayTimer = 0.f;
+            // 실제 점프 실행
+            Super::Jump();
+            UE_LOG("[PlayerCharacter] Jump executed after %.2fs delay", JumpDelayTime);
+        }
+    }
+
+    // 착지 쿨다운 업데이트
+    if (bLandingCooldown)
+    {
+        LandingCooldownTimer += DeltaSeconds;
+        if (LandingCooldownTimer >= LandingCooldownTime)
+        {
+            bLandingCooldown = false;
+            LandingCooldownTimer = 0.f;
+            UE_LOG("[PlayerCharacter] Landing cooldown finished");
+        }
+    }
+
+    // Idle 상태 타이머 업데이트
+    if (CombatState == ECombatState::Idle)
+    {
+        IdleStateTimer += DeltaSeconds;
+    }
+
     // 경직 상태 업데이트
     UpdateStagger(DeltaSeconds);
 
@@ -1009,6 +1041,12 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
     ECombatState OldState = CombatState;
     CombatState = NewState;
 
+    // Idle 상태 진입 시 타이머 초기화
+    if (NewState == ECombatState::Idle && OldState != ECombatState::Idle)
+    {
+        IdleStateTimer = 0.f;
+    }
+
     // 상태 변경 시 처리
     if (OldState == ECombatState::Attacking && NewState != ECombatState::Attacking)
     {
@@ -1194,6 +1232,48 @@ int32 APlayerCharacter::GetDodgeDirectionIndex() const
     Index = FMath::Clamp(Index, 0, 7);
 
     return Index;
+}
+
+void APlayerCharacter::Jump()
+{
+    // Idle, Walking, Running 상태에서만 점프 가능
+    if (CombatState != ECombatState::Idle &&
+        CombatState != ECombatState::Walking &&
+        CombatState != ECombatState::Running)
+    {
+        return;
+    }
+
+    // Idle 상태에서는 0.5초 경과 후에만 점프 가능
+    if (CombatState == ECombatState::Idle && IdleStateTimer < IdleJumpDelayTime)
+    {
+        return;
+    }
+
+    // 이미 점프 대기 중이면 무시
+    if (bJumpPending)
+    {
+        return;
+    }
+
+    // 착지 쿨다운 중이면 무시
+    if (bLandingCooldown)
+    {
+        UE_LOG("[PlayerCharacter] Jump blocked - landing cooldown active");
+        return;
+    }
+
+    // 공중에 있으면 무시
+    UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+    if (MovementComp && MovementComp->IsFalling())
+    {
+        return;
+    }
+
+    // 점프 딜레이 시작
+    bJumpPending = true;
+    JumpDelayTimer = 0.f;
+    UE_LOG("[PlayerCharacter] Jump requested, waiting %.2fs", JumpDelayTime);
 }
 
 void APlayerCharacter::UpdateDodgeState(float DeltaTime)
@@ -1528,6 +1608,14 @@ void APlayerCharacter::UpdateMovementState(float DeltaTime)
     // 상태 변경이 있을 때만 SetCombatState 호출
     if (NewState != CombatState)
     {
+        // Jumping에서 다른 상태로 전환 시 (착지) -> 착지 쿨다운 시작
+        if (CombatState == ECombatState::Jumping && NewState != ECombatState::Jumping)
+        {
+            bLandingCooldown = true;
+            LandingCooldownTimer = 0.f;
+            UE_LOG("[PlayerCharacter] Landed - starting cooldown %.2fs", LandingCooldownTime);
+        }
+
         SetCombatState(NewState);
     }
 }

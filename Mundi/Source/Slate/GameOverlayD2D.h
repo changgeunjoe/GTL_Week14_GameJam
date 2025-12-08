@@ -12,6 +12,12 @@ public:
     void Shutdown();
     void Draw();
 
+    // 마우스 클릭 처리
+    void HandleMouseClick(int32 MouseX, int32 MouseY);
+
+    // 마우스 위치 업데이트 (호버링 체크용)
+    void UpdateMousePosition(int32 MouseX, int32 MouseY);
+
 private:
     UGameOverlayD2D() = default;
     ~UGameOverlayD2D() = default;
@@ -22,12 +28,15 @@ private:
     void ReleaseD2DResources();
 
     // Draw helpers
-    void DrawStartMenu(float ScreenW, float ScreenH);
+    void DrawPressAnyKey(float ScreenW, float ScreenH);  // "Press Any Key" 화면
+    void DrawMainMenu(float ScreenW, float ScreenH);     // 메인 메뉴
+    void DrawStartMenu(float ScreenW, float ScreenH);    // (호환성 - DrawPressAnyKey로 리디렉션)
     void DrawDeathScreen(float ScreenW, float ScreenH, const wchar_t* Text, bool bIsVictory);
     void DrawBossHealthBar(float ScreenW, float ScreenH, float DeltaTime);
     void DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTime);
     void DrawDebugStats(float ScreenW, float ScreenH);  // 디버그: 보스/플레이어 상태
     void DrawPauseMenu(float ScreenW, float ScreenH);   // 일시정지 메뉴
+    void DrawDeathMenu(float ScreenW, float ScreenH);   // 죽음 후 메뉴 (재시작/종료)
 
     // Create gradient brush for the banner (recreated per-frame due to screen size changes)
     ID2D1LinearGradientBrush* CreateBannerGradientBrush(float ScreenW, float ScreenH, float Opacity);
@@ -96,6 +105,7 @@ private:
     float DeathFadeInDuration = 1.5f;   // Time to fade in
     float DeathHoldDuration = 3.0f;     // Time to hold at full opacity
     float DeathFadeOutDuration = 1.0f;  // Time to fade out
+    float DeathMenuShowDelay = 2.0f;    // "YOU DIED" 후 메뉴 표시까지 딜레이 (초)
 
     // Boss health bar animation (Dark Souls style)
     float CurrentBossHealth = 1.0f;     // Red bar - snaps immediately to actual health
@@ -137,4 +147,18 @@ private:
 
     // Custom font
     bool bFontLoaded = false;
+
+    // Pause menu button rectangles (screen space)
+    D2D1_RECT_F ResumeButtonRect = {};
+    D2D1_RECT_F RestartButtonRect = {};
+    D2D1_RECT_F QuitButtonRect = {};
+
+    // Main menu button rectangles
+    D2D1_RECT_F StartGameButtonRect = {};
+    D2D1_RECT_F TutorialButtonRect = {};
+    D2D1_RECT_F ExitButtonRect = {};
+
+    // 현재 마우스 위치
+    int32 CurrentMouseX = 0;
+    int32 CurrentMouseY = 0;
 };

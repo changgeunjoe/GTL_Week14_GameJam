@@ -148,6 +148,167 @@ bool UInputComponent::IsActionBlocked(const FName& ActionName) const
     return BlockedActions.Contains(ActionName);
 }
 
+bool UInputComponent::IsActionPressed(const FName& ActionName) const
+{
+    if (!bInputEnabled || IsActionBlocked(ActionName))
+    {
+        return false;
+    }
+
+    UInputManager& InputManager = UInputManager::GetInstance();
+
+    // 키보드 매핑 체크
+    for (const FInputActionKeyMapping& Mapping : ActionKeyMappings)
+    {
+        if (Mapping.ActionName == ActionName)
+        {
+            // 모디파이어 체크
+            if (Mapping.bShift && !InputManager.IsKeyDown(VK_SHIFT)) continue;
+            if (Mapping.bCtrl && !InputManager.IsKeyDown(VK_CONTROL)) continue;
+            if (Mapping.bAlt && !InputManager.IsKeyDown(VK_MENU)) continue;
+
+            bool bCurrentlyDown = false;
+            if (Mapping.Key == VK_LBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::LeftButton);
+            else if (Mapping.Key == VK_RBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::RightButton);
+            else if (Mapping.Key == VK_MBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::MiddleButton);
+            else
+                bCurrentlyDown = InputManager.IsKeyDown(Mapping.Key);
+
+            bool bWasDown = PreviousKeyStates.count(Mapping.Key) ? PreviousKeyStates.at(Mapping.Key) : false;
+
+            if (bCurrentlyDown && !bWasDown)
+            {
+                return true;
+            }
+        }
+    }
+
+    // 게임패드 매핑 체크
+    if (InputManager.IsGamepadConnected())
+    {
+        for (const FInputActionGamepadMapping& GPMap : ActionGamepadMappings)
+        {
+            if (GPMap.ActionName == ActionName)
+            {
+                if (InputManager.IsGamepadButtonPressed(GPMap.Button))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool UInputComponent::IsActionDown(const FName& ActionName) const
+{
+    if (!bInputEnabled || IsActionBlocked(ActionName))
+    {
+        return false;
+    }
+
+    UInputManager& InputManager = UInputManager::GetInstance();
+
+    // 키보드 매핑 체크
+    for (const FInputActionKeyMapping& Mapping : ActionKeyMappings)
+    {
+        if (Mapping.ActionName == ActionName)
+        {
+            // 모디파이어 체크
+            if (Mapping.bShift && !InputManager.IsKeyDown(VK_SHIFT)) continue;
+            if (Mapping.bCtrl && !InputManager.IsKeyDown(VK_CONTROL)) continue;
+            if (Mapping.bAlt && !InputManager.IsKeyDown(VK_MENU)) continue;
+
+            bool bCurrentlyDown = false;
+            if (Mapping.Key == VK_LBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::LeftButton);
+            else if (Mapping.Key == VK_RBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::RightButton);
+            else if (Mapping.Key == VK_MBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::MiddleButton);
+            else
+                bCurrentlyDown = InputManager.IsKeyDown(Mapping.Key);
+
+            if (bCurrentlyDown)
+            {
+                return true;
+            }
+        }
+    }
+
+    // 게임패드 매핑 체크
+    if (InputManager.IsGamepadConnected())
+    {
+        for (const FInputActionGamepadMapping& GPMap : ActionGamepadMappings)
+        {
+            if (GPMap.ActionName == ActionName)
+            {
+                if (InputManager.IsGamepadButtonDown(GPMap.Button))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool UInputComponent::IsActionReleased(const FName& ActionName) const
+{
+    if (!bInputEnabled || IsActionBlocked(ActionName))
+    {
+        return false;
+    }
+
+    UInputManager& InputManager = UInputManager::GetInstance();
+
+    // 키보드 매핑 체크
+    for (const FInputActionKeyMapping& Mapping : ActionKeyMappings)
+    {
+        if (Mapping.ActionName == ActionName)
+        {
+            bool bCurrentlyDown = false;
+            if (Mapping.Key == VK_LBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::LeftButton);
+            else if (Mapping.Key == VK_RBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::RightButton);
+            else if (Mapping.Key == VK_MBUTTON)
+                bCurrentlyDown = InputManager.IsMouseButtonDown(EMouseButton::MiddleButton);
+            else
+                bCurrentlyDown = InputManager.IsKeyDown(Mapping.Key);
+
+            bool bWasDown = PreviousKeyStates.count(Mapping.Key) ? PreviousKeyStates.at(Mapping.Key) : false;
+
+            if (!bCurrentlyDown && bWasDown)
+            {
+                return true;
+            }
+        }
+    }
+
+    // 게임패드 매핑 체크
+    if (InputManager.IsGamepadConnected())
+    {
+        for (const FInputActionGamepadMapping& GPMap : ActionGamepadMappings)
+        {
+            if (GPMap.ActionName == ActionName)
+            {
+                if (InputManager.IsGamepadButtonReleased(GPMap.Button))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 // ============================================================================
 // 내부 처리
 // ============================================================================

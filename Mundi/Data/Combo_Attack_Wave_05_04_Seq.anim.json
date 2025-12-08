@@ -1,22 +1,42 @@
 {
   "Notifies" : [{
-      "Class" : "UAnimNotify_PlaySound",
+      "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Slashes/wav/Banks0_939.wav"
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : false
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "PlaySound: Banks0_939.wav",
-      "TriggerTime" : 0.163382
+      "NotifyName" : "Particle: Off: WeaponRibbon",
+      "TriggerTime" : 0.987421
     }, {
-      "Class" : "UAnimNotify_PlaySound",
+      "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (12).wav"
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : true
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "PlaySound: audio (12).wav",
-      "TriggerTime" : 0.127075
+      "NotifyName" : "Particle: On: WeaponRibbon",
+      "TriggerTime" : 0.002254
+    }, {
+      "Class" : "UAnimNotify_EnableWeaponCollision",
+      "Data" : {
+        "bEnable" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "WeaponCollision",
+      "TriggerTime" : 0.146219
+    }, {
+      "Class" : "UAnimNotify_EnableWeaponCollision",
+      "Data" : {
+        "bEnable" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "WeaponCollision: Disable",
+      "TriggerTime" : 0.378263
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

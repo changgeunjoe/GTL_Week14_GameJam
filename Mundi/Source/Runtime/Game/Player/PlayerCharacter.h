@@ -33,6 +33,7 @@ public:
     // ========================================================================
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
+    virtual void Jump() override;
 
     // ========================================================================
     // IDamageable 구현
@@ -87,6 +88,7 @@ public:
     // ========================================================================
     ECombatState GetCombatState() const { return CombatState; }
     bool IsInvincible() const { return bIsInvincible; }
+    bool IsJumpPending() const { return bJumpPending; }
 
     // ========================================================================
     // 컴포넌트 접근
@@ -167,6 +169,29 @@ protected:
     float ParryWindowDuration = 0.2f;
 
     float StaggerTimer = 0.f;
+
+    // ========== 점프 딜레이 ==========
+    bool bJumpPending = false;          // 점프 대기 중
+    float JumpDelayTimer = 0.f;         // 점프 딜레이 타이머
+
+    /** 점프 딜레이 시간 (이 시간 후에 실제 점프) */
+    UPROPERTY(EditAnywhere, Category = "Movement")
+    float JumpDelayTime = 0.21f;
+
+    /** 착지 후 점프 쿨다운 (착지 직후 바로 점프 방지) */
+    bool bLandingCooldown = false;
+    float LandingCooldownTimer = 0.f;
+
+    /** 착지 쿨다운 시간 */
+    UPROPERTY(EditAnywhere, Category = "Movement")
+    float LandingCooldownTime = 0.1f;
+
+    /** Idle 상태 유지 시간 (점프 가능 조건 체크용) */
+    float IdleStateTimer = 0.f;
+
+    /** Idle 상태에서 점프 가능해지기까지 필요한 시간 */
+    UPROPERTY(EditAnywhere, Category = "Movement")
+    float IdleJumpDelayTime = 0.5f;
 
     // ========== 콤보 ==========
     UPROPERTY(EditAnywhere, Category = "Combat")
