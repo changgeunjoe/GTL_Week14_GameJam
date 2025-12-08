@@ -780,11 +780,8 @@ void FSceneRenderer::GatherVisibleProxies()
 					{
 						if (bDrawParticle)
 						{
-							FAABB WorldAABB = ParticleComponent->GetWorldAABB();
-							if (IsAABBVisible(ViewFrustum, WorldAABB))
-							{
-								Proxies.Particles.Add(ParticleComponent);
-							}
+							// 파티클은 프러스텀 컬링 제외 (항상 렌더링)
+							Proxies.Particles.Add(ParticleComponent);
 						}
 					}
 				}
