@@ -17,6 +17,15 @@
       "Kind" : "Single",
       "NotifyName" : "ComboWindow: Disable",
       "TriggerTime" : 0.316293
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Slashes/wav/Banks0_938.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks0_938.wav",
+      "TriggerTime" : 0.138526
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

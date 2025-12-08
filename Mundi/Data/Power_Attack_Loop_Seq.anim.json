@@ -1,0 +1,14 @@
+{
+  "Notifies" : [{
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_105_cut.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks10_105_cut.wav",
+      "TriggerTime" : 0.013043
+    }],
+  "Type" : "AnimSequenceMeta",
+  "Version" : 1
+}
