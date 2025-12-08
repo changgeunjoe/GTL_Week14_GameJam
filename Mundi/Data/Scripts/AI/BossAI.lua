@@ -117,8 +117,8 @@ local Config = {
     MoveSpeed = 270,
     Phase2MoveSpeed = 420,
     Phase3MoveSpeed = 460,
-    Phase2HealthThreshold = 0.5,
-     Phase3HealthThreshold = 0.2,
+    Phase2HealthThreshold = 0.7,
+     Phase3HealthThreshold = 0.35,
     -- 좌우 이동(Strafe) 설정 (미터 단위)
     StrafeMinRange = 5,         -- 5m 이상일 때 좌우 이동 시작 (AttackRange보다 커야함)
     StrafeMaxRange = 8,         -- 8m 이하일 때 좌우 이동
