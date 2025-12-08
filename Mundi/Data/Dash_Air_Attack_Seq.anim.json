@@ -19,8 +19,8 @@
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision",
-      "TriggerTime" : 0.067534
+      "NotifyName" : "WeaponCollision: Enable",
+      "TriggerTime" : 0.069160
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
@@ -65,7 +65,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "SetViewTarget",
-      "TriggerTime" : 0.401098
+      "TriggerTime" : 0.399472
     }, {
       "Class" : "UAnimNotify_PlayCamera",
       "Data" : {
@@ -117,6 +117,42 @@
       "Kind" : "Single",
       "NotifyName" : "PlayParticle: G_Ember.particle",
       "TriggerTime" : 0.006425
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_65.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks10_65.wav",
+      "TriggerTime" : 0.359350
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (12).wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: audio (12).wav",
+      "TriggerTime" : 0.151220
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks17_89.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks17_89.wav",
+      "TriggerTime" : 0.021138
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Minimum_8.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Minimum_8.wav",
+      "TriggerTime" : 0.627642
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

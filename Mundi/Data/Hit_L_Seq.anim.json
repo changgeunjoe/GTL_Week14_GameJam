@@ -2,12 +2,12 @@
   "Notifies" : [{
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Minimum_9.wav"
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (14).wav"
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "PlaySound: Minimum_9.wav",
-      "TriggerTime" : 0.058695
+      "NotifyName" : "PlaySound: audio (14).wav",
+      "TriggerTime" : 0.011438
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

@@ -8,6 +8,15 @@
       "Kind" : "Single",
       "NotifyName" : "PauseAnimation",
       "TriggerTime" : 2.914663
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/ShinobiVoices/audio (7).wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: audio (7).wav",
+      "TriggerTime" : 0.023203
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
