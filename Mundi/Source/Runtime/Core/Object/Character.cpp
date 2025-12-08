@@ -4,10 +4,16 @@
 #include "SkeletalMeshComponent.h"
 #include "CharacterMovementComponent.h"
 #include "StaticMeshComponent.h"
+#include "AnimNotifyParticleComponent.h"
+#include "ParticleSystemComponent.h"
 #include "ObjectMacros.h"
 #include "StaticMeshActor.h"
 #include "World.h"
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
+#include "Source/Runtime/Engine/GameFramework/PlayerCameraManager.h"
+#include "Source/Runtime/Game/Player/PlayerCharacter.h"
+#include "Source/Runtime/Game/Enemy/BossEnemy.h"
+#include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Collision.h" 
 ACharacter::ACharacter()
 {
@@ -68,6 +74,19 @@ void ACharacter::Tick(float DeltaSecond)
 void ACharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    // 파티클 시스템 로드
+    FleshImpactParticle = RESOURCE.Load<UParticleSystem>("Data/Particle/G_Blood.particle");
+    BlockImpactParticle = RESOURCE.Load<UParticleSystem>("Data/Particle/G_Spark2.particle");
+
+    if (!FleshImpactParticle)
+    {
+        UE_LOG("[Character] WARNING: Failed to load FleshImpactParticle (Data/Particle/G_Blood.particle)");
+    }
+    if (!BlockImpactParticle)
+    {
+        UE_LOG("[Character] WARNING: Failed to load BlockImpactParticle (Data/Particle/G_Spark2.particle)");
+    }
 
     // 무기 관련 컴포넌트 상태 로그
     UE_LOG("[Character] BeginPlay - WeaponMeshComp: %p, WeaponCollider: %p, SkeletalMeshComp: %p",
@@ -527,11 +546,83 @@ void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocatio
 	{
 		FTransform SpawnTransform;
 		SpawnTransform.Translation = HitLocation;
-		AStaticMeshActor* HitMarker = World->SpawnActor<AStaticMeshActor>(SpawnTransform);
-		if (HitMarker)
+
+		//// 디버그 공 Spawn
+		//AStaticMeshActor* HitMarker = World->SpawnActor<AStaticMeshActor>(SpawnTransform);
+		//if (HitMarker)
+		//{
+		//	HitMarker->GetStaticMeshComponent()->SetStaticMesh(GDataDir + "/Model/Sphere8.obj");
+		//	HitMarker->SetActorScale(FVector(0.1f, 0.1f, 0.1f));
+		//}
+
+		// Helper lambda to spawn a self-destroying particle effect
+		auto SpawnImpactParticle = [&](UParticleSystem* Particle, const FVector& Location, const FVector& Rotation)
 		{
-			HitMarker->GetStaticMeshComponent()->SetStaticMesh(GDataDir + "/Model/Sphere8.obj");
-			HitMarker->SetActorScale(FVector(0.1f, 0.1f, 0.1f));
+			if (!Particle || !World)
+			{
+				return;
+			}
+
+			FTransform SpawnTransform(Location, FQuat(Rotation.X, Rotation.Y, Rotation.Z, 1.0), FVector(1.0, 1.0, 1.0));
+			AActor* EmitterActor = World->SpawnActor<AActor>(SpawnTransform);
+			if (!EmitterActor)
+			{
+				return;
+			}
+
+			UAnimNotifyParticleComponent* ParticleComp = Cast<UAnimNotifyParticleComponent>(EmitterActor->AddNewComponent(UAnimNotifyParticleComponent::StaticClass()));
+			if (!ParticleComp)
+			{
+				EmitterActor->Destroy();
+				return;
+			}
+
+			ParticleComp->SetTemplate(Particle);
+			ParticleComp->SetWorldTransform(SpawnTransform);
+			ParticleComp->SetForcedLifeTime(0.5f);  // 0.5초 후 자동 종료
+			ParticleComp->ResetAndActivate();
+
+			// Set up auto-destroy for the hosting actor (지연 삭제로 iterator 문제 방지)
+			TWeakObjectPtr<AActor> EmitterActorWeak(EmitterActor);
+			ParticleComp->OnParticleSystemFinished.Add([EmitterActorWeak](UParticleSystemComponent* FinishedComp) {
+				if (EmitterActorWeak.IsValid() && GWorld) {
+					// 즉시 삭제 대신 안전한 시점에 삭제
+					GWorld->AddPendingKillActor(EmitterActorWeak.Get());
+				}
+			});
+		};
+
+		// World에서 Player를 가져와서 상태에 따라 파티클 선택
+		APlayerCharacter* Player = GWorld->FindActor<APlayerCharacter>();
+		if (HitActor == Player)
+		{
+			if (Player && Player->GetCombatState() == ECombatState::Blocking)
+			{
+				// 불꽃 파티클 소환 (방어 성공)
+				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.02, 0.015, 15);
+				SpawnImpactParticle(BlockImpactParticle, HitLocation, HitNormal);
+			}
+			else
+			{
+				// 피 파티클 소환 (피격)
+				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.01, 0.01, 10);
+				SpawnImpactParticle(FleshImpactParticle, HitLocation, HitNormal);
+			}
+		}
+		else if (Cast<ABossEnemy>(HitActor))
+		{
+			if (Player && Player->GetCombatState() == ECombatState::Blocking)
+			{
+				// 불꽃 파티클 소환 (방어 성공)
+				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.02, 0.015, 15);
+				SpawnImpactParticle(BlockImpactParticle, HitLocation, HitNormal);
+			}
+			else
+			{
+				// 피 파티클 소환 (피격)
+				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.01, 0.01, 10);
+				SpawnImpactParticle(FleshImpactParticle, HitLocation, HitNormal);
+			}
 		}
 	}
 
