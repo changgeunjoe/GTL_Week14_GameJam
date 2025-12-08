@@ -27,6 +27,8 @@
 #include "OBB.h"
 #include "BoundingSphere.h"
 #include "HeightFogComponent.h"
+#include "SkySphereComponent.h"
+#include "SkySphereGenerator.h"
 #include "Gizmo/GizmoArrowComponent.h"
 #include "Gizmo/GizmoRotateComponent.h"
 #include "Gizmo/GizmoScaleComponent.h"
@@ -173,6 +175,10 @@ void FSceneRenderer::RenderLitPath()
         RHIDevice->GetDeviceContext()->ClearRenderTargetView(RHIDevice->GetCurrentTargetRTV(), bg);
         RHIDevice->ClearDepthBuffer(1.0f, 0);
     }
+
+    // Sky Pass - Render sky sphere before opaque objects
+    RenderSkyPass();
+
     // Base Pass
     RenderOpaquePass(View->RenderSettings->GetViewMode());
 	RenderDecalPass();
@@ -270,7 +276,8 @@ void FSceneRenderer::RenderShadowMaps()
 	FMatrix InvProjection;
 	if (View->ProjectionMode == ECameraProjectionMode::Perspective) { InvProjection = View->ProjectionMatrix.InversePerspectiveProjection(); }
 	else { InvProjection = View->ProjectionMatrix.InverseOrthographicProjection(); }
-	ViewProjBufferType OriginViewProjBuffer = ViewProjBufferType(View->ViewMatrix, View->ProjectionMatrix, InvView, InvProjection);
+	const ViewProjBufferType SavedCameraViewProj = ViewProjBufferType(View->ViewMatrix, View->ProjectionMatrix, InvView, InvProjection);
+	ViewProjBufferType OriginViewProjBuffer = SavedCameraViewProj;
 
 	D3D11_VIEWPORT OriginVP;
 	UINT NumViewports = 1;
@@ -454,7 +461,7 @@ void FSceneRenderer::RenderShadowMaps()
 	RHIDevice->GetDeviceContext()->RSSetViewports(1, &OriginVP);
 	
 	// ViewProjBufferType 복구 (라이트 시점 Override 일 경우 마지막 라이트 시점으로 설정됨)
-	RHIDevice->SetAndUpdateConstantBuffer(ViewProjBufferType(OriginViewProjBuffer));
+	RHIDevice->SetAndUpdateConstantBuffer(ViewProjBufferType(SavedCameraViewProj));
 }
 
 void FSceneRenderer::RenderShadowDepthPass(FShadowRenderRequest& ShadowRequest, const TArray<FMeshBatchElement>& InShadowBatches)
@@ -774,7 +781,14 @@ void FSceneRenderer::GatherVisibleProxies()
 					{
 						SceneGlobals.Fogs.Add(FogComponent);
 					}
-
+                else if (USkySphereComponent* SkyComponent = Cast<USkySphereComponent>(Component))
+                {
+                    // Prefer the most recently encountered active/visible sky sphere
+                    if (SkyComponent->IsActive() && SkyComponent->IsVisible())
+                    {
+                        SceneGlobals.SkySphere = SkyComponent;
+                    }
+                }
 					else if (UDirectionalLightComponent* LightComponent = Cast<UDirectionalLightComponent>(Component); LightComponent && bDrawLight)
 					{
 						SceneGlobals.DirectionalLights.Add(LightComponent);
@@ -898,23 +912,23 @@ void FSceneRenderer::PerformTileLightCulling()
 			ViewportHeight
 		);
 
-		// 통계를 전역 매니저에 업데이트
+		// ??? ?? ???? ????
 		FTileCullingStatManager::GetInstance().UpdateStats(TileLightCuller->GetStats());
 	}
 
-	// 타일 컬링 상수 버퍼 업데이트
+	// ?? ?? ?? ?? ????
 	uint32 TileSize = RenderSettings.GetTileSize();
 	FTileCullingBufferType TileCullingBuffer;
 	TileCullingBuffer.TileSize = TileSize;
 	TileCullingBuffer.TileCountX = (ViewportWidth + TileSize - 1) / TileSize;
 	TileCullingBuffer.TileCountY = (ViewportHeight + TileSize - 1) / TileSize;
-	TileCullingBuffer.bUseTileCulling = bTileCullingEnabled ? 1 : 0;  // ShowFlag에 따라 설정
-	TileCullingBuffer.ViewportStartX = View->ViewRect.MinX;  // ShowFlag에 따라 설정
-	TileCullingBuffer.ViewportStartY = View->ViewRect.MinY;  // ShowFlag에 따라 설정
+	TileCullingBuffer.bUseTileCulling = bTileCullingEnabled ? 1 : 0;  // ShowFlag? ?? ??
+	TileCullingBuffer.ViewportStartX = View->ViewRect.MinX;  // ShowFlag? ?? ??
+	TileCullingBuffer.ViewportStartY = View->ViewRect.MinY;  // ShowFlag? ?? ??
 
 	RHIDevice->SetAndUpdateConstantBuffer(TileCullingBuffer);
 
-	// Structured Buffer SRV를 t2 슬롯에 바인딩 (타일 컬링 활성화 시에만)
+	// Structured Buffer SRV? t2 ??? ??? (?? ?? ??? ???)
 	if (bTileCullingEnabled)
 	{
 		ID3D11ShaderResourceView* TileLightIndexSRV = TileLightCuller->GetLightIndexBufferSRV();
@@ -1033,6 +1047,133 @@ void FSceneRenderer::RenderOpaquePass(EViewMode InRenderViewMode)
 		RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
 	}
 	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
+}
+
+void FSceneRenderer::RenderSkyPass()
+{
+    // Skip if no sky sphere in scene
+    if (!SceneGlobals.SkySphere)
+    {
+        // Fallback: search world for any sky sphere component (ignore actor visibility)
+        USkySphereComponent* FallbackSky = nullptr;
+        for (AActor* Actor : World->GetActors())
+        {
+            if (!Actor) continue;
+            for (USceneComponent* Comp : Actor->GetSceneComponents())
+            {
+                if (USkySphereComponent* SkyComp = Cast<USkySphereComponent>(Comp))
+                {
+                    if (SkyComp->IsActive()) { FallbackSky = SkyComp; break; }
+                }
+            }
+            if (FallbackSky) break;
+        }
+
+        if (!FallbackSky)
+        {
+            UE_LOG("[SkyPass] No SkySphereComponent found. PIE=%d", World->bPie ? 1 : 0);
+            return;
+        }
+
+        UE_LOG("[SkyPass] Using fallback sky component from actor '%s'", FallbackSky->GetOwner()->GetName().c_str());
+        SceneGlobals.SkySphere = FallbackSky;
+    }
+
+	USkySphereComponent* Sky = SceneGlobals.SkySphere;
+
+	// Check if component is visible and active
+	if (!Sky->IsVisible() || !Sky->IsActive())
+	{
+		UE_LOG("[SkyPass] SkySphere inactive or hidden. Visible=%d Active=%d HiddenInGame=%d", Sky->IsVisible()?1:0, Sky->IsActive()?1:0, Sky->GetHiddenInGame()?1:0);
+		return;
+	}
+
+	// Load sky shader
+	UShader* SkyShader = Sky->GetSkyShader();
+	if (!SkyShader)
+	{
+		SkyShader = UResourceManager::GetInstance().Load<UShader>("Shaders/Sky/Sky.hlsl");
+	}
+	if (!SkyShader || !SkyShader->GetVertexShader() || !SkyShader->GetPixelShader())
+	{
+		UE_LOG("[SkyPass] Sky shader missing or incomplete");
+		return;
+	}
+
+	// Get or create sky sphere mesh
+	UStaticMesh* SkyMesh = FSkySphereGenerator::GetOrCreateSkySphere(RHIDevice->GetDevice());
+	if (!SkyMesh)
+	{
+		UE_LOG("[SkyPass] Failed to create/get sky sphere mesh");
+		return;
+	}
+
+	// Set render state for sky
+	// Depth test: Always pass (sky is always behind everything)
+	// Culling: None (inside-facing sphere)
+	RHIDevice->OMSetDepthStencilState(EComparisonFunc::Always);
+	RHIDevice->RSSetState(ERasterizerMode::Solid_NoCull);
+	RHIDevice->OMSetBlendState(EMaterialBlendMode::Opaque);
+
+	// Prepare shader
+	RHIDevice->PrepareShader(SkyShader);
+
+    // Model matrix: Scale by radius and translate to camera position
+    FVector CameraPos = View->ViewLocation;
+    // Clamp sky radius to stay within the camera far clip in PIE to avoid full frustum clipping
+    float MaxRadius = View->FarClip * 0.9f;
+    float Radius = Sky->GetSphereRadius();
+    if (MaxRadius > 0.0f)
+    {
+        Radius = FMath::Min(Radius, MaxRadius);
+    }
+    FMatrix ScaleMatrix = FMatrix::MakeScale(Radius);
+    FMatrix TranslationMatrix = FMatrix::MakeTranslation(CameraPos);
+    FMatrix ModelMatrix = ScaleMatrix * TranslationMatrix;
+
+	// Update Model constant buffer (b0)
+	ModelBufferType ModelBuffer;
+	ModelBuffer.Model = ModelMatrix;
+	ModelBuffer.ModelInverseTranspose = ModelMatrix.InverseAffine().Transpose();
+	RHIDevice->SetAndUpdateConstantBuffer(ModelBuffer);
+
+	// ViewProj constant buffer is already set in PrepareView()
+
+	// Update Sky constant buffer (b9)
+	FSkyConstantBuffer SkyBuffer;
+	SkyBuffer.ZenithColor = Sky->GetZenithColor();
+	SkyBuffer.HorizonColor = Sky->GetHorizonColor();
+	SkyBuffer.GroundColor = Sky->GetGroundColor();
+	FVector SunDir = Sky->GetSunDirection();
+	SkyBuffer.SunDirection = FVector4(SunDir.X, SunDir.Y, SunDir.Z, 0.0f);
+	SkyBuffer.SunColor = FLinearColor(
+		Sky->GetSunColor().R,
+		Sky->GetSunColor().G,
+		Sky->GetSunColor().B,
+		Sky->GetSunIntensity()  // Intensity in alpha
+	);
+	SkyBuffer.HorizonFalloff = Sky->GetHorizonFalloff();
+	SkyBuffer.SunDiskSize = Sky->GetSunDiskSize();
+	SkyBuffer.OverallBrightness = Sky->GetOverallBrightness();
+	SkyBuffer._Padding = 0.0f;
+	RHIDevice->SetAndUpdateConstantBuffer(SkyBuffer);
+	
+	// Bind mesh buffers
+	UINT Stride = SkyMesh->GetVertexStride();
+	UINT Offset = 0;
+	ID3D11Buffer* VB = SkyMesh->GetVertexBuffer();
+	ID3D11Buffer* IB = SkyMesh->GetIndexBuffer();
+
+	RHIDevice->GetDeviceContext()->IASetVertexBuffers(0, 1, &VB, &Stride, &Offset);
+	RHIDevice->GetDeviceContext()->IASetIndexBuffer(IB, DXGI_FORMAT_R32_UINT, 0);
+	RHIDevice->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Draw sky sphere
+	RHIDevice->GetDeviceContext()->DrawIndexed(SkyMesh->GetIndexCount(), 0, 0);
+
+	// Restore render state
+	RHIDevice->OMSetDepthStencilState(EComparisonFunc::LessEqual);
+	RHIDevice->RSSetState(ERasterizerMode::Solid);
 }
 
 void FSceneRenderer::RenderParticlePass()
