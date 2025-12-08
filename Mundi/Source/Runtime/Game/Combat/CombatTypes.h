@@ -35,6 +35,9 @@ enum class EHitReaction
 enum class ECombatState
 {
     Idle,           // 대기
+    Walking,        // 걷기 중
+    Running,        // 달리기 중
+    Jumping,        // 점프 중
     Attacking,      // 공격 중
     Dodging,        // 회피 중
     Blocking,       // 가드 중

@@ -291,6 +291,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 스킬 차징 업데이트
     UpdateSkillCharging(DeltaSeconds);
 
+    // 이동 상태 업데이트 (Walking/Running/Jumping/Idle 전환)
+    UpdateMovementState(DeltaSeconds);
+
     // 경직 중이 아니면 입력 처리
     if (CombatState != ECombatState::Staggered)
     {
@@ -997,6 +1000,20 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
     {
         bIsInvincible = false;
     }
+
+    // ── 엘든링 스타일 카메라: SpringArm에 구르기 상태 전달 ──
+    bool bIsNowDodging = (NewState == ECombatState::Dodging);
+    bool bWasDodging = (OldState == ECombatState::Dodging);
+    if (bIsNowDodging != bWasDodging)
+    {
+        if (UActorComponent* C = GetComponent(USpringArmComponent::StaticClass()))
+        {
+            if (USpringArmComponent* SpringArm = Cast<USpringArmComponent>(C))
+            {
+                SpringArm->SetRollingState(bIsNowDodging);
+            }
+        }
+    }
 }
 
 void APlayerCharacter::UpdateParryWindow(float DeltaTime)
@@ -1369,6 +1386,79 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
             if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
             if (PlayerParticles["Charged"][1] && !PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->ResumeSpawning();
         }
+    }
+}
+
+// ============================================================================
+// 이동 상태 업데이트 (Walking/Running/Jumping/Idle 전환)
+// ============================================================================
+
+void APlayerCharacter::UpdateMovementState(float DeltaTime)
+{
+    // 전투 액션 중이면 이동 상태 변경 안 함
+    // (Attacking, Dodging, Blocking, Parrying, Staggered, Charging, Knockback, Dead)
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Dodging ||
+        CombatState == ECombatState::Blocking ||
+        CombatState == ECombatState::Parrying ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Charging ||
+        CombatState == ECombatState::Knockback ||
+        CombatState == ECombatState::Dead)
+    {
+        return;
+    }
+
+    UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+    if (!MovementComp)
+    {
+        return;
+    }
+
+    // 점프/낙하 중인지 확인
+    bool bIsFalling = MovementComp->IsFalling();
+
+    // 수평 속도 확인 (이동 중인지)
+    FVector Velocity = MovementComp->GetVelocity();
+    Velocity.Z = 0.0f;
+    float HorizontalSpeed = Velocity.Size();
+
+    // 달리기 중인지 확인 (TargetWalkSpeed >= SprintWalkSpeed)
+    bool bIsSprinting = (MovementComp->TargetWalkSpeed >= MovementComp->SprintWalkSpeed);
+
+    // 이동 중인지 확인 (최소 속도 임계값)
+    const float MinMovementSpeed = 0.5f;
+    bool bIsMoving = (HorizontalSpeed > MinMovementSpeed);
+
+    ECombatState NewState = CombatState;
+
+    if (bIsFalling)
+    {
+        // 공중에 있으면 Jumping
+        NewState = ECombatState::Jumping;
+    }
+    else if (bIsMoving)
+    {
+        // 이동 중
+        if (bIsSprinting)
+        {
+            NewState = ECombatState::Running;
+        }
+        else
+        {
+            NewState = ECombatState::Walking;
+        }
+    }
+    else
+    {
+        // 정지 상태
+        NewState = ECombatState::Idle;
+    }
+
+    // 상태 변경이 있을 때만 SetCombatState 호출
+    if (NewState != CombatState)
+    {
+        SetCombatState(NewState);
     }
 }
 
