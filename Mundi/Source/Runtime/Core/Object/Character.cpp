@@ -111,7 +111,7 @@ void ACharacter::BeginPlay()
     // OnComponentBeginOverlap 델리게이트 바인딩 (Overlap 방식 충돌 감지)
     OnComponentBeginOverlap.Add([this](UPrimitiveComponent* OverlappedComp, UPrimitiveComponent* OtherComp, const FTriggerHit* TriggerHit) {
         // WeaponCollider와의 오버랩만 처리
-        if (!WeaponCollider || OverlappedComp != static_cast<UPrimitiveComponent*>(WeaponCollider))
+        if (!WeaponCollider || !OverlappedComp || OverlappedComp != static_cast<UPrimitiveComponent*>(WeaponCollider))
         {
             return;
         }

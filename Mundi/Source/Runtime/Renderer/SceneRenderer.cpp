@@ -1930,6 +1930,13 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 			Batch.VertexStride != CurrentVertexStride ||
 			Batch.PrimitiveTopology != CurrentTopology)
 		{
+			// Safety check: 버퍼가 해제된 경우 스킵 (intermittent crash 방지)
+			// Particle components with SetForcedLifeTime()이 렌더링 중 삭제될 수 있음
+			if (!Batch.VertexBuffer || !Batch.IndexBuffer)
+			{
+				continue;
+			}
+
 			if (Batch.bInstancedDraw)
 			{
 				// 두 개의 VB: 0 = mesh, 1 = instance

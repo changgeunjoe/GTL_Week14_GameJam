@@ -1533,7 +1533,9 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
     const float Focus = GS->GetPlayerFocus().GetFocus();
     if (bShouldEvaluateCharging)
     {
-        if (PlayerParticles["Charging"].size() < 3 || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
+        if (PlayerParticles["Charging"].size() < 3 || PlayerParticles["Charged"].size() < 3
+            || !PlayerParticles["Charged"][0] || !PlayerParticles["Charged"][1] || !PlayerParticles["Charged"][2]
+            || !PlayerParticles["Charging"][0] || !PlayerParticles["Charging"][1] || !PlayerParticles["Charging"][2])
             return;
 
         if (!bWasCharging) bWasCharging = true;
@@ -1580,16 +1582,18 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
         {
             if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
             if (PlayerParticles["Charged"][1] && PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->PauseSpawning();
+            if (PlayerParticles["Charged"][2] && PlayerParticles["Charged"][2]->IsSpawning())PlayerParticles["Charged"][2]->PauseSpawning();
         }
         else if (Focus < 99.0f)
         {
-            if (PlayerParticles["Charged"][1] && PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->PauseSpawning();
-            if(PlayerParticles["Charged"][0] && !PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->ResumeSpawning();
+            if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
+            if (PlayerParticles["Charged"][1] && !PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->ResumeSpawning();
         }
         else
         {
             if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
             if (PlayerParticles["Charged"][1] && !PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->ResumeSpawning();
+            if (PlayerParticles["Charged"][2] && !PlayerParticles["Charged"][2]->IsSpawning())PlayerParticles["Charged"][2]->ResumeSpawning();
         }
     }
 }

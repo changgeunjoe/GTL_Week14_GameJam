@@ -105,8 +105,8 @@ local Config = {
     DetectionRange = 2000,
     AttackRange = 4,            -- 4m 이내면 공격
     LoseTargetRange = 3000,
-    MoveSpeed = 250,
-    Phase2MoveSpeed = 350,
+    MoveSpeed = 300,
+    Phase2MoveSpeed = 420,
     Phase2HealthThreshold = 0.5,
 
     -- 좌우 이동(Strafe) 설정 (미터 단위)
