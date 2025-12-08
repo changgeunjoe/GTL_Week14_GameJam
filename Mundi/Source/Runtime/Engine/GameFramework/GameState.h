@@ -5,7 +5,8 @@
 // Game-specific flow and UI state for the jam project
 enum class EGameFlowState : uint8
 {
-    StartMenu,
+    PressAnyKey,    // "Press Any Key" 화면
+    MainMenu,       // 메인 메뉴 (게임 시작, 튜토리얼, 종료)
     BossIntro,
     Fighting,
     Paused,
@@ -50,7 +51,9 @@ public:
     // Flow control
     EGameFlowState GetGameFlowState() const { return GameFlowState; }
     void SetGameFlowState(EGameFlowState NewState);
-    void EnterStartMenu();
+    void EnterPressAnyKey();    // "Press Any Key" 화면
+    void EnterMainMenu();       // 메인 메뉴
+    void EnterStartMenu();      // (호환성 유지 - EnterPressAnyKey로 리디렉션)
     void StartFight();
     void EnterBossIntro();
     void EnterVictory();
@@ -95,7 +98,7 @@ protected:
 
 protected:
     // Flow
-    EGameFlowState GameFlowState = EGameFlowState::StartMenu;
+    EGameFlowState GameFlowState = EGameFlowState::PressAnyKey;
 
     // Player
     FHealthState PlayerHealth;

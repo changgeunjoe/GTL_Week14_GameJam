@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include <windowsx.h> // GET_X_LPARAM / GET_Y_LPARAM
+#include "Source/Slate/GameOverlayD2D.h"
 
 #ifndef GET_X_LPARAM
 #define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
@@ -191,6 +192,12 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
             int MouseX = GET_X_LPARAM(lParam);
             int MouseY = GET_Y_LPARAM(lParam);
             UpdateMousePosition(MouseX, MouseY);
+
+            // GameOverlayD2D에 마우스 위치 업데이트 (호버링 효과용)
+            if (GEngine.IsPIEActive())
+            {
+                UGameOverlayD2D::Get().UpdateMousePosition(static_cast<int32>(MousePosition.X), static_cast<int32>(MousePosition.Y));
+            }
         }
         break;
     case WM_SIZE:
@@ -207,6 +214,13 @@ void UInputManager::ProcessMessage(HWND hWnd, UINT message, WPARAM wParam, LPARA
         
     case WM_LBUTTONDOWN:
         //UE_LOG("[InputManager] WM_LBUTTONDOWN received - IsUIHover: %s, PIE: %s", IsUIHover ? "TRUE" : "FALSE", GEngine.IsPIEActive() ? "TRUE" : "FALSE");
+
+        // GameOverlayD2D에서 일시정지 메뉴 클릭 처리
+        if (GEngine.IsPIEActive())
+        {
+            UGameOverlayD2D::Get().HandleMouseClick(static_cast<int32>(MousePosition.X), static_cast<int32>(MousePosition.Y));
+        }
+
         if (!IsUIHover || GEngine.IsPIEActive())  // PIE 모드면 무조건 허용
         {
             UpdateMouseButton(LeftButton, true);
