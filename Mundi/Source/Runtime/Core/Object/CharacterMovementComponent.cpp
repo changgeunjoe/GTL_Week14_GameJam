@@ -17,7 +17,7 @@ UCharacterMovementComponent::UCharacterMovementComponent()
 	SpeedInterpRate = 10.0f; // 보간 속도 (초당)
 
 	MaxAcceleration = 20.0f;
-	JumpZVelocity = 4.0;
+	JumpZVelocity = 8.0;
 
 	BrackingDeceleration = 20.0f; // 입력이 없을 때 감속도
 	GroundFriction = 8.0f; //바닥 마찰 계수

@@ -4,6 +4,7 @@
   "ChargingLoopDuration" : 0.500000,
   "ChargingLoopTarget" : 1,
   "ComboCount" : 0,
+  "ComboTransitionTime" : 0.350000,
   "DashAttackAnimPath" : "Data/FBX/Animation/Dash_Air_Attack_Seq.FBX_Unreal Take",
   "DashAttackCutEndTime" : 0.020000,
   "DeathAnimPath" : "Data/FBX/Animation/Hit_Death_Seq.FBX_Unreal Take",
@@ -33,9 +34,9 @@
       "CapsuleHalfHeight" : 1.000000,
       "CapsuleRadius" : 0.200000,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11189,
+      "Id" : 11051,
       "ObjectName" : "WeaponCollider",
-      "ParentId" : 11257,
+      "ParentId" : 11121,
       "RelativeLocation" : [0.000000, 0.000000, 0.000000],
       "RelativeRotationEuler" : [0.000000, 90.000000, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -52,9 +53,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11253,
+      "Id" : 11052,
       "ObjectName" : "UParticleSystemComponent_5",
-      "ParentId" : 11257,
+      "ParentId" : 11121,
       "ParticleIndex" : 0,
       "ParticleName" : "WeaponRibbon",
       "RelativeLocation" : [2.388424, 0.105524, 0.299700],
@@ -76,7 +77,7 @@
     }, {
       "AnimGraphPath" : "Data/Graphs/Shinobi.graph",
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11190,
+      "Id" : 11053,
       "MaterialSlots" : [{
           "Type" : "None"
         }, {
@@ -163,7 +164,8 @@
             },
             "Textures" : {
               "0" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_ARMOR_BaseColor_01.PNG",
-              "1" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_ARMOR_Normal.PNG"
+              "1" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_ARMOR_Normal.PNG",
+              "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_ARM.PNG"
             },
             "Vectors" : {
 
@@ -178,7 +180,8 @@
             },
             "Textures" : {
               "0" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_CLOTHES_BaseColor_01.PNG",
-              "1" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_CLOTHES_Normal.PNG"
+              "1" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_CLOTHES_Normal.PNG",
+              "2" : "Data/FBX/ShinobiGirlAkane/Textures/T_SHINOBIGIRL_CLOTHES_OcclusionRoughnessMetallic.PNG"
             },
             "Vectors" : {
 
@@ -233,7 +236,7 @@
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "USkeletalMeshComponent_3",
-      "ParentId" : 11256,
+      "ParentId" : 11118,
       "PhysicsAssetOverridePath" : "Data/Physics/Shinobi.phys",
       "RelativeLocation" : [-0.000061, -0.000000, -0.860196],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -249,10 +252,31 @@
       "bOverrideCollisionSetting" : false,
       "bTickEnabled" : true
     }, {
+      "CapsuleHalfHeight" : 0.900000,
+      "CapsuleRadius" : 0.300000,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11254,
+      "Id" : 11118,
+      "ObjectName" : "UCapsuleComponent_1",
+      "ParentId" : 0,
+      "RelativeLocation" : [4.816464, 0.546450, 4.195266],
+      "RelativeRotationEuler" : [0.000002, 0.282249, 0.000448],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UCapsuleComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bRegisterToPhysX" : true,
+      "bShapeHiddenInGame" : true,
+      "bShapeIsVisible" : true,
+      "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 11116,
       "ObjectName" : "UParticleSystemComponent_6",
-      "ParentId" : 11257,
+      "ParentId" : 11121,
       "ParticleIndex" : 0,
       "ParticleName" : "WeaponRibbon",
       "RelativeLocation" : [-0.043833, -0.001290, 0.007330],
@@ -273,46 +297,9 @@
       "bUseGpuInstancing" : false
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11255,
-      "ObjectName" : "ParticleCharged",
-      "ParentId" : 11190,
-      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
-      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UPrimitiveComponent",
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true
-    }, {
-      "CapsuleHalfHeight" : 0.900000,
-      "CapsuleRadius" : 0.300000,
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 11256,
-      "ObjectName" : "UCapsuleComponent_1",
-      "ParentId" : 0,
-      "RelativeLocation" : [11.499428, 0.019710, 0.832625],
-      "RelativeRotationEuler" : [0.000002, 0.282249, 0.000448],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UCapsuleComponent",
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bRegisterToPhysX" : true,
-      "bShapeHiddenInGame" : true,
-      "bShapeIsVisible" : true,
-      "bTickEnabled" : true
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 11261,
+      "Id" : 11119,
       "ObjectName" : "UParticleSystemComponent_3",
-      "ParentId" : 11257,
+      "ParentId" : 11121,
       "ParticleIndex" : 0,
       "ParticleName" : "WeaponRibbon",
       "RelativeLocation" : [3.904436, -0.022154, 0.341266],
@@ -333,9 +320,25 @@
       "bUseGpuInstancing" : false
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11270,
+      "Id" : 11117,
+      "ObjectName" : "ParticleCharged",
+      "ParentId" : 11053,
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UPrimitiveComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 11120,
       "ObjectName" : "UParticleSystemComponent_20",
-      "ParentId" : 11266,
+      "ParentId" : 11125,
       "ParticleIndex" : 1,
       "ParticleName" : "Charging",
       "RelativeLocation" : [0.549500, -0.339289, 0.209508],
@@ -364,7 +367,7 @@
       "CollisionRotation" : [0.000000, 0.000000, 0.000000],
       "CollisionType" : 1,
       "FrictionCombineModeOverride" : 2,
-      "Id" : 11257,
+      "Id" : 11121,
       "LinearDampingOverride" : 0.010000,
       "MassOverride" : 10.000000,
       "MaterialSlots" : [{
@@ -401,10 +404,10 @@
           "Type" : "UMaterial"
         }],
       "ObjectName" : "WeaponMeshComponent",
-      "ParentId" : 11190,
+      "ParentId" : 11053,
       "PhysMaterialPreset" : 0,
-      "RelativeLocation" : [0.394518, 0.434058, 1.103885],
-      "RelativeRotationEuler" : [2.060879, -12.279349, -1.706857],
+      "RelativeLocation" : [0.394518, 0.434058, 1.103886],
+      "RelativeRotationEuler" : [2.060880, -12.279350, -1.706857],
       "RelativeScale" : [0.130000, 0.100000, 0.170000],
       "RestitutionCombineModeOverride" : 2,
       "SphereRadius" : 4.404629,
@@ -422,9 +425,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11266,
+      "Id" : 11125,
       "ObjectName" : "ParticleCharging",
-      "ParentId" : 11190,
+      "ParentId" : 11053,
       "RelativeLocation" : [0.000000, 0.000000, 0.000000],
       "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -446,7 +449,7 @@
       "CollisionRotation" : [0.000000, 0.000000, 0.000000],
       "CollisionType" : 1,
       "FrictionCombineModeOverride" : 2,
-      "Id" : 11262,
+      "Id" : 11126,
       "LinearDampingOverride" : 0.010000,
       "MassOverride" : 10.000000,
       "MaterialSlots" : [{
@@ -466,7 +469,7 @@
           "Type" : "UMaterial"
         }],
       "ObjectName" : "SubWeaponMeshComponent",
-      "ParentId" : 11190,
+      "ParentId" : 11053,
       "PhysMaterialPreset" : 0,
       "RelativeLocation" : [-0.126157, -0.424431, 1.140013],
       "RelativeRotationEuler" : [-165.859161, -1.739909, 179.597656],
@@ -509,9 +512,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11269,
+      "Id" : 11130,
       "ObjectName" : "UParticleSystemComponent_19",
-      "ParentId" : 11266,
+      "ParentId" : 11125,
       "ParticleIndex" : 0,
       "ParticleName" : "Charging",
       "RelativeLocation" : [0.829687, -0.312152, 0.648549],
@@ -538,9 +541,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11268,
+      "Id" : 11132,
       "ObjectName" : "UParticleSystemComponent_8",
-      "ParentId" : 11255,
+      "ParentId" : 11117,
       "ParticleIndex" : 1,
       "ParticleName" : "Charged",
       "RelativeLocation" : [-0.018986, 0.000000, 0.100286],
@@ -561,9 +564,9 @@
       "bUseGpuInstancing" : false
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11271,
+      "Id" : 11133,
       "ObjectName" : "UParticleSystemComponent_21",
-      "ParentId" : 11266,
+      "ParentId" : 11125,
       "ParticleIndex" : 2,
       "ParticleName" : "Charging",
       "RelativeLocation" : [0.617290, -0.487073, 0.822071],
@@ -584,9 +587,9 @@
       "bUseGpuInstancing" : false
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 11272,
+      "Id" : 11134,
       "ObjectName" : "UParticleSystemComponent_7",
-      "ParentId" : 11255,
+      "ParentId" : 11117,
       "ParticleIndex" : 0,
       "ParticleName" : "Charged",
       "RelativeLocation" : [0.000075, 0.000000, 1.061076],
@@ -607,7 +610,7 @@
       "bUseGpuInstancing" : false
     }],
   "ParryWindowDuration" : 0.200000,
-  "RootComponentId" : 11256,
+  "RootComponentId" : 11118,
   "RotationSpeed" : 10.000000,
   "SubWeaponBoneName" : "hand_l",
   "SubWeaponOffset" : [0.040000, 0.040000, 0.100000],

@@ -202,11 +202,13 @@ void UK2Node_AnimState::Serialize(const bool bInIsLoading, JSON& InOutHandle)
     {
         FJsonSerializer::ReadString(InOutHandle, "StateName", StateName);
         FJsonSerializer::ReadBool(InOutHandle, "EnableRootMotion", bEnableRootMotion);
+        FJsonSerializer::ReadFloat(InOutHandle, "AnimationCutEndTime", AnimationCutEndTime);
     }
     else
     {
         InOutHandle["StateName"] = StateName;
         InOutHandle["EnableRootMotion"] = bEnableRootMotion;
+        InOutHandle["AnimationCutEndTime"] = AnimationCutEndTime;
     }
 }
 
@@ -231,6 +233,12 @@ void UK2Node_AnimState::RenderBody()
     ImGui::Checkbox("##root_motion", &bEnableRootMotion);
     ImGui::SameLine();
     ImGui::Text("Root Motion");
+
+    ImGui::PushItemWidth(80.0f);
+    ImGui::DragFloat("##cut_end_time", &AnimationCutEndTime, 0.01f, 0.0f, 10.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    ImGui::Text("Cut End Time");
 }
 
 void UK2Node_AnimState::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
