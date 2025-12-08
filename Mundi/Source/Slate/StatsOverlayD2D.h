@@ -20,6 +20,7 @@ public:
     void SetShowShadow(bool b) { bShowShadow = b; }
     void SetShowSkinning(bool b) { bShowSkinning = b; }
     void SetShowParticle(bool b) { bShowParticle = b; }
+    void SetShowEnemyCount(bool b) { bShowEnemyCount = b; }
     void ToggleFPS() { bShowFPS = !bShowFPS; }
     void ToggleMemory() { bShowMemory = !bShowMemory; }
     void TogglePicking() { bShowPicking = !bShowPicking; }
@@ -29,6 +30,7 @@ public:
     void ToggleShadow() { bShowShadow = !bShowShadow; }
     void ToggleSkinning() { bShowSkinning = !bShowSkinning; }
     void ToggleParticle() { bShowParticle = !bShowParticle; }
+    void ToggleEnemyCount() { bShowEnemyCount = !bShowEnemyCount; }
     bool IsFPSVisible() const { return bShowFPS; }
     bool IsMemoryVisible() const { return bShowMemory; }
     bool IsPickingVisible() const { return bShowPicking; }
@@ -38,6 +40,7 @@ public:
     bool IsShadowVisible() const { return bShowShadow; }
     bool IsSkinningVisible() const { return bShowSkinning; }
     bool IsParticleVisible() const { return bShowParticle; }
+    bool IsEnemyCountVisible() const { return bShowEnemyCount; }
 
 private:
     UStatsOverlayD2D() = default;
@@ -59,6 +62,7 @@ private:
     bool bShowLights = false;
     bool bShowSkinning = false;
     bool bShowParticle = false;
+    bool bShowEnemyCount = true;
 
     ID3D11Device* D3DDevice = nullptr;
     ID3D11DeviceContext* D3DContext = nullptr;

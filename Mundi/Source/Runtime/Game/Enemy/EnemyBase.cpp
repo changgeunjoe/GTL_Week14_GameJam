@@ -20,8 +20,8 @@ AEnemyBase::AEnemyBase()
     StatsComponent->CurrentHealth = 100.f;
 
     // 히트박스 컴포넌트
-    // HitboxComponent = CreateDefaultSubobject<UHitboxComponent>("HitboxComponent");
-    // HitboxComponent->SetBoxExtent(FVector(60.f, 60.f, 60.f));
+     HitboxComponent = CreateDefaultSubobject<UHitboxComponent>("HitboxComponent");
+     HitboxComponent->SetBoxExtent(FVector(60.f, 60.f, 60.f));
 }
 
 void AEnemyBase::DuplicateSubObjects()

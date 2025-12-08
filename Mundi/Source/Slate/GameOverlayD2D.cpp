@@ -701,26 +701,34 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
         return;
     }
 
-    // Get boss health from GameState
+    // Get boss health from World
     if (!GWorld)
     {
         return;
     }
 
-    AGameModeBase* GM = GWorld->GetGameMode();
-    if (!GM)
+    // Find boss in world
+    ABossEnemy* Boss = nullptr;
+    for (AActor* Actor : GWorld->GetActors())
+    {
+        Boss = Cast<ABossEnemy>(Actor);
+        if (Boss && Boss->IsAlive())
+        {
+            break;
+        }
+    }
+
+    if (!Boss)
     {
         return;
     }
 
-    AGameState* GS = Cast<AGameState>(GM->GetGameState());
-    if (!GS)
+    // Get target health from boss stats
+    float TargetHealth = 1.0f;
+    if (UStatsComponent* Stats = Boss->GetStatsComponent())
     {
-        return;
+        TargetHealth = Stats->GetHealthPercent();
     }
-
-    // Get target health - default to 100% if no boss registered
-    float TargetHealth = GS->HasActiveBoss() ? GS->GetBossHealth().GetPercent() : 1.0f;
 
     // ========== Fade-in Animation ==========
     if (!bBossBarFadingIn && BossBarOpacity < 1.0f)
@@ -810,11 +818,11 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
             D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &FillSrcRect);
     }
 
-    // 4. Draw boss name above bar (only if boss is registered)
-    if (GS->HasActiveBoss())
+    // 4. Draw boss name above bar
+    if (Boss)
     {
         SubtitleBrush->SetOpacity(BossBarOpacity);
-        FWideString BossName = UTF8ToWide(GS->GetBossName());
+        FWideString BossName = UTF8ToWide(Boss->GetName());
         D2D1_RECT_F NameRect = D2D1::RectF(BarX, BarY - 40.0f, BarX + BarW, BarY);
         D2DContext->DrawTextW(BossName.c_str(), static_cast<UINT32>(BossName.length()),
             BossNameFormat, NameRect, SubtitleBrush);

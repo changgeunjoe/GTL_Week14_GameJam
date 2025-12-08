@@ -591,17 +591,19 @@ FLuaManager::FLuaManager()
     // 사용법: local hp = GetCurrentHealth(Obj)
     SharedLib.set_function("GetCurrentHealth", [](FGameObject& Obj) -> float
         {
-            if (AActor* Owner = Obj.GetOwner())
+            if (!GWorld) return 0.f;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
             {
-                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
                 {
-                    float hp = Stats->GetCurrentHealth();
-                    //UE_LOG("[Lua] GetCurrentHealth: %.1f (Owner: %s)", hp, Owner->GetName().c_str());
-                    return hp;
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        return Stats->GetCurrentHealth();
+                    }
                 }
-                //UE_LOG("[Lua] GetCurrentHealth: StatsComponent not found on %s", Owner->GetName().c_str());
             }
-            //UE_LOG("[Lua] GetCurrentHealth: Owner is null");
             return 0.f;
         });
 
@@ -609,11 +611,17 @@ FLuaManager::FLuaManager()
     // 사용법: local maxHp = GetMaxHealth(Obj)
     SharedLib.set_function("GetMaxHealth", [](FGameObject& Obj) -> float
         {
-            if (AActor* Owner = Obj.GetOwner())
+            if (!GWorld) return 0.f;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
             {
-                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
                 {
-                    return Stats->GetMaxHealth();
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        return Stats->GetMaxHealth();
+                    }
                 }
             }
             return 0.f;
@@ -623,11 +631,17 @@ FLuaManager::FLuaManager()
     // 사용법: local percent = GetHealthPercent(Obj)
     SharedLib.set_function("GetHealthPercent", [](FGameObject& Obj) -> float
         {
-            if (AActor* Owner = Obj.GetOwner())
+            if (!GWorld) return 0.f;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
             {
-                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
                 {
-                    return Stats->GetHealthPercent();
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        return Stats->GetHealthPercent();
+                    }
                 }
             }
             return 0.f;
@@ -637,11 +651,17 @@ FLuaManager::FLuaManager()
     // 사용법: local alive = IsAlive(Obj)
     SharedLib.set_function("IsAlive", [](FGameObject& Obj) -> bool
         {
-            if (AActor* Owner = Obj.GetOwner())
+            if (!GWorld) return false;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
             {
-                if (UStatsComponent* Stats = Cast<UStatsComponent>(Owner->GetComponent(UStatsComponent::StaticClass())))
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
                 {
-                    return Stats->IsAlive();
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        return Stats->IsAlive();
+                    }
                 }
             }
             return false;

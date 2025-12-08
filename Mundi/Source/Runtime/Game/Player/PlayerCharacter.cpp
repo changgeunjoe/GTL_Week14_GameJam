@@ -11,6 +11,7 @@
 #include "World.h"
 #include "GameModeBase.h"
 #include "GameState.h"
+#include"BossEnemy.h"
 #include "Source/Runtime/Engine/Animation/AnimMontage.h"
 #include "Source/Runtime/Engine/Animation/AnimInstance.h"
 #include "Source/Runtime/Engine/Animation/AnimSequence.h"
@@ -356,6 +357,33 @@ void APlayerCharacter::ProcessCombatInput()
     }
     bIKeyWasPressed = bIKeyIsPressed;
 
+    // N키: 보스 체력 250 깎기 (디버그용)
+    static bool bNKeyWasPressed = false;
+    bool bNKeyIsPressed = INPUT.IsKeyDown('N');
+
+    if (bNKeyIsPressed && !bNKeyWasPressed)
+    {
+        // 보스 찾기
+        if (GWorld)
+        {
+            for (AActor* Actor : GWorld->GetActors())
+            {
+                ABossEnemy* Boss = Cast<ABossEnemy>(Actor);
+                if (Boss && Boss->IsAlive())
+                {
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        float OldHP = Stats->CurrentHealth;
+                        Stats->CurrentHealth = FMath::Max(0.0f, Stats->CurrentHealth - 250.0f);
+                        UE_LOG("[PlayerCharacter Debug] N key - Boss HP: %.1f -> %.1f", OldHP, Stats->CurrentHealth);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    bNKeyWasPressed = bNKeyIsPressed;
+
     // U키: 커서 토글 (디버그용, PIE에서만)
     static bool bUKeyWasPressed = false;
     bool bUKeyIsPressed = INPUT.IsKeyDown('U');
@@ -370,7 +398,7 @@ void APlayerCharacter::ProcessCombatInput()
             UInputManager::GetInstance().ReleaseCursor();
         }
     }
-    
+
     bUKeyWasPressed = bUKeyIsPressed;
 }
 

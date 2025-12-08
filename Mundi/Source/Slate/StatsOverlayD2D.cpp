@@ -15,6 +15,8 @@
 #include "ShadowStats.h"
 #include "SkinningStats.h"
 #include "Source/Runtime/Engine/Particle/ParticleStats.h"
+#include "Source/Runtime/Engine/GameFramework/World.h"
+#include "Source/Runtime/Game/Enemy/BossEnemy.h"
 
 #pragma comment(lib, "d2d1")
 #pragma comment(lib, "dwrite")
@@ -174,7 +176,7 @@ static void DrawTextBlock(
 
 void UStatsOverlayD2D::Draw()
 {
-	if (!bInitialized || (!bShowFPS && !bShowMemory && !bShowPicking && !bShowDecal && !bShowTileCulling && !bShowLights && !bShowShadow && !bShowSkinning) || !SwapChain)
+	if (!bInitialized || (!bShowFPS && !bShowMemory && !bShowPicking && !bShowDecal && !bShowTileCulling && !bShowLights && !bShowShadow && !bShowSkinning && !bShowEnemyCount) || !SwapChain)
 	{
 		return;
 	}
@@ -428,8 +430,35 @@ void UStatsOverlayD2D::Draw()
 		constexpr float ParticlePanelHeight = 160.0f;
 		D2D1_RECT_F rc = D2D1::RectF(Margin, NextY, Margin + PanelWidth + 50.0f, NextY + ParticlePanelHeight);
 		DrawTextBlock(D2DContext, TextFormat, Buf, rc, BrushBlack, BrushCyan);
-		NextY += ParticlePanelHeight + Space;		
+		NextY += ParticlePanelHeight + Space;
 	}
+
+	if (bShowEnemyCount)
+	{
+		// World에서 보스 몬스터 카운트
+		uint32 BossCount = 0;
+		;
+		if (GWorld)
+		{
+			const TArray<AActor*>& Actors = GWorld->GetActors();
+			for (AActor* Actor : Actors)
+			{
+				if (Actor && Actor->IsA<ABossEnemy>())
+				{
+					BossCount++;
+				}
+			}
+		}
+
+		wchar_t Buf[256];
+		swprintf_s(Buf, L"[Enemy Stats]\nBoss Count: %u", BossCount);
+
+		const float EnemyPanelHeight = 60.0f;
+		D2D1_RECT_F rc = D2D1::RectF(Margin, NextY, Margin + PanelWidth, NextY + EnemyPanelHeight);
+		DrawTextBlock(D2DContext, TextFormat, Buf, rc, BrushBlack, BrushYellow);
+		NextY += EnemyPanelHeight + Space;
+	}
+
 	D2DContext->EndDraw();
 	D2DContext->SetTarget(nullptr);
 
