@@ -60,28 +60,19 @@ void AGameModeBase::StartPlay()
 		}
 	}
 
-	// Initialize flow: PIE shows StartMenu; non-PIE goes straight to intro/fight
+	// Initialize flow: 에디터(PIE)에서는 바로 전투 시작, 스탠드얼론에서는 시작 메뉴
 	if (GameState)
 	{
-		if (GWorld && GWorld->bPie)
-		{
-			if (AGameState* GS = Cast<AGameState>(GameState))
-			{
-				GS->EnterStartMenu();
-			}
-		}
-		else
-		{
-			if (AGameState* GS = Cast<AGameState>(GameState))
-			{
-				GS->EnterBossIntro();
-			}
-		}
-
-		// 게임 시작 전까지 플레이어/몬스터 틱 비활성화
 		if (AGameState* GS = Cast<AGameState>(GameState))
 		{
+#ifdef _EDITOR
+			// 에디터(PIE)에서는 바로 전투 시작
+			GS->StartFight();
+#else
+			// 스탠드얼론(릴리즈)에서는 시작 메뉴 표시
+			GS->EnterStartMenu();
 			GS->SetGameplayActorsTickEnabled(false);
+#endif
 		}
 	}
 }

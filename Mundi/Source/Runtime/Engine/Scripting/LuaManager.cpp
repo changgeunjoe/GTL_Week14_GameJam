@@ -18,6 +18,7 @@
 #include "AnimInstance.h"
 #include "PlayerCharacter.h"
 #include "StatsComponent.h"
+#include "HeightFogComponent.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -641,6 +642,46 @@ FLuaManager::FLuaManager()
             return 0.f;
         });
 
+    // 최대 체력 설정하기
+    // 사용법: SetMaxHealth(Obj, 500)
+    SharedLib.set_function("SetMaxHealth", [](FGameObject& Obj, float NewMaxHealth)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
+                {
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        Stats->SetMaxHealth(NewMaxHealth);
+                        return;
+                    }
+                }
+            }
+        });
+
+    // 현재 체력 설정하기
+    // 사용법: SetCurrentHealth(Obj, 500)
+    SharedLib.set_function("SetCurrentHealth", [](FGameObject& Obj, float NewHealth)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
+                {
+                    if (UStatsComponent* Stats = Boss->GetStatsComponent())
+                    {
+                        Stats->SetCurrentHealth(NewHealth);
+                        return;
+                    }
+                }
+            }
+        });
+
     // 체력 퍼센트 가져오기 (0.0 ~ 1.0)
     // 사용법: local percent = GetHealthPercent(Obj)
     SharedLib.set_function("GetHealthPercent", [](FGameObject& Obj) -> float
@@ -679,6 +720,82 @@ FLuaManager::FLuaManager()
                 }
             }
             return false;
+        });
+
+    // ========================================================================
+    // Height Fog 제어 함수들
+    // ========================================================================
+
+    // 안개 밀도 설정
+    // 사용법: SetFogDensity(0.5)
+    SharedLib.set_function("SetFogDensity", [](float Density)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetFogDensity(Density);
+                    return;
+                }
+            }
+        });
+
+    // 안개 밀도 가져오기
+    // 사용법: local density = GetFogDensity()
+    SharedLib.set_function("GetFogDensity", []() -> float
+        {
+            if (!GWorld) return 0.f;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    return FogComp->GetFogDensity();
+                }
+            }
+            return 0.f;
+        });
+
+    // 안개 최대 불투명도 설정
+    // 사용법: SetFogMaxOpacity(0.8)
+    SharedLib.set_function("SetFogMaxOpacity", [](float Opacity)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetFogMaxOpacity(Opacity);
+                    return;
+                }
+            }
+        });
+
+    // 안개 시작 거리 설정
+    // 사용법: SetFogStartDistance(100)
+    SharedLib.set_function("SetFogStartDistance", [](float Distance)
+        {
+            if (!GWorld) return;
+
+            const TArray<AActor*>& Actors = GWorld->GetActors();
+            for (AActor* Actor : Actors)
+            {
+                if (UHeightFogComponent* FogComp = Cast<UHeightFogComponent>(
+                    Actor->GetComponent(UHeightFogComponent::StaticClass())))
+                {
+                    FogComp->SetStartDistance(Distance);
+                    return;
+                }
+            }
         });
 
     // 히트박스 활성화 (Lua용)
