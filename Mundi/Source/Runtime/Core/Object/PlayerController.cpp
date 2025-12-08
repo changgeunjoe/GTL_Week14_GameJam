@@ -460,27 +460,37 @@ void APlayerController::ApplyMovement(float DeltaTime)
 
 void APlayerController::ProcessRotationInput(float DeltaTime)
 {
-    if (!bMouseLookEnabled)
-        return;
-
     // 일시정지 시 카메라 회전 안함
     if (GetWorld() && GetWorld()->IsPaused())
         return;
 
+    // Check if gamepad is providing look input (check raw gamepad axis, not combined LookValue)
+    UInputManager& IM = UInputManager::GetInstance();
+    float GamepadRightX = IM.IsGamepadConnected() ? IM.GetGamepadAxis(UInputManager::EGamepadAxis::RightX) : 0.0f;
+    float GamepadRightY = IM.IsGamepadConnected() ? IM.GetGamepadAxis(UInputManager::EGamepadAxis::RightY) : 0.0f;
+    bool bGamepadLook = FMath::Abs(GamepadRightX) > 0.1f || FMath::Abs(GamepadRightY) > 0.1f;
+
+    // Only process if mouse look enabled OR gamepad is providing look input
+    if (!bMouseLookEnabled && !bGamepadLook)
+        return;
+
     bool bIsLockedOn = TargetingComponent && TargetingComponent->IsLockedOn();
 
-    // Lock-on 상태가 아닐 때만 마우스 입력으로 ControlRotation 업데이트
+    // Lock-on 상태가 아닐 때만 입력으로 ControlRotation 업데이트
     if (!bIsLockedOn)
     {
         if (LookRightValue != 0.0f || LookUpValue != 0.0f)
         {
             FVector Euler = GetControlRotation().ToEulerZYXDeg();
 
+            // Gamepad uses higher sensitivity multiplier (stick values are -1 to 1, mouse deltas are larger pixel values)
+            float CurrentSensitivity = bGamepadLook ? Sensitivity * 30.0f : Sensitivity;
+
             // Yaw (좌우 회전)
-            Euler.Z += LookRightValue * Sensitivity;
+            Euler.Z += LookRightValue * CurrentSensitivity;
 
             // Pitch (상하 회전)
-            Euler.Y += LookUpValue * Sensitivity;
+            Euler.Y += LookUpValue * CurrentSensitivity;
             Euler.Y = FMath::Clamp(Euler.Y, -89.0f, 89.0f);
 
             // Roll 방지

@@ -137,7 +137,7 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
             &SubtitleFormat);
 
         if (SubtitleFormat)
-        {
+        { 
             SubtitleFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
             SubtitleFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         }
@@ -1343,12 +1343,15 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
     SafeRelease(ButtonSelectedBrush);
 }
 
-void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
+void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH, float DeltaTime)
 {
     if (!D2DContext || !SubtitleFormat || !SubtitleBrush)
     {
         return;
     }
+
+    // 타이머 업데이트
+    DeathMenuTimer += DeltaTime;
 
     // 1. 먼저 전체 화면을 검은색으로 칠하기
     if (BlackBitmap)
@@ -1370,74 +1373,8 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
         }
     }
 
-    // 메뉴 옵션들
-    const wchar_t* RestartText = L"Restart";
-    const wchar_t* QuitText = L"Quit";
-
-    float MenuY = ScreenH * 0.60f;  // 화면 하단 쪽에 표시
-    float LineSpacing = 80.0f;
-    float ButtonWidth = 300.0f;
-    float ButtonHeight = 60.0f;
-    float ButtonX = (ScreenW - ButtonWidth) * 0.5f;
-
-    // 버튼 배경 브러시
-    ID2D1SolidColorBrush* ButtonBrush = nullptr;
-    ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
-    ID2D1SolidColorBrush* ButtonSelectedBrush = nullptr;
-    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
-    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
-    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.7f, 0.6f, 0.3f, 0.9f), &ButtonSelectedBrush);  // 황금색 (선택됨)
-
-    SubtitleBrush->SetOpacity(1.0f);
-
-    // 마우스 위치
-    float MouseXf = static_cast<float>(CurrentMouseX);
-    float MouseYf = static_cast<float>(CurrentMouseY);
-
-    // Restart 버튼
-    RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
-    bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
-                          MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
-    bool bRestartSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 0);
-    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
-    {
-        ID2D1SolidColorBrush* FillBrush = bRestartSelected ? ButtonSelectedBrush : (bRestartHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->FillRectangle(RestartButtonRect, FillBrush);
-        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, (bRestartHover || bRestartSelected) ? 3.0f : 2.0f);
-    }
-    D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
-    D2DContext->DrawTextW(
-        RestartText,
-        static_cast<UINT32>(wcslen(RestartText)),
-        SubtitleFormat,
-        RestartTextRect,
-        SubtitleBrush);
-
-    MenuY += LineSpacing;
-
-    // Quit 버튼
-    QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
-    bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
-                       MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
-    bool bQuitSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 1);
-    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
-    {
-        ID2D1SolidColorBrush* FillBrush = bQuitSelected ? ButtonSelectedBrush : (bQuitHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->FillRectangle(QuitButtonRect, FillBrush);
-        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, (bQuitHover || bQuitSelected) ? 3.0f : 2.0f);
-    }
-    D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
-    D2DContext->DrawTextW(
-        QuitText,
-        static_cast<UINT32>(wcslen(QuitText)),
-        SubtitleFormat,
-        QuitTextRect,
-        SubtitleBrush);
-
-    SafeRelease(ButtonBrush);
-    SafeRelease(ButtonHoverBrush);
-
-    // 2. 크레딧 이미지 표시 (검은 화면 위에)
+    // 2. 크레딧 이미지 먼저 표시 (항상 표시)
+    float CreditBottom = 0.0f;
     if (CreditBitmap && CreditWidth > 0 && CreditHeight > 0)
     {
         // 화면 중앙에 크레딧 표시 (화면 너비의 50% 크기)
@@ -1446,14 +1383,88 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
         float ScaledW = CreditWidth * Scale;
         float ScaledH = CreditHeight * Scale;
 
-        // 화면 중앙에 배치
+        // 화면 상단 쪽에 배치
         float CreditX = (ScreenW - ScaledW) * 0.5f;
-        float CreditY = (ScreenH - ScaledH) * 0.07f;
+        float CreditY = ScreenH * 0.05f;
 
         D2D1_RECT_F CreditRect = D2D1::RectF(CreditX, CreditY, CreditX + ScaledW, CreditY + ScaledH);
         D2DContext->DrawBitmap(CreditBitmap, CreditRect, 1.0f);
+
+        CreditBottom = CreditY + ScaledH;
     }
-    SafeRelease(ButtonSelectedBrush);
+
+    // 3. 0.2초 후에 버튼 표시 (Credit 밑에)
+    if (DeathMenuTimer >= ButtonShowDelay)
+    {
+        SubtitleBrush->SetOpacity(1.0f);
+
+        // 메뉴 옵션들
+        const wchar_t* RestartText = L"Restart";
+        const wchar_t* QuitText = L"Quit";
+
+        // Credit 밑에 버튼 배치
+        float MenuY = CreditBottom + 20.0f;
+        float LineSpacing = 80.0f;
+        float ButtonWidth = 300.0f;
+        float ButtonHeight = 60.0f;
+        float ButtonX = (ScreenW - ButtonWidth) * 0.5f;
+
+        // 버튼 배경 브러시
+        ID2D1SolidColorBrush* ButtonBrush = nullptr;
+        ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+        ID2D1SolidColorBrush* ButtonSelectedBrush = nullptr;
+        D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
+        D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+        D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.7f, 0.6f, 0.3f, 0.9f), &ButtonSelectedBrush);  // 황금색 (선택됨)
+
+        // 마우스 위치
+        float MouseXf = static_cast<float>(CurrentMouseX);
+        float MouseYf = static_cast<float>(CurrentMouseY);
+
+        // Restart 버튼
+        RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+        bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
+                              MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
+        bool bRestartSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 0);
+        if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
+        {
+            ID2D1SolidColorBrush* FillBrush = bRestartSelected ? ButtonSelectedBrush : (bRestartHover ? ButtonHoverBrush : ButtonBrush);
+            D2DContext->FillRectangle(RestartButtonRect, FillBrush);
+            D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, (bRestartHover || bRestartSelected) ? 3.0f : 2.0f);
+        }
+        D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+        D2DContext->DrawTextW(
+            RestartText,
+            static_cast<UINT32>(wcslen(RestartText)),
+            SubtitleFormat,
+            RestartTextRect,
+            SubtitleBrush);
+
+        MenuY += LineSpacing;
+
+        // Quit 버튼
+        QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
+        bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
+                           MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
+        bool bQuitSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 1);
+        if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
+        {
+            ID2D1SolidColorBrush* FillBrush = bQuitSelected ? ButtonSelectedBrush : (bQuitHover ? ButtonHoverBrush : ButtonBrush);
+            D2DContext->FillRectangle(QuitButtonRect, FillBrush);
+            D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, (bQuitHover || bQuitSelected) ? 3.0f : 2.0f);
+        }
+        D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
+        D2DContext->DrawTextW(
+            QuitText,
+            static_cast<UINT32>(wcslen(QuitText)),
+            SubtitleFormat,
+            QuitTextRect,
+            SubtitleBrush);
+
+        SafeRelease(ButtonBrush);
+        SafeRelease(ButtonHoverBrush);
+        SafeRelease(ButtonSelectedBrush);
+    }
 }
 
 void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
@@ -1668,6 +1679,7 @@ void UGameOverlayD2D::Draw()
     {
         // Reset death screen timer when not in death/victory state
         DeathScreenTimer = 0.0f;
+        DeathMenuTimer = 0.0f;
         return;
     }
 
@@ -1817,17 +1829,18 @@ void UGameOverlayD2D::Draw()
     case EGameFlowState::Defeat:
         // YOU DIED 애니메이션 총 시간 = FadeIn(1.5) + Hold(3.0) + FadeOut(1.0) = 5.5초
         {
-            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+            float DeathAnimationTotalTime = (DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration)*1.8f;
 
             // 애니메이션이 끝나기 전에는 YOU DIED만 표시
             if (DeathScreenTimer < DeathAnimationTotalTime)
             {
                 DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
+                DeathMenuTimer = 0.0f;  // 메뉴 타이머 리셋
             }
             else
             {
                 // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
-                DrawDeathMenu(ScreenW, ScreenH);
+                DrawDeathMenu(ScreenW, ScreenH, DeltaTime);
             }
         }
         break;
@@ -1835,17 +1848,18 @@ void UGameOverlayD2D::Draw()
     case EGameFlowState::Victory:
         // DEMIGOD FELLED 애니메이션 총 시간 = 5.5초
         {
-            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+            float DeathAnimationTotalTime = (DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration) * 1.8f;
 
             // 애니메이션이 끝나기 전에는 DEMIGOD FELLED만 표시
             if (DeathScreenTimer < DeathAnimationTotalTime)
             {
                 DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
+                DeathMenuTimer = 0.0f;  // 메뉴 타이머 리셋
             }
             else
             {
                 // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
-                DrawDeathMenu(ScreenW, ScreenH);
+                DrawDeathMenu(ScreenW, ScreenH, DeltaTime);
             }
         }
         break;

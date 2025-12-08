@@ -64,6 +64,15 @@ local ctx = {
     -- 죽음 관련
     is_death_animation_played = false,  -- 죽음 애니메이션 재생 여부
 
+    -- 안개 관련 (Phase 3 선형 보간)
+    fog_lerping = false,                -- 안개 보간 중인지
+    fog_lerp_time = 0,                  -- 안개 보간 경과 시간
+    fog_lerp_duration = 5.0,            -- 안개 보간 총 시간 (초)
+    fog_start_density = 0,              -- 시작 밀도
+    fog_target_density = 0.8,           -- 목표 밀도
+    fog_start_opacity = 0,              -- 시작 불투명도
+    fog_target_opacity = 0.85,          -- 목표 불투명도
+
     -- ========================================================================
     -- 플레이어 상태 추적 (Reactive AI용)
     -- ========================================================================
@@ -148,12 +157,15 @@ local Config = {
 
     -- 전역 애니메이션 속도 배율
     GlobalAnimSpeed = 0.8,          -- 모든 공격 애니메이션에 적용되는 속도 배율
+    Phase3GlobalAnimSpeed = 0.936,  -- Phase 3 공격 속도 (0.8 * 1.17 = 0.936)
 
     -- 소울라이크 스타일: 예비 동작 느리게 -> 공격 빠르게
     WindUpEnabled = true,           -- 예비 동작 시스템 활성화
     WindUpSlowRate = 0.3,           -- 예비 동작 속도 (느리게)
     WindUpDuration = 0.4,           -- 예비 동작 지속 시간 (초)
     AttackSpeedRate = 1.0,          -- 실제 공격 속도 (빠르게)
+    Phase3AttackSpeedRate = 1.3,    -- Phase 3 실제 공격 속도 (더 빠르게)
+    Phase3WindUpDuration = 0.3,    -- Phase 3 예비 동작 시간 (더 짧게)
 }
 
 -- ============================================================================
@@ -166,12 +178,14 @@ local function PlayBossMontage(obj, montageName, playRate, useWindUp)
     -- 기본값 설정
     if useWindUp == nil then useWindUp = true end
 
-    local baseRate = (playRate or 1.0) * Config.GlobalAnimSpeed
+    -- Phase 3에서는 더 빠른 속도 적용
+    local globalSpeed = ctx.phase >= 3 and Config.Phase3GlobalAnimSpeed or Config.GlobalAnimSpeed
+    local baseRate = (playRate or 1.0) * globalSpeed
 
     -- Wind-up 시스템 적용
     if Config.WindUpEnabled and useWindUp then
-        -- 예비 동작: 느린 속도로 시작
-        local windUpRate = Config.WindUpSlowRate * Config.GlobalAnimSpeed
+        -- 예비 동작: 느린 속도로 시작 (Phase 3에서도 느리게 시작하지만 더 짧은 시간)
+        local windUpRate = Config.WindUpSlowRate * globalSpeed
         local success = PlayMontage(obj, montageName, 0.1, 0.1, windUpRate)
         if success then
             -- 컨텍스트에 wind-up 상태 설정 (전역 ctx 사용)
@@ -786,15 +800,65 @@ local ComboPatterns = {
         { montage = "Spin_1", delay = 0.5 },
         { montage = "Smash_2", delay = 0 },
     },
+
+    -- ========================================================================
+    -- Phase 3 전용 콤보 (더 빠르고 긴 콤보)
+    -- ========================================================================
+
+    -- 콤보 8: 광폭 난무 - 베기 4연타 (Phase 3 전용)
+    Combo_Frenzy = {
+        { montage = "Slash_1", delay = 0.25 },
+        { montage = "Slash_2", delay = 0.25 },
+        { montage = "Slash_1", delay = 0.25 },
+        { montage = "Slash_3", delay = 0 },
+    },
+
+    -- 콤보 9: 회전 연속 (Phase 3 전용)
+    Combo_SpinFury = {
+        { montage = "Spin_1", delay = 0.4 },
+        { montage = "Spin_2", delay = 0.4 },
+        { montage = "Spin_1", delay = 0 },
+    },
+
+    -- 콤보 10: 내려찍기 연속 + 베기 마무리 (Phase 3 전용)
+    Combo_SmashRush = {
+        { montage = "Smash_1", delay = 0.4 },
+        { montage = "Smash_2", delay = 0.3 },
+        { montage = "Slash_3", delay = 0 },
+    },
+
+    -- 콤보 11: 풀 콤보 - 베기 + 회전 + 내려찍기 (Phase 3 전용, 최장 콤보)
+    Combo_FullCombo = {
+        { montage = "Slash_1", delay = 0.25 },
+        { montage = "Smash_1", delay = 0.3 },
+        { montage = "Spin_1", delay = 0.35 },
+        { montage = "Spin_2", delay = 0.35 },
+        { montage = "Smash_2", delay = 0 },
+    },
+
+    -- 콤보 12: 빠른 회전 + 내려찍기 2연타 (Phase 3 전용)
+    Combo_SpinSmash2 = {
+        { montage = "Spin_1", delay = 0.35 },
+        { montage = "Smash_2", delay = 0.35 },
+        { montage = "Smash_1", delay = 0 },
+    },
 }
 
 -- Phase별 사용 가능한 콤보 목록
 local Phase1Combos = { "Combo_Slash3", "Combo_SSH", "Combo_SH" }
 local Phase2Combos = { "Combo_Slash3", "Combo_SSH", "Combo_SH", "Combo_Spin2", "Combo_Smash2", "Combo_SSSH", "Combo_SpinSmash" }
+local Phase3Combos = { "Combo_Frenzy", "Combo_SpinFury", "Combo_SmashRush", "Combo_FullCombo", "Combo_SpinSmash2", "Combo_SSSH" }
 
 -- 랜덤 콤보 선택
 local function SelectRandomCombo(phase)
-    local comboList = phase >= 2 and Phase2Combos or Phase1Combos
+    local comboList
+    if phase >= 3 then
+        comboList = Phase3Combos
+    elseif phase >= 2 then
+        comboList = Phase2Combos
+    else
+        comboList = Phase1Combos
+    end
     local comboName = comboList[math.random(1, #comboList)]
     return ComboPatterns[comboName], comboName
 end
@@ -1307,10 +1371,21 @@ local function CheckPhaseTransition(c)
         -- Phase 3 이동속도 적용
         --SetMaxWalkSpeed(Obj, Config.Phase3MoveSpeed)
 
-        -- Phase 3 안개 활성화
-        SetFogDensity(0.5)
-        SetFogMaxOpacity(0.8)
-        print("[Phase 3] Fog enabled!")
+        -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
+        c.fog_lerping = true
+        c.fog_lerp_time = 0
+        c.fog_lerp_duration = 5.0       -- 5초에 걸쳐 안개가 짙어짐
+        c.fog_start_density = GetFogDensity()   -- 현재 밀도에서 시작
+        c.fog_target_density = 0.01     -- 목표 밀도
+        c.fog_start_opacity = 0         -- 시작 불투명도
+        c.fog_target_opacity = 1.0      -- 목표 불투명도
+
+        -- 안개 색상/높이는 즉시 설정 (보간 불필요)
+        SetFogHeightFalloff(0.32)       -- 높이 감쇠
+        SetFogColor(0.337, 0.259, 0.259) -- RGB(86, 66, 66) / 255
+        SetFogStartDistance(0)          -- 안개 시작 거리
+        SetFogCutoffDistance(3400)      -- 안개 컷오프 거리
+        print("[Phase 3] Blood fog starting...")
 
         local camMgr = GetCameraManager()
         if camMgr then
@@ -1337,6 +1412,34 @@ local function CheckPhaseTransition(c)
     end
 end
 
+-- 안개 선형 보간 업데이트
+local function UpdateFogLerp(c)
+    if not c.fog_lerping then
+        return
+    end
+
+    c.fog_lerp_time = c.fog_lerp_time + c.delta_time
+
+    -- 보간 진행도 (0 ~ 1)
+    local t = c.fog_lerp_time / c.fog_lerp_duration
+    if t >= 1.0 then
+        t = 1.0
+        c.fog_lerping = false
+        Log("[Fog] Lerp complete")
+    end
+
+    -- 부드러운 보간 (ease-in-out)
+    local smoothT = t * t * (3 - 2 * t)
+
+    -- 밀도 보간
+    local density = c.fog_start_density + (c.fog_target_density - c.fog_start_density) * smoothT
+    SetFogDensity(density)
+
+    -- 불투명도 보간
+    local opacity = c.fog_start_opacity + (c.fog_target_opacity - c.fog_start_opacity) * smoothT
+    SetFogMaxOpacity(opacity)
+end
+
 -- Wind-up (예비 동작) 속도 전환 업데이트
 local function UpdateWindUp(c)
     if not c.is_winding_up then
@@ -1345,9 +1448,14 @@ local function UpdateWindUp(c)
 
     local elapsed = c.time - c.wind_up_start_time
 
+    -- Phase 3에서는 더 짧은 예비 동작, 더 빠른 공격 속도
+    local windUpDuration = c.phase >= 3 and Config.Phase3WindUpDuration or Config.WindUpDuration
+    local attackSpeedRate = c.phase >= 3 and Config.Phase3AttackSpeedRate or Config.AttackSpeedRate
+    local globalSpeed = c.phase >= 3 and Config.Phase3GlobalAnimSpeed or Config.GlobalAnimSpeed
+
     -- 예비 동작 시간이 지나면 실제 공격 속도로 전환
-    if elapsed >= Config.WindUpDuration then
-        local attackRate = Config.AttackSpeedRate * Config.GlobalAnimSpeed
+    if elapsed >= windUpDuration then
+        local attackRate = attackSpeedRate * globalSpeed
         SetMontagePlayRate(Obj, attackRate)
         c.is_winding_up = false
         Log("[WindUp] Speed changed to attack: " .. attackRate)
@@ -1647,6 +1755,9 @@ function Tick(Delta)
 
     -- 페이즈 전환 체크
     CheckPhaseTransition(ctx)
+
+    -- 안개 보간 업데이트
+    UpdateFogLerp(ctx)
 
     -- 콤보 업데이트
     UpdateCombo(ctx)
