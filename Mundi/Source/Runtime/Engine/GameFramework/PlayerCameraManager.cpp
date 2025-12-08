@@ -430,8 +430,7 @@ void APlayerCameraManager::StartDOF(
 	float FarTransitionRegion,
 	float MaxNearBlurSize,
 	float MaxFarBlurSize,
-	int32 InPriority,
-	float Duration)
+	int32 InPriority)
 {
 	// 기존 DOF Modifier 제거 (중복 방지)
 	for (int32 i = ActiveModifiers.Num() - 1; i >= 0; --i)
@@ -446,7 +445,6 @@ void APlayerCameraManager::StartDOF(
 	UCamMod_DOF* DOFModifier = NewObject<UCamMod_DOF>();
 	DOFModifier->Priority = InPriority;
 	DOFModifier->bEnabled = true;
-	DOFModifier->Duration = Duration;  // <0: 무한 / >=0: 자동 비활성화
 
 	DOFModifier->FocalDistance = FocalDistance;
 	DOFModifier->FocalRegion = FocalRegion;

@@ -476,7 +476,6 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
                 CameraData["Gamma"] = CameraNotify->GammaSettings.Gamma;
                 break;
             case ECameraNotifyEffect::DOF:
-                CameraData["Duration"] = CameraNotify->DOFSettings.Duration;
                 CameraData["FocalDistance"] = CameraNotify->DOFSettings.FocalDistance;
                 CameraData["FocalRegion"] = CameraNotify->DOFSettings.FocalRegion;
                 CameraData["NearTransition"] = CameraNotify->DOFSettings.NearTransition;
@@ -763,7 +762,6 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                         FJsonSerializer::ReadFloat(*CameraJson, "Gamma", CameraNotify->GammaSettings.Gamma, CameraNotify->GammaSettings.Gamma, false);
                         break;
                     case ECameraNotifyEffect::DOF:
-                        FJsonSerializer::ReadFloat(*CameraJson, "Duration", CameraNotify->DOFSettings.Duration, CameraNotify->DOFSettings.Duration, false);
                         FJsonSerializer::ReadFloat(*CameraJson, "FocalDistance", CameraNotify->DOFSettings.FocalDistance, CameraNotify->DOFSettings.FocalDistance, false);
                         FJsonSerializer::ReadFloat(*CameraJson, "FocalRegion", CameraNotify->DOFSettings.FocalRegion, CameraNotify->DOFSettings.FocalRegion, false);
                         FJsonSerializer::ReadFloat(*CameraJson, "NearTransition", CameraNotify->DOFSettings.NearTransition, CameraNotify->DOFSettings.NearTransition, false);

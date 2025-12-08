@@ -58,7 +58,6 @@ struct FCameraGammaSettings
 
 struct FCameraDOFSettings
 {
-    float Duration = -1.0f;          // <0: 무한 / >=0: 지속 시간 (초)
     float FocalDistance = 5.0f;
     float FocalRegion = 0.5f;
     float NearTransition = 2.0f;
