@@ -901,11 +901,23 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
     D2D1_RECT_F FrameRect = D2D1::RectF(BarX, BarY, BarX + BarW, BarY + BarH);
     D2DContext->DrawBitmap(BossFrameBitmap, FrameRect, BossBarOpacity);
 
+    // Calculate inner area where the bar should be drawn (inset within frame)
+    // These offsets account for the frame's border/decoration
+    float InnerPaddingLeft = BarW * 0.043f;    // Left padding as percentage of frame width
+    float InnerPaddingRight = BarW * 0.043f;   // Right padding
+    float InnerPaddingTop = BarH * 0.02f;     // Top padding as percentage of frame height
+    float InnerPaddingBottom = BarH * 0.02f;  // Bottom padding
+
+    float InnerX = BarX + InnerPaddingLeft;
+    float InnerY = BarY + InnerPaddingTop;
+    float InnerW = BarW - InnerPaddingLeft - InnerPaddingRight;
+    float InnerH = BarH - InnerPaddingTop - InnerPaddingBottom;
+
     // 2. Draw yellow bar (delayed damage indicator) - behind red bar
     if (BossBarYellowBitmap && DelayedBossHealth > 0.0f && DelayedBossHealth > CurrentBossHealth)
     {
-        float YellowFillW = BossBarWidth * BarScale * DelayedBossHealth;
-        D2D1_RECT_F YellowDestRect = D2D1::RectF(BarX, BarY, BarX + YellowFillW, BarY + BarH);
+        float YellowFillW = InnerW * DelayedBossHealth;
+        D2D1_RECT_F YellowDestRect = D2D1::RectF(InnerX, InnerY, InnerX + YellowFillW, InnerY + InnerH);
         D2D1_RECT_F YellowSrcRect = D2D1::RectF(0, 0, BossBarWidth * DelayedBossHealth, BossBarHeight);
 
         D2DContext->DrawBitmap(BossBarYellowBitmap, YellowDestRect, BossBarOpacity,
@@ -915,8 +927,8 @@ void UGameOverlayD2D::DrawBossHealthBar(float ScreenW, float ScreenH, float Delt
     // 3. Draw red bar on top (current health - snaps immediately)
     if (CurrentBossHealth > 0.0f)
     {
-        float FillW = BossBarWidth * BarScale * CurrentBossHealth;
-        D2D1_RECT_F FillDestRect = D2D1::RectF(BarX, BarY, BarX + FillW, BarY + BarH);
+        float FillW = InnerW * CurrentBossHealth;
+        D2D1_RECT_F FillDestRect = D2D1::RectF(InnerX, InnerY, InnerX + FillW, InnerY + InnerH);
         D2D1_RECT_F FillSrcRect = D2D1::RectF(0, 0, BossBarWidth * CurrentBossHealth, BossBarHeight);
 
         D2DContext->DrawBitmap(BossBarBitmap, FillDestRect, BossBarOpacity,

@@ -90,7 +90,14 @@ void ABasicEnemy::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    // Lua에서 AI를 제어하므로 여기서는 아무것도 하지 않음
+    // 체력이 0 이하면 OnDeath 호출
+    if (StatsComponent && StatsComponent->GetCurrentHealth() <= 0.f)
+    {
+        if (GetAIState() != EEnemyAIState::Dead)
+        {
+            OnDeath();
+        }
+    }
 }
 
 bool ABasicEnemy::PlayMontageByName(const FString& MontageName, float BlendIn, float BlendOut, float PlayRate)
