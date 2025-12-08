@@ -13,7 +13,7 @@ USpringArmComponent::USpringArmComponent()
     , TargetOffset(FVector::Zero())
     , SocketOffset(FVector::Zero())
     , bDoCollisionTest(true)
-    , ProbeSize(1.0f)
+    , ProbeSize(0.5f)
     , bUsePawnControlRotation(true)
     , CurrentArmLength(300.0f)
 {
@@ -37,32 +37,84 @@ void USpringArmComponent::TickComponent(float DeltaTime)
 {
     Super::TickComponent(DeltaTime);
 
-    // bUsePawnControlRotation이 true이면 Pawn의 ControlRotation을 따라감
-  /*  if (bUsePawnControlRotation)
+    // ═══════════════════════════════════════════════════════════
+    // 엘든링 스타일 구르기 카메라 처리
+    // ═══════════════════════════════════════════════════════════
+
+    // 블렌드 아웃 타이머 업데이트
+    if (bIsBlendingOutFromRoll)
     {
-        if (AActor* MyOwner = GetOwner())
+        RollBlendOutTimer += DeltaTime;
+        if (RollBlendOutTimer >= RollBlendOutDuration)
         {
-            if (APawn* MyPawn = Cast<APawn>(MyOwner))
+            bIsBlendingOutFromRoll = false;
+            RollBlendOutTimer = 0.0f;
+
+            // 블렌드 아웃 끝 → 이징 인 시작 (부드러운 속도 복귀)
+            if (LockOnTarget)
             {
-                if (AController* MyController = MyPawn->GetController())
-                {
-                    SetWorldRotation(MyController->GetControlRotation());
-                }
+                bIsEasingInAfterRoll = true;
+                EaseInTimer = 0.0f;
             }
         }
-    }*/
-
-    // Lock-on 타겟이 있으면 카메라를 타겟 방향으로 회전
-    if (LockOnTarget)
-    {
-        FQuat DesiredRotation = CalculateLockOnRotation();
-        FQuat CurrentRotation = GetWorldRotation();
-
-        // 부드러운 회전 보간
-        FQuat NewRotation = FQuat::Slerp(CurrentRotation, DesiredRotation,
-                                          FMath::Clamp(DeltaTime * LockOnRotationSpeed, 0.0f, 1.0f));
-        SetWorldRotation(NewRotation);
     }
+
+    // 이징 인 타이머 업데이트
+    if (bIsEasingInAfterRoll)
+    {
+        EaseInTimer += DeltaTime;
+        if (EaseInTimer >= EaseInDuration)
+        {
+            bIsEasingInAfterRoll = false;
+            EaseInTimer = 0.0f;
+        }
+    }
+
+    // ── 케이스 1: 구르기 중 ──
+    if (bIsRolling)
+    {
+        if (LockOnTarget)
+        {
+            // Lock-on + Rolling: 아주 느리게 타겟 추적 (구르기 끝날 때 보간 거리 줄이기)
+            FQuat DesiredRotation = CalculateLockOnRotation();
+            FQuat CurrentRotation = GetWorldRotation();
+
+            // 기본 속도의 15%로 느리게 추적
+            float SlowSpeed = LockOnRotationSpeed * 0.15f;
+            FQuat NewRotation = FQuat::Slerp(CurrentRotation, DesiredRotation,
+                                              FMath::Clamp(DeltaTime * SlowSpeed, 0.0f, 1.0f));
+            SetWorldRotation(NewRotation);
+        }
+        else
+        {
+            // Non-lock-on + Rolling: 완전 고정
+            SetWorldRotation(FrozenRotation);
+        }
+    }
+    // ── 케이스 2: 구르기 종료 후 블렌드 아웃 중 ──
+    else if (bIsBlendingOutFromRoll)
+    {
+        if (LockOnTarget)
+        {
+            // 블렌드 아웃 진행률 (0 → 1)
+            float BlendAlpha = RollBlendOutTimer / RollBlendOutDuration;
+            BlendAlpha = FMath::Clamp(BlendAlpha, 0.0f, 1.0f);
+
+            // 부드러운 ease-out 커브 적용
+            BlendAlpha = 1.0f - std::pow(1.0f - BlendAlpha, 2.0f);
+
+            // 시작 회전 → 고정된 목표 회전으로 보간 (플레이어 이동 무시)
+            FQuat NewRotation = FQuat::Slerp(BlendOutStartRotation, BlendOutTargetRotation, BlendAlpha);
+            SetWorldRotation(NewRotation);
+        }
+        // Non-lock-on은 회전 변경 없음 (플레이어 입력에 의해서만 회전)
+    }
+    // ── 케이스 3: 일반 상태 (구르기 아님) ──
+    // Lock-on 회전은 ForceUpdateLockOnRotation()에서 처리 (Tick 순서 문제 방지)
+    // Non-lock-on은 PlayerController가 회전 담당
+    // 여기서는 아무것도 안 함
+
+    // ═══════════════════════════════════════════════════════════
 
     // 매 프레임 암 위치 업데이트 (보간 포함)
     UpdateDesiredArmLocation(DeltaTime);
@@ -165,6 +217,69 @@ FVector USpringArmComponent::GetSocketLocalLocation() const
     // 로컬 좌표계에서 암 끝 위치 계산
     // -X 방향(뒤쪽)으로 CurrentArmLength만큼 + SocketOffset
     return FVector(-CurrentArmLength, 0, 0) + SocketOffset;
+}
+
+void USpringArmComponent::SetRollingState(bool bRolling)
+{
+    if (bRolling && !bIsRolling)
+    {
+        // 구르기 시작: 현재 회전 저장
+        FrozenRotation = GetWorldRotation();
+        bIsBlendingOutFromRoll = false;
+        RollBlendOutTimer = 0.0f;
+        // 이징 인 중이었다면 취소
+        bIsEasingInAfterRoll = false;
+        EaseInTimer = 0.0f;
+    }
+    else if (!bRolling && bIsRolling)
+    {
+        // 구르기 종료: 블렌드 아웃 시작
+        BlendOutStartRotation = GetWorldRotation();
+        bIsBlendingOutFromRoll = true;
+        RollBlendOutTimer = 0.0f;
+
+        // Lock-on인 경우, 구르기 끝난 시점의 목표 회전을 저장 (이동에 따른 변화 무시)
+        if (LockOnTarget)
+        {
+            BlendOutTargetRotation = CalculateLockOnRotation();
+        }
+    }
+
+    bIsRolling = bRolling;
+}
+
+void USpringArmComponent::ForceUpdateLockOnRotation(float DeltaTime)
+{
+    if (!LockOnTarget)
+    {
+        return;
+    }
+
+    // 구르기 중 또는 블렌드 아웃 중이면 TickComponent에서 처리
+    if (bIsRolling || bIsBlendingOutFromRoll)
+    {
+        return;
+    }
+
+    FQuat DesiredRotation = CalculateLockOnRotation();
+    FQuat CurrentRotation = GetWorldRotation();
+
+    // 이징 인 중이면 속도를 점진적으로 올림 (느리게 시작 → 정상 속도)
+    float EffectiveSpeed = LockOnRotationSpeed;
+    if (bIsEasingInAfterRoll)
+    {
+        float EaseAlpha = EaseInTimer / EaseInDuration;
+        EaseAlpha = FMath::Clamp(EaseAlpha, 0.0f, 1.0f);
+        // ease-in 커브: 느리게 시작해서 점점 빨라짐
+        EaseAlpha = EaseAlpha * EaseAlpha;
+        // 최소 속도 10%에서 시작하여 100%까지 증가
+        EffectiveSpeed = LockOnRotationSpeed * (0.1f + 0.9f * EaseAlpha);
+    }
+
+    // 부드러운 회전 보간
+    FQuat NewRotation = FQuat::Slerp(CurrentRotation, DesiredRotation,
+                                      FMath::Clamp(DeltaTime * EffectiveSpeed, 0.0f, 1.0f));
+    SetWorldRotation(NewRotation);
 }
 
 FQuat USpringArmComponent::CalculateLockOnRotation() const

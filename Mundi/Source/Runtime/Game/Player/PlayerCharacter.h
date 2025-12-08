@@ -76,6 +76,12 @@ public:
     /** 차징 종료 */
     void StopCharging();
 
+    /** 콤보 윈도우 활성화 (AnimNotify에서 호출) */
+    void EnableComboWindow();
+
+    /** 콤보 윈도우 비활성화 (AnimNotify에서 호출) */
+    void DisableComboWindow();
+
     // ========================================================================
     // 상태 확인
     // ========================================================================
@@ -111,6 +117,7 @@ protected:
     void UpdateParryWindow(float DeltaTime);
     void UpdateStagger(float DeltaTime);
     void UpdateDodgeState(float DeltaTime);
+    void UpdateMovementState(float DeltaTime);
     void UpdateEffect(float DeltaTime);
 
     /** 스킬 차징 시작 (1=DashAttack, 2=UltimateAttack) */
@@ -146,6 +153,12 @@ protected:
     bool bIsParrying = false;           // 패리 윈도우
 
     bool bCanCombo = false;             // 콤보 입력 가능
+    bool bBufferedHeavyAttack = false;  // HeavyAttack 버퍼링 여부
+    float LightAttackTimer = 0.f;       // LightAttack 경과 시간
+
+    /** 콤보 전환 시간 (이 시간에 HeavyAttack으로 전환) */
+    UPROPERTY(EditAnywhere, Category = "Combat")
+    float ComboTransitionTime = 0.35f;
 
     // ========== 타이머 ==========
     float ParryWindowTimer = 0.f;

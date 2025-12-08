@@ -483,5 +483,8 @@ protected:
 
     /** 몽타주가 활성화되어 있는지 여부 */
     bool bMontageActive = false;
+    public:
+    /** 애니메이션 일시정지 여부 (AnimNotify_PauseAnimation에서 사용) */
+    bool bPaused = false;
 };
 

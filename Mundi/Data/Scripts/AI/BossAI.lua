@@ -61,6 +61,9 @@ local ctx = {
     is_winding_up = false,          -- 예비 동작 중인지
     wind_up_start_time = 0,         -- 예비 동작 시작 시간
 
+    -- 죽음 관련
+    is_death_animation_played = false,  -- 죽음 애니메이션 재생 여부
+
     -- ========================================================================
     -- 플레이어 상태 추적 (Reactive AI용)
     -- ========================================================================
@@ -823,12 +826,15 @@ local function ExecuteNextComboHit(c)
         return false
     end
 
-    -- 타겟 바라보기
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 몽타주 재생 (GlobalAnimSpeed 적용)
@@ -914,12 +920,15 @@ local function DoAttack(c)
         return BT_FAILURE
     end
 
-    -- 타겟 바라보기
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 페이즈에 따라 패턴 선택
@@ -1041,16 +1050,19 @@ local function DoPunishAttack(c)
         return BT_FAILURE
     end
 
-    -- 타겟 바라보기
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 빠른 공격으로 징벌 (LightCombo)
-    local success = PlayBossMontage(Obj, "LightCombo")
+    local success = PlayBossMontage(Obj, "PunishAttack")
     if success then
         SetBossPatternName(Obj, "PunishAttack")
         StartAttack(c, "PunishAttack")
@@ -1068,11 +1080,15 @@ local function DoGuardBreakAttack(c)
         return BT_FAILURE
     end
 
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 강공격으로 가드 브레이크 시도 (느리게 시작, GlobalAnimSpeed도 적용)
@@ -1095,11 +1111,15 @@ local function DoTradeAttack(c)
         return BT_FAILURE
     end
 
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 슈퍼아머가 있는 강공격 사용
@@ -1120,11 +1140,15 @@ local function DoGapCloser(c)
         return BT_FAILURE
     end
 
+    -- 타겟 바라보기 (부드러운 회전)
     if c.target then
         local myPos = Obj.Location
         local targetPos = c.target.Location
-        local yaw = CalcYaw(myPos, targetPos)
-        Obj.Rotation = Vector(0, 0, yaw)
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local maxTurnDelta = Config.TurnSpeed * c.delta_time
+        local newYaw = SmoothRotateToTarget(currentYaw, targetYaw, maxTurnDelta)
+        Obj.Rotation = Vector(0, 0, newYaw)
     end
 
     -- 돌진 공격
@@ -1514,6 +1538,26 @@ function Tick(Delta)
 
     -- 매 틱마다 stats 갱신 (Lua 캐싱 문제 방지)
     ctx.stats = GetComponent(Obj, "UStatsComponent")
+
+    -- 보스가 죽었으면 죽음 애니메이션 재생 후 AI 동작 중지
+    -- 타겟이 있을 때만 체크 (게임 시작 시 초기화 방지)
+    if ctx.target and GetCurrentHealth(Obj) <= 0 then
+
+        if not ctx.is_death_animation_played then
+            print("Boss is dead, playing death animation")
+
+            -- 죽음 애니메이션 재생 (DeathMontage 사용)
+            local success = PlayBossMontage(Obj, "Death")
+            if success then
+                print("Death animation played successfully")
+            else
+                print("WARNING: Death animation failed to play - montage may not be initialized")
+            end
+
+            ctx.is_death_animation_played = true
+        end
+        return
+    end
 
     --print("[BossAI] Phase: " .. ctx.phase)
 

@@ -10,6 +10,7 @@
 #include "AnimNotify/AnimNotify_EnableHitbox.h"
 #include "AnimNotify/AnimNotify_EnableWeaponCollision.h"
 #include "AnimNotify/AnimNotify_SetViewTarget.h"
+#include "AnimNotify/AnimNotify_PauseAnimation.h"
 #include "AnimTypes.h"
 #include "JsonSerializer.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
@@ -324,6 +325,11 @@ void UAnimSequenceBase::AddPlayCameraNotify(float Time, UAnimNotify* Notify, flo
     AddPlaySoundNotify(Time, Notify, Duration);
 }
 
+void UAnimSequenceBase::AddPauseAnimationNotify(float Time, UAnimNotify* Notify, float Duration)
+{
+    AddPlaySoundNotify(Time, Notify, Duration);
+}
+
 bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
 {
     if (MetaPathUTF8.empty())
@@ -424,6 +430,10 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
                     SetViewTargetNotify->RelativeRotation.Y,
                     SetViewTargetNotify->RelativeRotation.Z,
                     SetViewTargetNotify->RelativeRotation.W));
+        }
+        else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PauseAnimation>())
+        {
+            // PauseAnimation has no data to save
         }
         else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayCamera>())
         {
@@ -674,7 +684,7 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 FJsonSerializer::ReadFloat(*DataPtr, "BlendTime", SetViewTargetNotify->BlendTime, SetViewTargetNotify->BlendTime, false);
                 FJsonSerializer::ReadBool(*DataPtr, "bBlendBackToDefault", SetViewTargetNotify->bBlendBackToDefault, SetViewTargetNotify->bBlendBackToDefault, false);
                 FJsonSerializer::ReadVector(*DataPtr, "RelativeLocation", SetViewTargetNotify->RelativeLocation, SetViewTargetNotify->RelativeLocation, false);
-                
+
                 FVector4 QuatAsVec4;
                 if (FJsonSerializer::ReadVector4(*DataPtr, "RelativeRotation", QuatAsVec4, FVector4(), false))
                 {
@@ -682,6 +692,12 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 }
             }
             Evt.Notify = SetViewTargetNotify;
+            Evt.NotifyState = nullptr;
+        }
+        else if (ClassStr == "UAnimNotify_PauseAnimation" || ClassStr == "PauseAnimation")
+        {
+            UAnimNotify_PauseAnimation* PauseAnimationNotify = NewObject<UAnimNotify_PauseAnimation>();
+            Evt.Notify = PauseAnimationNotify;
             Evt.NotifyState = nullptr;
         }
         else if (ClassStr == "UAnimNotify_PlayCamera" || ClassStr == "PlayCamera")

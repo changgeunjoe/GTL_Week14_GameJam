@@ -457,7 +457,9 @@ void AEnemyBase::OnDeath()
         AIController->OnPawnDeath();
     }
 
-    // TODO: 사망 애니메이션/래그돌
+    // 애니메이션 일시정지는 AnimNotify_PauseAnimation에서 처리
+    // 죽음 애니메이션 끝 부분에 노티파이 추가 필요
+
     // TODO: 일정 시간 후 Destroy
 }
 

@@ -20,6 +20,8 @@
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PlayCamera.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ParticleOnOff.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_SetViewTarget.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PauseAnimation.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ComboWindow.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -2409,7 +2411,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Particle Notify"))
+                    if (ImGui::MenuItem("Particle Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2427,7 +2429,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Weapon Collision Notify"))
+                    if (ImGui::MenuItem("Weapon Collision Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2445,7 +2447,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Camera Notify"))
+                    if (ImGui::MenuItem("Camera Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2460,7 +2462,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Hitbox Notify"))
+                    if (ImGui::MenuItem("Hitbox Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2476,7 +2478,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Particle On/Off Notify"))
+                    if (ImGui::MenuItem("Particle On/Off Notify"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2494,7 +2496,7 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
-                    else if (ImGui::MenuItem("Set View Target (Blend)"))
+                    if (ImGui::MenuItem("Set View Target (Blend)"))
                     {
                         if (bHasAnimation && State->CurrentAnimation)
                         {
@@ -2507,6 +2509,42 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                                 NewEvent.TriggerTime = TimeSec;
                                 NewEvent.Notify = NewNotify;
                                 NewEvent.NotifyName = FName("SetViewTarget");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                                MarkNotifiesDirty(State);
+                            }
+                        }
+                    }
+                    if (ImGui::MenuItem("PauseAnimation Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_PauseAnimation* NewNotify = NewObject<UAnimNotify_PauseAnimation>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("PauseAnimation");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                                MarkNotifiesDirty(State);
+                            }
+                        }
+                    }
+                    if (ImGui::MenuItem("ComboWindow Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_ComboWindow* NewNotify = NewObject<UAnimNotify_ComboWindow>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("ComboWindow");
                                 State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
                                 MarkNotifiesDirty(State);
                             }
@@ -2625,6 +2663,9 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             } else if (Notify.Notify->IsA<UAnimNotify_PlayParticle>()) {
                                 FillCol = IM_COL32(100, 255, 100, bHover ? 140 : 100); // Green
                                 LineCol = IM_COL32(200, 255, 200, 150);
+                            } else if (Notify.Notify->IsA<UAnimNotify_PauseAnimation>()) {
+                                FillCol = IM_COL32(255, 100, 100, bHover ? 140 : 100); // Red
+                                LineCol = IM_COL32(255, 200, 200, 150);
                             } else if (Notify.Notify->IsA<UAnimNotify_EnableWeaponCollision>()) {
                                 FillCol = IM_COL32(255, 100, 100, bHover ? 140 : 100); // Red
                                 LineCol = IM_COL32(255, 200, 200, 150);
@@ -2657,6 +2698,14 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlaySound>())
                             {
                                 Label = "PlaySound";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayParticle>())
+                            {
+                                Label = "PlayParticle";
+                            }
+                            else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PauseAnimation>())
+                            {
+                                Label = "PauseAnimation";
                             }
                             else if (Notify.Notify && Notify.Notify->IsA<UAnimNotify_PlayParticle>())
                             {
@@ -3252,6 +3301,21 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         }
                         // 라벨 업데이트
                         Evt.NotifyName = FName(WeaponNotify->bEnable ? "WeaponCollision: Enable" : "WeaponCollision: Disable");
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_ComboWindow>())
+                    {
+                        UAnimNotify_ComboWindow* ComboNotify = static_cast<UAnimNotify_ComboWindow*>(Evt.Notify);
+
+                        ImGui::Text("Combo Window Notify");
+                        ImGui::Separator();
+
+                        // Enable/Disable 토글
+                        if (ImGui::Checkbox("Enable Combo Window", &ComboNotify->bEnable))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        // 라벨 업데이트
+                        Evt.NotifyName = FName(ComboNotify->bEnable ? "ComboWindow: Enable" : "ComboWindow: Disable");
                     }
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_SetViewTarget>())
                     {

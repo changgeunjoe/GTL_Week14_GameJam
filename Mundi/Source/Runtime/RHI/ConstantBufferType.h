@@ -284,6 +284,21 @@ struct FParticleEmitterType
     FVector2D Padding0;      // 16ë°”ì´íŠ¸ ì •ë ¬
 };
 
+// b9: Sky Sphere Parameters
+struct alignas(16) FSkyConstantBuffer
+{
+    FLinearColor ZenithColor;      // Sky top color (16 bytes)
+    FLinearColor HorizonColor;     // Horizon color (16 bytes)
+    FLinearColor GroundColor;      // Ground color (16 bytes)
+    FVector4 SunDirection;         // Sun direction XYZ + padding (16 bytes)
+    FLinearColor SunColor;         // Sun color RGB + Intensity in A (16 bytes)
+    float HorizonFalloff;          // Gradient falloff (1.0-10.0)
+    float SunDiskSize;             // Sun disk size (0.0-1.0)
+    float OverallBrightness;       // Overall brightness scale
+    float _Padding;                // 16-byte alignment padding
+};  // Total: 96 bytes
+static_assert(sizeof(FSkyConstantBuffer) % 16 == 0, "FSkyConstantBuffer must be 16-byte aligned");
+
 #define CONSTANT_BUFFER_INFO(TYPE, SLOT, VS, PS) \
 constexpr uint32 TYPE##Slot = SLOT;\
 constexpr bool TYPE##IsVS = VS;\
@@ -313,7 +328,8 @@ MACRO(FViewportConstants)           \
 MACRO(FTileCullingBufferType)       \
 MACRO(FPointLightShadowBufferType)  \
 MACRO(FSubUVBufferType) \
-MACRO(FParticleEmitterType)
+MACRO(FParticleEmitterType) \
+MACRO(FSkyConstantBuffer)
 
 // 16 ë°”ì´íŠ¸ íŒ¨ë”© ì–´ì°íŠ¸
 #define STATIC_ASSERT_CBUFFER_ALIGNMENT(Type) \
@@ -344,7 +360,8 @@ CONSTANT_BUFFER_INFO(FViewportConstants, 10, true, true)   // ë·° í¬íŠ�
 CONSTANT_BUFFER_INFO(FTileCullingBufferType, 11, false, true)  // b11, PS only (UberLit.hlslê³¼ ì¼ì¹˜)
 CONSTANT_BUFFER_INFO(FPointLightShadowBufferType, 12, true, true)  // b12, VS+PS
 CONSTANT_BUFFER_INFO(FSubUVBufferType, 2, true, true)  // b2, VS+PS (ParticleSprite.hlslìš©)
-CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlslìš©)
+CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlsl
+CONSTANT_BUFFER_INFO(FSkyConstantBuffer, 9, true, true)    // b9, VS+PS (Sky.hlslìš©)
 
 
 

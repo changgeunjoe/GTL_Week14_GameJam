@@ -19,6 +19,7 @@ class D3D11RHI;
 class UPrimitiveComponent;
 class UDecalComponent;
 class UHeightFogComponent;
+class USkySphereComponent;
 class UAmbientLightComponent;
 class UDirectionalLightComponent;
 class UPointLightComponent;
@@ -66,6 +67,7 @@ struct FSceneGlobals
 	TArray<UDirectionalLightComponent*> DirectionalLights;
 	TArray<UAmbientLightComponent*> AmbientLights;
 	TArray<UHeightFogComponent*> Fogs;	// 첫 번째로 찾은 Fog를 사용함
+	USkySphereComponent* SkySphere = nullptr;  // Single sky sphere per scene
 };
 
 /**
@@ -110,6 +112,7 @@ private:
 
 	void DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, bool bClearListAfterDraw);
 
+	void RenderSkyPass();
 	void RenderParticlePass();
 	void RenderDecalPass();
 

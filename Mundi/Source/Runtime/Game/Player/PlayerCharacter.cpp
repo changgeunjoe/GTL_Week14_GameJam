@@ -291,6 +291,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 스킬 차징 업데이트
     UpdateSkillCharging(DeltaSeconds);
 
+    // 이동 상태 업데이트 (Walking/Running/Jumping/Idle 전환)
+    UpdateMovementState(DeltaSeconds);
+
     // 경직 중이 아니면 입력 처리
     if (CombatState != ECombatState::Staggered)
     {
@@ -411,7 +414,15 @@ void APlayerCharacter::LightAttack()
     UE_LOG("[PlayerCharacter] LightAttack() called - CombatState: %d, bCanCombo: %s",
            static_cast<int>(CombatState), bCanCombo ? "true" : "false");
 
-    // 상태 체크
+    // 공격 중 + 콤보 가능 상태에서 호출되면 HeavyAttack 버퍼링
+    if (CombatState == ECombatState::Attacking && bCanCombo)
+    {
+        bBufferedHeavyAttack = true;
+        UE_LOG("[PlayerCharacter] HeavyAttack buffered for combo");
+        return;
+    }
+
+    // 상태 체크: 공격 중이고 콤보 불가능하면 리턴
     if (CombatState == ECombatState::Attacking && !bCanCombo)
     {
         UE_LOG("[PlayerCharacter] LightAttack() blocked - already attacking, no combo");
@@ -447,6 +458,9 @@ void APlayerCharacter::LightAttack()
 
     SetCombatState(ECombatState::Attacking);
 
+    // 콤보 타이머 초기화
+    LightAttackTimer = 0.f;
+
     // 콤보 카운트 증가
     if (bCanCombo)
     {
@@ -473,7 +487,7 @@ void APlayerCharacter::LightAttack()
                 AnimInst->SetRootMotionEnabled(bEnableLightAttackRootMotion);
                 AnimInst->SetAnimationCutEndTime(LightAttackCutEndTime);
 
-                AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.01f, 1.0f);  // BlendOut 최소화
+                AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.2f, 1.0f);  // BlendOut 0.2초
                 UE_LOG("[PlayerCharacter] Playing LightAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
                     bEnableLightAttackRootMotion ? "ON" : "OFF", LightAttackCutEndTime);
             }
@@ -811,6 +825,18 @@ void APlayerCharacter::StopCharging()
     }
 }
 
+void APlayerCharacter::EnableComboWindow()
+{
+    bCanCombo = true;
+    UE_LOG("[PlayerCharacter] Combo window enabled");
+}
+
+void APlayerCharacter::DisableComboWindow()
+{
+    bCanCombo = false;
+    UE_LOG("[PlayerCharacter] Combo window disabled");
+}
+
 // ============================================================================
 // IDamageable 구현
 // ============================================================================
@@ -990,12 +1016,29 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
         EndWeaponTrace();
         // 무적 해제
         bIsInvincible = false;
+        // 콤보 관련 초기화
+        bCanCombo = false;
+        bBufferedHeavyAttack = false;
     }
 
     // 닷지 종료 시 무적 해제
     if (OldState == ECombatState::Dodging && NewState != ECombatState::Dodging)
     {
         bIsInvincible = false;
+    }
+
+    // ── 엘든링 스타일 카메라: SpringArm에 구르기 상태 전달 ──
+    bool bIsNowDodging = (NewState == ECombatState::Dodging);
+    bool bWasDodging = (OldState == ECombatState::Dodging);
+    if (bIsNowDodging != bWasDodging)
+    {
+        if (UActorComponent* C = GetComponent(USpringArmComponent::StaticClass()))
+        {
+            if (USpringArmComponent* SpringArm = Cast<USpringArmComponent>(C))
+            {
+                SpringArm->SetRollingState(bIsNowDodging);
+            }
+        }
     }
 }
 
@@ -1016,6 +1059,50 @@ void APlayerCharacter::UpdateAttackState(float DeltaTime)
     // 공격 상태일 때만 체크
     if (CombatState != ECombatState::Attacking)
     {
+        return;
+    }
+
+    // LightAttack 타이머 증가
+    LightAttackTimer += DeltaTime;
+
+    // 버퍼된 HeavyAttack이 있고, ComboTransitionTime에 도달하면 HeavyAttack으로 전환
+    if (bBufferedHeavyAttack && LightAttackTimer >= ComboTransitionTime)
+    {
+        bBufferedHeavyAttack = false;
+        bCanCombo = false;
+        UE_LOG("[PlayerCharacter] Combo transition at %.2fs -> HeavyAttack", LightAttackTimer);
+
+        // 스태미나 체크
+        UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+        if (!Stats || !Stats->ConsumeStamina(Stats->HeavyAttackCost))
+        {
+            UE_LOG("[PlayerCharacter] Combo HeavyAttack blocked - not enough stamina");
+            return;
+        }
+
+        // CombatState는 Attacking 유지, 데미지 타입만 Heavy로 변경
+        ComboCount = 0;
+
+        FDamageInfo DamageInfo(this, 30.f, EDamageType::Heavy);
+        DamageInfo.HitReaction = EHitReaction::Stagger;
+        DamageInfo.StaggerDuration = 0.5f;
+        DamageInfo.KnockbackForce = 200.f;
+        SetWeaponDamageInfo(DamageInfo);
+
+        // HeavyAttack 몽타주 바로 재생
+        if (HeavyAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableHeavyAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(HeavyAttackCutEndTime);
+                    AnimInst->Montage_Play(HeavyAttackMontage, 0.0f, 0.3f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Combo -> HeavyAttack montage (BlendIn: 0.2s)");
+                }
+            }
+        }
         return;
     }
 
@@ -1369,6 +1456,79 @@ void APlayerCharacter::UpdateEffect(float DeltaTime)
             if (PlayerParticles["Charged"][0] && PlayerParticles["Charged"][0]->IsSpawning())PlayerParticles["Charged"][0]->PauseSpawning();
             if (PlayerParticles["Charged"][1] && !PlayerParticles["Charged"][1]->IsSpawning())PlayerParticles["Charged"][1]->ResumeSpawning();
         }
+    }
+}
+
+// ============================================================================
+// 이동 상태 업데이트 (Walking/Running/Jumping/Idle 전환)
+// ============================================================================
+
+void APlayerCharacter::UpdateMovementState(float DeltaTime)
+{
+    // 전투 액션 중이면 이동 상태 변경 안 함
+    // (Attacking, Dodging, Blocking, Parrying, Staggered, Charging, Knockback, Dead)
+    if (CombatState == ECombatState::Attacking ||
+        CombatState == ECombatState::Dodging ||
+        CombatState == ECombatState::Blocking ||
+        CombatState == ECombatState::Parrying ||
+        CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Charging ||
+        CombatState == ECombatState::Knockback ||
+        CombatState == ECombatState::Dead)
+    {
+        return;
+    }
+
+    UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+    if (!MovementComp)
+    {
+        return;
+    }
+
+    // 점프/낙하 중인지 확인
+    bool bIsFalling = MovementComp->IsFalling();
+
+    // 수평 속도 확인 (이동 중인지)
+    FVector Velocity = MovementComp->GetVelocity();
+    Velocity.Z = 0.0f;
+    float HorizontalSpeed = Velocity.Size();
+
+    // 달리기 중인지 확인 (TargetWalkSpeed >= SprintWalkSpeed)
+    bool bIsSprinting = (MovementComp->TargetWalkSpeed >= MovementComp->SprintWalkSpeed);
+
+    // 이동 중인지 확인 (최소 속도 임계값)
+    const float MinMovementSpeed = 0.5f;
+    bool bIsMoving = (HorizontalSpeed > MinMovementSpeed);
+
+    ECombatState NewState = CombatState;
+
+    if (bIsFalling)
+    {
+        // 공중에 있으면 Jumping
+        NewState = ECombatState::Jumping;
+    }
+    else if (bIsMoving)
+    {
+        // 이동 중
+        if (bIsSprinting)
+        {
+            NewState = ECombatState::Running;
+        }
+        else
+        {
+            NewState = ECombatState::Walking;
+        }
+    }
+    else
+    {
+        // 정지 상태
+        NewState = ECombatState::Idle;
+    }
+
+    // 상태 변경이 있을 때만 SetCombatState 호출
+    if (NewState != CombatState)
+    {
+        SetCombatState(NewState);
     }
 }
 
