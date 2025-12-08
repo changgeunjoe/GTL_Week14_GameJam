@@ -282,6 +282,32 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     // 구르기 상태 업데이트
     UpdateDodgeState(DeltaSeconds);
 
+    // 점프 딜레이 업데이트
+    if (bJumpPending)
+    {
+        JumpDelayTimer += DeltaSeconds;
+        if (JumpDelayTimer >= JumpDelayTime)
+        {
+            bJumpPending = false;
+            JumpDelayTimer = 0.f;
+            // 실제 점프 실행
+            Super::Jump();
+            UE_LOG("[PlayerCharacter] Jump executed after %.2fs delay", JumpDelayTime);
+        }
+    }
+
+    // 착지 쿨다운 업데이트
+    if (bLandingCooldown)
+    {
+        LandingCooldownTimer += DeltaSeconds;
+        if (LandingCooldownTimer >= LandingCooldownTime)
+        {
+            bLandingCooldown = false;
+            LandingCooldownTimer = 0.f;
+            UE_LOG("[PlayerCharacter] Landing cooldown finished");
+        }
+    }
+
     // 경직 상태 업데이트
     UpdateStagger(DeltaSeconds);
 
@@ -1196,6 +1222,34 @@ int32 APlayerCharacter::GetDodgeDirectionIndex() const
     return Index;
 }
 
+void APlayerCharacter::Jump()
+{
+    // 이미 점프 대기 중이면 무시
+    if (bJumpPending)
+    {
+        return;
+    }
+
+    // 착지 쿨다운 중이면 무시
+    if (bLandingCooldown)
+    {
+        UE_LOG("[PlayerCharacter] Jump blocked - landing cooldown active");
+        return;
+    }
+
+    // 공중에 있으면 무시
+    UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+    if (MovementComp && MovementComp->IsFalling())
+    {
+        return;
+    }
+
+    // 점프 딜레이 시작
+    bJumpPending = true;
+    JumpDelayTimer = 0.f;
+    UE_LOG("[PlayerCharacter] Jump requested, waiting %.2fs", JumpDelayTime);
+}
+
 void APlayerCharacter::UpdateDodgeState(float DeltaTime)
 {
     // 구르기 상태일 때만 체크
@@ -1528,6 +1582,14 @@ void APlayerCharacter::UpdateMovementState(float DeltaTime)
     // 상태 변경이 있을 때만 SetCombatState 호출
     if (NewState != CombatState)
     {
+        // Jumping에서 다른 상태로 전환 시 (착지) -> 착지 쿨다운 시작
+        if (CombatState == ECombatState::Jumping && NewState != ECombatState::Jumping)
+        {
+            bLandingCooldown = true;
+            LandingCooldownTimer = 0.f;
+            UE_LOG("[PlayerCharacter] Landed - starting cooldown %.2fs", LandingCooldownTime);
+        }
+
         SetCombatState(NewState);
     }
 }
