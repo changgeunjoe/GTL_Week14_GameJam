@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "SelectionManager.h"
 #include "Picking.h"
+#include "Character.h"
 #include "CameraActor.h"
 #include "StaticMeshActor.h"
 #include "CameraComponent.h"
@@ -295,6 +296,16 @@ void UWorld::Tick(float DeltaSeconds)
 			{
 				if (Actor->CanEverTick())
 				{
+					// 일시정지 시 플레이어와 적은 Tick 안함
+					if (bPaused)
+					{
+						// Character 타입(플레이어, 적)은 Tick하지 않음
+						if (Actor->IsA<ACharacter>())
+						{
+							continue;
+						}
+					}
+
 					Actor->Tick(GetDeltaTime(EDeltaTime::Game) * Actor->GetCustomTimeDillation());
 				}
 			}
