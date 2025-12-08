@@ -85,11 +85,6 @@
       "ToNodeID" : 63,
       "ToPinName" : "Y"
     }, {
-      "FromNodeID" : 70,
-      "FromPinName" : "Result",
-      "ToNodeID" : 48,
-      "ToPinName" : "Can Transition"
-    }, {
       "FromNodeID" : 71,
       "FromPinName" : "Is Falling",
       "ToNodeID" : 60,
@@ -129,6 +124,11 @@
       "FromPinName" : "Value",
       "ToNodeID" : 57,
       "ToPinName" : "Blend Time"
+    }, {
+      "FromNodeID" : 93,
+      "FromPinName" : "Is Pending",
+      "ToNodeID" : 48,
+      "ToPinName" : "Can Transition"
     }],
   "Nodes" : [{
       "ClassName" : "UK2Node_AnimStateEntry",
@@ -214,7 +214,7 @@
           "PinName" : "Blend Time"
         }]
     }, {
-      "AnimationCutEndTime" : 0.010000,
+      "AnimationCutEndTime" : 0.020000,
       "ClassName" : "UK2Node_AnimState",
       "EnableRootMotion" : false,
       "NodeID" : 50,
@@ -526,18 +526,6 @@
           "PinName" : "Z"
         }]
     }, {
-      "ClassName" : "UK2Node_IsPressed",
-      "KeyName" : "F",
-      "NodeID" : 70,
-      "NodePosX" : 2634.000000,
-      "NodePosY" : 512.000000,
-      "Pins" : [{
-          "DefaultValue" : "",
-          "Direction" : 1,
-          "PinCategory" : "bool",
-          "PinName" : "Result"
-        }]
-    }, {
       "ClassName" : "UK2Node_GetIsFalling",
       "NodeID" : 71,
       "NodePosX" : 2497.000000,
@@ -596,7 +584,7 @@
           "PinCategory" : "float",
           "PinName" : "Value"
         }],
-      "Value" : 0.000000
+      "Value" : 0.010000
     }, {
       "AnimationCutEndTime" : 0.000000,
       "ClassName" : "UK2Node_AnimState",
@@ -667,6 +655,17 @@
           "PinName" : "Value"
         }],
       "Value" : 0.100000
+    }, {
+      "ClassName" : "UK2Node_IsJumpPending",
+      "NodeID" : 93,
+      "NodePosX" : 2677.000000,
+      "NodePosY" : 560.000000,
+      "Pins" : [{
+          "DefaultValue" : "",
+          "Direction" : 1,
+          "PinCategory" : "bool",
+          "PinName" : "Is Pending"
+        }]
     }],
-  "UniqueIDCounter" : 88
+  "UniqueIDCounter" : 94
 }

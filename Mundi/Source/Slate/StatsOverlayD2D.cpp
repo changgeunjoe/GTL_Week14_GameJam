@@ -450,13 +450,13 @@ void UStatsOverlayD2D::Draw()
 			}
 		}
 
-		wchar_t Buf[256];
-		swprintf_s(Buf, L"[Enemy Stats]\nBoss Count: %u", BossCount);
+		//wchar_t Buf[256];
+		//swprintf_s(Buf, L"[Enemy Stats]\nBoss Count: %u", BossCount);
 
-		const float EnemyPanelHeight = 60.0f;
-		D2D1_RECT_F rc = D2D1::RectF(Margin, NextY, Margin + PanelWidth, NextY + EnemyPanelHeight);
-		DrawTextBlock(D2DContext, TextFormat, Buf, rc, BrushBlack, BrushYellow);
-		NextY += EnemyPanelHeight + Space;
+		//const float EnemyPanelHeight = 60.0f;
+		//D2D1_RECT_F rc = D2D1::RectF(Margin, NextY, Margin + PanelWidth, NextY + EnemyPanelHeight);
+		//DrawTextBlock(D2DContext, TextFormat, Buf, rc, BrushBlack, BrushYellow);
+		//NextY += EnemyPanelHeight + Space;
 	}
 
 	D2DContext->EndDraw();

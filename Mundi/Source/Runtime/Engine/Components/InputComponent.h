@@ -137,6 +137,16 @@ public:
     void UnblockAction(const FName& ActionName);
     bool IsActionBlocked(const FName& ActionName) const;
 
+    // ========================================================================
+    // 액션 상태 조회 (애니메이션 블루프린트용)
+    // ========================================================================
+    /** 액션이 이번 프레임에 눌렸는지 (Pressed) */
+    bool IsActionPressed(const FName& ActionName) const;
+    /** 액션이 눌려있는지 (Held/Down) */
+    bool IsActionDown(const FName& ActionName) const;
+    /** 액션이 이번 프레임에 떼어졌는지 (Released) */
+    bool IsActionReleased(const FName& ActionName) const;
+
 private:
     void ProcessActionBindings();
     void ProcessAxisBindings();
