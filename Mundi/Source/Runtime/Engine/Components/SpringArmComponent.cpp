@@ -38,7 +38,7 @@ void USpringArmComponent::TickComponent(float DeltaTime)
     Super::TickComponent(DeltaTime);
 
     // bUsePawnControlRotation이 true이면 Pawn의 ControlRotation을 따라감
-    if (bUsePawnControlRotation)
+  /*  if (bUsePawnControlRotation)
     {
         if (AActor* MyOwner = GetOwner())
         {
@@ -50,7 +50,7 @@ void USpringArmComponent::TickComponent(float DeltaTime)
                 }
             }
         }
-    }
+    }*/
 
     // Lock-on 타겟이 있으면 카메라를 타겟 방향으로 회전
     if (LockOnTarget)
