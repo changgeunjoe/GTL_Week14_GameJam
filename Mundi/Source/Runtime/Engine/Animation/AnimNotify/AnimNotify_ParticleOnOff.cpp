@@ -55,10 +55,12 @@ void UAnimNotify_ParticleOnOff::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 			{
 				if (bActivate)
 				{
-					ParticleComp->ResumeSpawning();
+					// 파티클 완전 활성화: Tick 켜기 + Spawning 재개
+					ParticleComp->ActivateSystem();
 				}
 				else
 				{
+					// 스폰만 중지 (렌더링은 유지)
 					ParticleComp->PauseSpawning();
 				}
 			}
