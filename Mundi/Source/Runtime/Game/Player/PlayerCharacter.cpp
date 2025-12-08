@@ -414,7 +414,15 @@ void APlayerCharacter::LightAttack()
     UE_LOG("[PlayerCharacter] LightAttack() called - CombatState: %d, bCanCombo: %s",
            static_cast<int>(CombatState), bCanCombo ? "true" : "false");
 
-    // 상태 체크
+    // 공격 중 + 콤보 가능 상태에서 호출되면 HeavyAttack 버퍼링
+    if (CombatState == ECombatState::Attacking && bCanCombo)
+    {
+        bBufferedHeavyAttack = true;
+        UE_LOG("[PlayerCharacter] HeavyAttack buffered for combo");
+        return;
+    }
+
+    // 상태 체크: 공격 중이고 콤보 불가능하면 리턴
     if (CombatState == ECombatState::Attacking && !bCanCombo)
     {
         UE_LOG("[PlayerCharacter] LightAttack() blocked - already attacking, no combo");
@@ -450,6 +458,9 @@ void APlayerCharacter::LightAttack()
 
     SetCombatState(ECombatState::Attacking);
 
+    // 콤보 타이머 초기화
+    LightAttackTimer = 0.f;
+
     // 콤보 카운트 증가
     if (bCanCombo)
     {
@@ -476,7 +487,7 @@ void APlayerCharacter::LightAttack()
                 AnimInst->SetRootMotionEnabled(bEnableLightAttackRootMotion);
                 AnimInst->SetAnimationCutEndTime(LightAttackCutEndTime);
 
-                AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.01f, 1.0f);  // BlendOut 최소화
+                AnimInst->Montage_Play(LightAttackMontage, 0.1f, 0.2f, 1.0f);  // BlendOut 0.2초
                 UE_LOG("[PlayerCharacter] Playing LightAttack montage (RootMotion: %s, CutEndTime: %.3fs)",
                     bEnableLightAttackRootMotion ? "ON" : "OFF", LightAttackCutEndTime);
             }
@@ -814,6 +825,18 @@ void APlayerCharacter::StopCharging()
     }
 }
 
+void APlayerCharacter::EnableComboWindow()
+{
+    bCanCombo = true;
+    UE_LOG("[PlayerCharacter] Combo window enabled");
+}
+
+void APlayerCharacter::DisableComboWindow()
+{
+    bCanCombo = false;
+    UE_LOG("[PlayerCharacter] Combo window disabled");
+}
+
 // ============================================================================
 // IDamageable 구현
 // ============================================================================
@@ -993,6 +1016,9 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
         EndWeaponTrace();
         // 무적 해제
         bIsInvincible = false;
+        // 콤보 관련 초기화
+        bCanCombo = false;
+        bBufferedHeavyAttack = false;
     }
 
     // 닷지 종료 시 무적 해제
@@ -1033,6 +1059,50 @@ void APlayerCharacter::UpdateAttackState(float DeltaTime)
     // 공격 상태일 때만 체크
     if (CombatState != ECombatState::Attacking)
     {
+        return;
+    }
+
+    // LightAttack 타이머 증가
+    LightAttackTimer += DeltaTime;
+
+    // 버퍼된 HeavyAttack이 있고, ComboTransitionTime에 도달하면 HeavyAttack으로 전환
+    if (bBufferedHeavyAttack && LightAttackTimer >= ComboTransitionTime)
+    {
+        bBufferedHeavyAttack = false;
+        bCanCombo = false;
+        UE_LOG("[PlayerCharacter] Combo transition at %.2fs -> HeavyAttack", LightAttackTimer);
+
+        // 스태미나 체크
+        UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+        if (!Stats || !Stats->ConsumeStamina(Stats->HeavyAttackCost))
+        {
+            UE_LOG("[PlayerCharacter] Combo HeavyAttack blocked - not enough stamina");
+            return;
+        }
+
+        // CombatState는 Attacking 유지, 데미지 타입만 Heavy로 변경
+        ComboCount = 0;
+
+        FDamageInfo DamageInfo(this, 30.f, EDamageType::Heavy);
+        DamageInfo.HitReaction = EHitReaction::Stagger;
+        DamageInfo.StaggerDuration = 0.5f;
+        DamageInfo.KnockbackForce = 200.f;
+        SetWeaponDamageInfo(DamageInfo);
+
+        // HeavyAttack 몽타주 바로 재생
+        if (HeavyAttackMontage)
+        {
+            if (USkeletalMeshComponent* Mesh = GetMesh())
+            {
+                if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                {
+                    AnimInst->SetRootMotionEnabled(bEnableHeavyAttackRootMotion);
+                    AnimInst->SetAnimationCutEndTime(HeavyAttackCutEndTime);
+                    AnimInst->Montage_Play(HeavyAttackMontage, 0.0f, 0.3f, 1.0f);
+                    UE_LOG("[PlayerCharacter] Combo -> HeavyAttack montage (BlendIn: 0.2s)");
+                }
+            }
+        }
         return;
     }
 

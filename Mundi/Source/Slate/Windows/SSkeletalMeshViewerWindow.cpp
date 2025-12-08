@@ -21,6 +21,7 @@
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ParticleOnOff.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_SetViewTarget.h"
 #include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_PauseAnimation.h"
+#include "Source/Runtime/Engine/Animation/AnimNotify/AnimNotify_ComboWindow.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
 #include "Source/Editor/PlatformProcess.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
@@ -2531,6 +2532,24 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                             }
                         }
                     }
+                    if (ImGui::MenuItem("ComboWindow Notify"))
+                    {
+                        if (bHasAnimation && State->CurrentAnimation)
+                        {
+                            float ClickFrame = RightClickFrame;
+                            float TimeSec = ImClamp(ClickFrame * FrameDuration, 0.0f, PlayLength);
+                            UAnimNotify_ComboWindow* NewNotify = NewObject<UAnimNotify_ComboWindow>();
+                            if (NewNotify)
+                            {
+                                FAnimNotifyEvent NewEvent;
+                                NewEvent.TriggerTime = TimeSec;
+                                NewEvent.Notify = NewNotify;
+                                NewEvent.NotifyName = FName("ComboWindow");
+                                State->CurrentAnimation->GetAnimNotifyEvents().Add(NewEvent);
+                                MarkNotifiesDirty(State);
+                            }
+                        }
+                    }
                     ImGui::EndMenu();
                 }
 
@@ -3282,6 +3301,21 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         }
                         // 라벨 업데이트
                         Evt.NotifyName = FName(WeaponNotify->bEnable ? "WeaponCollision: Enable" : "WeaponCollision: Disable");
+                    }
+                    else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_ComboWindow>())
+                    {
+                        UAnimNotify_ComboWindow* ComboNotify = static_cast<UAnimNotify_ComboWindow*>(Evt.Notify);
+
+                        ImGui::Text("Combo Window Notify");
+                        ImGui::Separator();
+
+                        // Enable/Disable 토글
+                        if (ImGui::Checkbox("Enable Combo Window", &ComboNotify->bEnable))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
+                        // 라벨 업데이트
+                        Evt.NotifyName = FName(ComboNotify->bEnable ? "ComboWindow: Enable" : "ComboWindow: Disable");
                     }
                     else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_SetViewTarget>())
                     {

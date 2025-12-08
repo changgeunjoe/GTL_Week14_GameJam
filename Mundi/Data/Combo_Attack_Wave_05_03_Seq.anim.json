@@ -1,0 +1,23 @@
+{
+  "Notifies" : [{
+      "Class" : "UAnimNotify_ComboWindow",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "ComboWindow: Enable",
+      "TriggerTime" : 0.012178
+    }, {
+      "Class" : "UAnimNotify_ComboWindow",
+      "Data" : {
+
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "ComboWindow: Disable",
+      "TriggerTime" : 0.316293
+    }],
+  "Type" : "AnimSequenceMeta",
+  "Version" : 1
+}
