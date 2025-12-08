@@ -8,7 +8,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: Off: WeaponRibbon",
-      "TriggerTime" : 0.987421
+      "TriggerTime" : 0.791705
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
