@@ -169,6 +169,7 @@ void FKAggregateGeom::Serialize(const bool bInIsLoading, JSON& InOutHandle)
             FJsonSerializer::ReadVector(In, "Center", Elem.Center);
             FJsonSerializer::ReadVector(In, "Extents", Elem.Extents);
             FVector4 RotVec;
+
             FJsonSerializer::ReadVector4(In, "Rotation", RotVec);
             Elem.Rotation = FQuat(RotVec.X, RotVec.Y, RotVec.Z, RotVec.W);
         });

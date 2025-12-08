@@ -19,7 +19,7 @@ UAnimNotify_SetViewTarget::UAnimNotify_SetViewTarget()
     BlendTime = 1.0f;
     bBlendBackToDefault = false;
     RelativeLocation = FVector(0.f, -500.f, 200.f);
-    RelativeRotation = FQuat(0.f, 0.f, 0.f, 0.f);
+    RelativeRotation = FQuat(); // Identity
 }
 
 void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

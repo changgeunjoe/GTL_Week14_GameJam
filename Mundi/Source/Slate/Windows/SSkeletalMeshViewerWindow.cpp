@@ -3280,8 +3280,11 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                             MarkNotifiesDirty(State);
                         }
-                        if (ImGui::DragFloat3("Relative Rotation", &VT->RelativeRotation.X, 1.0f, -360.0f, 360.0f, "%.1f"))
+                        
+                        FVector EulerDeg = VT->RelativeRotation.ToEulerZYXDeg();
+                        if (ImGui::DragFloat3("Relative Rotation", &EulerDeg.X, 1.0f, -360.0f, 360.0f, "%.1f"))
                         {
+                            VT->RelativeRotation = FQuat::MakeFromEulerZYX(EulerDeg);
                             MarkNotifiesDirty(State);
                         }
 

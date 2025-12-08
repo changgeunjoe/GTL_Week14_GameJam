@@ -9,6 +9,7 @@
 #include "AnimNotify/AnimNotify_ParticleOnOff.h"
 #include "AnimNotify/AnimNotify_EnableHitbox.h"
 #include "AnimNotify/AnimNotify_EnableWeaponCollision.h"
+#include "AnimNotify/AnimNotify_SetViewTarget.h"
 #include "AnimTypes.h"
 #include "JsonSerializer.h"
 #include "Source/Runtime/AssetManagement/ResourceManager.h"
@@ -412,6 +413,18 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
             Data["bActivate"] = ParticleOnOff->bActivate;
             Data["ParticleName"] = ParticleOnOff->ParticleName.c_str();
         }
+        else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_SetViewTarget>())
+        {
+            const UAnimNotify_SetViewTarget* SetViewTargetNotify = static_cast<const UAnimNotify_SetViewTarget*>(Evt.Notify);
+            Data["BlendTime"] = SetViewTargetNotify->BlendTime;
+            Data["bBlendBackToDefault"] = SetViewTargetNotify->bBlendBackToDefault;
+            Data["RelativeLocation"] = FJsonSerializer::VectorToJson(SetViewTargetNotify->RelativeLocation);
+            Data["RelativeRotation"] = FJsonSerializer::Vector4ToJson(
+                FVector4(SetViewTargetNotify->RelativeRotation.X,
+                    SetViewTargetNotify->RelativeRotation.Y,
+                    SetViewTargetNotify->RelativeRotation.Z,
+                    SetViewTargetNotify->RelativeRotation.W));
+        }
         else if (Evt.Notify && Evt.Notify->IsA<UAnimNotify_PlayCamera>())
         {
             const UAnimNotify_PlayCamera* CameraNotify = static_cast<const UAnimNotify_PlayCamera*>(Evt.Notify);
@@ -651,6 +664,24 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 }
             }
             Evt.Notify = ParticleOnOff;
+            Evt.NotifyState = nullptr;
+        }
+        else if (ClassStr == "UAnimNotify_SetViewTarget")
+        {
+            UAnimNotify_SetViewTarget* SetViewTargetNotify = NewObject<UAnimNotify_SetViewTarget>();
+            if (SetViewTargetNotify && DataPtr)
+            {
+                FJsonSerializer::ReadFloat(*DataPtr, "BlendTime", SetViewTargetNotify->BlendTime, SetViewTargetNotify->BlendTime, false);
+                FJsonSerializer::ReadBool(*DataPtr, "bBlendBackToDefault", SetViewTargetNotify->bBlendBackToDefault, SetViewTargetNotify->bBlendBackToDefault, false);
+                FJsonSerializer::ReadVector(*DataPtr, "RelativeLocation", SetViewTargetNotify->RelativeLocation, SetViewTargetNotify->RelativeLocation, false);
+                
+                FVector4 QuatAsVec4;
+                if (FJsonSerializer::ReadVector4(*DataPtr, "RelativeRotation", QuatAsVec4, FVector4(), false))
+                {
+                    SetViewTargetNotify->RelativeRotation = FQuat(QuatAsVec4.X, QuatAsVec4.Y, QuatAsVec4.Z, QuatAsVec4.W);
+                }
+            }
+            Evt.Notify = SetViewTargetNotify;
             Evt.NotifyState = nullptr;
         }
         else if (ClassStr == "UAnimNotify_PlayCamera" || ClassStr == "PlayCamera")
