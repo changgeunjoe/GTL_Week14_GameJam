@@ -36,6 +36,9 @@ public:
 
 	AGameStateBase* GetGameState() const { return GameState; }
 
+	// 게임 재개 (일시정지 해제)
+	void ResumeGame();
+
 	// 게임 재시작
 	void RestartGame();
 

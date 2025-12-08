@@ -8,6 +8,7 @@
 #include "Pawn.h"
 #include "PlayerCameraManager.h"
 #include "Source/Runtime/InputCore/InputManager.h"
+#include "Source/Runtime/Core/Misc/PathUtils.h"
 
 void AGameState::SetGameFlowState(EGameFlowState NewState)
 {
@@ -20,18 +21,36 @@ void AGameState::SetGameFlowState(EGameFlowState NewState)
     StateTimeSeconds = 0.0f; // from AGameStateBase (protected)
 }
 
-void AGameState::EnterStartMenu()
+void AGameState::EnterPressAnyKey()
 {
     ShowEndScreen(false, false);
     ShowStartScreen(true);
     SetPaused(true);
-    SetGameFlowState(EGameFlowState::StartMenu);
+    SetGameFlowState(EGameFlowState::PressAnyKey);
+
+    // 마우스 표시 (메뉴 상태이므로)
+    UInputManager::GetInstance().SetCursorVisible(true);
+    UInputManager::GetInstance().ReleaseCursor();
 
     // Immediate black screen using camera fade (PIE only desired behavior)
     if (GWorld && GWorld->GetPlayerCameraManager())
     {
         GWorld->GetPlayerCameraManager()->FadeOut(0.0f, FLinearColor(0,0,0,1.0f));
     }
+}
+
+void AGameState::EnterMainMenu()
+{
+    SetGameFlowState(EGameFlowState::MainMenu);
+    // 마우스 표시
+    UInputManager::GetInstance().SetCursorVisible(true);
+    UInputManager::GetInstance().ReleaseCursor();
+}
+
+void AGameState::EnterStartMenu()
+{
+    // 호환성을 위해 EnterPressAnyKey로 리디렉션
+    EnterPressAnyKey();
 }
 
 void AGameState::StartFight()
@@ -48,6 +67,10 @@ void AGameState::EnterBossIntro()
     SetPaused(false);
     SetGameFlowState(EGameFlowState::BossIntro);
 
+    // 마우스 숨기고 잠금 (게임플레이 시작)
+    UInputManager::GetInstance().SetCursorVisible(false);
+    UInputManager::GetInstance().LockCursor();
+
     // Fade in from black
     if (GWorld && GWorld->GetPlayerCameraManager())
     {
@@ -61,6 +84,10 @@ void AGameState::EnterVictory()
     ShowEndScreen(true, /*bPlayerWon*/true);
     SetPaused(true);
     SetGameFlowState(EGameFlowState::Victory);
+
+    // 마우스 표시 및 잠금 해제
+    UInputManager::GetInstance().SetCursorVisible(true);
+    UInputManager::GetInstance().ReleaseCursor();
 }
 
 void AGameState::EnterDefeat()
@@ -69,6 +96,10 @@ void AGameState::EnterDefeat()
     ShowEndScreen(true, /*bPlayerWon*/false);
     SetPaused(true);
     SetGameFlowState(EGameFlowState::Defeat);
+
+    // 마우스 표시 및 잠금 해제
+    UInputManager::GetInstance().SetCursorVisible(true);
+    UInputManager::GetInstance().ReleaseCursor();
 }
 
 void AGameState::OnPlayerLogin(APlayerController* InController)
@@ -166,8 +197,8 @@ void AGameState::HandleStateTick(float DeltaTime)
         }
     }
 
-    // StartMenu: in PIE, continue on any key press
-    if (GameFlowState == EGameFlowState::StartMenu && GWorld && GWorld->bPie)
+    // PressAnyKey: in PIE, continue on any key press (legacy comment compatibility)
+    if (GameFlowState == EGameFlowState::PressAnyKey && GWorld && GWorld->bPie)
     {
         UInputManager& Input = UInputManager::GetInstance();
         bool bAnyPressed = false;
@@ -177,7 +208,7 @@ void AGameState::HandleStateTick(float DeltaTime)
         }
         if (bAnyPressed)
         {
-            EnterBossIntro();
+            EnterMainMenu();
             return;
         }
     }

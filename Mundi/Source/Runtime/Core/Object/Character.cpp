@@ -122,6 +122,10 @@ void ACharacter::BeginPlay()
 
         AActor* OtherActor = OtherComp->GetOwner();
 
+        UE_LOG("[Character] WeaponCollider overlap detected: %s (my:%s) -> %s (other:%s)",
+               GetName().c_str(), OverlappedComp->GetName().c_str(),
+               OtherActor->GetName().c_str(), OtherComp->GetName().c_str());
+
         // 보스(EnemyBase)는 플레이어만 충돌 처리
         // 플레이어는 모두 다 충돌 처리
         FString MyName = GetName();
@@ -129,15 +133,16 @@ void ACharacter::BeginPlay()
         if (MyName.find("Enemy") != FString::npos ||
             MyName.find("Boss") != FString::npos ||
             MyName.find("에너미") != FString::npos ||
-            MyName.find("보스") != FString::npos)
+            MyName.find("보스") != FString::npos ||
+            MyName.find("적") != FString::npos)
         {
             // 적인 경우: 상대방이 플레이어가 아니면 무시
             if (OtherName.find("Player") == FString::npos && OtherName.find("Shinobi") == FString::npos)
             {
+                UE_LOG("[Character] Ignoring overlap - enemy attacking non-player");
                 return;
             }
         }
-		UE_LOG("check");
         // 충돌 위치 계산 (상대방이 맞은 위치 = 상대방 캡슐 표면)
         FVector Direction = (OtherComp->GetWorldLocation() - OverlappedComp->GetWorldLocation()).GetNormalized();
 

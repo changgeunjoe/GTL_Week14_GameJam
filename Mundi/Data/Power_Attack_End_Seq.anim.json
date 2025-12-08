@@ -26,7 +26,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: On: WeaponRibbon",
-      "TriggerTime" : 0.000000
+      "TriggerTime" : 0.000168
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
@@ -102,7 +102,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Invalid",
-      "TriggerTime" : 0.000165
+      "TriggerTime" : 0.006720
     }, {
       "Class" : "UAnimNotify_PlayCamera",
       "Data" : {
@@ -127,7 +127,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "SetViewTarget",
-      "TriggerTime" : 0.005130
+      "TriggerTime" : 0.000000
     }, {
       "Class" : "UAnimNotify_SetViewTarget",
       "Data" : {

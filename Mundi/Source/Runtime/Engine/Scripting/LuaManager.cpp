@@ -11,6 +11,7 @@
 #include "PlayerController.h"
 #include"Pawn.h"
 #include "BossEnemy.h"
+#include "BasicEnemy.h"
 #include "HitboxComponent.h"
 #include "CombatTypes.h"
 #include "SkeletalMeshComponent.h"
@@ -500,16 +501,25 @@ FLuaManager::FLuaManager()
             }
         });
 
-    // 보스 몽타주 재생 (Lua용)
+    // 보스/적 몽타주 재생 (Lua용)
     // 사용법: PlayMontage(Obj, "LightCombo") 또는 PlayMontage(Obj, "LightCombo", 0.1, 0.1, 1.5)
     SharedLib.set_function("PlayMontage", [](FGameObject& Obj, const FString& MontageName,
         sol::optional<float> BlendIn, sol::optional<float> BlendOut, sol::optional<float> PlayRate) -> bool
         {
             if (AActor* Owner = Obj.GetOwner())
             {
+                // BossEnemy 지원
                 if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
                 {
                     return Boss->PlayMontageByName(MontageName,
+                        BlendIn.value_or(0.1f),
+                        BlendOut.value_or(0.1f),
+                        PlayRate.value_or(1.0f));
+                }
+                // BasicEnemy 지원
+                else if (ABasicEnemy* BasicEnemy = Cast<ABasicEnemy>(Owner))
+                {
+                    return BasicEnemy->PlayMontageByName(MontageName,
                         BlendIn.value_or(0.1f),
                         BlendOut.value_or(0.1f),
                         PlayRate.value_or(1.0f));
@@ -527,6 +537,10 @@ FLuaManager::FLuaManager()
                 if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
                 {
                     Boss->SetMontagePlayRate(NewPlayRate);
+                }
+                else if (ABasicEnemy* BasicEnemy = Cast<ABasicEnemy>(Owner))
+                {
+                    BasicEnemy->SetMontagePlayRate(NewPlayRate);
                 }
             }
         });
