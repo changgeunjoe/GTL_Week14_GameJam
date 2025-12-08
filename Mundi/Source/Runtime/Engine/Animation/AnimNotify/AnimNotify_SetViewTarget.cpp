@@ -26,7 +26,6 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 {
     Super::Notify(MeshComp, Animation);
 
-    // --- Get all necessary objects with validation ---
     if (!MeshComp) return;
     
     UAnimInstance* AnimInstance = MeshComp->GetAnimInstance();
@@ -39,8 +38,7 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         return;
     }
 
-    // --- Caching Logic for CameraManager ---
-   
+    // --- Caching Logic for CameraManager ---   
     APlayerCameraManager* CameraManager = GWorld->GetPlayerCameraManager();
     if (!CameraManager)
     {
@@ -61,13 +59,11 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         }
 
         // 2. Blend view back to the original camera
-        UE_LOG("[AnimNotify_SetViewTarget] Blending back to original camera (BlendTime: %.2fs)", BlendTime);
         CameraManager->SetViewCameraWithBlend(OriginalPlayerCamera, BlendTime);
 
         // 3. Find and destroy the temporary camera actor stored from the start notify
         if (AnimInstance->TempViewTarget.IsValid())
         {
-            UE_LOG("[AnimNotify_SetViewTarget] Destroying temporary camera actor.");
             AnimInstance->TempViewTarget->Destroy();
         }
 
@@ -81,13 +77,11 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         
         // 0. Cache the current camera before it changes
         AnimInstance->CachedOriginalPlayerCamera = TWeakObjectPtr<UCameraComponent>(CameraManager->GetViewCamera());
-        UE_LOG("[AnimNotify_SetViewTarget] Cached original player camera.");
 
         AGameState* GameState = World->GetGameMode() ? Cast<AGameState>(World->GetGameMode()->GetGameState()) : nullptr;
         if (!GameState)
         {
             UE_LOG("[AnimNotify_SetViewTarget] Error: GameState not found.");
-            // Clear cache if we fail
             AnimInstance->CachedOriginalPlayerCamera = nullptr;
             return;
         }
@@ -97,7 +91,6 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
         if (!NewCamActor)
         {
             UE_LOG("[AnimNotify_SetViewTarget] Error: Failed to spawn ACameraActor.");
-            // Clear cache if we fail
             AnimInstance->CachedOriginalPlayerCamera = nullptr;
             return;
         }
@@ -115,7 +108,6 @@ void UAnimNotify_SetViewTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 
         // 5. Blend to the new camera
         UCameraComponent* NewCamComp = NewCamActor->GetCameraComponent();
-        UE_LOG("[AnimNotify_SetViewTarget] Blending to new temp camera (BlendTime: %.2fs)", BlendTime);
         CameraManager->SetViewCameraWithBlend(NewCamComp, BlendTime);
     }
 }

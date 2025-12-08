@@ -51,7 +51,7 @@ APlayerCameraManager::~APlayerCameraManager()
 	ActiveModifiers.Empty();
 
 	CurrentViewCamera = nullptr;
-
+	CachedSpringArmCamera = nullptr;
 	CachedViewport = nullptr;
 }
 
@@ -94,6 +94,7 @@ void APlayerCameraManager::DuplicateSubObjects()
 
 	// Reset camera references as they need to be found in the new PIE world.
 	CurrentViewCamera = nullptr;
+	CachedSpringArmCamera = nullptr;
 	CachedViewport = nullptr;
 
 	// Reset blending state.
@@ -109,7 +110,7 @@ void APlayerCameraManager::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentViewCamera = GetWorld()->FindComponent<UCameraComponent>();
-	CachedSpringArmCamera = GetWorld()->FindComponent<UCameraComponent>();
+	CachedSpringArmCamera = CurrentViewCamera;
 	if (!CurrentViewCamera)
 	{
 		UE_LOG("[warning] 현재 월드에 카메라가 없습니다. (Editor에서만 Editor 전용 카메라로 Fallback 처리됨)");
@@ -143,6 +144,7 @@ void APlayerCameraManager::RegisterView(UCameraComponent* RegisterViewTarget)
 	if (!CurrentViewCamera)
 	{
 		CurrentViewCamera = RegisterViewTarget;
+		CachedSpringArmCamera = RegisterViewTarget;
 	}
 }
 
@@ -152,6 +154,7 @@ void APlayerCameraManager::UnregisterView(UCameraComponent* UnregisterViewTarget
 	if (CurrentViewCamera == UnregisterViewTarget)
 	{
 		CurrentViewCamera = nullptr;
+		CachedSpringArmCamera = nullptr;
 		CurrentViewCamera = GetWorld()->FindComponent<UCameraComponent>();	// 현재 카메라는 PendingDestroy 라서 다른 카메라가 반환됨
 
 		if (!CurrentViewCamera)

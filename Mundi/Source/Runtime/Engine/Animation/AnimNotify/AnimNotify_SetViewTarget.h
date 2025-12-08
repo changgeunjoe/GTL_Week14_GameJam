@@ -14,7 +14,6 @@ public:
 
     virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 
-    /** Time to blend cameras. */
     UPROPERTY(EditAnywhere, Category = "Camera Animation", meta = (ClampMin = "0.0"))
     float BlendTime = 1.0f;
 
@@ -23,11 +22,9 @@ public:
     UPROPERTY(EditAnywhere, Category = "Camera Animation")
     bool bBlendBackToDefault = false;
 
-    /** The target location of the new camera, relative to the player's initial spawn transform. (Only used if bBlendBackToDefault is false) */
     UPROPERTY(EditAnywhere, Category = "Camera Animation")
     FVector RelativeLocation;
 
-    /** The target rotation of the new camera, relative to the player's initial spawn transform. (Only used if bBlendBackToDefault is false) */
     UPROPERTY(EditAnywhere, Category = "Camera Animation")
     FQuat RelativeRotation;
 };
