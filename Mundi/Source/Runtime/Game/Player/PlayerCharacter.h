@@ -88,6 +88,7 @@ public:
     // ========================================================================
     ECombatState GetCombatState() const { return CombatState; }
     bool IsInvincible() const { return bIsInvincible; }
+    bool IsJumpPending() const { return bJumpPending; }
 
     // ========================================================================
     // 컴포넌트 접근
@@ -184,6 +185,13 @@ protected:
     /** 착지 쿨다운 시간 */
     UPROPERTY(EditAnywhere, Category = "Movement")
     float LandingCooldownTime = 0.1f;
+
+    /** Idle 상태 유지 시간 (점프 가능 조건 체크용) */
+    float IdleStateTimer = 0.f;
+
+    /** Idle 상태에서 점프 가능해지기까지 필요한 시간 */
+    UPROPERTY(EditAnywhere, Category = "Movement")
+    float IdleJumpDelayTime = 0.5f;
 
     // ========== 콤보 ==========
     UPROPERTY(EditAnywhere, Category = "Combat")

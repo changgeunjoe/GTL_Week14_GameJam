@@ -51,7 +51,7 @@ private:
 	bool bCascaded = true;
 
 	UPROPERTY(EditAnywhere, Category="ShadowMap", Range="1, 8")
-	int CascadedCount = 4;
+	int CascadedCount = 3;  // 최적화: 4→3 (25% 섀도우 렌더링 비용 감소)
 
 	UPROPERTY(EditAnywhere, Category="ShadowMap", Range="0, 1")
 	float CascadedLinearBlendingValue = 0.5f;

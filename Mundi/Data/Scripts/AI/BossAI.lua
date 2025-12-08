@@ -131,6 +131,10 @@ local Config = {
     -- 회전 보간 속도 (도/초)
     TurnSpeed = 180,            -- 초당 회전할 수 있는 최대 각도
 
+    -- 콤보 취소 조건
+    ComboMaxDistance = 6,       -- 콤보 중 플레이어와 최대 거리 (m) - 이 거리를 넘으면 콤보 취소
+    ComboMaxAngle = 120,        -- 콤보 중 플레이어와 최대 각도 (도) - 이 각도를 넘으면 콤보 취소
+
     -- 차지 공격 설정 (ChargeStart 끝나면 ChargeAttack 재생)
 
     -- 가드 브레이크 설정
@@ -879,6 +883,43 @@ local function UpdateCombo(c)
         return
     end
 
+    -- ========================================================================
+    -- 콤보 취소 조건 체크: 거리 / 각도
+    -- ========================================================================
+    if c.target then
+        local myPos = Obj.Location
+        local targetPos = c.target.Location
+        local dist = VecDistance(myPos, targetPos)
+
+        -- 거리 체크
+        if dist > Config.ComboMaxDistance then
+            c.is_combo_attacking = false
+            c.current_combo = nil
+            c.combo_index = 0
+            c.is_strafing = false
+            c.is_approaching = false
+            SetBossPatternName(Obj, "")
+            Log("[Combo] CANCELLED - Distance too far: " .. string.format("%.2f", dist) .. "m (max: " .. Config.ComboMaxDistance .. "m)")
+            return
+        end
+
+        -- 각도 체크
+        local targetYaw = CalcYaw(myPos, targetPos)
+        local currentYaw = Obj.Rotation.Z
+        local angleDiff = math.abs(NormalizeAngle(targetYaw - currentYaw))
+
+        if angleDiff > Config.ComboMaxAngle then
+            c.is_combo_attacking = false
+            c.current_combo = nil
+            c.combo_index = 0
+            c.is_strafing = false
+            c.is_approaching = false
+            SetBossPatternName(Obj, "")
+            Log("[Combo] CANCELLED - Angle too large: " .. string.format("%.1f", angleDiff) .. "° (max: " .. Config.ComboMaxAngle .. "°)")
+            return
+        end
+    end
+
     -- 몽타주가 끝났고 다음 타격 시간이 되었으면
     local bMontagePlayling = IsMontagePlayling(Obj)
 
@@ -1547,7 +1588,7 @@ function Tick(Delta)
             print("Boss is dead, playing death animation")
 
             -- 죽음 애니메이션 재생 (DeathMontage 사용)
-            local success = PlayBossMontage(Obj, "Death")
+            local success = PlayBossMontage(Obj, "Death",1.3)
             if success then
                 print("Death animation played successfully")
             else

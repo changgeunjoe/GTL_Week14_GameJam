@@ -4,6 +4,87 @@
 #include "K2Node_Misc.h"
 #include "BlueprintActionDatabase.h"
 #include "BlueprintEvaluator.h"
+#include "SkeletalMeshComponent.h"
+#include "Source/Runtime/Engine/Animation/AnimInstance.h"
+#include "Source/Runtime/Engine/Components/InputComponent.h"
+#include "Source/Runtime/Core/Object/PlayerController.h"
+#include "Source/Runtime/Game/Player/PlayerCharacter.h"
+#include "World.h"
+
+// ----------------------------------------------------------------
+//	Internal Helper: 컨텍스트에서 InputComponent 탐색
+// ----------------------------------------------------------------
+static UInputComponent* GetInputComponentFromContext(FBlueprintContext* Context)
+{
+    if (!Context || !Context->SourceObject)
+    {
+        return nullptr;
+    }
+
+    UAnimInstance* AnimInstance = Cast<UAnimInstance>(Context->SourceObject);
+    if (!AnimInstance)
+    {
+        return nullptr;
+    }
+
+    USkeletalMeshComponent* MeshComp = AnimInstance->GetOwningComponent();
+    if (!MeshComp)
+    {
+        return nullptr;
+    }
+
+    AActor* OwnerActor = MeshComp->GetOwner();
+    if (!OwnerActor)
+    {
+        return nullptr;
+    }
+
+    UWorld* World = OwnerActor->GetWorld();
+    if (!World)
+    {
+        return nullptr;
+    }
+
+    // FindActor를 사용하여 PlayerController 찾기
+    APlayerController* PC = World->FindActor<APlayerController>();
+    if (!PC)
+    {
+        return nullptr;
+    }
+
+    return PC->GetInputComponent();
+}
+
+// ----------------------------------------------------------------
+//	Internal Helper: 컨텍스트에서 PlayerCharacter 탐색
+// ----------------------------------------------------------------
+static APlayerCharacter* GetPlayerCharacterFromContext(FBlueprintContext* Context)
+{
+    if (!Context || !Context->SourceObject)
+    {
+        return nullptr;
+    }
+
+    UAnimInstance* AnimInstance = Cast<UAnimInstance>(Context->SourceObject);
+    if (!AnimInstance)
+    {
+        return nullptr;
+    }
+
+    USkeletalMeshComponent* MeshComp = AnimInstance->GetOwningComponent();
+    if (!MeshComp)
+    {
+        return nullptr;
+    }
+
+    AActor* OwnerActor = MeshComp->GetOwner();
+    if (!OwnerActor)
+    {
+        return nullptr;
+    }
+
+    return Cast<APlayerCharacter>(OwnerActor);
+}
 
 // ----------------------------------------------------------------
 //	[Input] 키보드 입력 확인 노드
@@ -163,6 +244,177 @@ FBlueprintValue UK2Node_IsKeyDown::EvaluatePin(const UEdGraphPin* OutputPin, FBl
 }
 
 void UK2Node_IsKeyDown::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
+{
+    UBlueprintNodeSpawner* Spawner = UBlueprintNodeSpawner::Create(GetClass());
+
+    Spawner->MenuName = GetNodeTitle();
+    Spawner->Category = GetMenuCategory();
+
+    ActionRegistrar.AddAction(Spawner);
+}
+
+// ----------------------------------------------------------------
+//	[Input] 액션 입력 확인 노드 (InputComponent 기반)
+// ----------------------------------------------------------------
+
+IMPLEMENT_CLASS(UK2Node_IsActionPressed)
+
+UK2Node_IsActionPressed::UK2Node_IsActionPressed()
+{
+    TitleColor = ImColor(48, 180, 48);  // 녹색 계열로 구분
+}
+
+void UK2Node_IsActionPressed::Serialize(const bool bInIsLoading, JSON& InOutHandle)
+{
+    UK2Node::Serialize(bInIsLoading, InOutHandle);
+
+    if (bInIsLoading)
+    {
+        FJsonSerializer::ReadString(InOutHandle, "ActionName", ActionName);
+    }
+    else
+    {
+        InOutHandle["ActionName"] = ActionName;
+    }
+}
+
+void UK2Node_IsActionPressed::AllocateDefaultPins()
+{
+    CreatePin(EEdGraphPinDirection::EGPD_Output, FEdGraphPinCategory::Bool, "Result");
+}
+
+void UK2Node_IsActionPressed::RenderBody()
+{
+    ImGui::PushItemWidth(150.0f);
+    ImGui::InputText("액션 이름", &ActionName);
+    ImGui::PopItemWidth();
+}
+
+FBlueprintValue UK2Node_IsActionPressed::EvaluatePin(const UEdGraphPin* OutputPin, FBlueprintContext* Context)
+{
+    if (OutputPin->PinName == "Result")
+    {
+        UInputComponent* InputComp = GetInputComponentFromContext(Context);
+        if (!InputComp)
+        {
+            return false;
+        }
+
+        bool bIsPressed = InputComp->IsActionPressed(FName(ActionName));
+        return bIsPressed;
+    }
+
+    return FBlueprintValue{};
+}
+
+void UK2Node_IsActionPressed::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
+{
+    UBlueprintNodeSpawner* Spawner = UBlueprintNodeSpawner::Create(GetClass());
+
+    Spawner->MenuName = GetNodeTitle();
+    Spawner->Category = GetMenuCategory();
+
+    ActionRegistrar.AddAction(Spawner);
+}
+
+IMPLEMENT_CLASS(UK2Node_IsActionDown)
+
+UK2Node_IsActionDown::UK2Node_IsActionDown()
+{
+    TitleColor = ImColor(48, 180, 48);  // 녹색 계열로 구분
+}
+
+void UK2Node_IsActionDown::Serialize(const bool bInIsLoading, JSON& InOutHandle)
+{
+    UK2Node::Serialize(bInIsLoading, InOutHandle);
+
+    if (bInIsLoading)
+    {
+        FJsonSerializer::ReadString(InOutHandle, "ActionName", ActionName);
+    }
+    else
+    {
+        InOutHandle["ActionName"] = ActionName;
+    }
+}
+
+void UK2Node_IsActionDown::AllocateDefaultPins()
+{
+    CreatePin(EEdGraphPinDirection::EGPD_Output, FEdGraphPinCategory::Bool, "Result");
+}
+
+void UK2Node_IsActionDown::RenderBody()
+{
+    ImGui::PushItemWidth(150.0f);
+    ImGui::InputText("액션 이름", &ActionName);
+    ImGui::PopItemWidth();
+}
+
+FBlueprintValue UK2Node_IsActionDown::EvaluatePin(const UEdGraphPin* OutputPin, FBlueprintContext* Context)
+{
+    if (OutputPin->PinName == "Result")
+    {
+        UInputComponent* InputComp = GetInputComponentFromContext(Context);
+        if (!InputComp)
+        {
+            return false;
+        }
+
+        bool bIsDown = InputComp->IsActionDown(FName(ActionName));
+        return bIsDown;
+    }
+
+    return FBlueprintValue{};
+}
+
+void UK2Node_IsActionDown::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
+{
+    UBlueprintNodeSpawner* Spawner = UBlueprintNodeSpawner::Create(GetClass());
+
+    Spawner->MenuName = GetNodeTitle();
+    Spawner->Category = GetMenuCategory();
+
+    ActionRegistrar.AddAction(Spawner);
+}
+
+// ----------------------------------------------------------------
+//	[Jump] 점프 상태 확인 노드
+// ----------------------------------------------------------------
+
+IMPLEMENT_CLASS(UK2Node_IsJumpPending)
+
+UK2Node_IsJumpPending::UK2Node_IsJumpPending()
+{
+    TitleColor = ImColor(100, 149, 237);  // 코발트 블루
+}
+
+void UK2Node_IsJumpPending::AllocateDefaultPins()
+{
+    CreatePin(EEdGraphPinDirection::EGPD_Output, FEdGraphPinCategory::Bool, "Is Pending");
+}
+
+void UK2Node_IsJumpPending::RenderBody()
+{
+    // 추가 UI 없음
+}
+
+FBlueprintValue UK2Node_IsJumpPending::EvaluatePin(const UEdGraphPin* OutputPin, FBlueprintContext* Context)
+{
+    if (OutputPin->PinName == "Is Pending")
+    {
+        APlayerCharacter* PlayerChar = GetPlayerCharacterFromContext(Context);
+        if (!PlayerChar)
+        {
+            return false;
+        }
+
+        return PlayerChar->IsJumpPending();
+    }
+
+    return FBlueprintValue{};
+}
+
+void UK2Node_IsJumpPending::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
 {
     UBlueprintNodeSpawner* Spawner = UBlueprintNodeSpawner::Create(GetClass());
 

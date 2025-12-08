@@ -136,33 +136,17 @@ bool UGameEngine::CreateMainWindow(HINSTANCE hInstance)
     WNDCLASSW wndclass = { 0, WndProc, 0, 0, 0, hIcon, 0, 0, 0, WindowClass };
     RegisterClassW(&wndclass);
 
-    // Load client area size from INI
-    int clientWidth = 1620, clientHeight = 1024;
-    if (EditorINI.count("WindowWidth"))
-    {
-        try { clientWidth = stoi(EditorINI["WindowWidth"]); }
-        catch (...) {}
-    }
-    if (EditorINI.count("WindowHeight"))
-    {
-        try { clientHeight = stoi(EditorINI["WindowHeight"]); }
-        catch (...) {}
-    }
+    // 전체화면 모드 설정
+    // 주 모니터의 해상도 가져오기
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-    // Validate minimum window size to prevent unusable windows
-    if (clientWidth < 800) clientWidth = 1620;
-    if (clientHeight < 600) clientHeight = 1024;
+    // 전체화면 스타일 (테두리 없음)
+    DWORD windowStyle = WS_POPUP | WS_VISIBLE;
 
-    // Convert client area size to window size (including title bar and borders)
-    DWORD windowStyle = WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW;
-    RECT windowRect = { 0, 0, clientWidth, clientHeight };
-    AdjustWindowRect(&windowRect, windowStyle, FALSE);
-
-    int windowWidth = windowRect.right - windowRect.left;
-    int windowHeight = windowRect.bottom - windowRect.top;
-
+    // 전체화면 윈도우 생성 (0, 0 위치에 모니터 전체 크기)
     HWnd = CreateWindowExW(0, WindowClass, Title, windowStyle,
-        CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight,
+        0, 0, screenWidth, screenHeight,
         nullptr, nullptr, hInstance, nullptr);
 
     if (!HWnd)
@@ -228,13 +212,8 @@ bool UGameEngine::Startup(HINSTANCE hInstance)
     }
     GWorld->GetGameMode()->StartPlay();
 
-    // 마우스 숨기고 커서 잠금
-    {
-        UInputManager& Input = UInputManager::GetInstance();
-        Input.SetCursorVisible(false);
-        Input.LockCursor();
-        Input.LockCursorToCenter();
-    }
+    // 마우스는 게임 상태에 따라 GameState에서 제어
+    // PressAnyKey/MainMenu 상태에서는 마우스가 보이고, Fighting 상태에서는 숨겨짐
 
     GPU_PROFILER.Initialize(&RHIDevice);
 
@@ -323,6 +302,9 @@ void UGameEngine::MainLoop()
         QueryPerformanceCounter(&CurrTime);
         float DeltaSeconds = static_cast<float>((CurrTime.QuadPart - PrevTime.QuadPart) / double(Frequency.QuadPart));
         PrevTime = CurrTime;
+
+        // DeltaTime 제한 제거 (프레임 제한 없음)
+        // DeltaSeconds = FMath::Min(DeltaSeconds, 1.0f / 30.0f); // 이 줄 삭제됨
 
         // 처리할 메시지가 더 이상 없을때 까지 수행
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))

@@ -266,8 +266,8 @@ void AGameModeBase::Tick(float DeltaSeconds)
 	}
 	bWasQPressed = bQPressed;
 
-	// StartMenu에서 아무 키나 누르면 게임 시작
-	if (CurrentState == EGameFlowState::StartMenu)
+	// PressAnyKey에서 아무 키나 누르면 메인 메뉴로
+	if (CurrentState == EGameFlowState::PressAnyKey)
 	{
 		bool bAnyKeyPressed = false;
 		for (int i = 0; i < 256; i++)
@@ -281,7 +281,7 @@ void AGameModeBase::Tick(float DeltaSeconds)
 
 		if (bAnyKeyPressed && !bWasAnyKeyPressed)
 		{
-			GS->EnterBossIntro();
+			GS->EnterMainMenu();
 		}
 		bWasAnyKeyPressed = bAnyKeyPressed;
 	}
@@ -291,6 +291,28 @@ void AGameModeBase::Tick(float DeltaSeconds)
 	{
 		// R키와 Q키는 위에서 이미 처리됨
 	}
+}
+
+void AGameModeBase::ResumeGame()
+{
+	if (!GWorld)
+	{
+		return;
+	}
+
+	AGameState* GS = Cast<AGameState>(GameState);
+	if (!GS)
+	{
+		return;
+	}
+
+	// 일시정지 해제
+	GWorld->SetPaused(false);
+	GS->SetGameFlowState(EGameFlowState::Fighting);
+
+	// 마우스 숨기고 잠그기
+	UInputManager::GetInstance().SetCursorVisible(false);
+	UInputManager::GetInstance().LockCursor();
 }
 
 void AGameModeBase::RestartGame()
@@ -305,36 +327,24 @@ void AGameModeBase::RestartGame()
 	{
 		return;
 	}
-
-	// 0. 일시정지 해제 및 마우스 커서 숨김/잠금
-	GWorld->SetPaused(false);
-	UInputManager::GetInstance().SetCursorVisible(false);
-	UInputManager::GetInstance().LockCursor();
-
-	// 1. 플레이어 체력 회복 및 위치 초기화
-	if (PlayerController)
+	if (APawn* PlayerPawn = PlayerController->GetPawn())
 	{
-		if (APawn* PlayerPawn = PlayerController->GetPawn())
-		{
-			// 플레이어 위치 초기화 (원점으로)
-			PlayerPawn->SetActorLocation(FVector(0, 0, 3));
+		// 플레이어 위치 초기화 (원점으로)
+		PlayerPawn->SetActorLocation(FVector(0, 0, 3));
 
-			// 플레이어 체력 회복
-			if (ACharacter* PlayerChar = Cast<ACharacter>(PlayerPawn))
+		// 플레이어 체력 회복
+		if (ACharacter* PlayerChar = Cast<ACharacter>(PlayerPawn))
+		{
+			if (UStatsComponent* Stats = Cast<UStatsComponent>(PlayerChar->GetComponent(UStatsComponent::StaticClass())))
 			{
-				if (UStatsComponent* Stats = Cast<UStatsComponent>(PlayerChar->GetComponent(UStatsComponent::StaticClass())))
-				{
-					Stats->CurrentHealth = Stats->MaxHealth;
-					Stats->CurrentStamina = Stats->MaxStamina;
-					Stats->CurrentFocus = 0.0f;
-				}
+				Stats->CurrentHealth = Stats->MaxHealth;
+				Stats->CurrentStamina = Stats->MaxStamina;
+				Stats->CurrentFocus = 0.0f;
 			}
 		}
 	}
-
 	// 2. 보스 체력 회복
-	for (AActor* Actor : GWorld->GetActors())
-	{
+	for (AActor* Actor : GWorld->GetActors()){
 		if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
 		{
 			if (UStatsComponent* Stats = Boss->GetStatsComponent())
@@ -344,9 +354,14 @@ void AGameModeBase::RestartGame()
 			// 보스 위치 초기화는 필요시 추가
 			break;
 		}
+		return;
 	}
+	// 일시정지 해제 및 마우스 커서 숨김/잠금
+	GWorld->SetPaused(false);
+	UInputManager::GetInstance().SetCursorVisible(false);
+	UInputManager::GetInstance().LockCursor();
 
-	// 3. GameState 초기화 및 게임 시작
+	// GameState 초기화 및 게임 시작
 	GS->EnterBossIntro();
 }
 

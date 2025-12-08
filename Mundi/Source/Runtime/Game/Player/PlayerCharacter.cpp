@@ -308,6 +308,12 @@ void APlayerCharacter::Tick(float DeltaSeconds)
         }
     }
 
+    // Idle 상태 타이머 업데이트
+    if (CombatState == ECombatState::Idle)
+    {
+        IdleStateTimer += DeltaSeconds;
+    }
+
     // 경직 상태 업데이트
     UpdateStagger(DeltaSeconds);
 
@@ -1035,6 +1041,12 @@ void APlayerCharacter::SetCombatState(ECombatState NewState)
     ECombatState OldState = CombatState;
     CombatState = NewState;
 
+    // Idle 상태 진입 시 타이머 초기화
+    if (NewState == ECombatState::Idle && OldState != ECombatState::Idle)
+    {
+        IdleStateTimer = 0.f;
+    }
+
     // 상태 변경 시 처리
     if (OldState == ECombatState::Attacking && NewState != ECombatState::Attacking)
     {
@@ -1224,6 +1236,20 @@ int32 APlayerCharacter::GetDodgeDirectionIndex() const
 
 void APlayerCharacter::Jump()
 {
+    // Idle, Walking, Running 상태에서만 점프 가능
+    if (CombatState != ECombatState::Idle &&
+        CombatState != ECombatState::Walking &&
+        CombatState != ECombatState::Running)
+    {
+        return;
+    }
+
+    // Idle 상태에서는 0.5초 경과 후에만 점프 가능
+    if (CombatState == ECombatState::Idle && IdleStateTimer < IdleJumpDelayTime)
+    {
+        return;
+    }
+
     // 이미 점프 대기 중이면 무시
     if (bJumpPending)
     {

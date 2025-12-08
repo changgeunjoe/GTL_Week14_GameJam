@@ -708,13 +708,23 @@ void UBlendSpace2D::Update(float X, float Y, float DeltaTime, TArray<FTransform>
 	float PlayLengthA = Samples[Tri.Indices[0]].Animation ? Samples[Tri.Indices[0]].Animation->GetPlayLength() : 0.0f;
 	float PlayLengthB = Samples[Tri.Indices[1]].Animation ? Samples[Tri.Indices[1]].Animation->GetPlayLength() : 0.0f;
 	float PlayLengthC = Samples[Tri.Indices[2]].Animation ? Samples[Tri.Indices[2]].Animation->GetPlayLength() : 0.0f;
-	float MinPlayLength = FMath::Min(FMath::Min(PlayLengthA, PlayLengthB), PlayLengthC);
+
+	// idle 예외처리: (0,0) 근처면 DominantSequence 길이 사용
+	float EffectivePlayLength;
+	if (FMath::Abs(CurrentParameter.X) < 0.1f && FMath::Abs(CurrentParameter.Y) < 0.1f)
+	{
+		EffectivePlayLength = DominantSequence ? DominantSequence->GetPlayLength() : PlayLengthA;
+	}
+	else
+	{
+		EffectivePlayLength = FMath::Min(FMath::Min(PlayLengthA, PlayLengthB), PlayLengthC);
+	}
 
 	PreviousPlayTime = CurrentPlayTime;
 	CurrentPlayTime += DeltaTime;
-	if (MinPlayLength > 0.0f)
+	if (EffectivePlayLength > 0.0f)
 	{
-		CurrentPlayTime = fmod(CurrentPlayTime, MinPlayLength);
+		CurrentPlayTime = fmod(CurrentPlayTime, EffectivePlayLength);
 	}
 }
 

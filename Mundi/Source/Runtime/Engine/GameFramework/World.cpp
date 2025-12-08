@@ -98,6 +98,31 @@ UWorld::~UWorld()
 	GizmoActor = nullptr;
 }
 
+void UWorld::CleanupForRestart()
+{
+	// PIE에서 재시작할 때 오브젝트를 정리하는 함수
+	// 1. 물리 씬 정리 (Actor 삭제 전에 수행)
+	if (PhysScene)
+	{
+		PhysScene->Shutdown();
+		PhysScene.reset();
+	}
+
+	// 2. 모든 Actor 제거 (Level의 Actor들)
+	if (Level)
+	{
+		TArray<AActor*> TempActors = Level->GetActors();
+		for (AActor* Actor : TempActors)
+		{
+			DestroyActor(Actor);
+		}
+		Level->Clear();
+	}
+
+	// 3. 물리 씬 재초기화
+	InitializePhysScene();
+}
+
 void UWorld::Initialize()
 {
 	// Create partition manager first, before CreateLevel() calls SetLevel()

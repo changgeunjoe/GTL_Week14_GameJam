@@ -40,6 +40,16 @@ FSceneView::FSceneView(FMinimalViewInfo* InMinimalViewInfo, URenderSettings* InR
 		InMinimalViewInfo->ProjectionMode
 	);
 
+	// --- 4. Frustum 생성 ---
+	ViewFrustum = CreateFrustumFromViewInfo(
+		InMinimalViewInfo->ViewLocation,
+		InMinimalViewInfo->ViewRotation,
+		InMinimalViewInfo->FieldOfView,
+		InMinimalViewInfo->AspectRatio,
+		InMinimalViewInfo->NearClip,
+		InMinimalViewInfo->FarClip
+	);
+
 	ViewShaderMacros = CreateViewShaderMacros();
 }
 
@@ -62,7 +72,7 @@ FSceneView::FSceneView(UCameraComponent* InCamera, FViewport* InViewport, URende
 
 	ViewMatrix = InCamera->GetViewMatrix();
 	ProjectionMatrix = InCamera->GetProjectionMatrix(AspectRatio, InViewport);
-	//ViewFrustum = CreateFrustumFromCamera(*InCamera, AspectRatio);
+	ViewFrustum = CreateFrustumFromCamera(*InCamera, AspectRatio);
 	ViewLocation = InCamera->GetWorldLocation();
 	ViewRotation = InCamera->GetWorldRotation();
 	NearClip = InCamera->GetNearClip();
