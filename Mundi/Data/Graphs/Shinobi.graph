@@ -214,7 +214,7 @@
           "PinName" : "Blend Time"
         }]
     }, {
-      "AnimationCutEndTime" : 0.010000,
+      "AnimationCutEndTime" : 0.020000,
       "ClassName" : "UK2Node_AnimState",
       "EnableRootMotion" : false,
       "NodeID" : 50,
@@ -584,7 +584,7 @@
           "PinCategory" : "float",
           "PinName" : "Value"
         }],
-      "Value" : 0.000000
+      "Value" : 0.010000
     }, {
       "AnimationCutEndTime" : 0.000000,
       "ClassName" : "UK2Node_AnimState",
