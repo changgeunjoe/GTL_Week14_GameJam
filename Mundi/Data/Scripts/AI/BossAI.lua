@@ -64,6 +64,15 @@ local ctx = {
     -- 죽음 관련
     is_death_animation_played = false,  -- 죽음 애니메이션 재생 여부
 
+    -- 안개 관련 (Phase 3 선형 보간)
+    fog_lerping = false,                -- 안개 보간 중인지
+    fog_lerp_time = 0,                  -- 안개 보간 경과 시간
+    fog_lerp_duration = 5.0,            -- 안개 보간 총 시간 (초)
+    fog_start_density = 0,              -- 시작 밀도
+    fog_target_density = 0.8,           -- 목표 밀도
+    fog_start_opacity = 0,              -- 시작 불투명도
+    fog_target_opacity = 0.85,          -- 목표 불투명도
+
     -- ========================================================================
     -- 플레이어 상태 추적 (Reactive AI용)
     -- ========================================================================
@@ -1307,10 +1316,21 @@ local function CheckPhaseTransition(c)
         -- Phase 3 이동속도 적용
         --SetMaxWalkSpeed(Obj, Config.Phase3MoveSpeed)
 
-        -- Phase 3 안개 활성화
-        SetFogDensity(0.5)
-        SetFogMaxOpacity(0.8)
-        print("[Phase 3] Fog enabled!")
+        -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
+        c.fog_lerping = true
+        c.fog_lerp_time = 0
+        c.fog_lerp_duration = 5.0       -- 5초에 걸쳐 안개가 짙어짐
+        c.fog_start_density = GetFogDensity()   -- 현재 밀도에서 시작
+        c.fog_target_density = 0.01     -- 목표 밀도
+        c.fog_start_opacity = 0         -- 시작 불투명도
+        c.fog_target_opacity = 1.0      -- 목표 불투명도
+
+        -- 안개 색상/높이는 즉시 설정 (보간 불필요)
+        SetFogHeightFalloff(0.32)       -- 높이 감쇠
+        SetFogColor(0.337, 0.259, 0.259) -- RGB(86, 66, 66) / 255
+        SetFogStartDistance(0)          -- 안개 시작 거리
+        SetFogCutoffDistance(3400)      -- 안개 컷오프 거리
+        print("[Phase 3] Blood fog starting...")
 
         local camMgr = GetCameraManager()
         if camMgr then
@@ -1335,6 +1355,34 @@ local function CheckPhaseTransition(c)
             camMgr:StartCameraShake(0.5, 0.3, 0.3, 30)
         end
     end
+end
+
+-- 안개 선형 보간 업데이트
+local function UpdateFogLerp(c)
+    if not c.fog_lerping then
+        return
+    end
+
+    c.fog_lerp_time = c.fog_lerp_time + c.delta_time
+
+    -- 보간 진행도 (0 ~ 1)
+    local t = c.fog_lerp_time / c.fog_lerp_duration
+    if t >= 1.0 then
+        t = 1.0
+        c.fog_lerping = false
+        Log("[Fog] Lerp complete")
+    end
+
+    -- 부드러운 보간 (ease-in-out)
+    local smoothT = t * t * (3 - 2 * t)
+
+    -- 밀도 보간
+    local density = c.fog_start_density + (c.fog_target_density - c.fog_start_density) * smoothT
+    SetFogDensity(density)
+
+    -- 불투명도 보간
+    local opacity = c.fog_start_opacity + (c.fog_target_opacity - c.fog_start_opacity) * smoothT
+    SetFogMaxOpacity(opacity)
 end
 
 -- Wind-up (예비 동작) 속도 전환 업데이트
@@ -1647,6 +1695,9 @@ function Tick(Delta)
 
     -- 페이즈 전환 체크
     CheckPhaseTransition(ctx)
+
+    -- 안개 보간 업데이트
+    UpdateFogLerp(ctx)
 
     -- 콤보 업데이트
     UpdateCombo(ctx)
