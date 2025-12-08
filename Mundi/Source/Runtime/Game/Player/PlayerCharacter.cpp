@@ -417,9 +417,11 @@ void APlayerCharacter::LightAttack()
         UE_LOG("[PlayerCharacter] LightAttack() blocked - already attacking, no combo");
         return;
     }
-    if (CombatState == ECombatState::Staggered || CombatState == ECombatState::Dead)
+    if (CombatState == ECombatState::Staggered ||
+        CombatState == ECombatState::Dead ||
+        CombatState == ECombatState::Dodging)
     {
-        UE_LOG("[PlayerCharacter] LightAttack() blocked - staggered or dead");
+        UE_LOG("[PlayerCharacter] LightAttack() blocked - staggered, dead or dodging");
         return;
     }
 
@@ -485,7 +487,8 @@ void APlayerCharacter::HeavyAttack()
 {
     if (CombatState == ECombatState::Attacking ||
         CombatState == ECombatState::Staggered ||
-        CombatState == ECombatState::Dead)
+        CombatState == ECombatState::Dead ||
+        CombatState == ECombatState::Dodging)
     {
         return;
     }
@@ -539,7 +542,8 @@ void APlayerCharacter::DashAttack()
     // 상태 체크
     if (CombatState == ECombatState::Attacking ||
         CombatState == ECombatState::Staggered ||
-        CombatState == ECombatState::Dead)
+        CombatState == ECombatState::Dead ||
+        CombatState == ECombatState::Dodging)
     {
         UE_LOG("[PlayerCharacter] DashAttack() blocked - invalid state");
         return;
@@ -579,7 +583,8 @@ void APlayerCharacter::UltimateAttack()
     // 상태 체크
     if (CombatState == ECombatState::Attacking ||
         CombatState == ECombatState::Staggered ||
-        CombatState == ECombatState::Dead)
+        CombatState == ECombatState::Dead ||
+        CombatState == ECombatState::Dodging)
     {
         UE_LOG("[PlayerCharacter] UltimateAttack() blocked - invalid state");
         return;
