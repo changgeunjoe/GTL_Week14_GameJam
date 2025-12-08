@@ -1869,7 +1869,7 @@ void UGameOverlayD2D::Draw()
     }
 
     // 디버그 상태는 항상 표시 (FPS처럼)
-    DrawDebugStats(ScreenW, ScreenH);
+    // DrawDebugStats(ScreenW, ScreenH);
 
     // Pop clip and reset transform
     D2DContext->PopAxisAlignedClip();
