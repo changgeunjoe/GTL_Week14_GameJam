@@ -95,7 +95,7 @@
                   "BurstList" : [{
                       "Count" : 50,
                       "CountRange" : 0,
-                      "Time" : 1.000000
+                      "Time" : 0.010000
                     }],
                   "SpawnRateOverTime_Max" : 50.000000,
                   "SpawnRateOverTime_Min" : 10.000000,
