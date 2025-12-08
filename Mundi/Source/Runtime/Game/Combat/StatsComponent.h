@@ -58,6 +58,10 @@ public:
     float GetCurrentHealth() const { return CurrentHealth; }
     float GetMaxHealth() const { return MaxHealth; }
 
+    /** Setter */
+    void SetCurrentHealth(float NewHealth) { CurrentHealth = FMath::Clamp(NewHealth, 0.f, MaxHealth); }
+    void SetMaxHealth(float NewMaxHealth) { MaxHealth = NewMaxHealth; }
+
     // ========================================================================
     // 스태미나 관련
     // ========================================================================

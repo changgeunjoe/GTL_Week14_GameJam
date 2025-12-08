@@ -51,7 +51,8 @@ ACharacter::ACharacter()
 
 ACharacter::~ACharacter()
 {
-
+	// 델리게이트 정리 - 람다에서 this를 캡처했으므로 소멸 전에 제거해야 함
+	OnComponentBeginOverlap.Clear();
 }
 
 void ACharacter::Tick(float DeltaSecond)
@@ -110,7 +111,7 @@ void ACharacter::BeginPlay()
     // OnComponentBeginOverlap 델리게이트 바인딩 (Overlap 방식 충돌 감지)
     OnComponentBeginOverlap.Add([this](UPrimitiveComponent* OverlappedComp, UPrimitiveComponent* OtherComp, const FTriggerHit* TriggerHit) {
         // WeaponCollider와의 오버랩만 처리
-        if (!WeaponCollider || !OverlappedComp || OverlappedComp != static_cast<UPrimitiveComponent*>(WeaponCollider))
+        if (!this || !WeaponCollider || !OverlappedComp || OverlappedComp != static_cast<UPrimitiveComponent*>(WeaponCollider))
         {
             return;
         }

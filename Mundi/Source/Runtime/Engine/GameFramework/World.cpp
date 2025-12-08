@@ -32,6 +32,8 @@
 #include "ShapeComponent.h"
 #include "PlayerCameraManager.h"
 #include "Hash.h"
+#include "InputManager.h"
+#include "GameModeBase.h"
 
 IMPLEMENT_CLASS(UWorld)
 
@@ -121,6 +123,48 @@ void UWorld::CleanupForRestart()
 
 	// 3. 물리 씬 재초기화
 	InitializePhysScene();
+}
+
+void UWorld::ProcessPendingRestart()
+{
+	if (!bPendingRestart)
+	{
+		return;
+	}
+	bPendingRestart = false;
+
+	// 기존 GameMode 참조 정리 (LoadLevelFromFile에서 삭제됨)
+	GameMode = nullptr;
+
+	// 물리 씬 정리 (Actor 삭제 전에 수행해야 dangling pointer 방지)
+	if (PhysScene)
+	{
+		PhysScene->Shutdown();
+		PhysScene.reset();
+	}
+
+	// PIE 시작과 동일한 순서로 초기화
+	// 1. 물리 씬 재초기화
+	InitializePhysScene();
+
+	// 2. 씬 파일 로드
+	const FString ScenePath = GDataDir + "/Scenes/FINALgameScene.scene";
+	if (!LoadLevelFromFile(UTF8ToWide(ScenePath)))
+	{
+		UE_LOG("[World] Failed to reload scene for restart: %s", ScenePath.c_str());
+		return;
+	}
+
+	// 3. 일시정지 해제
+	SetPaused(false);
+
+	// 4. GameMode 생성 및 StartPlay 호출 (PIE와 동일)
+	if (GetGameMode() == nullptr)
+	{
+		AGameModeBase* GM = SpawnActor<AGameModeBase>(FTransform());
+		SetGameMode(GM);
+	}
+	GetGameMode()->StartPlay();
 }
 
 void UWorld::Initialize()
@@ -237,8 +281,15 @@ bool UWorld::LoadLevelFromFile(const FWideString& Path)
 
 // 함수 내부 코드 순서 유지 필요
 void UWorld::Tick(float DeltaSeconds)
-{	
-	// GameDelat: Unscaled * finalScale  
+{
+	// 재시작 요청이 있으면 처리 (Tick 시작 시 처리해야 안전)
+	if (bPendingRestart)
+	{
+		ProcessPendingRestart();
+		return;  // 재시작 후 이번 프레임은 스킵
+	}
+
+	// GameDelat: Unscaled * finalScale
 	float UnscaledDeltaSeconds = DeltaSeconds;
 
 	// Time Stop 
@@ -594,6 +645,10 @@ void UWorld::SetLevel(std::unique_ptr<ULevel> InLevel)
     {
         for (AActor* Actor : Level->GetActors())
         {
+            //if (Actor)
+            //{
+            //    Actor->EndPlay();  // 리소스 정리 (물리, 델리게이트 등)
+            //}
             ObjectFactory::DeleteObject(Actor);
         }
         Level->Clear();

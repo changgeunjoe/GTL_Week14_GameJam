@@ -105,10 +105,11 @@ local Config = {
     DetectionRange = 2000,
     AttackRange = 4,            -- 4m 이내면 공격
     LoseTargetRange = 3000,
-    MoveSpeed = 250,
-    Phase2MoveSpeed = 350,
+    MoveSpeed = 270,
+    Phase2MoveSpeed = 420,
+    Phase3MoveSpeed = 460,
     Phase2HealthThreshold = 0.5,
-
+     Phase3HealthThreshold = 0.2,
     -- 좌우 이동(Strafe) 설정 (미터 단위)
     StrafeMinRange = 5,         -- 5m 이상일 때 좌우 이동 시작 (AttackRange보다 커야함)
     StrafeMaxRange = 8,         -- 8m 이하일 때 좌우 이동
@@ -127,6 +128,9 @@ local Config = {
 
     -- 공격 쿨다운 (초)
     AttackCooldown = 2.0,       -- 공격 후 다음 공격까지 대기 시간
+    Phase3AttackCooldown = 0.8, -- Phase 3 공격 쿨다운 (더 공격적)
+    Phase3ApproachChance = 0.9, -- Phase 3 Strafe 후 접근 확률 (거의 항상 접근)
+    Phase3RetreatChance = 0.1,  -- Phase 3 후퇴 확률 (거의 후퇴 안함)
 
     -- 회전 보간 속도 (도/초)
     TurnSpeed = 180,            -- 초당 회전할 수 있는 최대 각도
@@ -282,10 +286,11 @@ local function CanAttack(c)
         Log("  [Cond] CanAttack: false (retreating)")
         return false
     end
-    -- 쿨다운 체크
+    -- 쿨다운 체크 (Phase 3에서는 더 짧은 쿨다운)
+    local cooldown = c.phase >= 3 and Config.Phase3AttackCooldown or Config.AttackCooldown
     local timeSinceLastAttack = c.time - c.last_attack_time
-    if timeSinceLastAttack < Config.AttackCooldown then
-        Log("  [Cond] CanAttack: false (cooldown=" .. string.format("%.1f", Config.AttackCooldown - timeSinceLastAttack) .. "s)")
+    if timeSinceLastAttack < cooldown then
+        Log("  [Cond] CanAttack: false (cooldown=" .. string.format("%.1f", cooldown - timeSinceLastAttack) .. "s)")
         return false
     end
     Log("  [Cond] CanAttack: true")
@@ -311,7 +316,9 @@ end
 local function ShouldRetreatAfterAttack(c)
     -- 공격 직후에 일정 확률로 후퇴
     -- was_attacking이 true였다가 false가 되는 순간 (공격 종료 직후)
-    return math.random() < Config.RetreatChance
+    -- Phase 3에서는 거의 후퇴 안함
+    local retreatChance = c.phase >= 3 and Config.Phase3RetreatChance or Config.RetreatChance
+    return math.random() < retreatChance
 end
 
 -- Strafe 중인지 (시간 기반)
@@ -577,8 +584,9 @@ end
 local function DecideAfterStrafe(c)
     c.is_strafing = false
 
-    -- 확률적으로 접근 or 다시 Strafe
-    if math.random() < Config.ApproachChance then
+    -- 확률적으로 접근 or 다시 Strafe (Phase 3에서는 거의 항상 접근)
+    local approachChance = c.phase >= 3 and Config.Phase3ApproachChance or Config.ApproachChance
+    if math.random() < approachChance then
         c.is_approaching = true
         c.approach_start_time = c.time
         Log("  [Decision] After strafe -> APPROACH")
@@ -1273,7 +1281,7 @@ end
 -- ============================================================================
 
 local function CheckPhaseTransition(c)
-    if c.phase >= 2 then return end
+    if c.phase >= 3 then return end
 
     -- 새로운 Lua 바인딩 함수 사용
     local currentHP = GetCurrentHealth(Obj)
@@ -1281,7 +1289,35 @@ local function CheckPhaseTransition(c)
     local healthPercent = GetHealthPercent(Obj)
 
     --print("[Phase] HP: " .. currentHP .. "/" .. maxHP .. " = " .. string.format("%.1f%%", healthPercent * 100))
-    if healthPercent <= Config.Phase2HealthThreshold then
+
+    -- Phase 3 전환 (20% 이하)
+    if healthPercent <= Config.Phase3HealthThreshold then
+        c.phase = 3
+        print("*** PHASE TRANSITION: 2 -> 3 ***")
+        -- 페이즈 전환 시 공격 상태 리셋
+        c.is_combo_attacking = false
+        c.current_combo = nil
+        c.combo_index = 0
+        c.was_attacking = false
+        c.is_charging = false
+        c.is_winding_up = false
+        c.is_guard_breaking = false
+        SetBossPatternName(Obj, "")
+
+        -- Phase 3 이동속도 적용
+        --SetMaxWalkSpeed(Obj, Config.Phase3MoveSpeed)
+
+        -- Phase 3 안개 활성화
+        SetFogDensity(0.5)
+        SetFogMaxOpacity(0.8)
+        print("[Phase 3] Fog enabled!")
+
+        local camMgr = GetCameraManager()
+        if camMgr then
+            camMgr:StartCameraShake(1.0, 0.5, 0.5, 50)
+        end
+    -- Phase 2 전환 (50% 이하)
+    elseif c.phase == 1 and healthPercent <= Config.Phase2HealthThreshold then
         c.phase = 2
         print("*** PHASE TRANSITION: 1 -> 2 ***")
         -- 페이즈 전환 시 공격 상태 리셋
@@ -1553,6 +1589,10 @@ function BeginPlay()
     ctx.was_attacking = false
     ctx.is_charging = false
 
+    -- 보스 체력 초기화 (500/500)
+    SetMaxHealth(Obj, 500)
+    SetCurrentHealth(Obj, 500)
+
     if ctx.stats then
         Log("Stats found: HP=" .. ctx.stats.CurrentHealth .. "/" .. ctx.stats.MaxHealth)
     else
@@ -1588,7 +1628,7 @@ function Tick(Delta)
             print("Boss is dead, playing death animation")
 
             -- 죽음 애니메이션 재생 (DeathMontage 사용)
-            local success = PlayBossMontage(Obj, "Death",1.3)
+            local success = PlayBossMontage(Obj, "Death", 1.6)
             if success then
                 print("Death animation played successfully")
             else

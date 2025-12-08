@@ -212,7 +212,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Particle: On: Charged",
-      "TriggerTime" : 0.000662
+      "TriggerTime" : 0.000000
     }, {
       "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {

@@ -6,7 +6,7 @@
   "ChargeStartAnimPath" : "",
   "CurrentAttackPattern" : 0,
   "CurrentPhase" : 1,
-  "DeathAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_02_All_Seq.FBX_Unreal Take",
+  "DeathAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/Anim_DKM_Death.FBX_Unreal Take",
   "DetectionRange" : 2000.000000,
   "HeavySlamAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/Game/Game/Dark_Knight/Animations/Anim_DKM_Attack_01.FBX_Unreal Take",
   "LightComboAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/Game/Game/Dark_Knight/Animations/Anim_DKM_Attack_01.FBX_Unreal Take",
@@ -18,12 +18,34 @@
   "MoveSpeed" : 350.000000,
   "ObjectName" : "보스 에너미_0",
   "OwnedComponents" : [{
+      "BlockCostPerHit" : 20.000000,
+      "BlockDrainRate" : 25.000000,
+      "BlockMinRequired" : 20.000000,
+      "CurrentFocus" : 0.000000,
+      "CurrentHealth" : 500.000000,
+      "CurrentStamina" : 200.000000,
+      "DodgeCost" : 25.000000,
+      "FocusChargeRate" : 15.000000,
+      "HeavyAttackCost" : 30.000000,
+      "LightAttackCost" : 15.000000,
+      "MaxFocus" : 100.000000,
+      "MaxHealth" : 500.000000,
+      "MaxStamina" : 200.000000,
+      "ObjectName" : "UStatsComponent_1",
+      "ParryCost" : 10.000000,
+      "StaminaRegenDelay" : 1.000000,
+      "StaminaRegenRate" : 20.000000,
+      "Type" : "UStatsComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
+    }, {
       "CapsuleHalfHeight" : 2.500000,
       "CapsuleRadius" : 0.400000,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10389,
+      "Id" : 10912,
       "ObjectName" : "WeaponCollider",
-      "ParentId" : 10385,
+      "ParentId" : 10944,
       "RelativeLocation" : [58.633282, -0.560002, 0.281755],
       "RelativeRotationEuler" : [0.000000, 90.000000, 0.000001],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
@@ -41,7 +63,7 @@
     }, {
       "BoxExtent" : [0.000000, 0.000000, 0.000000],
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10384,
+      "Id" : 10913,
       "ObjectName" : "UHitboxComponent_1",
       "ParentId" : 0,
       "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -60,7 +82,7 @@
     }, {
       "AnimGraphPath" : "Data/Graphs/보스 에너미_0.graph",
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10361,
+      "Id" : 10914,
       "MaterialSlots" : [{
           "Type" : "None"
         }, {
@@ -71,7 +93,7 @@
             "Textures" : {
               "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_ALB.PNG",
               "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_NRM.PNG",
-              "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_ARM.PNG"
+              "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_ALB.PNG"
             },
             "Vectors" : {
 
@@ -87,7 +109,7 @@
             "Textures" : {
               "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_ALB.PNG",
               "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_NRM.PNG",
-              "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_ARM.PNG"
+              "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_ALB.PNG"
             },
             "Vectors" : {
 
@@ -161,7 +183,7 @@
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "USkeletalMeshComponent_1",
-      "ParentId" : 10393,
+      "ParentId" : 10950,
       "PhysicsAssetOverridePath" : "Data/Physics/Boss.phys",
       "RelativeLocation" : [0.000000, 0.000000, -2.746004],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -177,6 +199,13 @@
       "bOverrideCollisionSetting" : false,
       "bTickEnabled" : true
     }, {
+      "ObjectName" : "ULuaScriptComponent_2",
+      "ScriptFilePath" : "Data/Scripts/AI/BossAI.lua",
+      "Type" : "ULuaScriptComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
+    }, {
       "AngularDampingOverride" : 0.050000,
       "BoxExtent" : [0.500000, 0.500000, 0.500000],
       "CapsuleHalfHeight" : 0.500000,
@@ -186,7 +215,7 @@
       "CollisionRotation" : [0.000000, 0.000000, 0.000000],
       "CollisionType" : 1,
       "FrictionCombineModeOverride" : 2,
-      "Id" : 10385,
+      "Id" : 10944,
       "LinearDampingOverride" : 0.010000,
       "MassOverride" : 10.000000,
       "MaterialSlots" : [{
@@ -201,14 +230,14 @@
               "1" : "Data/FBX/SKM_DKM_Full/M_DKM_Sword_NRM.PNG"
             },
             "Vectors" : {
-
+              "EmissiveColor" : [0.011583, 0.011583, 0.011583, 1.000000]
             }
           },
           "ParentPath" : "M_DKM_Sword",
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "WeaponMeshComponent",
-      "ParentId" : 10361,
+      "ParentId" : 10914,
       "PhysMaterialPreset" : 0,
       "RelativeLocation" : [0.197128, 0.488980, 0.964492],
       "RelativeRotationEuler" : [176.491577, -26.321400, -20.498117],
@@ -228,31 +257,8 @@
       "bSimulatePhysics" : false,
       "bTickEnabled" : true
     }, {
-      "BlockCostPerHit" : 20.000000,
-      "BlockDrainRate" : 25.000000,
-      "BlockMinRequired" : 20.000000,
-      "CurrentFocus" : 0.000000,
-      "CurrentHealth" : 500.000000,
-      "CurrentStamina" : 200.000000,
-      "DodgeCost" : 25.000000,
-      "FocusChargeRate" : 15.000000,
-      "HeavyAttackCost" : 30.000000,
-      "LightAttackCost" : 15.000000,
-      "MaxFocus" : 100.000000,
-      "MaxHealth" : 500.000000,
-      "MaxStamina" : 200.000000,
-      "ObjectName" : "UStatsComponent_1",
-      "ParryCost" : 10.000000,
-      "StaminaRegenDelay" : 1.000000,
-      "StaminaRegenRate" : 20.000000,
-      "Type" : "UStatsComponent",
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bTickEnabled" : true
-    }, {
-      "ObjectName" : "ULuaScriptComponent_2",
-      "ScriptFilePath" : "Data/Scripts/AI/BossAI.lua",
-      "Type" : "ULuaScriptComponent",
+      "ObjectName" : "UCharacterMovementComponent_1",
+      "Type" : "UCharacterMovementComponent",
       "bHiddenInGame" : false,
       "bIsActive" : true,
       "bTickEnabled" : true
@@ -260,10 +266,10 @@
       "CapsuleHalfHeight" : 2.800000,
       "CapsuleRadius" : 0.500000,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10393,
+      "Id" : 10950,
       "ObjectName" : "UCapsuleComponent_1",
       "ParentId" : 0,
-      "RelativeLocation" : [-13.207863, -4.306775, 3.448256],
+      "RelativeLocation" : [23.071335, 0.901447, 3.176952],
       "RelativeRotationEuler" : [0.000000, -0.000000, 130.423691],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
       "Type" : "UCapsuleComponent",
@@ -278,16 +284,10 @@
       "bShapeIsVisible" : true,
       "bTickEnabled" : true
     }, {
-      "ObjectName" : "UCharacterMovementComponent_1",
-      "Type" : "UCharacterMovementComponent",
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bTickEnabled" : true
-    }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10394,
+      "Id" : 10951,
       "ObjectName" : "LockOnIndicator",
-      "ParentId" : 10361,
+      "ParentId" : 10914,
       "RelativeLocation" : [0.020479, -0.000000, 0.995665],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
       "RelativeScale" : [0.400000, 0.400000, 0.400000],
@@ -302,16 +302,62 @@
       "bOverrideCollisionSetting" : false,
       "bRenderInPIE" : true,
       "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 10952,
+      "ObjectName" : "UParticleSystemComponent_10",
+      "ParentId" : 10944,
+      "ParticleIndex" : 0,
+      "ParticleName" : "",
+      "RelativeLocation" : [73.340759, -0.012126, 4.073148],
+      "RelativeRotationEuler" : [18.853045, 10.259788, -42.698689],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_SwordRibbon.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : true,
+      "bAutoDestroy" : false,
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 10953,
+      "ObjectName" : "UParticleSystemComponent_47",
+      "ParentId" : 10944,
+      "ParticleIndex" : 0,
+      "ParticleName" : "",
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_SwordRibbon2.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : true,
+      "bAutoDestroy" : false,
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
     }],
   "Phase2HealthThreshold" : 0.500000,
   "PunishAttackAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_04_04_Seq.FBX_Unreal Take",
-  "RootComponentId" : 10393,
+  "RootComponentId" : 10950,
   "RotationSpeed" : 5.000000,
   "Slash_1_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_01_01_Seq.FBX_Unreal Take",
   "Slash_2_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_01_02_Seq.FBX_Unreal Take",
   "Slash_3_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_01_03_Seq.FBX_Unreal Take",
-  "Smash_1_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_04_04_Seq.FBX_Unreal Take",
-  "Smash_2_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_04_01_Seq.FBX_Unreal Take",
+  "Smash_1_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_04_03_Seq.FBX_Unreal Take",
+  "Smash_2_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_04_04_Seq.FBX_Unreal Take",
   "SpinAttackAnimPath" : "Data/FBX/SKM_DKM_Full/Animation/Game/Game/Dark_Knight/Animations/Anim_DKM_Attack_01.FBX_Unreal Take",
   "Spin_1_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_02_01_Seq.FBX_Unreal Take",
   "Spin_2_AnimPath" : "Data/FBX/SKM_DKM_Full/Animation/DKM_Combo_Attack_02_02_Seq.FBX_Unreal Take",

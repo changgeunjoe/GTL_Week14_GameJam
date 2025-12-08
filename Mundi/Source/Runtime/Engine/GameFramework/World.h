@@ -155,7 +155,13 @@ public:
     // Restart - 재시작을 위한 정리 함수
     void CleanupForRestart();
 
+    // 게임 재시작 요청 (다음 프레임에 처리)
+    void RequestRestart() { bPendingRestart = true; }
+    bool IsPendingRestart() const { return bPendingRestart; }
+    void ProcessPendingRestart();
+
 private:
+    bool bPendingRestart = false;
     bool DestroyActor(AActor* Actor);   // 즉시 삭제
 
 private:

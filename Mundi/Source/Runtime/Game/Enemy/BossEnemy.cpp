@@ -64,9 +64,10 @@ void ABossEnemy::BeginPlay()
             if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
             {
                 FString BossDisplayName = "흉조의 왕 모르고트";  // 보스 이름
-                float MaxHP = StatsComponent ? StatsComponent->GetMaxHealth() : 30.f;
-                GS->RegisterBoss(BossDisplayName, MaxHP);
-                UE_LOG("[BossEnemy] Registered to GameState with MaxHP: %.0f", MaxHP);
+                // 항상 500으로 등록 (StatsComponent 값이 잘못될 수 있음)
+                const float BossMaxHP = 500.f;
+                GS->RegisterBoss(BossDisplayName, BossMaxHP);
+                UE_LOG("[BossEnemy] Registered to GameState with MaxHP: %.0f", BossMaxHP);
             }
         }
     }
@@ -163,7 +164,14 @@ void ABossEnemy::Tick(float DeltaSeconds)
             {
                 if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
                 {
-                    GS->OnBossHealthChanged(StatsComponent->GetCurrentHealth());
+                    float CurrentHP = StatsComponent->GetCurrentHealth();
+                    GS->OnBossHealthChanged(CurrentHP);
+
+                    // 체력이 0 이하면 Victory
+                    if (CurrentHP <= 0.0f)
+                    {
+                        GS->EnterVictory();
+                    }
                 }
             }
         }
@@ -179,21 +187,21 @@ void ABossEnemy::Tick(float DeltaSeconds)
 
 void ABossEnemy::OnDeath()
 {
-    //Super::OnDeath();
+    Super::OnDeath();
 
-    //// 죽음 애니메이션은 Lua에서 처리
+    // 죽음 애니메이션은 Lua에서 처리
 
-    //// GameState에 승리 알림
-    //if (UWorld* World = GetWorld())
-    //{
-    //    if (AGameModeBase* GM = World->GetGameMode())
-    //    {
-    //        if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
-    //        {
-    //            GS->EnterVictory();
-    //        }
-    //    }
-    //}
+    // GameState에 승리 알림
+    if (UWorld* World = GetWorld())
+    {
+        if (AGameModeBase* GM = World->GetGameMode())
+        {
+            if (AGameState* GS = Cast<AGameState>(GM->GetGameState()))
+            {
+                GS->EnterVictory();
+            }
+        }
+    }
 }
 
 // ============================================================================

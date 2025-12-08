@@ -60,22 +60,19 @@ void AGameModeBase::StartPlay()
 		}
 	}
 
-	// Initialize flow: PIE shows StartMenu; non-PIE goes straight to intro/fight
+	// Initialize flow: 에디터(PIE)에서는 바로 전투 시작, 스탠드얼론에서는 시작 메뉴
 	if (GameState)
 	{
-		if (GWorld && GWorld->bPie)
+		if (AGameState* GS = Cast<AGameState>(GameState))
 		{
-			if (AGameState* GS = Cast<AGameState>(GameState))
-			{
-				GS->EnterStartMenu();
-			}
-		}
-		else
-		{
-			if (AGameState* GS = Cast<AGameState>(GameState))
-			{
-				GS->EnterBossIntro();
-			}
+#ifdef _EDITOR
+			// 에디터(PIE)에서는 바로 전투 시작
+			GS->StartFight();
+#else
+			// 스탠드얼론(릴리즈)에서는 시작 메뉴 표시
+			GS->EnterStartMenu();
+			GS->SetGameplayActorsTickEnabled(false);
+#endif
 		}
 	}
 }
@@ -322,47 +319,8 @@ void AGameModeBase::RestartGame()
 		return;
 	}
 
-	AGameState* GS = Cast<AGameState>(GameState);
-	if (!GS)
-	{
-		return;
-	}
-	if (APawn* PlayerPawn = PlayerController->GetPawn())
-	{
-		// 플레이어 위치 초기화 (원점으로)
-		PlayerPawn->SetActorLocation(FVector(0, 0, 3));
-
-		// 플레이어 체력 회복
-		if (ACharacter* PlayerChar = Cast<ACharacter>(PlayerPawn))
-		{
-			if (UStatsComponent* Stats = Cast<UStatsComponent>(PlayerChar->GetComponent(UStatsComponent::StaticClass())))
-			{
-				Stats->CurrentHealth = Stats->MaxHealth;
-				Stats->CurrentStamina = Stats->MaxStamina;
-				Stats->CurrentFocus = 0.0f;
-			}
-		}
-	}
-	// 2. 보스 체력 회복
-	for (AActor* Actor : GWorld->GetActors()){
-		if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
-		{
-			if (UStatsComponent* Stats = Boss->GetStatsComponent())
-			{
-				Stats->CurrentHealth = Stats->MaxHealth;
-			}
-			// 보스 위치 초기화는 필요시 추가
-			break;
-		}
-		return;
-	}
-	// 일시정지 해제 및 마우스 커서 숨김/잠금
-	GWorld->SetPaused(false);
-	UInputManager::GetInstance().SetCursorVisible(false);
-	UInputManager::GetInstance().LockCursor();
-
-	// GameState 초기화 및 게임 시작
-	GS->EnterBossIntro();
+	// 다음 프레임에 재시작 처리 (현재 프레임에서 처리하면 this가 삭제되어 크래시)
+	GWorld->RequestRestart();
 }
 
 void AGameModeBase::QuitGame()

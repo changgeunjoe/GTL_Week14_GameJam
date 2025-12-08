@@ -6,8 +6,17 @@
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision",
+      "NotifyName" : "WeaponCollision: Enable",
       "TriggerTime" : 0.146934
+    }, {
+      "Class" : "UAnimNotify_EnableWeaponCollision",
+      "Data" : {
+        "bEnable" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "WeaponCollision: Disable",
+      "TriggerTime" : 0.549764
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {

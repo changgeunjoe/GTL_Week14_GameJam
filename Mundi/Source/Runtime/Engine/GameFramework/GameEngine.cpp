@@ -9,6 +9,7 @@
 #include <sol/sol.hpp>
 #include "GameModeBase.h"
 #include "InputManager.h"
+#include "Source/Editor/FBX/FbxLoader.h"
 
 #include "BlueprintGraph/BlueprintActionDatabase.h"
 
@@ -185,6 +186,7 @@ bool UGameEngine::Startup(HINSTANCE hInstance)
 
     FObjManager::Preload();
     FAudioDevice::Preload();
+    UFbxLoader::PreLoad();
     RESOURCE.PreloadParticles();
     RESOURCE.PreloadPhysicsAssets();
 

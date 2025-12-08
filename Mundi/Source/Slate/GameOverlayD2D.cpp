@@ -225,6 +225,63 @@ void UGameOverlayD2D::Initialize(ID3D11Device* InDevice, ID3D11DeviceContext* In
         }
     }
 
+    // Load credit image
+    if (WICFactory && D2DContext)
+    {
+        FWideString CreditPath = UTF8ToWide(GDataDir) + L"/Textures/Credit.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(CreditPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        if (SUCCEEDED(D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &CreditBitmap)))
+                        {
+                            D2D1_SIZE_F Size = CreditBitmap->GetSize();
+                            CreditWidth = Size.width;
+                            CreditHeight = Size.height;
+                        }
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
+    // Load black background image
+    if (WICFactory && D2DContext)
+    {
+        FWideString BlackPath = UTF8ToWide(GDataDir) + L"/Textures/Black.png";
+
+        IWICBitmapDecoder* Decoder = nullptr;
+        if (SUCCEEDED(WICFactory->CreateDecoderFromFilename(BlackPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &Decoder)))
+        {
+            IWICBitmapFrameDecode* Frame = nullptr;
+            if (SUCCEEDED(Decoder->GetFrame(0, &Frame)))
+            {
+                IWICFormatConverter* Converter = nullptr;
+                if (SUCCEEDED(WICFactory->CreateFormatConverter(&Converter)))
+                {
+                    if (SUCCEEDED(Converter->Initialize(Frame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut)))
+                    {
+                        D2DContext->CreateBitmapFromWicBitmap(Converter, nullptr, &BlackBitmap);
+                    }
+                    SafeRelease(Converter);
+                }
+                SafeRelease(Frame);
+            }
+            SafeRelease(Decoder);
+        }
+    }
+
     // Load boss health bar frame image
     if (WICFactory && D2DContext)
     {
@@ -502,6 +559,8 @@ void UGameOverlayD2D::EnsureInitialized()
 void UGameOverlayD2D::ReleaseD2DResources()
 {
     SafeRelease(LogoBitmap);
+    SafeRelease(CreditBitmap);
+    SafeRelease(BlackBitmap);
     SafeRelease(BossFrameBitmap);
     SafeRelease(BossBarBitmap);
     SafeRelease(BossBarYellowBitmap);
@@ -668,8 +727,10 @@ void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
     // 버튼 브러시
     ID2D1SolidColorBrush* ButtonBrush = nullptr;
     ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonSelectedBrush = nullptr;
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.7f, 0.6f, 0.3f, 0.9f), &ButtonSelectedBrush);  // 황금색 (선택됨)
 
     SubtitleBrush->SetOpacity(1.0f);
 
@@ -681,10 +742,12 @@ void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
     StartGameButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bStartHover = (MouseXf >= StartGameButtonRect.left && MouseXf <= StartGameButtonRect.right &&
                         MouseYf >= StartGameButtonRect.top && MouseYf <= StartGameButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bStartSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 0);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(StartGameButtonRect, bStartHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(StartGameButtonRect, SubtitleBrush, bStartHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bStartSelected ? ButtonSelectedBrush : (bStartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(StartGameButtonRect, FillBrush);
+        D2DContext->DrawRectangle(StartGameButtonRect, SubtitleBrush, (bStartHover || bStartSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F StartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(StartText, static_cast<UINT32>(wcslen(StartText)),
@@ -696,10 +759,12 @@ void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
     TutorialButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bTutorialHover = (MouseXf >= TutorialButtonRect.left && MouseXf <= TutorialButtonRect.right &&
                            MouseYf >= TutorialButtonRect.top && MouseYf <= TutorialButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bTutorialSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 1);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(TutorialButtonRect, bTutorialHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(TutorialButtonRect, SubtitleBrush, bTutorialHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bTutorialSelected ? ButtonSelectedBrush : (bTutorialHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(TutorialButtonRect, FillBrush);
+        D2DContext->DrawRectangle(TutorialButtonRect, SubtitleBrush, (bTutorialHover || bTutorialSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F TutorialTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(TutorialText, static_cast<UINT32>(wcslen(TutorialText)),
@@ -711,10 +776,12 @@ void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
     ExitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bExitHover = (MouseXf >= ExitButtonRect.left && MouseXf <= ExitButtonRect.right &&
                        MouseYf >= ExitButtonRect.top && MouseYf <= ExitButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bExitSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 2);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(ExitButtonRect, bExitHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(ExitButtonRect, SubtitleBrush, bExitHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bExitSelected ? ButtonSelectedBrush : (bExitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(ExitButtonRect, FillBrush);
+        D2DContext->DrawRectangle(ExitButtonRect, SubtitleBrush, (bExitHover || bExitSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F ExitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(ExitText, static_cast<UINT32>(wcslen(ExitText)),
@@ -722,6 +789,7 @@ void UGameOverlayD2D::DrawMainMenu(float ScreenW, float ScreenH)
 
     SafeRelease(ButtonBrush);
     SafeRelease(ButtonHoverBrush);
+    SafeRelease(ButtonSelectedBrush);
 }
 
 void UGameOverlayD2D::DrawStartMenu(float ScreenW, float ScreenH)
@@ -1166,8 +1234,10 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
     // 버튼 배경 브러시
     ID2D1SolidColorBrush* ButtonBrush = nullptr;
     ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonSelectedBrush = nullptr;
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.7f, 0.6f, 0.3f, 0.9f), &ButtonSelectedBrush);  // 황금색 (선택됨)
 
     SubtitleBrush->SetOpacity(1.0f);
 
@@ -1179,10 +1249,12 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
     ResumeButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bResumeHover = (MouseXf >= ResumeButtonRect.left && MouseXf <= ResumeButtonRect.right &&
                          MouseYf >= ResumeButtonRect.top && MouseYf <= ResumeButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bResumeSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 0);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(ResumeButtonRect, bResumeHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(ResumeButtonRect, SubtitleBrush, bResumeHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bResumeSelected ? ButtonSelectedBrush : (bResumeHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(ResumeButtonRect, FillBrush);
+        D2DContext->DrawRectangle(ResumeButtonRect, SubtitleBrush, (bResumeHover || bResumeSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F ResumeTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
@@ -1198,10 +1270,12 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
     RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
                           MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bRestartSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 1);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(RestartButtonRect, bRestartHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, bRestartHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bRestartSelected ? ButtonSelectedBrush : (bRestartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(RestartButtonRect, FillBrush);
+        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, (bRestartHover || bRestartSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
@@ -1217,10 +1291,12 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
     QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
                        MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bQuitSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 2);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(QuitButtonRect, bQuitHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, bQuitHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bQuitSelected ? ButtonSelectedBrush : (bQuitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(QuitButtonRect, FillBrush);
+        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, (bQuitHover || bQuitSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
@@ -1232,6 +1308,7 @@ void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
 
     SafeRelease(ButtonBrush);
     SafeRelease(ButtonHoverBrush);
+    SafeRelease(ButtonSelectedBrush);
 }
 
 void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
@@ -1239,6 +1316,26 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
     if (!D2DContext || !SubtitleFormat || !SubtitleBrush)
     {
         return;
+    }
+
+    // 1. 먼저 전체 화면을 검은색으로 칠하기
+    if (BlackBitmap)
+    {
+        // Black.png 사용
+        D2D1_RECT_F FullScreenRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+        D2DContext->DrawBitmap(BlackBitmap, FullScreenRect, 1.0f);
+    }
+    else
+    {
+        // 이미지 없으면 검은 브러시로 칠하기
+        ID2D1SolidColorBrush* BlackBrush = nullptr;
+        D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f), &BlackBrush);
+        if (BlackBrush)
+        {
+            D2D1_RECT_F FullScreenRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+            D2DContext->FillRectangle(FullScreenRect, BlackBrush);
+            SafeRelease(BlackBrush);
+        }
     }
 
     // 메뉴 옵션들
@@ -1254,8 +1351,10 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
     // 버튼 배경 브러시
     ID2D1SolidColorBrush* ButtonBrush = nullptr;
     ID2D1SolidColorBrush* ButtonHoverBrush = nullptr;
+    ID2D1SolidColorBrush* ButtonSelectedBrush = nullptr;
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.3f, 0.3f, 0.3f, 0.8f), &ButtonBrush);
     D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.5f, 0.5f, 0.5f, 0.9f), &ButtonHoverBrush);
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.7f, 0.6f, 0.3f, 0.9f), &ButtonSelectedBrush);  // 황금색 (선택됨)
 
     SubtitleBrush->SetOpacity(1.0f);
 
@@ -1267,10 +1366,12 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
     RestartButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bRestartHover = (MouseXf >= RestartButtonRect.left && MouseXf <= RestartButtonRect.right &&
                           MouseYf >= RestartButtonRect.top && MouseYf <= RestartButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bRestartSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 0);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(RestartButtonRect, bRestartHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, bRestartHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bRestartSelected ? ButtonSelectedBrush : (bRestartHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(RestartButtonRect, FillBrush);
+        D2DContext->DrawRectangle(RestartButtonRect, SubtitleBrush, (bRestartHover || bRestartSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F RestartTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
@@ -1286,10 +1387,12 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
     QuitButtonRect = D2D1::RectF(ButtonX, MenuY, ButtonX + ButtonWidth, MenuY + ButtonHeight);
     bool bQuitHover = (MouseXf >= QuitButtonRect.left && MouseXf <= QuitButtonRect.right &&
                        MouseYf >= QuitButtonRect.top && MouseYf <= QuitButtonRect.bottom);
-    if (ButtonBrush && ButtonHoverBrush)
+    bool bQuitSelected = bUseKeyboardNavigation && (SelectedMenuIndex == 1);
+    if (ButtonBrush && ButtonHoverBrush && ButtonSelectedBrush)
     {
-        D2DContext->FillRectangle(QuitButtonRect, bQuitHover ? ButtonHoverBrush : ButtonBrush);
-        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, bQuitHover ? 3.0f : 2.0f);
+        ID2D1SolidColorBrush* FillBrush = bQuitSelected ? ButtonSelectedBrush : (bQuitHover ? ButtonHoverBrush : ButtonBrush);
+        D2DContext->FillRectangle(QuitButtonRect, FillBrush);
+        D2DContext->DrawRectangle(QuitButtonRect, SubtitleBrush, (bQuitHover || bQuitSelected) ? 3.0f : 2.0f);
     }
     D2D1_RECT_F QuitTextRect = D2D1::RectF(ButtonX, MenuY + 10.0f, ButtonX + ButtonWidth, MenuY + ButtonHeight - 10.0f);
     D2DContext->DrawTextW(
@@ -1301,6 +1404,24 @@ void UGameOverlayD2D::DrawDeathMenu(float ScreenW, float ScreenH)
 
     SafeRelease(ButtonBrush);
     SafeRelease(ButtonHoverBrush);
+
+    // 2. 크레딧 이미지 표시 (검은 화면 위에)
+    if (CreditBitmap && CreditWidth > 0 && CreditHeight > 0)
+    {
+        // 화면 중앙에 크레딧 표시 (화면 너비의 50% 크기)
+        float MaxCreditW = ScreenW * 0.5f;
+        float Scale = MaxCreditW / CreditWidth;
+        float ScaledW = CreditWidth * Scale;
+        float ScaledH = CreditHeight * Scale;
+
+        // 화면 중앙에 배치
+        float CreditX = (ScreenW - ScaledW) * 0.5f;
+        float CreditY = (ScreenH - ScaledH) * 0.07f;
+
+        D2D1_RECT_F CreditRect = D2D1::RectF(CreditX, CreditY, CreditX + ScaledW, CreditY + ScaledH);
+        D2DContext->DrawBitmap(CreditBitmap, CreditRect, 1.0f);
+    }
+    SafeRelease(ButtonSelectedBrush);
 }
 
 void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
@@ -1587,6 +1708,18 @@ void UGameOverlayD2D::Draw()
         bBossBarFadingIn = false;
     }
 
+    // 메뉴 상태가 바뀌면 선택 인덱스 초기화
+    int32 CurrentFlowStateInt = static_cast<int32>(FlowState);
+    if (CurrentFlowStateInt != LastFlowState)
+    {
+        SelectedMenuIndex = 0;
+        bUseKeyboardNavigation = false;
+        LastFlowState = CurrentFlowStateInt;
+    }
+
+    // 키보드/게임패드 네비게이션 처리
+    HandleKeyboardNavigation();
+
     // Draw based on current state
     switch (FlowState)
     {
@@ -1612,20 +1745,38 @@ void UGameOverlayD2D::Draw()
         break;
 
     case EGameFlowState::Defeat:
-        DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
-        // 일정 시간 후 메뉴 표시
-        if (DeathScreenTimer >= DeathMenuShowDelay)
+        // YOU DIED 애니메이션 총 시간 = FadeIn(1.5) + Hold(3.0) + FadeOut(1.0) = 5.5초
         {
-            DrawDeathMenu(ScreenW, ScreenH);
+            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+
+            // 애니메이션이 끝나기 전에는 YOU DIED만 표시
+            if (DeathScreenTimer < DeathAnimationTotalTime)
+            {
+                DrawDeathScreen(ScreenW, ScreenH, L"YOU DIED", false);
+            }
+            else
+            {
+                // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
+                DrawDeathMenu(ScreenW, ScreenH);
+            }
         }
         break;
 
     case EGameFlowState::Victory:
-        DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
-        // 일정 시간 후 메뉴 표시
-        if (DeathScreenTimer >= DeathMenuShowDelay)
+        // DEMIGOD FELLED 애니메이션 총 시간 = 5.5초
         {
-            DrawDeathMenu(ScreenW, ScreenH);
+            float DeathAnimationTotalTime = DeathFadeInDuration + DeathHoldDuration + DeathFadeOutDuration;
+
+            // 애니메이션이 끝나기 전에는 DEMIGOD FELLED만 표시
+            if (DeathScreenTimer < DeathAnimationTotalTime)
+            {
+                DrawDeathScreen(ScreenW, ScreenH, L"DEMIGOD FELLED", true);
+            }
+            else
+            {
+                // 애니메이션 끝난 후: 검은 화면 + 메뉴 + 크레딧
+                DrawDeathMenu(ScreenW, ScreenH);
+            }
         }
         break;
 
@@ -1649,6 +1800,12 @@ void UGameOverlayD2D::Draw()
 
 void UGameOverlayD2D::UpdateMousePosition(int32 MouseX, int32 MouseY)
 {
+    // 마우스가 움직이면 키보드 네비게이션 비활성화
+    if (MouseX != CurrentMouseX || MouseY != CurrentMouseY)
+    {
+        bUseKeyboardNavigation = false;
+    }
+
     CurrentMouseX = MouseX;
     CurrentMouseY = MouseY;
 }
@@ -1689,6 +1846,9 @@ void UGameOverlayD2D::HandleMouseClick(int32 MouseX, int32 MouseY)
     {
         return;
     }
+
+    // 마우스 클릭 시 키보드 네비게이션 비활성화
+    bUseKeyboardNavigation = false;
 
     float MouseXf = static_cast<float>(MouseX);
     float MouseYf = static_cast<float>(MouseY);
@@ -1750,4 +1910,197 @@ void UGameOverlayD2D::HandleMouseClick(int32 MouseX, int32 MouseY)
         GM->QuitGame();
         return;
     }
+}
+
+void UGameOverlayD2D::MoveMenuSelection(int32 Direction)
+{
+    if (!GWorld)
+    {
+        return;
+    }
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    AGameState* GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
+
+    EGameFlowState FlowState = GS->GetGameFlowState();
+
+    // 메뉴별 최대 인덱스 결정
+    int32 MaxIndex = 0;
+    if (FlowState == EGameFlowState::MainMenu)
+    {
+        MaxIndex = 2;  // Start Game, Tutorial, Exit
+    }
+    else if (FlowState == EGameFlowState::Paused)
+    {
+        MaxIndex = 2;  // Resume, Restart, Quit
+    }
+    else if (FlowState == EGameFlowState::Defeat || FlowState == EGameFlowState::Victory)
+    {
+        MaxIndex = 1;  // Restart, Quit
+    }
+
+    // 인덱스 이동
+    SelectedMenuIndex += Direction;
+
+    // 순환 (wrap around)
+    if (SelectedMenuIndex < 0)
+    {
+        SelectedMenuIndex = MaxIndex;
+    }
+    else if (SelectedMenuIndex > MaxIndex)
+    {
+        SelectedMenuIndex = 0;
+    }
+}
+
+void UGameOverlayD2D::SelectCurrentMenuItem()
+{
+    if (!GWorld)
+    {
+        return;
+    }
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    AGameState* GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
+
+    EGameFlowState FlowState = GS->GetGameFlowState();
+
+    // MainMenu
+    if (FlowState == EGameFlowState::MainMenu)
+    {
+        switch (SelectedMenuIndex)
+        {
+        case 0:  // Start Game
+            GS->EnterBossIntro();
+            break;
+        case 1:  // Tutorial
+            // TODO: 튜토리얼 화면으로 전환
+            break;
+        case 2:  // Exit
+            GM->QuitGame();
+            break;
+        }
+    }
+    // Paused
+    else if (FlowState == EGameFlowState::Paused)
+    {
+        switch (SelectedMenuIndex)
+        {
+        case 0:  // Resume
+            GM->ResumeGame();
+            break;
+        case 1:  // Restart
+            GM->RestartGame();
+            break;
+        case 2:  // Quit
+            GM->QuitGame();
+            break;
+        }
+    }
+    // Defeat / Victory
+    else if (FlowState == EGameFlowState::Defeat || FlowState == EGameFlowState::Victory)
+    {
+        // 메뉴가 아직 표시되지 않았으면 무시
+        if (DeathScreenTimer < DeathMenuShowDelay)
+        {
+            return;
+        }
+
+        switch (SelectedMenuIndex)
+        {
+        case 0:  // Restart
+            GM->RestartGame();
+            break;
+        case 1:  // Quit
+            GM->QuitGame();
+            break;
+        }
+    }
+}
+
+void UGameOverlayD2D::HandleKeyboardNavigation()
+{
+    if (!GWorld)
+    {
+        return;
+    }
+
+    AGameModeBase* GM = GWorld->GetGameMode();
+    if (!GM)
+    {
+        return;
+    }
+
+    AGameState* GS = Cast<AGameState>(GM->GetGameState());
+    if (!GS)
+    {
+        return;
+    }
+
+    EGameFlowState FlowState = GS->GetGameFlowState();
+
+    // 메뉴 상태가 아니면 무시
+    if (FlowState != EGameFlowState::MainMenu &&
+        FlowState != EGameFlowState::Paused &&
+        FlowState != EGameFlowState::Defeat &&
+        FlowState != EGameFlowState::Victory)
+    {
+        return;
+    }
+
+    // 죽음/승리 메뉴가 아직 표시되지 않았으면 네비게이션 무시
+    if ((FlowState == EGameFlowState::Defeat || FlowState == EGameFlowState::Victory) &&
+        DeathScreenTimer < DeathMenuShowDelay)
+    {
+        return;
+    }
+
+    // 키 입력 확인 (위/아래 화살표, W/S, 엔터)
+    bool bUpPressed = (GetAsyncKeyState(VK_UP) & 0x8000) != 0 || (GetAsyncKeyState('W') & 0x8000) != 0;
+    bool bDownPressed = (GetAsyncKeyState(VK_DOWN) & 0x8000) != 0 || (GetAsyncKeyState('S') & 0x8000) != 0;
+    bool bEnterPressed = (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0 || (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+
+    // 위쪽 키 (눌렀다 뗄 때만 반응)
+    if (bUpPressed && !bWasUpPressed)
+    {
+        bUseKeyboardNavigation = true;
+        MoveMenuSelection(-1);
+    }
+    bWasUpPressed = bUpPressed;
+
+    // 아래쪽 키 (눌렀다 뗄 때만 반응)
+    if (bDownPressed && !bWasDownPressed)
+    {
+        bUseKeyboardNavigation = true;
+        MoveMenuSelection(1);
+    }
+    bWasDownPressed = bDownPressed;
+
+    // 엔터/스페이스 키 (눌렀다 뗄 때만 반응)
+    if (bEnterPressed && !bWasEnterPressed)
+    {
+        if (bUseKeyboardNavigation)
+        {
+            SelectCurrentMenuItem();
+        }
+    }
+    bWasEnterPressed = bEnterPressed;
 }

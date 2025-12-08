@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <d2d1_1.h>
 #include <dwrite.h>
 #include <wincodec.h>
@@ -17,6 +17,11 @@ public:
 
     // 마우스 위치 업데이트 (호버링 체크용)
     void UpdateMousePosition(int32 MouseX, int32 MouseY);
+
+    // 키보드/게임패드 네비게이션
+    void HandleKeyboardNavigation();
+    void SelectCurrentMenuItem();
+    void MoveMenuSelection(int32 Direction);  // -1 = 위, +1 = 아래
 
 private:
     UGameOverlayD2D() = default;
@@ -63,6 +68,14 @@ private:
     float LogoWidth = 0.f;
     float LogoHeight = 0.f;
 
+    // Credit image
+    ID2D1Bitmap* CreditBitmap = nullptr;
+    float CreditWidth = 0.f;
+    float CreditHeight = 0.f;
+
+    // Black background for credit screen
+    ID2D1Bitmap* BlackBitmap = nullptr;
+
     // Boss health bar images
     ID2D1Bitmap* BossFrameBitmap = nullptr;   // TX_Bar_Frame_Enemy.PNG
     ID2D1Bitmap* BossBarBitmap = nullptr;     // TX_Gauge_EnemyHP_Bar.PNG (red)
@@ -106,6 +119,7 @@ private:
     float DeathHoldDuration = 3.0f;     // Time to hold at full opacity
     float DeathFadeOutDuration = 1.0f;  // Time to fade out
     float DeathMenuShowDelay = 2.0f;    // "YOU DIED" 후 메뉴 표시까지 딜레이 (초)
+    float CreditShowDelay = 3.0f;       // 메뉴 표시 1초 후 크레딧 표시 (DeathMenuShowDelay + 1.0f)
 
     // Boss health bar animation (Dark Souls style)
     float CurrentBossHealth = 1.0f;     // Red bar - snaps immediately to actual health
@@ -161,4 +175,12 @@ private:
     // 현재 마우스 위치
     int32 CurrentMouseX = 0;
     int32 CurrentMouseY = 0;
+
+    // 키보드/게임패드 네비게이션 상태
+    int32 SelectedMenuIndex = 0;           // 현재 선택된 메뉴 인덱스
+    bool bUseKeyboardNavigation = false;   // 키보드 네비게이션 활성화 여부
+    bool bWasUpPressed = false;            // 이전 프레임 위쪽 키 상태
+    bool bWasDownPressed = false;          // 이전 프레임 아래쪽 키 상태
+    bool bWasEnterPressed = false;         // 이전 프레임 엔터 키 상태
+    int32 LastFlowState = -1;              // 이전 프레임의 GameFlowState (메뉴 변경 감지용)
 };
