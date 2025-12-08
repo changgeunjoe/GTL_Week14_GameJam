@@ -122,5 +122,5 @@ protected:
     // Timings (seconds)
     float StartFadeInDuration = 0.5f;
     float EndFadeInDuration = 0.6f;
-    float BossIntroBannerTime = 0.0f;
+    float BossIntroBannerTime = 2.0f;  // 게임 시작 전 대기 시간 (검정화면 페이드인)
 };

@@ -11,6 +11,7 @@
 #include "Source/Runtime/InputCore/InputManager.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
 #include "Source/Runtime/Game/Enemy/EnemyBase.h"
+#include "Source/Runtime/Game/Enemy/BossEnemy.h"
 
 void AGameState::SetGameFlowState(EGameFlowState NewState)
 {
@@ -79,10 +80,13 @@ void AGameState::EnterBossIntro()
     UInputManager::GetInstance().SetCursorVisible(false);
     UInputManager::GetInstance().LockCursor();
 
-    // Fade in from black
+    // 검정 화면에서 시작하고 천천히 페이드인 (2초에 걸쳐)
     if (GWorld && GWorld->GetPlayerCameraManager())
     {
-        GWorld->GetPlayerCameraManager()->FadeIn(0.5f, FLinearColor(0,0,0,1.0f));
+        // 먼저 완전 검정 화면으로
+        GWorld->GetPlayerCameraManager()->FadeOut(0.0f, FLinearColor(0,0,0,1.0f));
+        // 2초에 걸쳐 페이드인
+        GWorld->GetPlayerCameraManager()->FadeIn(BossIntroBannerTime, FLinearColor(0,0,0,1.0f));
     }
 }
 
@@ -199,6 +203,53 @@ void AGameState::HandleStateTick(float DeltaTime)
     // Simple timed transition from BossIntro to Fighting
     if (GameFlowState == EGameFlowState::BossIntro)
     {
+        // 처음 0.3초 동안은 캐릭터가 스폰되기를 기다림
+        if (StateTimeSeconds > 0.3f && GWorld)
+        {
+            // 보스 찾기
+            ABossEnemy* Boss = nullptr;
+            for (AActor* Actor : GWorld->GetActors())
+            {
+                if (ABossEnemy* BossActor = Cast<ABossEnemy>(Actor))
+                {
+                    Boss = BossActor;
+                    break;
+                }
+            }
+
+            // 플레이어 찾기
+            APawn* PlayerPawn = nullptr;
+            if (AGameModeBase* GM = GWorld->GetGameMode())
+            {
+                if (GM->PlayerController)
+                {
+                    PlayerPawn = GM->PlayerController->GetPawn();
+                }
+            }
+
+            // 플레이어가 보스를 바라보도록 회전
+            if (Boss && PlayerPawn)
+            {
+                FVector PlayerPos = PlayerPawn->GetActorLocation();
+                FVector BossPos = Boss->GetActorLocation();
+                FVector Direction = BossPos - PlayerPos;
+                Direction.Z = 0.0f;  // 수평 방향만
+
+                if (Direction.SizeSquared() > 0.01f)
+                {
+                    Direction.Normalize();
+                    // Yaw 각도 계산
+                    float Yaw = std::atan2(Direction.Y, Direction.X);
+                    FQuat TargetRot = FQuat::FromAxisAngle(FVector(0, 0, 1), Yaw);
+
+                    // 부드럽게 회전 (Lerp)
+                    FQuat CurrentRot = PlayerPawn->GetActorRotation();
+                    FQuat NewRot = FQuat::Slerp(CurrentRot, TargetRot, DeltaTime * 3.0f);
+                    PlayerPawn->SetActorRotation(NewRot);
+                }
+            }
+        }
+
         if (StateTimeSeconds >= BossIntroBannerTime)
         {
             StartFight();

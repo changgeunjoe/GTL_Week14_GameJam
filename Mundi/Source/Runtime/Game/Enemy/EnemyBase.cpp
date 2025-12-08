@@ -395,6 +395,13 @@ float AEnemyBase::TakeDamage(const FDamageInfo& DamageInfo)
     StatsComponent->ApplyDamage(DamageInfo.Damage);
     UE_LOG("[EnemyBase] After ApplyDamage - CurrentHP: %.1f", StatsComponent->GetCurrentHealth());
 
+    // 사망 체크
+    if (!StatsComponent->IsAlive())
+    {
+        OnDeath();
+        return DamageInfo.Damage;
+    }
+
     // 슈퍼아머가 없으면 피격 반응
     if (!bHasSuperArmor)
     {

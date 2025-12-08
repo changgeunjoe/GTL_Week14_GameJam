@@ -18,6 +18,11 @@ public:
     // 마우스 위치 업데이트 (호버링 체크용)
     void UpdateMousePosition(int32 MouseX, int32 MouseY);
 
+    // 키보드/게임패드 네비게이션
+    void HandleKeyboardNavigation();
+    void SelectCurrentMenuItem();
+    void MoveMenuSelection(int32 Direction);  // -1 = 위, +1 = 아래
+
 private:
     UGameOverlayD2D() = default;
     ~UGameOverlayD2D() = default;
@@ -161,4 +166,12 @@ private:
     // 현재 마우스 위치
     int32 CurrentMouseX = 0;
     int32 CurrentMouseY = 0;
+
+    // 키보드/게임패드 네비게이션 상태
+    int32 SelectedMenuIndex = 0;           // 현재 선택된 메뉴 인덱스
+    bool bUseKeyboardNavigation = false;   // 키보드 네비게이션 활성화 여부
+    bool bWasUpPressed = false;            // 이전 프레임 위쪽 키 상태
+    bool bWasDownPressed = false;          // 이전 프레임 아래쪽 키 상태
+    bool bWasEnterPressed = false;         // 이전 프레임 엔터 키 상태
+    int32 LastFlowState = -1;              // 이전 프레임의 GameFlowState (메뉴 변경 감지용)
 };
