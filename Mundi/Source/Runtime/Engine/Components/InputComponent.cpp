@@ -124,6 +124,8 @@ void UInputComponent::ClearAllBindings()
     ClearAxisBindings();
     ActionKeyMappings.Empty();
     AxisKeyMappings.Empty();
+    ActionGamepadMappings.Empty();
+    AxisGamepadMappings.Empty();
 }
 
 // ============================================================================
@@ -484,16 +486,16 @@ float UInputComponent::GetAxisValue(const FName& AxisName)
     UInputManager& InputManager = UInputManager::GetInstance();
     float Value = 0.0f;
 
-    // 마우스 축 체크
+    // 마우스 축 체크 - add to Value instead of returning early (allows gamepad to also contribute)
     if (AxisName == MouseXAxisName)
     {
         FVector2D MouseDelta = InputManager.GetMouseDelta();
-        return MouseDelta.X * MouseXScale;
+        Value += MouseDelta.X * MouseXScale;
     }
     if (AxisName == MouseYAxisName)
     {
         FVector2D MouseDelta = InputManager.GetMouseDelta();
-        return MouseDelta.Y * MouseYScale;
+        Value += MouseDelta.Y * MouseYScale;
     }
 
     // 키보드 축 체크 - 매핑된 모든 키의 값을 합산

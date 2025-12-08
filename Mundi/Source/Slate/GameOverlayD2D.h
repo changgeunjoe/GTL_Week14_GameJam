@@ -41,7 +41,7 @@ private:
     void DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTime);
     void DrawDebugStats(float ScreenW, float ScreenH);  // 디버그: 보스/플레이어 상태
     void DrawPauseMenu(float ScreenW, float ScreenH);   // 일시정지 메뉴
-    void DrawDeathMenu(float ScreenW, float ScreenH);   // 죽음 후 메뉴 (재시작/종료)
+    void DrawDeathMenu(float ScreenW, float ScreenH, float DeltaTime);   // 죽음 후 메뉴 (재시작/종료)
 
     // Create gradient brush for the banner (recreated per-frame due to screen size changes)
     ID2D1LinearGradientBrush* CreateBannerGradientBrush(float ScreenW, float ScreenH, float Opacity);
@@ -120,6 +120,8 @@ private:
     float DeathFadeOutDuration = 1.0f;  // Time to fade out
     float DeathMenuShowDelay = 2.0f;    // "YOU DIED" 후 메뉴 표시까지 딜레이 (초)
     float CreditShowDelay = 3.0f;       // 메뉴 표시 1초 후 크레딧 표시 (DeathMenuShowDelay + 1.0f)
+    float DeathMenuTimer = 0.0f;        // DrawDeathMenu가 호출된 후 경과 시간
+    float ButtonShowDelay = 0.2f;       // Credit 이후 버튼 표시 딜레이 (초)
 
     // Boss health bar animation (Dark Souls style)
     float CurrentBossHealth = 1.0f;     // Red bar - snaps immediately to actual health
