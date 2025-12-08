@@ -6,9 +6,11 @@
 #include "World.h"
 #include "PlayerController.h"
 #include "Pawn.h"
+#include "Character.h"
 #include "PlayerCameraManager.h"
 #include "Source/Runtime/InputCore/InputManager.h"
 #include "Source/Runtime/Core/Misc/PathUtils.h"
+#include "Source/Runtime/Game/Enemy/EnemyBase.h"
 
 void AGameState::SetGameFlowState(EGameFlowState NewState)
 {
@@ -59,6 +61,9 @@ void AGameState::StartFight()
     ShowEndScreen(false, false);
     SetPaused(false);
     SetGameFlowState(EGameFlowState::Fighting);
+
+    // 전투 시작 시 플레이어/몬스터 틱 활성화
+    SetGameplayActorsTickEnabled(true);
 }
 
 void AGameState::EnterBossIntro()
@@ -66,6 +71,9 @@ void AGameState::EnterBossIntro()
     ShowStartScreen(false);
     SetPaused(false);
     SetGameFlowState(EGameFlowState::BossIntro);
+
+    // 인트로 중에는 플레이어/몬스터 틱 비활성화
+    SetGameplayActorsTickEnabled(false);
 
     // 마우스 숨기고 잠금 (게임플레이 시작)
     UInputManager::GetInstance().SetCursorVisible(false);
@@ -283,3 +291,36 @@ void AGameState::HandleStateTick(float DeltaTime)
     }
 }
 
+void AGameState::SetGameplayActorsTickEnabled(bool bEnabled)
+{
+    if (!GWorld)
+    {
+        return;
+    }
+
+    for (AActor* Actor : GWorld->GetActors())
+    {
+        if (!Actor)
+        {
+            continue;
+        }
+
+        // 플레이어(Character) 또는 적(EnemyBase) 타입인지 확인
+        bool bIsGameplayActor = false;
+
+        if (AEnemyBase* Enemy = Cast<AEnemyBase>(Actor))
+        {
+            bIsGameplayActor = true;
+        }
+        else if (ACharacter* Character = Cast<ACharacter>(Actor))
+        {
+            // EnemyBase가 아닌 Character는 플레이어
+            bIsGameplayActor = true;
+        }
+
+        if (bIsGameplayActor)
+        {
+            Actor->SetActorActive(bEnabled);
+        }
+    }
+}

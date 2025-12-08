@@ -6,8 +6,8 @@
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision: Enable",
-      "TriggerTime" : 0.146934
+      "NotifyName" : "WeaponCollision",
+      "TriggerTime" : 0.003300
     }, {
       "Class" : "UAnimNotify_EnableWeaponCollision",
       "Data" : {
@@ -16,7 +16,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "WeaponCollision: Disable",
-      "TriggerTime" : 0.549764
+      "TriggerTime" : 0.323432
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

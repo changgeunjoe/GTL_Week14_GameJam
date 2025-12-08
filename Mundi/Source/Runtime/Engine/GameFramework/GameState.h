@@ -93,6 +93,9 @@ public:
 
     float GetStateElapsedTime() const { return StateTimeSeconds; }
 
+    // 플레이어/몬스터 틱 활성화/비활성화
+    void SetGameplayActorsTickEnabled(bool bEnabled);
+
 protected:
     void HandleStateTick(float DeltaTime) override;
 
@@ -119,5 +122,5 @@ protected:
     // Timings (seconds)
     float StartFadeInDuration = 0.5f;
     float EndFadeInDuration = 0.6f;
-    float BossIntroBannerTime = 2.0f;
+    float BossIntroBannerTime = 0.0f;
 };

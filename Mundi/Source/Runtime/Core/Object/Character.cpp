@@ -51,7 +51,8 @@ ACharacter::ACharacter()
 
 ACharacter::~ACharacter()
 {
-
+	// 델리게이트 정리 - 람다에서 this를 캡처했으므로 소멸 전에 제거해야 함
+	OnComponentBeginOverlap.Clear();
 }
 
 void ACharacter::Tick(float DeltaSecond)

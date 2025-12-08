@@ -77,6 +77,12 @@ void AGameModeBase::StartPlay()
 				GS->EnterBossIntro();
 			}
 		}
+
+		// 게임 시작 전까지 플레이어/몬스터 틱 비활성화
+		if (AGameState* GS = Cast<AGameState>(GameState))
+		{
+			GS->SetGameplayActorsTickEnabled(false);
+		}
 	}
 }
 
@@ -322,47 +328,8 @@ void AGameModeBase::RestartGame()
 		return;
 	}
 
-	AGameState* GS = Cast<AGameState>(GameState);
-	if (!GS)
-	{
-		return;
-	}
-	if (APawn* PlayerPawn = PlayerController->GetPawn())
-	{
-		// 플레이어 위치 초기화 (원점으로)
-		PlayerPawn->SetActorLocation(FVector(0, 0, 3));
-
-		// 플레이어 체력 회복
-		if (ACharacter* PlayerChar = Cast<ACharacter>(PlayerPawn))
-		{
-			if (UStatsComponent* Stats = Cast<UStatsComponent>(PlayerChar->GetComponent(UStatsComponent::StaticClass())))
-			{
-				Stats->CurrentHealth = Stats->MaxHealth;
-				Stats->CurrentStamina = Stats->MaxStamina;
-				Stats->CurrentFocus = 0.0f;
-			}
-		}
-	}
-	// 2. 보스 체력 회복
-	for (AActor* Actor : GWorld->GetActors()){
-		if (ABossEnemy* Boss = Cast<ABossEnemy>(Actor))
-		{
-			if (UStatsComponent* Stats = Boss->GetStatsComponent())
-			{
-				Stats->CurrentHealth = Stats->MaxHealth;
-			}
-			// 보스 위치 초기화는 필요시 추가
-			break;
-		}
-		return;
-	}
-	// 일시정지 해제 및 마우스 커서 숨김/잠금
-	GWorld->SetPaused(false);
-	UInputManager::GetInstance().SetCursorVisible(false);
-	UInputManager::GetInstance().LockCursor();
-
-	// GameState 초기화 및 게임 시작
-	GS->EnterBossIntro();
+	// 다음 프레임에 재시작 처리 (현재 프레임에서 처리하면 this가 삭제되어 크래시)
+	GWorld->RequestRestart();
 }
 
 void AGameModeBase::QuitGame()
