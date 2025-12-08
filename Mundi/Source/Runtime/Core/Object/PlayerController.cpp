@@ -464,10 +464,11 @@ void APlayerController::ProcessRotationInput(float DeltaTime)
     if (GetWorld() && GetWorld()->IsPaused())
         return;
 
-    // Check if gamepad is providing look input
+    // Check if gamepad is providing look input (check raw gamepad axis, not combined LookValue)
     UInputManager& IM = UInputManager::GetInstance();
-    bool bGamepadLook = IM.IsGamepadConnected() &&
-        (FMath::Abs(LookRightValue) > 0.01f || FMath::Abs(LookUpValue) > 0.01f);
+    float GamepadRightX = IM.IsGamepadConnected() ? IM.GetGamepadAxis(UInputManager::EGamepadAxis::RightX) : 0.0f;
+    float GamepadRightY = IM.IsGamepadConnected() ? IM.GetGamepadAxis(UInputManager::EGamepadAxis::RightY) : 0.0f;
+    bool bGamepadLook = FMath::Abs(GamepadRightX) > 0.1f || FMath::Abs(GamepadRightY) > 0.1f;
 
     // Only process if mouse look enabled OR gamepad is providing look input
     if (!bMouseLookEnabled && !bGamepadLook)
@@ -482,7 +483,7 @@ void APlayerController::ProcessRotationInput(float DeltaTime)
         {
             FVector Euler = GetControlRotation().ToEulerZYXDeg();
 
-            // Gamepad uses higher sensitivity (values are -1 to 1, not pixel deltas)
+            // Gamepad uses higher sensitivity multiplier (stick values are -1 to 1, mouse deltas are larger pixel values)
             float CurrentSensitivity = bGamepadLook ? Sensitivity * 30.0f : Sensitivity;
 
             // Yaw (좌우 회전)
