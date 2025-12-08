@@ -558,14 +558,14 @@ void D3D11RHI::CreateDeviceAndSwapChain(HWND hWindow)
     DXGI_SWAP_CHAIN_DESC swapchaindesc = {};
     swapchaindesc.BufferDesc.Width = 0; // 창 크기에 맞게 자동으로 설정
     swapchaindesc.BufferDesc.Height = 0; // 창 크기에 맞게 자동으로 설정
-    swapchaindesc.BufferDesc.RefreshRate.Numerator = 0; // 프레임 제한 없음
-    swapchaindesc.BufferDesc.RefreshRate.Denominator = 1;
+    //swapchaindesc.BufferDesc.RefreshRate.Numerator = 0; // 프레임 제한 없음
+    //swapchaindesc.BufferDesc.RefreshRate.Denominator = 1;
     swapchaindesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // 색상 포맷
     swapchaindesc.SampleDesc.Count = 1; // 멀티 샘플링 비활성화
     swapchaindesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 렌더 타겟으로 사용
     swapchaindesc.BufferCount = 2; // 더블 버퍼링
     swapchaindesc.OutputWindow = hWindow; // 렌더링할 창 핸들
-    swapchaindesc.Windowed = FALSE; // 전체화면 모드 (프레임 제한 없애기 위함)
+    swapchaindesc.Windowed = TRUE; // 전체화면 모드 (프레임 제한 없애기 위함)
     swapchaindesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // 스왑 방식
 
     // Direct3D 장치와 스왑 체인을 생성

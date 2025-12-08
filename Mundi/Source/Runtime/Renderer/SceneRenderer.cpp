@@ -255,12 +255,23 @@ void FSceneRenderer::RenderShadowMaps()
 	if (!LightManager) return;
 
 	// 2. 그림자 캐스터(Caster) 메시 수집
+	// NOTE: 카메라 프러스텀 컬링된 Proxies.Meshes 대신, 모든 액터에서 그림자 캐스터를 수집
+	// 카메라 뒤에 있는 오브젝트도 광원 시점에서 그림자를 드리울 수 있기 때문
 	TArray<FMeshBatchElement> ShadowMeshBatches;
-	for (UMeshComponent* MeshComponent : Proxies.Meshes)
+	for (AActor* Actor : World->GetActors())
 	{
-		if (MeshComponent && MeshComponent->IsCastShadows() && MeshComponent->IsVisible())
+		if (!Actor || !Actor->IsActorVisible() || !Actor->IsActorActive())
 		{
-			MeshComponent->CollectMeshBatches(ShadowMeshBatches, View);
+			continue;
+		}
+
+		for (USceneComponent* Component : Actor->GetSceneComponents())
+		{
+			UMeshComponent* MeshComponent = Cast<UMeshComponent>(Component);
+			if (MeshComponent && MeshComponent->IsCastShadows() && MeshComponent->IsVisible())
+			{
+				MeshComponent->CollectMeshBatches(ShadowMeshBatches, View);
+			}
 		}
 	}
 
