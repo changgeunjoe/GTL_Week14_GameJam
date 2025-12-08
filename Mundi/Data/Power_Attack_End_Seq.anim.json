@@ -102,7 +102,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "Invalid",
-      "TriggerTime" : 0.006720
+      "TriggerTime" : 0.007755
     }, {
       "Class" : "UAnimNotify_PlayCamera",
       "Data" : {
@@ -179,7 +179,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks0_925.wav"
+        "SoundPath" : ""
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -188,7 +188,7 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_65.wav"
+        "SoundPath" : ""
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
@@ -197,12 +197,32 @@
     }, {
       "Class" : "UAnimNotify_PlaySound",
       "Data" : {
-        "SoundPath" : "C:/Users/Jungle/Documents/GTL_Week14_GameJam/Mundi/Data/Audio/SFX/Magic/Banks10_64.wav"
+        "SoundPath" : ""
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks10_64.wav",
       "TriggerTime" : 0.933285
+    }, {
+      "Class" : "UAnimNotify_ParticleOnOff",
+      "Data" : {
+        "ParticleName" : "Charged",
+        "bActivate" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Particle: On: Charged",
+      "TriggerTime" : 0.000662
+    }, {
+      "Class" : "UAnimNotify_ParticleOnOff",
+      "Data" : {
+        "ParticleName" : "Charged",
+        "bActivate" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Particle: Off: Charged",
+      "TriggerTime" : 1.747516
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1

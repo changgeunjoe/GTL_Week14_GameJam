@@ -37,9 +37,114 @@
   "ObjectName" : "플레이어 캐릭터_0",
   "OwnedComponents" : [{
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10711,
+      "Id" : 12133,
+      "ObjectName" : "UParticleSystemComponent_3",
+      "ParentId" : 12128,
+      "ParticleIndex" : 0,
+      "ParticleName" : "WeaponRibbon",
+      "RelativeLocation" : [3.904436, -0.022154, 0.341266],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_SwordRibbonPlayer1.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : false,
+      "bAutoDestroy" : false,
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
+    }, {
+      "AngularDampingOverride" : 0.050000,
+      "BoxExtent" : [4.404629, 0.310638, 0.400278],
+      "CapsuleHalfHeight" : 0.400278,
+      "CapsuleRadius" : 2.202314,
+      "CollisionEnabled_Internal" : 2,
+      "CollisionOffset" : [0.000000, 0.000000, 0.000000],
+      "CollisionRotation" : [0.000000, 0.000000, 0.000000],
+      "CollisionType" : 1,
+      "FrictionCombineModeOverride" : 2,
+      "Id" : 12128,
+      "LinearDampingOverride" : 0.010000,
+      "MassOverride" : 10.000000,
+      "MaterialSlots" : [{
+          "Overrides" : {
+            "Scalars" : {
+
+            },
+            "Textures" : {
+
+            },
+            "Vectors" : {
+              "EmissiveColor" : [1.000000, 0.599067, 0.362934, 1.000000]
+            }
+          },
+          "ParentPath" : "silver",
+          "Type" : "UMaterialInstanceDynamic"
+        }, {
+          "AssetPath" : "handle",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "handle_wrap",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "handle",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "silver",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "wolf_under_blade",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "circle_and_under_handle",
+          "Type" : "UMaterial"
+        }],
+      "ObjectName" : "WeaponMeshComponent",
+      "ParentId" : 12134,
+      "PhysMaterialPreset" : 0,
+      "RelativeLocation" : [0.394516, 0.434058, 1.103885],
+      "RelativeRotationEuler" : [2.060880, -12.279350, -1.706857],
+      "RelativeScale" : [0.130000, 0.100000, 0.170000],
+      "RestitutionCombineModeOverride" : 2,
+      "SphereRadius" : 4.404629,
+      "StaticMesh" : "Data/Model/katana1.obj",
+      "Type" : "UStaticMeshComponent",
+      "bBlockComponent" : false,
+      "bCastShadows" : true,
+      "bEnableCollision" : true,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bSimulatePhysics" : false,
+      "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12127,
+      "ObjectName" : "ParticleCharging",
+      "ParentId" : 12134,
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UPrimitiveComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12132,
       "ObjectName" : "UParticleSystemComponent_20",
-      "ParentId" : 10716,
+      "ParentId" : 12127,
       "ParticleIndex" : 1,
       "ParticleName" : "Charging",
       "RelativeLocation" : [0.204000, -0.339289, 0.208000],
@@ -59,58 +164,48 @@
       "bUseAsyncSimulation" : true,
       "bUseGpuInstancing" : false
     }, {
-      "AngularDampingOverride" : 0.050000,
-      "BoxExtent" : [3.432323, 0.090642, 0.364984],
-      "CapsuleHalfHeight" : 0.364984,
-      "CapsuleRadius" : 1.716161,
       "CollisionEnabled_Internal" : 2,
-      "CollisionOffset" : [0.000000, 0.000000, 0.000000],
-      "CollisionRotation" : [0.000000, 0.000000, 0.000000],
-      "CollisionType" : 1,
-      "FrictionCombineModeOverride" : 2,
-      "Id" : 10717,
-      "LinearDampingOverride" : 0.010000,
-      "MassOverride" : 10.000000,
-      "MaterialSlots" : [{
-          "AssetPath" : "grab",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "silver",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "ornaments_on_sheath",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "ornaments_on_sheath",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "ornaments_on_sheath",
-          "Type" : "UMaterial"
-        }],
-      "ObjectName" : "SubWeaponMeshComponent",
-      "ParentId" : 10619,
-      "PhysMaterialPreset" : 0,
-      "RelativeLocation" : [-0.126157, -0.424431, 1.140013],
-      "RelativeRotationEuler" : [-165.859161, -1.739909, 179.597656],
-      "RelativeScale" : [0.150000, 0.100000, 0.100000],
-      "RestitutionCombineModeOverride" : 2,
-      "SphereRadius" : 3.432323,
-      "StaticMesh" : "Data/Model/katana2.obj",
-      "Type" : "UStaticMeshComponent",
+      "Id" : 12235,
+      "ObjectName" : "UParticleSystemComponent_13",
+      "ParentId" : 12223,
+      "ParticleIndex" : 2,
+      "ParticleName" : "Charged",
+      "RelativeLocation" : [0.031548, -0.000000, 1.022077],
+      "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_Charging3.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : false,
+      "bAutoDestroy" : false,
       "bBlockComponent" : false,
-      "bCastShadows" : true,
-      "bEnableCollision" : true,
       "bGenerateOverlapEvents" : true,
       "bHiddenInGame" : false,
       "bIsActive" : true,
       "bIsVisible" : true,
       "bOverrideCollisionSetting" : false,
-      "bSimulatePhysics" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12223,
+      "ObjectName" : "ParticleCharged",
+      "ParentId" : 12134,
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UPrimitiveComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
       "bTickEnabled" : true
     }, {
       "AnimGraphPath" : "Data/Graphs/Shinobi.graph",
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10619,
+      "Id" : 12134,
       "MaterialSlots" : [{
           "Type" : "None"
         }, {
@@ -269,7 +364,7 @@
           "Type" : "UMaterialInstanceDynamic"
         }],
       "ObjectName" : "USkeletalMeshComponent_3",
-      "ParentId" : 10708,
+      "ParentId" : 12229,
       "PhysicsAssetOverridePath" : "Data/Physics/Shinobi.phys",
       "RelativeLocation" : [-0.000061, -0.000000, -0.860196],
       "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
@@ -286,105 +381,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10709,
-      "ObjectName" : "UParticleSystemComponent_3",
-      "ParentId" : 10712,
-      "ParticleIndex" : 0,
-      "ParticleName" : "WeaponRibbon",
-      "RelativeLocation" : [3.904436, -0.022154, 0.341266],
-      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Template" : "Data/Particle/G_SwordRibbonPlayer1.particle",
-      "Type" : "UParticleSystemComponent",
-      "bAutoActivate" : false,
-      "bAutoDestroy" : false,
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true,
-      "bUseAsyncSimulation" : true,
-      "bUseGpuInstancing" : false
-    }, {
-      "CapsuleHalfHeight" : 1.000000,
-      "CapsuleRadius" : 0.200000,
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10705,
-      "ObjectName" : "WeaponCollider",
-      "ParentId" : 10712,
-      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
-      "RelativeRotationEuler" : [0.000000, 90.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UCapsuleComponent",
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bRegisterToPhysX" : true,
-      "bShapeHiddenInGame" : true,
-      "bShapeIsVisible" : true,
-      "bTickEnabled" : true
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10707,
-      "ObjectName" : "UParticleSystemComponent_5",
-      "ParentId" : 10712,
-      "ParticleIndex" : 0,
-      "ParticleName" : "WeaponRibbon",
-      "RelativeLocation" : [2.388424, 0.105524, 0.299700],
-      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Template" : "Data/Particle/G_SwordRibbonPlayer3.particle",
-      "Type" : "UParticleSystemComponent",
-      "bAutoActivate" : false,
-      "bAutoDestroy" : false,
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true,
-      "bUseAsyncSimulation" : true,
-      "bUseGpuInstancing" : false
-    }, {
-      "ObjectName" : "UCharacterMovementComponent_1",
-      "Type" : "UCharacterMovementComponent",
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bTickEnabled" : true
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10706,
-      "ObjectName" : "UParticleSystemComponent_6",
-      "ParentId" : 10712,
-      "ParticleIndex" : 0,
-      "ParticleName" : "WeaponRibbon",
-      "RelativeLocation" : [-0.043833, -0.001290, 0.007330],
-      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Template" : "Data/Particle/G_SwordRibbonPlayer2.particle",
-      "Type" : "UParticleSystemComponent",
-      "bAutoActivate" : false,
-      "bAutoDestroy" : false,
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true,
-      "bUseAsyncSimulation" : true,
-      "bUseGpuInstancing" : false
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10722,
+      "Id" : 12228,
       "ObjectName" : "UParticleSystemComponent_21",
-      "ParentId" : 10716,
+      "ParentId" : 12127,
       "ParticleIndex" : 2,
       "ParticleName" : "Charging",
       "RelativeLocation" : [0.026000, -0.086000, 0.776000],
@@ -404,14 +403,115 @@
       "bUseAsyncSimulation" : true,
       "bUseGpuInstancing" : false
     }, {
-      "CapsuleHalfHeight" : 0.900000,
-      "CapsuleRadius" : 0.300000,
+      "AngularDampingOverride" : 0.050000,
+      "BoxExtent" : [3.432323, 0.090642, 0.364984],
+      "CapsuleHalfHeight" : 0.364984,
+      "CapsuleRadius" : 1.716161,
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10708,
-      "ObjectName" : "UCapsuleComponent_1",
-      "ParentId" : 0,
-      "RelativeLocation" : [3.549178, 2.687413, 2.129690],
-      "RelativeRotationEuler" : [0.000002, 0.282249, 0.000448],
+      "CollisionOffset" : [0.000000, 0.000000, 0.000000],
+      "CollisionRotation" : [0.000000, 0.000000, 0.000000],
+      "CollisionType" : 1,
+      "FrictionCombineModeOverride" : 2,
+      "Id" : 12220,
+      "LinearDampingOverride" : 0.010000,
+      "MassOverride" : 10.000000,
+      "MaterialSlots" : [{
+          "AssetPath" : "grab",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "silver",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "ornaments_on_sheath",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "ornaments_on_sheath",
+          "Type" : "UMaterial"
+        }, {
+          "AssetPath" : "ornaments_on_sheath",
+          "Type" : "UMaterial"
+        }],
+      "ObjectName" : "SubWeaponMeshComponent",
+      "ParentId" : 12134,
+      "PhysMaterialPreset" : 0,
+      "RelativeLocation" : [-0.126158, -0.424431, 1.140013],
+      "RelativeRotationEuler" : [-165.859161, -1.739909, 179.597656],
+      "RelativeScale" : [0.150000, 0.100000, 0.100000],
+      "RestitutionCombineModeOverride" : 2,
+      "SphereRadius" : 3.432323,
+      "StaticMesh" : "Data/Model/katana2.obj",
+      "Type" : "UStaticMeshComponent",
+      "bBlockComponent" : false,
+      "bCastShadows" : true,
+      "bEnableCollision" : true,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bSimulatePhysics" : false,
+      "bTickEnabled" : true
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12224,
+      "ObjectName" : "UParticleSystemComponent_5",
+      "ParentId" : 12128,
+      "ParticleIndex" : 0,
+      "ParticleName" : "WeaponRibbon",
+      "RelativeLocation" : [2.388424, 0.105524, 0.299700],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_SwordRibbonPlayer3.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : false,
+      "bAutoDestroy" : false,
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
+    }, {
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12231,
+      "ObjectName" : "UParticleSystemComponent_19",
+      "ParentId" : 12127,
+      "ParticleIndex" : 0,
+      "ParticleName" : "Charging",
+      "RelativeLocation" : [0.201000, -0.010000, 0.717000],
+      "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Template" : "Data/Particle/G_Charging1.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : false,
+      "bAutoDestroy" : false,
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
+    }, {
+      "ObjectName" : "UCharacterMovementComponent_1",
+      "Type" : "UCharacterMovementComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
+    }, {
+      "CapsuleHalfHeight" : 1.000000,
+      "CapsuleRadius" : 0.200000,
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 12225,
+      "ObjectName" : "WeaponCollider",
+      "ParentId" : 12128,
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 90.000000, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
       "Type" : "UCapsuleComponent",
       "bBlockComponent" : false,
@@ -426,101 +526,47 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10710,
-      "ObjectName" : "ParticleCharged",
-      "ParentId" : 10619,
-      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "Id" : 12227,
+      "ObjectName" : "UParticleSystemComponent_6",
+      "ParentId" : 12128,
+      "ParticleIndex" : 0,
+      "ParticleName" : "WeaponRibbon",
+      "RelativeLocation" : [-0.043833, -0.001290, 0.007330],
       "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UPrimitiveComponent",
+      "Template" : "Data/Particle/G_SwordRibbonPlayer2.particle",
+      "Type" : "UParticleSystemComponent",
+      "bAutoActivate" : false,
+      "bAutoDestroy" : false,
       "bBlockComponent" : false,
       "bGenerateOverlapEvents" : true,
       "bHiddenInGame" : false,
       "bIsActive" : true,
       "bIsVisible" : true,
       "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true
+      "bTickEnabled" : true,
+      "bUseAsyncSimulation" : true,
+      "bUseGpuInstancing" : false
     }, {
-      "AngularDampingOverride" : 0.050000,
-      "BoxExtent" : [4.404629, 0.310638, 0.400278],
-      "CapsuleHalfHeight" : 0.400278,
-      "CapsuleRadius" : 2.202314,
+      "CapsuleHalfHeight" : 0.900000,
+      "CapsuleRadius" : 0.300000,
       "CollisionEnabled_Internal" : 2,
-      "CollisionOffset" : [0.000000, 0.000000, 0.000000],
-      "CollisionRotation" : [0.000000, 0.000000, 0.000000],
-      "CollisionType" : 1,
-      "FrictionCombineModeOverride" : 2,
-      "Id" : 10712,
-      "LinearDampingOverride" : 0.010000,
-      "MassOverride" : 10.000000,
-      "MaterialSlots" : [{
-          "Overrides" : {
-            "Scalars" : {
-
-            },
-            "Textures" : {
-
-            },
-            "Vectors" : {
-              "EmissiveColor" : [1.000000, 0.599067, 0.362934, 1.000000]
-            }
-          },
-          "ParentPath" : "silver",
-          "Type" : "UMaterialInstanceDynamic"
-        }, {
-          "AssetPath" : "handle",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "handle_wrap",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "handle",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "silver",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "wolf_under_blade",
-          "Type" : "UMaterial"
-        }, {
-          "AssetPath" : "circle_and_under_handle",
-          "Type" : "UMaterial"
-        }],
-      "ObjectName" : "WeaponMeshComponent",
-      "ParentId" : 10619,
-      "PhysMaterialPreset" : 0,
-      "RelativeLocation" : [0.394518, 0.434058, 1.103885],
-      "RelativeRotationEuler" : [2.060880, -12.279350, -1.706857],
-      "RelativeScale" : [0.130000, 0.100000, 0.170000],
-      "RestitutionCombineModeOverride" : 2,
-      "SphereRadius" : 4.404629,
-      "StaticMesh" : "Data/Model/katana1.obj",
-      "Type" : "UStaticMeshComponent",
-      "bBlockComponent" : false,
-      "bCastShadows" : true,
-      "bEnableCollision" : true,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bSimulatePhysics" : false,
-      "bTickEnabled" : true
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10716,
-      "ObjectName" : "ParticleCharging",
-      "ParentId" : 10619,
-      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
-      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "Id" : 12229,
+      "ObjectName" : "UCapsuleComponent_1",
+      "ParentId" : 0,
+      "RelativeLocation" : [31.400833, 8.327513, 3.292851],
+      "RelativeRotationEuler" : [0.000002, 0.282249, 0.000448],
       "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Type" : "UPrimitiveComponent",
+      "Type" : "UCapsuleComponent",
       "bBlockComponent" : false,
       "bGenerateOverlapEvents" : true,
       "bHiddenInGame" : false,
       "bIsActive" : true,
       "bIsVisible" : true,
       "bOverrideCollisionSetting" : false,
+      "bRegisterToPhysX" : true,
+      "bShapeHiddenInGame" : true,
+      "bShapeIsVisible" : true,
       "bTickEnabled" : true
     }, {
       "BlockCostPerHit" : 20.000000,
@@ -546,32 +592,9 @@
       "bTickEnabled" : true
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10721,
-      "ObjectName" : "UParticleSystemComponent_19",
-      "ParentId" : 10716,
-      "ParticleIndex" : 0,
-      "ParticleName" : "Charging",
-      "RelativeLocation" : [0.201000, -0.010000, 0.717000],
-      "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
-      "RelativeScale" : [1.000000, 1.000000, 1.000000],
-      "Template" : "Data/Particle/G_Charging1.particle",
-      "Type" : "UParticleSystemComponent",
-      "bAutoActivate" : false,
-      "bAutoDestroy" : false,
-      "bBlockComponent" : false,
-      "bGenerateOverlapEvents" : true,
-      "bHiddenInGame" : false,
-      "bIsActive" : true,
-      "bIsVisible" : true,
-      "bOverrideCollisionSetting" : false,
-      "bTickEnabled" : true,
-      "bUseAsyncSimulation" : true,
-      "bUseGpuInstancing" : false
-    }, {
-      "CollisionEnabled_Internal" : 2,
-      "Id" : 10724,
+      "Id" : 12232,
       "ObjectName" : "UParticleSystemComponent_8",
-      "ParentId" : 10710,
+      "ParentId" : 12223,
       "ParticleIndex" : 1,
       "ParticleName" : "Charged",
       "RelativeLocation" : [-0.018986, 0.000000, 0.100286],
@@ -592,9 +615,9 @@
       "bUseGpuInstancing" : false
     }, {
       "CollisionEnabled_Internal" : 2,
-      "Id" : 10725,
+      "Id" : 12233,
       "ObjectName" : "UParticleSystemComponent_7",
-      "ParentId" : 10710,
+      "ParentId" : 12223,
       "ParticleIndex" : 0,
       "ParticleName" : "Charged",
       "RelativeLocation" : [0.000075, 0.000000, 1.061076],
@@ -615,7 +638,7 @@
       "bUseGpuInstancing" : false
     }],
   "ParryWindowDuration" : 0.200000,
-  "RootComponentId" : 10708,
+  "RootComponentId" : 12229,
   "RotationSpeed" : 10.000000,
   "SubWeaponBoneName" : "hand_l",
   "SubWeaponOffset" : [0.040000, 0.040000, 0.100000],
