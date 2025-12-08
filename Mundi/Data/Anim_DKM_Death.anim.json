@@ -8,6 +8,24 @@
       "Kind" : "Single",
       "NotifyName" : "PauseAnimation",
       "TriggerTime" : 2.437922
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "Data/Audio/SFX/Crash/Banks0_945.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks0_945.wav",
+      "TriggerTime" : 0.134892
+    }, {
+      "Class" : "UAnimNotify_PlaySound",
+      "Data" : {
+        "SoundPath" : "Data/Audio/SFX/Crash/Banks0_979.wav"
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "PlaySound: Banks0_979.wav",
+      "TriggerTime" : 1.460779
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
