@@ -3,21 +3,21 @@
             "LODLevels" : [{
                 "LODIndex" : 0,
                 "Modules" : [{
-                    "Lifetime_Max" : 0.600000,
-                    "Lifetime_Min" : 0.500000,
+                    "Lifetime_Max" : 1.000000,
+                    "Lifetime_Min" : 0.800000,
                     "Lifetime_bUseRange" : true,
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
                     "StartSize_Max" : [1.000000, 1.000000, 1.000000],
-                    "StartSize_Min" : [0.500000, 0.500000, 0.500000],
+                    "StartSize_Min" : [0.300000, 0.300000, 0.300000],
                     "StartSize_bUseRange" : true,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
                     "Gravity" : [0.000000, 0.000000, -3.000000],
-                    "StartVelocity_Max" : [0.200000, 0.200000, 0.200000],
-                    "StartVelocity_Min" : [-0.200000, -0.200000, -0.200000],
+                    "StartVelocity_Max" : [0.500000, 0.500000, 0.500000],
+                    "StartVelocity_Min" : [-0.500000, -0.500000, -0.500000],
                     "StartVelocity_bUseRange" : true,
                     "Type" : "Velocity",
                     "bEnabled" : true
@@ -38,8 +38,8 @@
                   }, {
                     "Point1Time" : 0.000000,
                     "Point1Value" : [0.000000, 0.000000, 0.000000],
-                    "Point2Time" : 0.500000,
-                    "Point2Value" : [1.000000, 1.000000, 1.000000],
+                    "Point2Time" : 0.229111,
+                    "Point2Value" : [0.916666, 0.916666, 0.916666],
                     "Type" : "SizeMultiplyLife",
                     "bEnabled" : true,
                     "bMultiplyX" : true,
@@ -93,9 +93,9 @@
                 },
                 "SpawnModule" : {
                   "BurstList" : [{
-                      "Count" : 5,
+                      "Count" : 50,
                       "CountRange" : 0,
-                      "Time" : 0.010000
+                      "Time" : 1.000000
                     }],
                   "SpawnRateOverTime_Max" : 50.000000,
                   "SpawnRateOverTime_Min" : 10.000000,

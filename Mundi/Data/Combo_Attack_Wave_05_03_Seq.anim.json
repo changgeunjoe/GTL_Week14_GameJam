@@ -7,7 +7,7 @@
       "Duration" : 0.000000,
       "Kind" : "Single",
       "NotifyName" : "ComboWindow: Enable",
-      "TriggerTime" : 0.007231
+      "TriggerTime" : 0.012178
     }, {
       "Class" : "UAnimNotify_ComboWindow",
       "Data" : {
@@ -18,23 +18,25 @@
       "NotifyName" : "ComboWindow: Disable",
       "TriggerTime" : 0.316293
     }, {
-      "Class" : "UAnimNotify_EnableWeaponCollision",
+      "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-        "bEnable" : true
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : true
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision",
-      "TriggerTime" : 0.028035
+      "NotifyName" : "Particle: On: WeaponRibbon",
+      "TriggerTime" : 0.001649
     }, {
-      "Class" : "UAnimNotify_EnableWeaponCollision",
+      "Class" : "UAnimNotify_ParticleOnOff",
       "Data" : {
-        "bEnable" : false
+        "ParticleName" : "WeaponRibbon",
+        "bActivate" : false
       },
       "Duration" : 0.000000,
       "Kind" : "Single",
-      "NotifyName" : "WeaponCollision: Disable",
-      "TriggerTime" : 0.265509
+      "NotifyName" : "Particle: Off: WeaponRibbon",
+      "TriggerTime" : 0.800017
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
