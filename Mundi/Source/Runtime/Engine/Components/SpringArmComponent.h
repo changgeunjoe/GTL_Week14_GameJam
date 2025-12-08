@@ -59,9 +59,12 @@ public:
     void ClearLockOnTarget() { LockOnTarget = nullptr; }
     bool HasLockOnTarget() const { return LockOnTarget != nullptr; }
 
+    /** Lock-on 회전을 즉시 적용 (Tick 순서 문제 해결용) */
+    void ForceUpdateLockOnRotation(float DeltaTime);
+
     /** Lock-on 카메라 회전 속도 */
     UPROPERTY(EditAnywhere, Category="LockOn")
-    float LockOnRotationSpeed = 5.0f;
+    float LockOnRotationSpeed = 40.0f;
 
     /** Lock-on 타겟 높이 오프셋 (카메라가 바라볼 위치) */
     UPROPERTY(EditAnywhere, Category="LockOn")
@@ -74,6 +77,22 @@ public:
     /** Whether to slightly adjust pitch for tall/short enemies (like giant bosses) */
     UPROPERTY(EditAnywhere, Category="LockOn")
     bool bAdjustPitchForTargetHeight = false;
+
+    // ──────────────────────────────
+    // 구르기(Rolling) 카메라 - 엘든링 스타일
+    // ──────────────────────────────
+
+    /** 구르기 상태 설정 (PlayerCharacter에서 호출) */
+    void SetRollingState(bool bRolling);
+    bool IsRolling() const { return bIsRolling; }
+
+    /** 구르기 종료 후 블렌드 아웃 시간 (초) */
+    UPROPERTY(EditAnywhere, Category="Rolling")
+    float RollBlendOutDuration = 0.25f;
+
+    /** 구르기 복귀 회전 속도 (블렌드 아웃 시) */
+    UPROPERTY(EditAnywhere, Category="Rolling")
+    float RollRecoveryRotationSpeed = 8.0f;
 
     // ──────────────────────────────
     // 결과 값 (읽기 전용)
@@ -129,4 +148,33 @@ private:
 
     /** 충돌 계산 후 실제 암 길이 */
     float CurrentArmLength;
+
+    // ── 구르기 카메라 상태 ──
+    /** 현재 구르기 중 여부 */
+    bool bIsRolling = false;
+
+    /** 구르기 시작 시 저장된 카메라 회전 (고정용) */
+    FQuat FrozenRotation;
+
+    /** 구르기 종료 후 블렌드 아웃 진행 중 여부 */
+    bool bIsBlendingOutFromRoll = false;
+
+    /** 블렌드 아웃 시작 시 저장된 회전 */
+    FQuat BlendOutStartRotation;
+
+    /** 블렌드 아웃 목표 회전 (구르기 끝난 시점에 고정) */
+    FQuat BlendOutTargetRotation;
+
+    /** 블렌드 아웃 타이머 */
+    float RollBlendOutTimer = 0.0f;
+
+    // ── 블렌드 아웃 후 이징 인 (부드러운 속도 복귀) ──
+    /** 블렌드 아웃 종료 후 이징 인 중 여부 */
+    bool bIsEasingInAfterRoll = false;
+
+    /** 이징 인 타이머 */
+    float EaseInTimer = 0.0f;
+
+    /** 이징 인 지속 시간 (초) */
+    float EaseInDuration = 0.3f;
 };

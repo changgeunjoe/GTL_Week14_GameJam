@@ -111,6 +111,7 @@ protected:
     void UpdateParryWindow(float DeltaTime);
     void UpdateStagger(float DeltaTime);
     void UpdateDodgeState(float DeltaTime);
+    void UpdateMovementState(float DeltaTime);
     void UpdateEffect(float DeltaTime);
 
     /** 스킬 차징 시작 (1=DashAttack, 2=UltimateAttack) */

@@ -495,6 +495,8 @@ void APlayerController::ProcessRotationInput(float DeltaTime)
             if (bIsLockedOn)
             {
                 SpringArm->SetLockOnTarget(TargetingComponent->GetLockedTarget());
+                // 락온 시 회전을 즉시 적용 (Tick 순서 문제 해결)
+                SpringArm->ForceUpdateLockOnRotation(DeltaTime);
             }
             else
             {
