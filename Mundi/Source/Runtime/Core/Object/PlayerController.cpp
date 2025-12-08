@@ -463,6 +463,10 @@ void APlayerController::ProcessRotationInput(float DeltaTime)
     if (!bMouseLookEnabled)
         return;
 
+    // 일시정지 시 카메라 회전 안함
+    if (GetWorld() && GetWorld()->IsPaused())
+        return;
+
     bool bIsLockedOn = TargetingComponent && TargetingComponent->IsLockedOn();
 
     // Lock-on 상태가 아닐 때만 마우스 입력으로 ControlRotation 업데이트

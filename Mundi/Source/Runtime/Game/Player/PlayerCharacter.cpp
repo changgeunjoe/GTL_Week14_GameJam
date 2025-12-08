@@ -26,7 +26,7 @@ APlayerCharacter::APlayerCharacter()
 
     // 히트박스 컴포넌트 (무기에 붙일 수도 있음)
     HitboxComponent = CreateDefaultSubobject<UHitboxComponent>("HitboxComponent");
-    //HitboxComponent->SetBoxExtent(FVector(50.f, 50.f, 50.f));
+    HitboxComponent->SetBoxExtent(FVector(50.f, 50.f, 50.f));
 
     // 스프링암 + 카메라 (필요시)
     // SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm");

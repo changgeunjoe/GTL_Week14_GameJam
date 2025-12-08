@@ -17,10 +17,10 @@ public:
 
 	AGameModeBase();
 	~AGameModeBase() override;
-	
+
 	APawn* DefaultPawn;
 	APlayerController* PlayerController;
-	
+
 	UClass* DefaultPawnClass;
 	UClass* PlayerControllerClass;
 
@@ -31,9 +31,25 @@ public:
 	// 게임 시작 시 호출
 	virtual void StartPlay();
 
-	AGameStateBase* GetGameState() const { return GameState; }
-	  
+	// 매 프레임 업데이트
+	virtual void Tick(float DeltaSeconds) override;
 
+	AGameStateBase* GetGameState() const { return GameState; }
+
+	// 게임 재시작
+	void RestartGame();
+
+	// 게임 종료
+	void QuitGame();
+
+private:
+	// 키 입력 상태 저장 (이전 프레임)
+	bool bWasEscPressed = false;
+	bool bWasRPressed = false;
+	bool bWasQPressed = false;
+	bool bWasAnyKeyPressed = false;
+
+public:
 	// 플레이어 리스폰할 때 사용
 	//virtual void RestartPlayer(APlayerController* NewPlayer); 		 
 

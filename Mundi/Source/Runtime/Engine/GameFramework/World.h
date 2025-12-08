@@ -144,9 +144,14 @@ public:
     void RequestHitStop(float Duration ,float Dilation = 0.0f); 
     void RequestSlomo(float Duration, float Dilation = 0.0f);
 
-    // GameMode 
+    // GameMode
     void SetGameMode(AGameModeBase* InGameMode) { GameMode = InGameMode; }
     AGameModeBase* GetGameMode() { return GameMode; }
+
+    // Pause
+    void SetPaused(bool bInPaused) { bPaused = bInPaused; }
+    bool IsPaused() const { return bPaused; }
+
 private:
     bool DestroyActor(AActor* Actor);   // 즉시 삭제
 
@@ -209,6 +214,7 @@ private:
     float TimeDuration;
 
     bool bIsTearingDown = false;    // 월드가 파괴 중임을 알리는 플래그
+    bool bPaused = false;            // 게임 일시정지 상태
 
     EWorldType WorldType = EWorldType::Editor;  // Default to editor world
 };

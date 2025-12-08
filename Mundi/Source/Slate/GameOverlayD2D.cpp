@@ -1007,6 +1007,76 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     DrawSingleBar(StaminaBarY, CurrentPlayerStamina, DelayedPlayerStamina, PlayerStaminaBarBitmap);
 }
 
+void UGameOverlayD2D::DrawPauseMenu(float ScreenW, float ScreenH)
+{
+    if (!D2DContext || !TitleFormat || !SubtitleFormat || !TextBrush || !SubtitleBrush)
+    {
+        return;
+    }
+
+    // 반투명 검은 배경
+    ID2D1SolidColorBrush* BgBrush = nullptr;
+    D2DContext->CreateSolidColorBrush(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.7f), &BgBrush);
+    if (BgBrush)
+    {
+        D2D1_RECT_F BgRect = D2D1::RectF(0, 0, ScreenW, ScreenH);
+        D2DContext->FillRectangle(BgRect, BgBrush);
+        SafeRelease(BgBrush);
+    }
+
+    // "PAUSED" 타이틀
+    const wchar_t* TitleText = L"PAUSED";
+    D2D1_RECT_F TitleRect = D2D1::RectF(0, ScreenH * 0.25f, ScreenW, ScreenH * 0.35f);
+    TextBrush->SetOpacity(1.0f);
+    D2DContext->DrawTextW(
+        TitleText,
+        static_cast<UINT32>(wcslen(TitleText)),
+        TitleFormat,
+        TitleRect,
+        TextBrush);
+
+    // 메뉴 옵션들
+    const wchar_t* ResumeText = L"Press ESC to Resume";
+    const wchar_t* RestartText = L"Press G to Restart";
+    const wchar_t* QuitText = L"Press Q to Quit";
+
+    float MenuY = ScreenH * 0.45f;
+    float LineSpacing = 60.0f;
+
+    SubtitleBrush->SetOpacity(1.0f);
+
+    // Resume
+    D2D1_RECT_F ResumeRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    D2DContext->DrawTextW(
+        ResumeText,
+        static_cast<UINT32>(wcslen(ResumeText)),
+        SubtitleFormat,
+        ResumeRect,
+        SubtitleBrush);
+
+    MenuY += LineSpacing;
+
+    // Restart
+    D2D1_RECT_F RestartRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    D2DContext->DrawTextW(
+        RestartText,
+        static_cast<UINT32>(wcslen(RestartText)),
+        SubtitleFormat,
+        RestartRect,
+        SubtitleBrush);
+
+    MenuY += LineSpacing;
+
+    // Quit
+    D2D1_RECT_F QuitRect = D2D1::RectF(0, MenuY, ScreenW, MenuY + 50.0f);
+    D2DContext->DrawTextW(
+        QuitText,
+        static_cast<UINT32>(wcslen(QuitText)),
+        SubtitleFormat,
+        QuitRect,
+        SubtitleBrush);
+}
+
 void UGameOverlayD2D::DrawDebugStats(float ScreenW, float ScreenH)
 {
     if (!DebugTextFormat || !SubtitleBrush)
@@ -1210,6 +1280,7 @@ void UGameOverlayD2D::Draw()
     // Only draw for specific states
     bool bShouldDraw = (FlowState == EGameFlowState::StartMenu ||
                         FlowState == EGameFlowState::Fighting ||
+                        FlowState == EGameFlowState::Paused ||
                         FlowState == EGameFlowState::Victory ||
                         FlowState == EGameFlowState::Defeat);
 
@@ -1299,6 +1370,14 @@ void UGameOverlayD2D::Draw()
     case EGameFlowState::Fighting:
         DrawPlayerBars(ScreenW, ScreenH, DeltaTime);
         DrawBossHealthBar(ScreenW, ScreenH, DeltaTime);
+        break;
+
+    case EGameFlowState::Paused:
+        // 일시정지 시에도 HP바는 표시
+        DrawPlayerBars(ScreenW, ScreenH, DeltaTime);
+        DrawBossHealthBar(ScreenW, ScreenH, DeltaTime);
+        // 일시정지 메뉴 오버레이
+        DrawPauseMenu(ScreenW, ScreenH);
         break;
 
     case EGameFlowState::Defeat:

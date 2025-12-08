@@ -861,6 +861,102 @@
           "BoxExtent" : [0.000000, 0.000000, 0.000000],
           "CollisionEnabled_Internal" : 2,
           "Id" : 10847,
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Helmet_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Helmet",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Armor",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Gauntlets_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Gauntlets_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Gauntlets_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Gauntlets",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Pants_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Pants_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Pants_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Pants",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Armor_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Armor_5",
+              "Type" : "UMaterialInstanceDynamic"
+            }],
+          "ObjectName" : "USkeletalMeshComponent_1",
+          "ParentId" : 10393,
+          "PhysicsAssetOverridePath" : "Data/Physics/Boss.phys",
+          "RelativeLocation" : [0.000000, 0.000000, -2.746004],
+          "RelativeRotationEuler" : [0.000000, -0.000000, 0.000000],
+          "RelativeScale" : [2.500000, 2.500000, 2.500000],
+          "SkeletalMesh" : "Data/FBX/SKM_DKM_Full/SKM_DKM_Full.FBX",
+          "Type" : "USkeletalMeshComponent",
+          "bBlockComponent" : false,
+          "bCastShadows" : true,
+          "bGenerateOverlapEvents" : true,
+          "bHiddenInGame" : false,
+          "bIsActive" : true,
+          "bIsVisible" : true,
+          "bOverrideCollisionSetting" : false,
+          "bTickEnabled" : true
           "ObjectName" : "UHitboxComponent_1",
           "ParentId" : 0,
           "RelativeLocation" : [0.000000, 0.000000, 0.000000],
@@ -876,6 +972,29 @@
           "bShapeHiddenInGame" : true,
           "bShapeIsVisible" : true,
           "bTickEnabled" : true
+        }, {
+          "AnimGraphPath" : "Data/Graphs/보스 에너미_0.graph",
+          "CollisionEnabled_Internal" : 2,
+          "Id" : 10361,
+          "MaterialSlots" : [{
+              "Type" : "None"
+            }, {
+              "Overrides" : {
+                "Scalars" : {
+
+                },
+                "Textures" : {
+                  "0" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_ALB.PNG",
+                  "1" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_NRM.PNG",
+                  "2" : "Data/FBX/SKM_DKM_Full/T_DKM_Boots_ARM.PNG"
+                },
+                "Vectors" : {
+
+                }
+              },
+              "ParentPath" : "MI_DKM_Boots",
+              "Type" : "UMaterialInstanceDynamic"
+            }, {
         }, {
           "AngularDampingOverride" : 0.050000,
           "BoxExtent" : [0.500000, 0.500000, 0.500000],
@@ -988,7 +1107,7 @@
       "LoseTargetRange" : 1500.000000,
       "MaxAttackPatterns" : 2,
       "MoveSpeed" : 300.000000,
-      "ObjectName" : "AEnemyAIController_14",
+      "ObjectName" : "AEnemyAIController_1",
       "OwnedComponents" : [{
           "Id" : 10856,
           "ObjectName" : "DefaultSceneComponent",
