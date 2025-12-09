@@ -45,10 +45,10 @@
           "Duration" : 3.000000,
           "FarTransition" : 5.000000,
           "FocalDistance" : 5.000000,
-          "FocalRegion" : 0.630000,
+          "FocalRegion" : 1.030000,
           "MaxFarBlur" : 32.000000,
-          "MaxNearBlur" : 32.000000,
-          "NearTransition" : 2.000000,
+          "MaxNearBlur" : 4.000000,
+          "NearTransition" : 3.910000,
           "Priority" : 0,
           "Type" : "DOF"
         }
