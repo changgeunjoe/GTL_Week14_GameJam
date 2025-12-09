@@ -26,6 +26,49 @@
       "Kind" : "Single",
       "NotifyName" : "PlaySound: Banks0_979.wav",
       "TriggerTime" : 1.460779
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 0.100000,
+        "RelativeLocation" : [3.000000, 0.000000, 0.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.996195, 0.087156],
+        "bBlendBackToDefault" : false
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 0.029610
+    }, {
+      "Class" : "UAnimNotify_PlayCamera",
+      "Data" : {
+        "Camera" : {
+          "Duration" : 3.000000,
+          "FarTransition" : 5.000000,
+          "FocalDistance" : 5.000000,
+          "FocalRegion" : 0.630000,
+          "MaxFarBlur" : 32.000000,
+          "MaxNearBlur" : 32.000000,
+          "NearTransition" : 2.000000,
+          "Priority" : 0,
+          "Type" : "DOF"
+        }
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "Invalid",
+      "TriggerTime" : 0.101991
+    }, {
+      "Class" : "UAnimNotify_SetViewTarget",
+      "Data" : {
+        "BlendTime" : 1.000000,
+        "RelativeLocation" : [0.000000, -500.000000, 200.000000],
+        "RelativeRotation" : [0.000000, 0.000000, 0.000000, 1.000000],
+        "bBlendBackToDefault" : true
+      },
+      "Duration" : 0.000000,
+      "Kind" : "Single",
+      "NotifyName" : "SetViewTarget",
+      "TriggerTime" : 1.105454
     }],
   "Type" : "AnimSequenceMeta",
   "Version" : 1
