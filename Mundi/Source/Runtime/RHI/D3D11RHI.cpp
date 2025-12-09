@@ -565,7 +565,11 @@ void D3D11RHI::CreateDeviceAndSwapChain(HWND hWindow)
     swapchaindesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 렌더 타겟으로 사용
     swapchaindesc.BufferCount = 2; // 더블 버퍼링
     swapchaindesc.OutputWindow = hWindow; // 렌더링할 창 핸들
-    swapchaindesc.Windowed = FALSE; // 전체화면 모드 (프레임 제한 없애기 위함)
+#ifdef _EDITOR
+     swapchaindesc.Windowed = TRUE; // 에디터 모드: 창모드
+     #else
+       swapchaindesc.Windowed = FALSE; // 게임 모드: 전체화면 (프레임 제한 없애기 위함)
+    #endif
     swapchaindesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // 스왑 방식
 
     // Direct3D 장치와 스왑 체인을 생성
