@@ -352,10 +352,10 @@ void UCapsuleComponent::CreatePhysXActor()
     UE_LOG("[CapsuleComponent] CreatePhysXActor - %s Scale=(%.4f, %.4f, %.4f) AttachParent=%p",
            GetName().c_str(), AbsScaleX, AbsScaleY, AbsScaleZ, GetAttachParent());
 
-    // 월드 스케일 적용된 캡슐 크기
-    const float WorldRadius = CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY);
+    // 월드 스케일 적용된 캡슐 크기 (PhysX는 radius, halfHeight 둘 다 0보다 커야 함)
+    const float WorldRadius = FMath::Max(0.001f, CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY));
     const float WorldHalfHeight = CapsuleHalfHeight * AbsScaleZ;
-    const float CylinderHalfHeight = FMath::Max(0.0f, WorldHalfHeight - WorldRadius);
+    const float CylinderHalfHeight = FMath::Max(0.001f, WorldHalfHeight - WorldRadius);
 
     // PhysX Transform (Z-up → X-up 캡슐 회전 포함)
     PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));  // Y축 기준 90도 회전

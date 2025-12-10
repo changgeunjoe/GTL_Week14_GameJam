@@ -32,14 +32,13 @@ void FParticleEmitterInstance::Init(UParticleEmitter* InTemplate, UParticleSyste
             UE_LOG("[ParticleEmitterInstance::Init] WARNING: MaxParticles was 0! Using default: 1000");
         }
 
-        UE_LOG("[ParticleEmitterInstance::Init] Template: %s", Template ? Template->GetName().c_str() : "NULL");
-        UE_LOG("[ParticleEmitterInstance::Init] MaxActiveParticles: %d (from template: %d)",
-               MaxActiveParticles, CachedRequiredModule->MaxParticles);
-        UE_LOG("[ParticleEmitterInstance::Init] EmitterDuration: %.2f", EmitterDuration);
-        UE_LOG("[ParticleEmitterInstance::Init] EmitterLoops: %d", CachedRequiredModule->EmitterLoops);
-        UE_LOG("[ParticleEmitterInstance::Init] SpawnRateBase: %.2f", CachedRequiredModule->SpawnRateBase);
-        UE_LOG("[ParticleEmitterInstance::Init] Material: %s", CachedRequiredModule->Material ? CachedRequiredModule->Material->GetName().c_str() : "NULL");
-        UE_LOG("[ParticleEmitterInstance::Init] LODLevel Enabled: %s", CurrentLODLevel && CurrentLODLevel->bEnabled ? "true" : "false");
+        //UE_LOG("[ParticleEmitterInstance::Init] Template: %s", Template ? Template->GetName().c_str() : "NULL");
+        //UE_LOG("[ParticleEmitterInstance::Init] MaxActiveParticles: %d (from template: %d)",MaxActiveParticles, CachedRequiredModule->MaxParticles);
+        //UE_LOG("[ParticleEmitterInstance::Init] EmitterDuration: %.2f", EmitterDuration);
+        //UE_LOG("[ParticleEmitterInstance::Init] EmitterLoops: %d", CachedRequiredModule->EmitterLoops);
+        //UE_LOG("[ParticleEmitterInstance::Init] SpawnRateBase: %.2f", CachedRequiredModule->SpawnRateBase);
+        //UE_LOG("[ParticleEmitterInstance::Init] Material: %s", CachedRequiredModule->Material ? CachedRequiredModule->Material->GetName().c_str() : "NULL");
+        //UE_LOG("[ParticleEmitterInstance::Init] LODLevel Enabled: %s", CurrentLODLevel && CurrentLODLevel->bEnabled ? "true" : "false");
     }
     else
     {

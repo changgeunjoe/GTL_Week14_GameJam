@@ -67,7 +67,10 @@ void USkinnedMeshComponent::Serialize(const bool bInIsLoading, JSON& InOutHandle
    if (bInIsLoading)
    {
       // Preserve existing materials loaded by Super::Serialize
-      SetSkeletalMesh(SkeletalMesh->GetPathFileName(), /*bPreserveMaterials*/ true);
+      if (SkeletalMesh)
+      {
+         SetSkeletalMesh(SkeletalMesh->GetPathFileName(), /*bPreserveMaterials*/ true);
+      }
    }
    // @TODO - UStaticMeshComponent처럼 프로퍼티 기반 직렬화 로직 추가
 }
