@@ -64,6 +64,10 @@ local ctx = {
     -- 죽음 관련
     is_death_animation_played = false,  -- 죽음 애니메이션 재생 여부
 
+    -- 궁극기 관련
+    last_ultimate_time = -999,          -- 마지막 궁극기 사용 시간
+    ultimate_cooldown = 5.0,            -- 궁극기 쿨다운 (초)
+
     -- 안개 관련 (Phase 3 선형 보간)
     fog_lerping = false,                -- 안개 보간 중인지
     fog_lerp_time = 0,                  -- 안개 보간 경과 시간
@@ -1275,6 +1279,34 @@ local function DoGapCloser(c)
     return BT_FAILURE
 end
 
+-- 궁극기 공격 (Phase 3 전용)
+local function DoUltimateAttack(c)
+    Log("  [Action] DoUltimateAttack - Ultimate!")
+
+    if IsMontagePlayling(Obj) then
+        return BT_FAILURE
+    end
+
+    -- 타겟 바라보기
+    if c.target then
+        local myPos = Obj.Location
+        local targetPos = c.target.Location
+        local targetYaw = CalcYaw(myPos, targetPos)
+        Obj.Rotation = Vector(0, 0, targetYaw)
+    end
+
+    -- 궁극기 재생
+    local success = PlayMontage(Obj, "Ultimate", 0.1, 0.1, 1.0)
+    if success then
+        SetBossPatternName(Obj, "Ultimate")
+        SetBossAIState(Obj, "Attacking")
+        StartAttack(c, "Ultimate")
+        c.last_ultimate_time = c.time
+        return BT_SUCCESS
+    end
+    return BT_FAILURE
+end
+
 local function DoRetreat(c)
     Log("  [Action] DoRetreat")
     if not c.target then
@@ -1619,66 +1651,81 @@ local BossTree = Selector({
     }),
 
     -- ========================================================================
+    -- 궁극기 브랜치
+    -- ========================================================================
+
+    -- 8. [궁극기] Phase 3에서 쿨다운이 돌아오면 궁극기 사용
+    Sequence({
+        Condition(function(c)
+            Log("[Branch 8] Ultimate?")
+            -- Phase 3 이상, 쿨다운 완료, 공격 가능 상태
+            local cooldownReady = (c.time - c.last_ultimate_time) >= c.ultimate_cooldown
+            return HasTarget(c) and c.phase >= 3 and cooldownReady and IsNotAttacking(c)
+        end),
+        Action(DoUltimateAttack)
+    }),
+
+    -- ========================================================================
     -- 기존 행동 브랜치
     -- ========================================================================
 
-    -- 8. 너무 가까우면 후퇴 (공격 쿨다운 중일 때)
+    -- 9. 너무 가까우면 후퇴 (공격 쿨다운 중일 때)
     Sequence({
         Condition(function(c)
-            Log("[Branch 8] TooClose?")
+            Log("[Branch 9] TooClose?")
             return HasTarget(c) and IsTooClose(c) and IsNotAttacking(c) and not CanAttack(c)
         end),
         Action(DoRetreat)
     }),
 
-    -- 9. 콤보 공격 중이면 계속 진행
+    -- 10. 콤보 공격 중이면 계속 진행
     Sequence({
         Condition(function(c)
-            Log("[Branch 9] ComboAttacking?")
+            Log("[Branch 10] ComboAttacking?")
             return c.is_combo_attacking
         end),
         Action(DoComboAttack)
     }),
 
-    -- 10. 공격 범위 내 + 쿨다운 완료 → 단일 공격 또는 콤보 (50/50)
+    -- 11. 공격 범위 내 + 쿨다운 완료 → 단일 공격 또는 콤보 (50/50)
     Sequence({
         Condition(function(c)
-            Log("[Branch 10] Attack?")
+            Log("[Branch 11] Attack?")
             return HasTarget(c) and IsTargetInAttackRange(c) and CanAttack(c)
         end),
         Action(DoAttackOrCombo)
     }),
 
-    -- 11. 접근 중이면 계속 접근 (공격 범위까지)
-    Sequence({ 
+    -- 12. 접근 중이면 계속 접근 (공격 범위까지)
+    Sequence({
         Condition(function(c)
-            Log("[Branch 11] Approaching?")
+            Log("[Branch 12] Approaching?")
             return HasTarget(c) and IsCurrentlyApproaching(c) and IsNotAttacking(c)
         end),
         Action(DoApproach)
     }),
 
-    -- 12. 일정 거리(4~8m)일 때 좌우 이동 (Strafe)
+    -- 13. 일정 거리(4~8m)일 때 좌우 이동 (Strafe)
     Sequence({
         Condition(function(c)
-            Log("[Branch 12] Strafe?")
+            Log("[Branch 13] Strafe?")
             return HasTarget(c) and IsInStrafeRange(c) and IsNotAttacking(c) and not IsCurrentlyApproaching(c)
         end),
         Action(DoStrafe)
     }),
 
-    -- 13. 추적 (공격 중이 아닐 때만)
+    -- 14. 추적 (공격 중이 아닐 때만)
     Sequence({
         Condition(function(c)
-            Log("[Branch 13] Chase?")
+            Log("[Branch 14] Chase?")
             return HasTarget(c) and IsNotAttacking(c)
         end),
         Action(DoChase)
     }),
 
-    -- 14. 기본 - 대기
+    -- 15. 기본 - 대기
     Action(function(c)
-        Log("[Branch 14] Idle (fallback)")
+        Log("[Branch 15] Idle (fallback)")
         return DoIdle(c)
     end)
 })
