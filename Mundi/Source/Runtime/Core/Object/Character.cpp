@@ -365,36 +365,36 @@ void ACharacter::StartWeaponTrace()
 	bWeaponTraceActive = true;
 	HitActorsThisSwing.Empty();
 
-	// 이미 설정된 CurrentWeaponDamageInfo 사용, 없으면 기본값
-	//if (!CurrentWeaponDamageInfo.Instigator)
-	//{
-	//	CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
-	//}
+	 //이미 설정된 CurrentWeaponDamageInfo 사용, 없으면 기본값
+	if (!CurrentWeaponDamageInfo.Instigator)
+	{
+		CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
+	}
 
-	// WeaponCollider 오버랩 활성화 (PhysX 기반)
-	//if (WeaponCollider)
-	//{
-	//	WeaponCollider->SetGenerateOverlapEvents(true);
-	//	UE_LOG("[Character] WeaponCollider overlap enabled");
-	//}
+	 //WeaponCollider 오버랩 활성화 (PhysX 기반)
+	if (WeaponCollider)
+	{
+		WeaponCollider->SetGenerateOverlapEvents(true);
+		UE_LOG("[Character] WeaponCollider overlap enabled");
+	}
 
-	// WeaponMeshComp가 있으면 Sweep 방식도 병행
-	//if (WeaponMeshComp)
-	//{
-	//	// 현재 무기 위치를 이전 위치로 초기화
-	//	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
-	//	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
+	 //WeaponMeshComp가 있으면 Sweep 방식도 병행
+	if (WeaponMeshComp)
+	{
+		// 현재 무기 위치를 이전 위치로 초기화
+		FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
+		FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
 
-	//	// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
-	//	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
-	//	PrevWeaponBasePos = WeaponPos;
-	//	PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
-	//	UE_LOG("[Character] Weapon trace started with WeaponMeshComp (Sweep enabled)");
-	//}
-	//else
-	//{
-	//	UE_LOG("[Character] Weapon trace started WITHOUT WeaponMeshComp (Sweep DISABLED)");
-	//}
+		// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
+		FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+		PrevWeaponBasePos = WeaponPos;
+		PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+		UE_LOG("[Character] Weapon trace started with WeaponMeshComp (Sweep enabled)");
+	}
+	else
+	{
+		UE_LOG("[Character] Weapon trace started WITHOUT WeaponMeshComp (Sweep DISABLED)");
+	}
 }
 
 void ACharacter::EndWeaponTrace()

@@ -357,22 +357,13 @@ void UCapsuleComponent::CreatePhysXActor()
     const float WorldHalfHeight = CapsuleHalfHeight * AbsScaleZ;
     const float CylinderHalfHeight = FMath::Max(0.0f, WorldHalfHeight - WorldRadius);
 
-    // 컴포넌트의 월드 회전을 PxQuat으로 변환
-    PxQuat WorldRot(
-        WorldTransform.Rotation.X,
-        WorldTransform.Rotation.Y,
-        WorldTransform.Rotation.Z,
-        WorldTransform.Rotation.W
-    );
-
-    // 엔진 캡슐(Z축)을 PhysX 캡슐(X축)으로 변환
-    // Z→X 변환의 역변환: Y축 기준 -90도
-    PxQuat CapsuleCorrection(-PxHalfPi, PxVec3(0, 1, 0));
-    PxQuat FinalRotation = WorldRot * CapsuleCorrection;
+    // PhysX Transform (Z-up → X-up 캡슐 회전 포함)
+    PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));  // Y축 기준 90도 회전
+    
 
     PxTransform Pose(
         PxVec3(WorldTransform.Translation.X, WorldTransform.Translation.Y, WorldTransform.Translation.Z),
-        FinalRotation
+        CapsuleRotation
     );
 
     // Kinematic Dynamic Actor 생성
@@ -435,87 +426,14 @@ void UCapsuleComponent::UpdatePhysXActorTransform()
         return;
 
     const FTransform WorldTransform = GetWorldTransform();
-    const float AbsScaleX = std::fabs(WorldTransform.Scale3D.X);
-    const float AbsScaleY = std::fabs(WorldTransform.Scale3D.Y);
-    const float AbsScaleZ = std::fabs(WorldTransform.Scale3D.Z);
-
-    // 디버그: 첫 몇 프레임만 스케일 값 출력
-    static int DebugCounter = 0;
-    if (DebugCounter < 5 && GetName() == "WeaponCollider")
-    {
-        UE_LOG("[CapsuleComponent] UpdatePhysX - %s Scale=(%.4f, %.4f, %.4f) AttachParent=%p",
-               GetName().c_str(), AbsScaleX, AbsScaleY, AbsScaleZ, GetAttachParent());
-        DebugCounter++;
-    }
-
-    // 컴포넌트의 월드 회전을 PxQuat으로 변환
-    PxQuat WorldRot(
-        WorldTransform.Rotation.X,
-        WorldTransform.Rotation.Y,
-        WorldTransform.Rotation.Z,
-        WorldTransform.Rotation.W
-    );
-
-    // 엔진 캡슐(Z축)을 PhysX 캡슐(X축)으로 변환
-    // Z→X 변환의 역변환: Y축 기준 -90도
-    PxQuat CapsuleCorrection(-PxHalfPi, PxVec3(0, 1, 0));
-    PxQuat FinalRotation = WorldRot * CapsuleCorrection;
-
+    
+    PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));
     PxTransform NewPose(
         PxVec3(WorldTransform.Translation.X, WorldTransform.Translation.Y, WorldTransform.Translation.Z),
-        FinalRotation
+        CapsuleRotation
     );
 
-    // Kinematic Target 설정 (다음 시뮬레이션에서 이 위치로 이동)
-    PhysXActor->setKinematicTarget(NewPose);
-
-    // PhysX Shape 크기 업데이트 (스케일이 변경되었을 수 있음)
-    const float WorldRadius = CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY);
-    const float WorldHalfHeight = CapsuleHalfHeight * AbsScaleZ;
-    const float CylinderHalfHeight = FMath::Max(0.0f, WorldHalfHeight - WorldRadius);
-
-    PxShape* Shapes[1];
-    PxU32 ShapeCount = PhysXActor->getShapes(Shapes, 1);
-    if (ShapeCount > 0 && Shapes[0])
-    {
-        PxCapsuleGeometry CurrentGeom;
-        if (Shapes[0]->getCapsuleGeometry(CurrentGeom))
-        {
-            // 크기가 변경되었으면 Shape 재생성
-            if (std::fabs(CurrentGeom.radius - WorldRadius) > 0.001f ||
-                std::fabs(CurrentGeom.halfHeight - CylinderHalfHeight) > 0.001f)
-            {
-                UE_LOG("[CapsuleComponent] Shape size changed! %s Old(R=%.4f, H=%.4f) -> New(R=%.4f, H=%.4f)",
-                       GetName().c_str(), CurrentGeom.radius, CurrentGeom.halfHeight, WorldRadius, CylinderHalfHeight);
-
-                UWorld* World = GetWorld();
-                if (World)
-                {
-                    FPhysScene* PhysScene = World->GetPhysScene();
-                    if (PhysScene)
-                    {
-                        PxPhysics* Physics = PhysScene->GetPhysics();
-                        PxMaterial* Material = PhysScene->GetDefaultMaterial();
-
-                        // 기존 Shape 제거
-                        PhysXActor->detachShape(*Shapes[0]);
-
-                        // 새 크기의 Shape 생성
-                        PxCapsuleGeometry NewGeom(WorldRadius, CylinderHalfHeight);
-                        PxShape* NewShape = Physics->createShape(NewGeom, *Material);
-                        if (NewShape)
-                        {
-                            NewShape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
-                            NewShape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
-                            NewShape->setFlag(PxShapeFlag::eVISUALIZATION, true);
-                            PhysXActor->attachShape(*NewShape);
-                            NewShape->release();
-                        }
-                    }
-                }
-            }
-        }
-    }
+    
 }
 
 void UCapsuleComponent::EnableTriggerCollision(bool bEnable)
@@ -563,19 +481,14 @@ void UCapsuleComponent::CheckTriggerOverlaps()
     // SweepCapsuleOriented로 충돌 체크 (회전 적용)
     FVector Start = WorldTransform.Translation;
     FVector End = Start + FVector(0.01f, 0, 0);  // 작은 거리로 sweep
-
-    // 엔진 캡슐(Z축)을 PhysX 캡슐(X축)으로 변환
-    // Z→X 변환의 역변환: Y축 기준 -90도
-    FQuat CapsuleCorrection = FQuat::FromAxisAngle(FVector(0.0f, 1.0f, 0.0f), -PI * 0.5f);
-    FQuat FinalRotation = WorldTransform.Rotation * CapsuleCorrection;
+    
 
     FHitResult HitResult;
-    bool bHit = PhysScene->SweepCapsuleOriented(
+    bool bHit = PhysScene->SweepCapsule(
         Start,
         End,
         WorldRadius,
         WorldHalfHeight,
-        FinalRotation,
         HitResult,
         GetOwner()  // 자기 자신 무시
     );
