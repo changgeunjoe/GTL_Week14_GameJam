@@ -31,8 +31,8 @@
               "Boxes" : [],
               "Capsules" : [{
                   "Center" : [0.001908, 0.517382, -0.000000],
-                  "HalfLength" : 0.258693,
-                  "Radius" : 0.258693,
+                  "HalfLength" : 0.030000,
+                  "Radius" : 0.030000,
                   "Rotation" : [0.707102, -0.002608, 0.000000, 0.707107]
                 }],
               "Convexes" : [],
@@ -841,8 +841,8 @@
               "Boxes" : [],
               "Capsules" : [{
                   "Center" : [-0.011816, -0.030844, 0.000879],
-                  "HalfLength" : 0.090822,
-                  "Radius" : 0.090822,
+                  "HalfLength" : 0.030000,
+                  "Radius" : 0.030000,
                   "Rotation" : [-0.669044, 0.256298, 0.000000, 0.697632]
                 }],
               "Convexes" : [],
@@ -1084,8 +1084,8 @@
               "Boxes" : [],
               "Capsules" : [{
                   "Center" : [-0.027783, -0.219140, -0.008275],
-                  "HalfLength" : 0.110525,
-                  "Radius" : 0.110525,
+                  "HalfLength" : 0.110000,
+                  "Radius" : 0.050000,
                   "Rotation" : [-0.688235, 0.087256, 0.000000, 0.720221]
                 }],
               "Convexes" : [],
@@ -1139,7 +1139,7 @@
               "Capsules" : [{
                   "Center" : [-0.027409, -0.213476, 0.003003],
                   "HalfLength" : 0.136921,
-                  "Radius" : 0.136921,
+                  "Radius" : 0.050000,
                   "Rotation" : [-0.706224, 0.090673, 0.000000, 0.702158]
                 }],
               "Convexes" : [],
@@ -1193,7 +1193,7 @@
               "Capsules" : [{
                   "Center" : [0.027783, 0.219139, 0.008275],
                   "HalfLength" : 0.110524,
-                  "Radius" : 0.110524,
+                  "Radius" : 0.050000,
                   "Rotation" : [0.714502, -0.090586, 0.000000, 0.693745]
                 }],
               "Convexes" : [],
@@ -1247,7 +1247,7 @@
               "Capsules" : [{
                   "Center" : [0.027409, 0.213476, -0.003003],
                   "HalfLength" : 0.136921,
-                  "Radius" : 0.136921,
+                  "Radius" : 0.050000,
                   "Rotation" : [0.696441, -0.089417, 0.000000, 0.712022]
                 }],
               "Convexes" : [],
@@ -1633,33 +1633,6 @@
             },
             "AngularDamping" : 1.000000,
             "Bone" : "ik_foot_r",
-            "CollisionState" : 2,
-            "LinearDamping" : 1.000000,
-            "Mass" : 10.000000,
-            "PhysMaterial" : {
-              "Density" : 1.000000,
-              "DynamicFriction" : 0.500000,
-              "FrictionCombineMode" : 2,
-              "Restitution" : 0.000000,
-              "RestitutionCombineMode" : 2,
-              "StaticFriction" : 1.000000
-            },
-            "bEnableGravity" : true,
-            "bSimulatePhysics" : true
-          }, {
-            "Aggregate" : {
-              "Boxes" : [],
-              "Capsules" : [{
-                  "Center" : [0.563683, 0.177254, -0.035405],
-                  "HalfLength" : 0.295978,
-                  "Radius" : 0.295978,
-                  "Rotation" : [0.205674, -0.654059, 0.000000, 0.727946]
-                }],
-              "Convexes" : [],
-              "Spheres" : []
-            },
-            "AngularDamping" : 1.000000,
-            "Bone" : "ik_hand_gun",
             "CollisionState" : 2,
             "LinearDamping" : 1.000000,
             "Mass" : 10.000000,
@@ -2432,24 +2405,7 @@
             "SwingZ" : 0.523599,
             "TwistMax" : 0.785398,
             "TwistMin" : -0.785398
-          }, {
-            "BodyA" : "ik_hand_gun",
-            "BodyB" : "ik_hand_l",
-            "LocalFrameA" : {
-              "Rotation" : [-0.844529, 0.230171, 0.457304, -0.157055],
-              "Scale3D" : [1.000000, 1.000000, 1.000000],
-              "Translation" : [0.517818, -0.579445, 0.326376]
-            },
-            "LocalFrameB" : {
-              "Rotation" : [-0.500000, -0.500000, -0.500000, 0.500000],
-              "Scale3D" : [1.000000, 1.000000, 1.000000],
-              "Translation" : [0.000000, 0.000000, 0.000000]
-            },
-            "SwingY" : 0.523599,
-            "SwingZ" : 0.523599,
-            "TwistMax" : 0.785398,
-            "TwistMin" : -0.785398
           }],
-        "Name" : "UPhysicsAsset_4",
+        "Name" : "Shinobi.phys",
         "Type" : "PhysicsAsset"
       }
