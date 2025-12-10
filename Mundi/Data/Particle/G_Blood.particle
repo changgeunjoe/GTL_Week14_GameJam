@@ -68,7 +68,7 @@
                     "bUseColorOverLife" : false
                   }],
                 "RequiredModule" : {
-                  "BlendMode" : 0,
+                  "BlendMode" : 1,
                   "DiffuseTexture" : "Data/Textures/A_Water_D.PNG",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
