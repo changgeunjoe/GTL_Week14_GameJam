@@ -210,6 +210,23 @@ void APlayerCharacter::BeginPlay()
         }
     }
 
+    // 포션 몽타주 초기화
+    if (!PotionAnimPath.empty())
+    {
+        UAnimSequence* PotionAnim = UResourceManager::GetInstance().Get<UAnimSequence>(PotionAnimPath);
+        if (PotionAnim)
+        {
+            PotionMontage = NewObject<UAnimMontage>();
+            PotionMontage->SetSourceSequence(PotionAnim);
+            PotionMontage->bLoop = false;
+            UE_LOG("[PlayerCharacter] PotionMontage initialized: %s", PotionAnimPath.c_str());
+        }
+        else
+        {
+            UE_LOG("[PlayerCharacter] Failed to find potion animation: %s", PotionAnimPath.c_str());
+        }
+    }
+
     GatherParticles();
 
     AGameModeBase* GM = GWorld->GetGameMode();
@@ -871,6 +888,43 @@ void APlayerCharacter::StopCharging()
             UE_LOG("[PlayerCharacter] Stopping Charging montage");
         }
     }
+}
+
+void APlayerCharacter::DrinkPotion()
+{
+    // Idle 또는 Walk 상태에서만 가능
+    if (CombatState != ECombatState::Idle && CombatState != ECombatState::Walking)
+    {
+        UE_LOG("[PlayerCharacter] DrinkPotion: Invalid state (current: %d)", static_cast<int32>(CombatState));
+        return;
+    }
+
+    // 이미 몽타주 재생 중이면 무시
+    USkeletalMeshComponent* Mesh = GetMesh();
+    if (!Mesh) return;
+
+    UAnimInstance* AnimInst = Mesh->GetAnimInstance();
+    if (!AnimInst) return;
+
+    if (AnimInst->Montage_IsPlaying())
+    {
+        UE_LOG("[PlayerCharacter] DrinkPotion: Montage already playing");
+        return;
+    }
+
+    if (!PotionMontage)
+    {
+        UE_LOG("[PlayerCharacter] DrinkPotion: PotionMontage is null");
+        return;
+    }
+
+    // 상체 분리 활성화
+    FName BoneName(UpperBodyRootBoneName.c_str());
+    AnimInst->EnableUpperBodySplit(BoneName);
+
+    // 포션 몽타주 재생 (상체만 적용됨)
+    AnimInst->Montage_Play(PotionMontage, 0.1f, 0.2f, 1.0f, false);
+    UE_LOG("[PlayerCharacter] DrinkPotion: Playing potion montage (upper body only)");
 }
 
 void APlayerCharacter::EnableComboWindow()

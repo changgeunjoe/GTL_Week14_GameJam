@@ -53,6 +53,7 @@ protected:
 	void OnStopBlock();
 	void OnStartCharging();
 	void OnStopCharging();
+	void OnDrinkPotion();
 
     void ProcessRotationInput(float DeltaTime);
     void ProcessLockedMovement(float DeltaTime, const FVector& WorldMoveDir);

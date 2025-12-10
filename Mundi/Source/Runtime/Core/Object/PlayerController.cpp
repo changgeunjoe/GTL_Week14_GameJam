@@ -108,6 +108,7 @@ void APlayerController::SetupInput()
     InputComponent->MapActionToKey(FName("Sprint"), VK_SHIFT);
     InputComponent->MapActionToKey(FName("Block"), VK_RBUTTON);
     InputComponent->MapActionToKey(FName("Charging"), 'Y');
+    InputComponent->MapActionToKey(FName("DrinkPotion"), 'V');
 
     // Gamepad actions
     InputComponent->MapActionToGamepad(FName("Jump"),            UInputManager::EGamepadButton::A);
@@ -147,6 +148,7 @@ void APlayerController::SetupInput()
     InputComponent->BindAction(FName("Block"), EInputEvent::Released, this, &APlayerController::OnStopBlock);
     InputComponent->BindAction(FName("Charging"), EInputEvent::Pressed, this, &APlayerController::OnStartCharging);
     InputComponent->BindAction(FName("Charging"), EInputEvent::Released, this, &APlayerController::OnStopCharging);
+    InputComponent->BindAction(FName("DrinkPotion"), EInputEvent::Pressed, this, &APlayerController::OnDrinkPotion);
 }
 
 // ============================================================================
@@ -350,6 +352,14 @@ void APlayerController::OnStopCharging()
     if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
     {
         PlayerChar->StopCharging();
+    }
+}
+
+void APlayerController::OnDrinkPotion()
+{
+    if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
+    {
+        PlayerChar->DrinkPotion();
     }
 }
 

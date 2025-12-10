@@ -289,32 +289,47 @@ void UAnimInstance::EnableUpperBodySplit(FName BoneName)
 {
     if (!CurrentSkeleton) return;
     int32 RootBoneIdx = CurrentSkeleton->FindBoneIndex(BoneName);
-    if (RootBoneIdx == INDEX_NONE) return;
+    if (RootBoneIdx == INDEX_NONE)
+    {
+        UE_LOG("[AnimInstance] EnableUpperBodySplit failed: bone '%s' not found", BoneName.ToString().c_str());
+        return;
+    }
 
     const int32 NumBones = CurrentSkeleton->GetNumBones();
-    UpperBodyMask = { false };
+    UpperBodyMask.SetNum(NumBones);
 
-    // BFS로 자식 bone을 모두 True로 변경
+    // 전부 false로 초기화
+    for (int32 i = 0; i < NumBones; ++i)
+        UpperBodyMask[i] = false;
 
+    // BFS로 RootBone과 모든 자식 본을 true로 설정
     TArray<int32> BoneQueue;
     BoneQueue.Add(RootBoneIdx);
-     
+
     while (BoneQueue.Num() > 0)
     {
         int32 CurrentIdx = BoneQueue.Pop();
-
         UpperBodyMask[CurrentIdx] = true;
-            
-        //// TODO: 자식 본 찾기
-        //for (int32 i = CurrentIdx + 1; i < NumBones; ++i)
-        //{
-        //    if (CurrentSkeleton->GetParentIndex(i) == CurrentIdx)
-        //    {
-        //        BoneQueue.Add(i);
-        //    }
-        //}
+
+        // 자식 본 찾기
+        for (int32 i = 0; i < NumBones; ++i)
+        {
+            if (CurrentSkeleton->GetParentIndex(i) == CurrentIdx)
+            {
+                BoneQueue.Add(i);
+            }
+        }
     }
-    bUseUpperBody = true; 
+
+    bUseUpperBody = true;
+    UE_LOG("[AnimInstance] EnableUpperBodySplit: '%s' (root idx: %d)", BoneName.ToString().c_str(), RootBoneIdx);
+}
+
+void UAnimInstance::DisableUpperBodySplit()
+{
+    bUseUpperBody = false;
+    UpperBodyMask.Empty();
+    UE_LOG("[AnimInstance] DisableUpperBodySplit");
 }
 
 void UAnimInstance::TriggerAnimNotifies(float DeltaSeconds)
@@ -887,7 +902,27 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     // ============================================================
     if (MontagePose.Num() > 0 && MontageState.CurrentWeight > 0.0f)
     {
-        BlendPoseArrays(BasePose, MontagePose, MontageState.CurrentWeight, Result);
+        if (bUseUpperBody && UpperBodyMask.Num() == BasePose.Num())
+        {
+            // 상체만 몽타주 적용, 하체는 BasePose 유지
+            Result.SetNum(BasePose.Num());
+            for (int32 i = 0; i < BasePose.Num(); ++i)
+            {
+                if (UpperBodyMask[i])  // 상체 본
+                {
+                    Result[i] = FTransform::Lerp(BasePose[i], MontagePose[i], MontageState.CurrentWeight);
+                }
+                else  // 하체 본 - 스테이트머신 포즈 유지
+                {
+                    Result[i] = BasePose[i];
+                }
+            }
+        }
+        else
+        {
+            // 기존 전신 블렌딩
+            BlendPoseArrays(BasePose, MontagePose, MontageState.CurrentWeight, Result);
+        }
     }
 
     // ============================================================
@@ -914,6 +949,12 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
         // 몽타주 종료 시 루트 모션 자동 OFF
         //bEnableRootMotion = false;
         bHasPreviousRootTransform = false;  // 이전 루트 트랜스폼 리셋
+
+        // 상체 분리 모드 비활성화
+        if (bUseUpperBody)
+        {
+            DisableUpperBodySplit();
+        }
 
         UE_LOG("Montage finished: %s (RootMotion disabled)", MontageState.Montage->ObjectName.ToString().c_str());
     }

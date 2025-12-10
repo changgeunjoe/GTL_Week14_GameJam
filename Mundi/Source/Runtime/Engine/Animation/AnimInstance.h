@@ -255,6 +255,8 @@ public:
 
     // 상/하체 분리 설정
     void EnableUpperBodySplit(FName BoneName);
+    void DisableUpperBodySplit();
+    bool IsUpperBodySplitEnabled() const { return bUseUpperBody; }
 
     // ============================================================
     // Notify & Curve Processing
