@@ -28,6 +28,7 @@ struct FBodyInstance
 
     void AddForce(const FVector& Force);
     FTransform GetWorldTransform() const;
+    void SetWorldTransform(const FTransform& InTransform);
 
 public:
     UPrimitiveComponent*        OwnerComponent = nullptr;

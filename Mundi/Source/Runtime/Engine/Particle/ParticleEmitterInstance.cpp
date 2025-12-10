@@ -207,12 +207,7 @@ void FParticleEmitterInstance::SpawnParticles(int32 Count, float StartTime, floa
         {
             // TypeDataModule에서 직접 가져오기
             UParticleModuleBeam* BeamModule = CurrentLODLevel ? Cast<UParticleModuleBeam>(CurrentLODLevel->TypeDataModule) : nullptr;
-
-            UE_LOG("[SpawnParticles::Beam] CurrentLODLevel=%p, TypeDataModule=%p, BeamModule=%p, PayloadOffset=%d",
-                CurrentLODLevel,
-                CurrentLODLevel ? CurrentLODLevel->TypeDataModule : nullptr,
-                BeamModule,
-                PayloadOffset);
+            
 
             if (BeamModule)
             {
@@ -223,10 +218,7 @@ void FParticleEmitterInstance::SpawnParticles(int32 Count, float StartTime, floa
                 // 기본 시작점/끝점 설정
                 FVector FinalSource = BeamModule->SourcePoint;
                 FVector FinalTarget = BeamModule->TargetPoint;
-
-                UE_LOG("[SpawnParticles::Beam] Source=(%.1f, %.1f, %.1f), Target=(%.1f, %.1f, %.1f)",
-                    FinalSource.X, FinalSource.Y, FinalSource.Z,
-                    FinalTarget.X, FinalTarget.Y, FinalTarget.Z);
+                
 
                 // 랜덤 오프셋 적용 (번개 효과)
                 if (BeamModule->bUseRandomOffset)
@@ -676,18 +668,16 @@ void FParticleEmitterInstance::BuildReplayData(FDynamicEmitterReplayDataBase& Ou
                     BeamOut.NoiseAmplitude = BeamModule->NoiseAmplitude;
                     BeamOut.BeamWidth = BeamModule->BeamWidth;
 
-                    UE_LOG("[BuildReplayData::Beam] TessellationFactor=%d, NoiseFreq=%.2f, NoiseAmp=%.2f",
-                        BeamOut.TessellationFactor, BeamOut.NoiseFrequency, BeamOut.NoiseAmplitude);
+                    //UE_LOG("[BuildReplayData::Beam] TessellationFactor=%d, NoiseFreq=%.2f, NoiseAmp=%.2f", BeamOut.TessellationFactor, BeamOut.NoiseFrequency, BeamOut.NoiseAmplitude);
                 }
                 else
                 {
-                    UE_LOG("[BuildReplayData::Beam] BeamModule Cast failed!");
+                    //UE_LOG("[BuildReplayData::Beam] BeamModule Cast failed!");
                 }
             }
             else
             {
-                UE_LOG("[BuildReplayData::Beam] CurrentLODLevel=%p, TypeDataModule=%p",
-                    CurrentLODLevel, CurrentLODLevel ? CurrentLODLevel->TypeDataModule : nullptr);
+                //UE_LOG("[BuildReplayData::Beam] CurrentLODLevel=%p, TypeDataModule=%p", CurrentLODLevel, CurrentLODLevel ? CurrentLODLevel->TypeDataModule : nullptr);
             }
             break;
         }

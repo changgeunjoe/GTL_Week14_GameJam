@@ -1107,7 +1107,7 @@ void FSceneRenderer::RenderSkyPass()
 
         if (!FallbackSky)
         {
-            UE_LOG("[SkyPass] No SkySphereComponent found. PIE=%d", World->bPie ? 1 : 0);
+            //UE_LOG("[SkyPass] No SkySphereComponent found. PIE=%d", World->bPie ? 1 : 0);
             return;
         }
 

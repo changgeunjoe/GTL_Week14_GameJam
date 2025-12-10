@@ -43,12 +43,11 @@ void UStaticMeshComponent::BeginPlay()
 		return;
 	}
 
-	// Dynamic(bSimulatePhysics)인 경우 틱 활성화 (Transform 동기화 필요)
-	if (bSimulatePhysics)
-	{
-		bCanEverTick = true;
-		bTickEnabled = true;
-	}
+	// 물리가 활성화된 경우 틱 활성화 (Transform 동기화 필요)
+	// bSimulatePhysics=true: PhysX → 컴포넌트 동기화
+	// bSimulatePhysics=false: 컴포넌트 → PhysX 동기화 (PVD 시각화용)
+	bCanEverTick = true;
+	bTickEnabled = true;
 
 	// 물리 씬에 등록 (기본: Static, bSimulatePhysics=true: Dynamic)
 	UWorld* World = GetWorld();
@@ -131,13 +130,21 @@ void UStaticMeshComponent::TickComponent(float DeltaTime)
 {
 	Super::TickComponent(DeltaTime);
 
-	// Dynamic 물리 오브젝트의 Transform을 PhysX 결과와 동기화
-	if (bSimulatePhysics && BodyInstance && BodyInstance->RigidActor)
+	if (BodyInstance && BodyInstance->RigidActor)
 	{
-		FTransform PhysTransform = BodyInstance->GetWorldTransform();
-		// PhysX는 스케일을 지원하지 않으므로 기존 스케일 유지
-		PhysTransform.Scale3D = GetWorldTransform().Scale3D;
-		SetWorldTransform(PhysTransform);
+		if (bSimulatePhysics)
+		{
+			// Dynamic 물리 오브젝트: PhysX → 컴포넌트 동기화
+			FTransform PhysTransform = BodyInstance->GetWorldTransform();
+			// PhysX는 스케일을 지원하지 않으므로 기존 스케일 유지
+			PhysTransform.Scale3D = GetWorldTransform().Scale3D;
+			SetWorldTransform(PhysTransform);
+		}
+		else
+		{
+			// 비물리 오브젝트: 컴포넌트 → PhysX 동기화 (PVD 시각화용)
+			BodyInstance->SetWorldTransform(GetWorldTransform());
+		}
 	}
 }
 
@@ -363,6 +370,10 @@ void UStaticMeshComponent::InitPhysics(FPhysScene& PhysScene)
 
 	FTransform WorldTM = GetWorldTransform();
 	FVector Scale3D = WorldTM.Scale3D;  // 월드 스케일 추출
+
+	// 디버그: 스케일 값 출력
+	UE_LOG("[StaticMeshComponent] InitPhysics - %s Scale=(%.4f, %.4f, %.4f) CollisionType=%d AttachParent=%p",
+		   GetName().c_str(), Scale3D.X, Scale3D.Y, Scale3D.Z, CollisionType, GetAttachParent());
 
 	if (bSimulatePhysics)
 	{

@@ -366,35 +366,35 @@ void ACharacter::StartWeaponTrace()
 	HitActorsThisSwing.Empty();
 
 	// 이미 설정된 CurrentWeaponDamageInfo 사용, 없으면 기본값
-	if (!CurrentWeaponDamageInfo.Instigator)
-	{
-		CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
-	}
+	//if (!CurrentWeaponDamageInfo.Instigator)
+	//{
+	//	CurrentWeaponDamageInfo = FDamageInfo(this, 10.0f, EDamageType::Light);
+	//}
 
 	// WeaponCollider 오버랩 활성화 (PhysX 기반)
-	if (WeaponCollider)
-	{
-		WeaponCollider->SetGenerateOverlapEvents(true);
-		UE_LOG("[Character] WeaponCollider overlap enabled");
-	}
+	//if (WeaponCollider)
+	//{
+	//	WeaponCollider->SetGenerateOverlapEvents(true);
+	//	UE_LOG("[Character] WeaponCollider overlap enabled");
+	//}
 
 	// WeaponMeshComp가 있으면 Sweep 방식도 병행
-	if (WeaponMeshComp)
-	{
-		// 현재 무기 위치를 이전 위치로 초기화
-		FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
-		FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
+	//if (WeaponMeshComp)
+	//{
+	//	// 현재 무기 위치를 이전 위치로 초기화
+	//	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
+	//	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
 
-		// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
-		FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
-		PrevWeaponBasePos = WeaponPos;
-		PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
-		UE_LOG("[Character] Weapon trace started with WeaponMeshComp (Sweep enabled)");
-	}
-	else
-	{
-		UE_LOG("[Character] Weapon trace started WITHOUT WeaponMeshComp (Sweep DISABLED)");
-	}
+	//	// 무기의 로컬 Z축 방향으로 베이스와 팁 위치 계산
+	//	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+	//	PrevWeaponBasePos = WeaponPos;
+	//	PrevWeaponTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
+	//	UE_LOG("[Character] Weapon trace started with WeaponMeshComp (Sweep enabled)");
+	//}
+	//else
+	//{
+	//	UE_LOG("[Character] Weapon trace started WITHOUT WeaponMeshComp (Sweep DISABLED)");
+	//}
 }
 
 void ACharacter::EndWeaponTrace()
@@ -407,7 +407,7 @@ void ACharacter::EndWeaponTrace()
 	if (WeaponCollider)
 	{
 		WeaponCollider->SetGenerateOverlapEvents(false);
-		UE_LOG("[Character] WeaponCollider overlap disabled");
+		//UE_LOG("[Character] WeaponCollider overlap disabled");
 	}
 
 	UE_LOG("[Character] Weapon trace ended");
@@ -446,7 +446,7 @@ void ACharacter::PerformWeaponTrace()
 	FVector WeaponPos = WeaponMeshComp->GetWorldLocation();
 	FQuat WeaponRot = WeaponMeshComp->GetWorldRotation();
 
-	FVector WeaponUp = WeaponRot.RotateVector(FVector(0, 0, 1));
+	FVector WeaponUp = WeaponRot.RotateVector(FVector(1, 0, 0));
 	FVector CurrentBasePos = WeaponPos;
 	FVector CurrentTipPos = WeaponPos + WeaponUp * WeaponTraceLength;
 
@@ -472,7 +472,7 @@ void ACharacter::PerformWeaponTrace()
 		if (Hit.HitActor && !HitActorsThisSwing.Contains(Hit.HitActor))
 		{
 			HitActorsThisSwing.Add(Hit.HitActor);
-			UE_LOG("[Character] Sweep HIT! Actor: %s", Hit.HitActor->GetName().c_str());
+			//UE_LOG("[Character] SweepCapsule HIT! Actor: %s, Damage: %.1f, DamageType: %d", Hit.HitActor->GetName().c_str(), CurrentWeaponDamageInfo.Damage, static_cast<int>(CurrentWeaponDamageInfo.DamageType));
 			OnWeaponHitDetected(Hit.HitActor, Hit.ImpactPoint, Hit.ImpactNormal);
 		}
 	};
@@ -662,7 +662,7 @@ void ACharacter::OnWeaponColliderOverlap(AActor* OtherActor, const FVector& HitL
 	// 히트 처리
 	HitActorsThisSwing.Add(OtherActor);
 
-	UE_LOG("[Character] WeaponCollider overlap with: %s", OtherActor->GetName().c_str());
+	//UE_LOG("[Character] WeaponCollider overlap with: %s", OtherActor->GetName().c_str());
 
 	// 기존 OnWeaponHitDetected 로직 재사용
 	OnWeaponHitDetected(OtherActor, HitLocation, HitNormal);

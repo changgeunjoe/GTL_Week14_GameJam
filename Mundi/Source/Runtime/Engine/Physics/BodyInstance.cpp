@@ -234,6 +234,11 @@ void FBodyInstance::InitDynamic(FPhysScene& World, const FTransform& WorldTransf
             float RadiusScale = (AbsScale.X + AbsScale.Y) * 0.5f;
             float HeightScale = AbsScale.Z;
 
+            // 디버그: 캡슐 생성 정보 출력 (Dynamic)
+            UE_LOG("[BodyInstance] InitDynamic Capsule - OrigR=%.4f OrigH=%.4f Scale=(%.4f,%.4f,%.4f) FinalR=%.4f FinalH=%.4f",
+                   Capsule.Radius, Capsule.HalfLength, Scale3D.X, Scale3D.Y, Scale3D.Z,
+                   Capsule.Radius * RadiusScale, Capsule.HalfLength * HeightScale);
+
             PxCapsuleGeometry Geom(Capsule.Radius * RadiusScale, Capsule.HalfLength * HeightScale);
 
             PxShape* Shape = Physics->createShape(Geom, *Material);
@@ -555,4 +560,15 @@ FTransform FBodyInstance::GetWorldTransform() const
 
     PxTransform Pose = RigidActor->getGlobalPose();
     return FromPx(Pose);
+}
+
+void FBodyInstance::SetWorldTransform(const FTransform& InTransform)
+{
+    if (!RigidActor)
+    {
+        return;
+    }
+
+    PxTransform NewPose = ToPx(InTransform);
+    RigidActor->setGlobalPose(NewPose);
 }
