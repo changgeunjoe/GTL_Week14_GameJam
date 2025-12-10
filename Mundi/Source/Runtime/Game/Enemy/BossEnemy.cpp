@@ -120,6 +120,9 @@ void ABossEnemy::BeginPlay()
         UE_LOG("[BossEnemy] WARNING: Death montage is NULL after initialization!");
     }
 
+    // 궁극기 애니메이션 몽타주 초기화
+    InitMontage(UltimateMontage, UltimateAnimPath, "Ultimate");
+
     // ========================================================================
     // LockOnIndicator를 spine_01 본에 붙이기 위한 준비
     // ========================================================================
@@ -415,6 +418,9 @@ bool ABossEnemy::PlayMontageByName(const FString& MontageName, float BlendIn, fl
         Montage = Smash_1_Montage;
     else if (MontageName == "Smash_2")
         Montage = Smash_2_Montage;
+    // 궁극기 애니메이션
+    else if (MontageName == "Ultimate")
+        Montage = UltimateMontage;
 
     if (!Montage || !GetMesh())
     {

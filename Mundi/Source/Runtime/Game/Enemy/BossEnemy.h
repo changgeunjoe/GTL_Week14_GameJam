@@ -136,9 +136,13 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Animation")
     FString DeathAnimPath;
 
-    // ========== 죽음 애니메이션 ==========
+    // ========== 징벌 공격 애니메이션 ==========
     UPROPERTY(EditAnywhere, Category = "Animation")
     FString PunishAttackAnimPath;
+
+    // ========== 궁극기 애니메이션 ==========
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    FString UltimateAnimPath;
 
     // ========== 공격 애니메이션 몽타주 ==========
     UAnimMontage* LightComboMontage = nullptr;
@@ -160,6 +164,9 @@ protected:
     UAnimMontage* DeathMontage = nullptr;
 
     UAnimMontage* PunishAttackMontage = nullptr;
+
+    // ========== 궁극기 애니메이션 몽타주 ==========
+    UAnimMontage* UltimateMontage = nullptr;
 
     // ========== 애니메이션 설정 ==========
     UPROPERTY(EditAnywhere, Category = "Animation")

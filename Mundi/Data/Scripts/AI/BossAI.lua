@@ -1728,9 +1728,21 @@ function Tick(Delta)
     -- 매 틱마다 stats 갱신 (Lua 캐싱 문제 방지)
     ctx.stats = GetComponent(Obj, "UStatsComponent")
 
+    -- 플레이어 타겟이 없으면 찾기
+    if not ctx.target then
+        ctx.target = GetPlayer()
+        if not ctx.target then
+            ctx.target = FindObjectByName("Player")
+        end
+        -- 타겟을 찾지 못하면 업데이트 건너뛰기
+        if not ctx.target then
+            Log("No target found, skipping Tick update")
+            return
+        end
+    end
+
     -- 보스가 죽었으면 죽음 애니메이션 재생 후 AI 동작 중지
-    -- 타겟이 있을 때만 체크 (게임 시작 시 초기화 방지)
-    if ctx.target and GetCurrentHealth(Obj) <= 0 then
+    if GetCurrentHealth(Obj) <= 0 then
 
         if not ctx.is_death_animation_played then
             print("Boss is dead, playing death animation")
