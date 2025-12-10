@@ -1389,7 +1389,7 @@ local function CheckPhaseTransition(c)
 
         local camMgr = GetCameraManager()
         if camMgr then
-            camMgr:StartCameraShake(1.0, 0.5, 0.5, 50)
+            -- camMgr:StartCameraShake(1.0, 0.5, 0.5, 50)
         end
     -- Phase 2 전환 (50% 이하)
     elseif c.phase == 1 and healthPercent <= Config.Phase2HealthThreshold then
@@ -1407,7 +1407,7 @@ local function CheckPhaseTransition(c)
 
         local camMgr = GetCameraManager()
         if camMgr then
-            camMgr:StartCameraShake(0.5, 0.3, 0.3, 30)
+            -- camMgr:StartCameraShake(0.5, 0.3, 0.3, 30)
         end
     end
 end
