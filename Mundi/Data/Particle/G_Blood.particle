@@ -30,8 +30,8 @@
                     "bEnabled" : true,
                     "bUseRealTime" : false
                   }, {
-                    "StartColor_Max" : [0.150579, 0.150579, 0.150579, 1.000000],
-                    "StartColor_Min" : [0.343629, 0.343629, 0.343629, 1.000000],
+                    "StartColor_Max" : [0.351351, 0.188563, 0.188563, 1.000000],
+                    "StartColor_Min" : [0.332046, 0.332046, 0.332046, 1.000000],
                     "StartColor_bUseRange" : true,
                     "Type" : "Color",
                     "bEnabled" : true
@@ -53,12 +53,12 @@
                     "bEnabled" : true
                   }, {
                     "AlphaOverLife_Max" : 1.000000,
-                    "AlphaOverLife_Min" : 0.560000,
+                    "AlphaOverLife_Min" : 1.000000,
                     "AlphaOverLife_bUseRange" : false,
                     "AlphaPoint1Time" : 0.000000,
                     "AlphaPoint1Value" : 1.000000,
                     "AlphaPoint2Time" : 1.000000,
-                    "AlphaPoint2Value" : 0.000000,
+                    "AlphaPoint2Value" : 1.000000,
                     "ColorOverLife_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
                     "ColorOverLife_Min" : [1.000000, 1.000000, 1.000000, 1.000000],
                     "ColorOverLife_bUseRange" : false,
