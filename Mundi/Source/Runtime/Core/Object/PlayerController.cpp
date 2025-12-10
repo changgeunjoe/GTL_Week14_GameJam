@@ -380,8 +380,9 @@ void APlayerController::ApplyMovement(float DeltaTime)
         }
     }
 
-    // 몽타주 재생 중이면 이동 입력 무시
+    // 몽타주 재생 중이면 이동 입력 무시 (단, 상체 분리 모드일 때는 이동 허용)
     bool bIsMontaguePlaying = false;
+    bool bIsUpperBodyMode = false;
     if (auto* PlayerChar = Cast<APlayerCharacter>(Pawn))
     {
         if (USkeletalMeshComponent* Mesh = PlayerChar->GetMesh())
@@ -389,11 +390,13 @@ void APlayerController::ApplyMovement(float DeltaTime)
             if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
             {
                 bIsMontaguePlaying = AnimInst->Montage_IsPlaying();
+                bIsUpperBodyMode = AnimInst->IsUpperBodySplitEnabled();
             }
         }
     }
 
-    if (bIsMontaguePlaying)
+    // 상체 분리 모드가 아닌 일반 몽타주 재생 중에만 이동 제한
+    if (bIsMontaguePlaying && !bIsUpperBodyMode)
     {
         return;
     }

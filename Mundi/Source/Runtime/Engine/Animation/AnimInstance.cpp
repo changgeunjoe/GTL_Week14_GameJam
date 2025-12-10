@@ -902,13 +902,15 @@ TArray<FTransform> UAnimInstance::ProcessMontage(const TArray<FTransform>& BaseP
     // ============================================================
     if (MontagePose.Num() > 0 && MontageState.CurrentWeight > 0.0f)
     {
-        if (bUseUpperBody && UpperBodyMask.Num() == BasePose.Num())
+        if (bUseUpperBody && UpperBodyMask.Num() > 0)
         {
             // 상체만 몽타주 적용, 하체는 BasePose 유지
+            const int32 NumBones = FMath::Min(FMath::Min(BasePose.Num(), MontagePose.Num()), UpperBodyMask.Num());
             Result.SetNum(BasePose.Num());
+
             for (int32 i = 0; i < BasePose.Num(); ++i)
             {
-                if (UpperBodyMask[i])  // 상체 본
+                if (i < NumBones && UpperBodyMask[i])  // 상체 본
                 {
                     Result[i] = FTransform::Lerp(BasePose[i], MontagePose[i], MontageState.CurrentWeight);
                 }
