@@ -52,7 +52,7 @@ void UParticleSystemComponent::InitParticles()
 
     if (!Template)
     {
-        UE_LOG("[ParticleSystemComponent::InitParticles] Template is NULL!");
+        //UE_LOG("[ParticleSystemComponent::InitParticles] Template is NULL!");
         return;
     }
 

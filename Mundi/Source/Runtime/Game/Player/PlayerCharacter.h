@@ -77,6 +77,9 @@ public:
     /** 차징 종료 */
     void StopCharging();
 
+    /** 포션 마시기 (상체 몽타주) */
+    void DrinkPotion();
+
     /** 콤보 윈도우 활성화 (AnimNotify에서 호출) */
     void EnableComboWindow();
 
@@ -376,6 +379,18 @@ protected:
 
     /** 차징 몽타주 */
     UAnimMontage* ChargingMontage = nullptr;
+
+    // ========== 포션 ==========
+    /** 포션 몽타주 애니메이션 경로 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Potion")
+    FString PotionAnimPath;
+
+    /** 포션 몽타주 */
+    UAnimMontage* PotionMontage = nullptr;
+
+    /** 상체 분리 기준 본 이름 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Potion")
+    FString UpperBodyRootBoneName = "Spine1";
 
     /** 차징 중 여부 */
     bool bIsCharging = false;

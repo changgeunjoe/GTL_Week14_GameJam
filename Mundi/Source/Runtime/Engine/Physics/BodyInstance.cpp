@@ -220,6 +220,10 @@ void FBodyInstance::InitDynamic(FPhysScene& World, const FTransform& WorldTransf
         // 3) 캡슐(Capsule)들
         for (const FKCapsuleElem& Capsule : Agg.CapsuleElements)
         {
+            // 0짜리 캡슐은 스킵 (잘못된 에셋 데이터 방어)
+            if (Capsule.Radius <= 0.0f || Capsule.HalfLength <= 0.0f)
+                continue;
+
             // 캡슐 중심도 스케일 적용
             FVector ScaledCenter = Capsule.Center * Scale3D;
 
@@ -234,7 +238,13 @@ void FBodyInstance::InitDynamic(FPhysScene& World, const FTransform& WorldTransf
             float RadiusScale = (AbsScale.X + AbsScale.Y) * 0.5f;
             float HeightScale = AbsScale.Z;
 
-            PxCapsuleGeometry Geom(Capsule.Radius * RadiusScale, Capsule.HalfLength * HeightScale);
+            // 디버그: 캡슐 생성 정보 출력 (Dynamic)
+            //UE_LOG("[BodyInstance] InitDynamic Capsule - OrigR=%.4f OrigH=%.4f Scale=(%.4f,%.4f,%.4f) FinalR=%.4f FinalH=%.4f", Capsule.Radius, Capsule.HalfLength, Scale3D.X, Scale3D.Y, Scale3D.Z, Capsule.Radius * RadiusScale, Capsule.HalfLength * HeightScale);
+
+            // PhysX는 radius, halfHeight 둘 다 0보다 커야 함
+            float SafeRadius = FMath::Max(0.001f, Capsule.Radius * RadiusScale);
+            float SafeHalfHeight = FMath::Max(0.001f, Capsule.HalfLength * HeightScale);
+            PxCapsuleGeometry Geom(SafeRadius, SafeHalfHeight);
 
             PxShape* Shape = Physics->createShape(Geom, *Material);
             if (Shape)
@@ -430,6 +440,10 @@ void FBodyInstance::InitStatic(FPhysScene& World, const FTransform& WorldTransfo
         // 3) 캡슐(Capsule)들
         for (const FKCapsuleElem& Capsule : Agg.CapsuleElements)
         {
+            // 0짜리 캡슐은 스킵 (잘못된 에셋 데이터 방어)
+            if (Capsule.Radius <= 0.0f || Capsule.HalfLength <= 0.0f)
+                continue;
+
             // 캡슐 중심도 스케일 적용
             FVector ScaledCenter = Capsule.Center * Scale3D;
 
@@ -444,7 +458,10 @@ void FBodyInstance::InitStatic(FPhysScene& World, const FTransform& WorldTransfo
             float RadiusScale = (AbsScale.X + AbsScale.Y) * 0.5f;
             float HeightScale = AbsScale.Z;
 
-            PxCapsuleGeometry Geom(Capsule.Radius * RadiusScale, Capsule.HalfLength * HeightScale);
+            // PhysX는 radius, halfHeight 둘 다 0보다 커야 함
+            float SafeRadius = FMath::Max(0.001f, Capsule.Radius * RadiusScale);
+            float SafeHalfHeight = FMath::Max(0.001f, Capsule.HalfLength * HeightScale);
+            PxCapsuleGeometry Geom(SafeRadius, SafeHalfHeight);
             PxShape* Shape = Physics->createShape(Geom, *Material);
             if (Shape)
             {
@@ -555,4 +572,15 @@ FTransform FBodyInstance::GetWorldTransform() const
 
     PxTransform Pose = RigidActor->getGlobalPose();
     return FromPx(Pose);
+}
+
+void FBodyInstance::SetWorldTransform(const FTransform& InTransform)
+{
+    if (!RigidActor)
+    {
+        return;
+    }
+
+    PxTransform NewPose = ToPx(InTransform);
+    RigidActor->setGlobalPose(NewPose);
 }

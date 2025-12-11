@@ -36,8 +36,7 @@ int32 UBlendSpace2D::AddSample(UAnimSequence* Animation, float X, float Y)
 	Samples.Add(FBlendSample2D(Animation, X, Y));
 	bTriangulationDirty = true;
 
-	UE_LOG("UBlendSpace2D::AddSample - Added '%s' at (%.1f, %.1f) (Total: %d samples)",
-		Animation->ObjectName.ToString().c_str(), X, Y, Samples.Num());
+	//UE_LOG("UBlendSpace2D::AddSample - Added '%s' at (%.1f, %.1f) (Total: %d samples)", Animation->ObjectName.ToString().c_str(), X, Y, Samples.Num());
 
 	return Index;
 }
@@ -157,7 +156,7 @@ void UBlendSpace2D::AddTriangle(int32 A, int32 B, int32 C)
 	}
 
 	Triangles.Add(FBlendTriangle(A, B, C));
-	UE_LOG("UBlendSpace2D::AddTriangle - Added triangle (%d, %d, %d)", A, B, C);
+	//UE_LOG("UBlendSpace2D::AddTriangle - Added triangle (%d, %d, %d)", A, B, C);
 }
 
 bool UBlendSpace2D::RemoveTriangle(int32 Index)

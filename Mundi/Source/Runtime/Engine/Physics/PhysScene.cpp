@@ -824,8 +824,10 @@ bool FPhysScene::SweepCapsuleOriented(
 
     Direction = Direction / TotalDistance;
 
-    float CylinderHalfHeight = FMath::Max(0.0f, HalfHeight - Radius);
-    PxCapsuleGeometry CapsuleGeom(Radius, CylinderHalfHeight);
+    // PhysX는 radius, halfHeight 둘 다 0보다 커야 함
+    float SafeRadius = FMath::Max(0.001f, Radius);
+    float CylinderHalfHeight = FMath::Max(0.001f, HalfHeight - SafeRadius);
+    PxCapsuleGeometry CapsuleGeom(SafeRadius, CylinderHalfHeight);
 
     FQuat CapsuleRotation = Rotation;
     CapsuleRotation.Normalize();
@@ -991,8 +993,10 @@ bool FPhysScene::OverlapCapsuleWithMTD(
     }
 
     // PhysX 캡슐 설정 (Z축 방향 -> X축 방향 변환)
-    float CylinderHalfHeight = FMath::Max(0.0f, HalfHeight - Radius);
-    PxCapsuleGeometry CapsuleGeom(Radius, CylinderHalfHeight);
+    // PhysX는 radius, halfHeight 둘 다 0보다 커야 함
+    float SafeRadius = FMath::Max(0.001f, Radius);
+    float CylinderHalfHeight = FMath::Max(0.001f, HalfHeight - SafeRadius);
+    PxCapsuleGeometry CapsuleGeom(SafeRadius, CylinderHalfHeight);
 
     // Y축 기준 90도 회전 (Z-up에서 X-up으로)
     PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));
