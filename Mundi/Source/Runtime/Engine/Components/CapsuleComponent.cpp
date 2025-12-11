@@ -348,13 +348,19 @@ void UCapsuleComponent::CreatePhysXActor()
     const float AbsScaleY = std::fabs(WorldTransform.Scale3D.Y);
     const float AbsScaleZ = std::fabs(WorldTransform.Scale3D.Z);
 
-    // 월드 스케일 적용된 캡슐 크기
-    const float WorldRadius = CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY);
+    // 디버그: 스케일 값 출력
+    UE_LOG("[CapsuleComponent] CreatePhysXActor - %s Scale=(%.4f, %.4f, %.4f) AttachParent=%p",
+           GetName().c_str(), AbsScaleX, AbsScaleY, AbsScaleZ, GetAttachParent());
+
+    // 월드 스케일 적용된 캡슐 크기 (PhysX는 radius, halfHeight 둘 다 0보다 커야 함)
+    const float WorldRadius = FMath::Max(0.001f, CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY));
     const float WorldHalfHeight = CapsuleHalfHeight * AbsScaleZ;
-    const float CylinderHalfHeight = FMath::Max(0.0f, WorldHalfHeight - WorldRadius);
+    const float CylinderHalfHeight = FMath::Max(0.001f, WorldHalfHeight - WorldRadius);
 
     // PhysX Transform (Z-up → X-up 캡슐 회전 포함)
     PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));  // Y축 기준 90도 회전
+    
+
     PxTransform Pose(
         PxVec3(WorldTransform.Translation.X, WorldTransform.Translation.Y, WorldTransform.Translation.Z),
         CapsuleRotation
@@ -420,16 +426,14 @@ void UCapsuleComponent::UpdatePhysXActorTransform()
         return;
 
     const FTransform WorldTransform = GetWorldTransform();
-
-    // Z-up → X-up 캡슐 회전
+    
     PxQuat CapsuleRotation(PxHalfPi, PxVec3(0, 1, 0));
     PxTransform NewPose(
         PxVec3(WorldTransform.Translation.X, WorldTransform.Translation.Y, WorldTransform.Translation.Z),
         CapsuleRotation
     );
 
-    // Kinematic Target 설정 (다음 시뮬레이션에서 이 위치로 이동)
-    PhysXActor->setKinematicTarget(NewPose);
+    
 }
 
 void UCapsuleComponent::EnableTriggerCollision(bool bEnable)
@@ -474,9 +478,10 @@ void UCapsuleComponent::CheckTriggerOverlaps()
     const float WorldRadius = CapsuleRadius * FMath::Max(AbsScaleX, AbsScaleY);
     const float WorldHalfHeight = CapsuleHalfHeight * AbsScaleZ;
 
-    // SweepCapsule로 충돌 체크
+    // SweepCapsuleOriented로 충돌 체크 (회전 적용)
     FVector Start = WorldTransform.Translation;
     FVector End = Start + FVector(0.01f, 0, 0);  // 작은 거리로 sweep
+    
 
     FHitResult HitResult;
     bool bHit = PhysScene->SweepCapsule(

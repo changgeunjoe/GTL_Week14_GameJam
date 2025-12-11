@@ -1511,6 +1511,11 @@ local function CheckPhaseTransition(c)
         SetFogStartDistance(0)          -- 안개 시작 거리
         SetFogCutoffDistance(3400)      -- 안개 컷오프 거리
         print("[Phase 3] Blood fog starting...")
+
+        local camMgr = GetCameraManager()
+        if camMgr then
+            -- camMgr:StartCameraShake(1.0, 0.5, 0.5, 50)
+        end
     -- Phase 2 전환 (50% 이하)
     elseif c.phase == 1 and healthPercent <= Config.Phase2HealthThreshold then
         c.phase = 2
@@ -1527,7 +1532,7 @@ local function CheckPhaseTransition(c)
 
         local camMgr = GetCameraManager()
         if camMgr then
-            camMgr:StartCameraShake(0.5, 0.3, 0.3, 30)
+            -- camMgr:StartCameraShake(0.5, 0.3, 0.3, 30)
         end
     end
 end
