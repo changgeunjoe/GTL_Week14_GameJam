@@ -67,6 +67,11 @@ local ctx = {
     -- 궁극기 관련
     last_ultimate_time = -999,          -- 마지막 궁극기 사용 시간
     ultimate_cooldown = 5.0,            -- 궁극기 쿨다운 (초)
+    is_ultimate_active = false,         -- 궁극기 진행 중인지
+    ultimate_sword_count = 0,           -- 소환된 칼 개수
+    ultimate_max_swords = 5,            -- 소환할 칼 개수
+    ultimate_spawn_interval = 0.3,      -- 칼 소환 간격
+    ultimate_next_spawn_time = 0,       -- 다음 칼 소환 시간
 
     -- 안개 관련 (Phase 3 선형 보간)
     fog_lerping = false,                -- 안개 보간 중인지
@@ -1279,11 +1284,16 @@ local function DoGapCloser(c)
     return BT_FAILURE
 end
 
--- 궁극기 공격 (Phase 3 전용)
+-- 궁극기 공격 (Phase 3 전용) - 이기어검 스타일
 local function DoUltimateAttack(c)
-    Log("  [Action] DoUltimateAttack - Ultimate!")
+    Log("  [Action] DoUltimateAttack - Ultimate (Sword Rain)!")
 
     if IsMontagePlayling(Obj) then
+        return BT_FAILURE
+    end
+
+    -- 이미 궁극기 진행 중이면 스킵
+    if c.is_ultimate_active then
         return BT_FAILURE
     end
 
@@ -1295,16 +1305,71 @@ local function DoUltimateAttack(c)
         Obj.Rotation = Vector(0, 0, targetYaw)
     end
 
-    -- 궁극기 재생
-    local success = PlayMontage(Obj, "Ultimate", 0.1, 0.1, 1.0)
+    -- 궁극기 애니메이션 재생 (팔을 위로 드는 모션)
+    local success = PlayMontage(Obj, "Ultimate", 0.1, 0.1, 0.8)
     if success then
-        SetBossPatternName(Obj, "Ultimate")
+        SetBossPatternName(Obj, "Ultimate - Sword Rain")
         SetBossAIState(Obj, "Attacking")
         StartAttack(c, "Ultimate")
         c.last_ultimate_time = c.time
+        c.is_ultimate_active = true
+        c.ultimate_sword_count = 0
+        c.ultimate_max_swords = 5           -- 소환할 칼 개수
+        c.ultimate_spawn_interval = 0.3     -- 칼 소환 간격
+        c.ultimate_next_spawn_time = c.time + 0.5  -- 첫 칼 소환까지 대기
+
+        -- 카메라 쉐이크
+        local camMgr = GetCameraManager()
+        if camMgr then
+            camMgr:StartCameraShake(0.5, 0.2, 0.2, 30)
+        end
+
+        print("[Ultimate] Sword Rain started!")
         return BT_SUCCESS
     end
     return BT_FAILURE
+end
+
+-- 궁극기 업데이트 (칼 소환 처리)
+local function UpdateUltimate(c)
+    if not c.is_ultimate_active then
+        return
+    end
+
+    -- 아직 소환할 칼이 남아있는지
+    if c.ultimate_sword_count >= c.ultimate_max_swords then
+        -- 모든 칼 소환 완료
+        c.is_ultimate_active = false
+        SetBossPatternName(Obj, "")
+        print("[Ultimate] All swords spawned!")
+        return
+    end
+
+    -- 소환 시간 체크
+    if c.time >= c.ultimate_next_spawn_time then
+        -- 칼 소환
+        local bossPos = Obj.Location
+        local swordIndex = c.ultimate_sword_count
+
+        -- 칼 위치 계산 (보스 머리 위에 원형으로 배치)
+        local angle = (swordIndex / c.ultimate_max_swords) * math.pi * 2
+        local radius = 1.5  -- 원형 반경
+        local height = 4.0 + (swordIndex * 0.3)  -- 높이 (약간씩 다르게)
+
+        local spawnX = bossPos.X + math.cos(angle) * radius
+        local spawnY = bossPos.Y + math.sin(angle) * radius
+        local spawnZ = bossPos.Z + height
+
+        -- 칼 프리팹 스폰
+        local sword = SpawnPrefab("Data/Prefabs/BossSword.prefab")
+        if sword then
+            sword.Location = Vector(spawnX, spawnY, spawnZ)
+            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned at height " .. string.format("%.1f", spawnZ))
+        end
+
+        c.ultimate_sword_count = c.ultimate_sword_count + 1
+        c.ultimate_next_spawn_time = c.time + c.ultimate_spawn_interval
+    end
 end
 
 local function DoRetreat(c)
@@ -1398,12 +1463,40 @@ local function CheckPhaseTransition(c)
         c.is_charging = false
         c.is_winding_up = false
         c.is_guard_breaking = false
-        SetBossPatternName(Obj, "")
+        SetBossPatternName(Obj, "Phase 3 Awakening")
 
-        -- Phase 3 이동속도 적용
-        --SetMaxWalkSpeed(Obj, Config.Phase3MoveSpeed)
+        -- ========================================
+        -- 시네마틱 연출: 타임 슬로우 + 카메라 연출
+        -- ========================================
 
+        -- 1. 타임 슬로우 (0.2배속으로 2초간)
+        SetSlomo(2.0, 0.2)
+        print("[Cinematic] Time slow activated (0.2x for 2s)")
+
+        -- 2. 카메라 연출
+        local camMgr = GetCameraManager()
+        if camMgr then
+            -- 카메라 쉐이크 (강력하게)
+            camMgr:StartCameraShake(1.5, 0.8, 0.8, 60)
+
+            -- 화면 페이드 효과 (빨간색으로 살짝 플래시)
+            camMgr:StartFade(0.3, 0.0, 0.5, Color(0.8, 0.1, 0.1, 1.0))
+
+            -- 비네트 효과 (화면 가장자리 어둡게)
+            camMgr:StartVignette(2.5, 0.3, 0.4, 0.8, 0.8, Color(0.2, 0.0, 0.0, 1.0))
+
+            -- 레터박스 (시네마틱 느낌)
+            camMgr:StartLetterBox(2.0, 2.35, 0.08, Color(0, 0, 0, 1))
+
+            print("[Cinematic] Camera effects activated")
+        end
+
+        -- 3. 포효 애니메이션 재생 (느린 속도로)
+        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.5)
+
+        -- ========================================
         -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
+        -- ========================================
         c.fog_lerping = true
         c.fog_lerp_time = 0
         c.fog_lerp_duration = 5.0       -- 5초에 걸쳐 안개가 짙어짐
@@ -1418,11 +1511,6 @@ local function CheckPhaseTransition(c)
         SetFogStartDistance(0)          -- 안개 시작 거리
         SetFogCutoffDistance(3400)      -- 안개 컷오프 거리
         print("[Phase 3] Blood fog starting...")
-
-        local camMgr = GetCameraManager()
-        if camMgr then
-            camMgr:StartCameraShake(1.0, 0.5, 0.5, 50)
-        end
     -- Phase 2 전환 (50% 이하)
     elseif c.phase == 1 and healthPercent <= Config.Phase2HealthThreshold then
         c.phase = 2
@@ -1817,6 +1905,9 @@ function Tick(Delta)
 
     -- 안개 보간 업데이트
     UpdateFogLerp(ctx)
+
+    -- 궁극기 업데이트 (칼 소환)
+    UpdateUltimate(ctx)
 
     -- 콤보 업데이트
     UpdateCombo(ctx)
