@@ -4,21 +4,21 @@
                 "LODIndex" : 0,
                 "Modules" : [{
                     "Lifetime_Max" : 1.000000,
-                    "Lifetime_Min" : 10.000000,
+                    "Lifetime_Min" : 3.000000,
                     "Lifetime_bUseRange" : false,
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
-                    "StartSize_Max" : [10.000000, 10.000000, 10.000000],
-                    "StartSize_Min" : [0.020000, 0.020000, 0.020000],
-                    "StartSize_bUseRange" : false,
+                    "StartSize_Max" : [0.100000, 0.300000, 0.300000],
+                    "StartSize_Min" : [0.050000, 0.300000, 0.300000],
+                    "StartSize_bUseRange" : true,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "Gravity" : [0.000000, 0.000000, -10.000000],
-                    "StartVelocity_Max" : [0.000000, 0.000000, 0.000000],
-                    "StartVelocity_Min" : [0.000000, 0.000000, -5.000000],
-                    "StartVelocity_bUseRange" : true,
+                    "Gravity" : [0.000000, 0.000000, -40.000000],
+                    "StartVelocity_Max" : [3.000000, 3.000000, -3.000000],
+                    "StartVelocity_Min" : [-1.000000, -1.000000, -5.000000],
+                    "StartVelocity_bUseRange" : false,
                     "Type" : "Velocity",
                     "bEnabled" : true
                   }, {
@@ -42,15 +42,15 @@
                     "Type" : "Location",
                     "bEnabled" : true
                   }, {
-                    "StartColor_Max" : [0.540541, 0.000000, 0.000000, 1.000000],
-                    "StartColor_Min" : [0.000000, 0.000000, 0.000000, 1.000000],
+                    "StartColor_Max" : [0.189189, 0.000000, 0.000000, 1.000000],
+                    "StartColor_Min" : [0.301158, 0.000000, 0.000000, 1.000000],
                     "StartColor_bUseRange" : true,
                     "Type" : "Color",
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 1,
-                  "DiffuseTexture" : "Data/Textures/A_Flare_D2.PNG",
+                  "DiffuseTexture" : "Data/Bubble.PNG",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,
@@ -74,12 +74,12 @@
                 },
                 "SpawnModule" : {
                   "BurstList" : [],
-                  "SpawnRateOverTime_Max" : 50.000000,
-                  "SpawnRateOverTime_Min" : 10.000000,
-                  "SpawnRateOverTime_bUseRange" : true,
+                  "SpawnRateOverTime_Max" : 500.000000,
+                  "SpawnRateOverTime_Min" : 500.000000,
+                  "SpawnRateOverTime_bUseRange" : false,
                   "SpawnRateType" : 0,
-                  "SpawnRate_Max" : 500.000000,
-                  "SpawnRate_Min" : 500.000000,
+                  "SpawnRate_Max" : 150.000000,
+                  "SpawnRate_Min" : 150.000000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true
@@ -96,13 +96,13 @@
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
-                    "StartSize_Max" : [0.800000, 0.800000, 0.800000],
+                    "StartSize_Max" : [3.000000, 3.000000, 3.000000],
                     "StartSize_Min" : [0.500000, 0.500000, 0.500000],
                     "StartSize_bUseRange" : true,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "Count" : 3,
+                    "Count" : 5,
                     "CountRange" : 0,
                     "EventName" : "Rain",
                     "InitialSpeed" : 10.000000,
@@ -114,8 +114,8 @@
                     "AlphaOverLife_Max" : 1.000000,
                     "AlphaOverLife_Min" : 1.000000,
                     "AlphaOverLife_bUseRange" : false,
-                    "AlphaPoint1Time" : 0.000000,
-                    "AlphaPoint1Value" : 1.000000,
+                    "AlphaPoint1Time" : 0.592992,
+                    "AlphaPoint1Value" : 0.916666,
                     "AlphaPoint2Time" : 1.000000,
                     "AlphaPoint2Value" : 0.000000,
                     "ColorOverLife_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
@@ -127,7 +127,7 @@
                     "bUseColorOverLife" : false
                   }, {
                     "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
-                    "StartColor_Min" : [0.189189, 0.000000, 0.000000, 1.000000],
+                    "StartColor_Min" : [0.123552, 0.000000, 0.000000, 1.000000],
                     "StartColor_bUseRange" : false,
                     "Type" : "Color",
                     "bEnabled" : true
@@ -172,8 +172,8 @@
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
                   "SpawnRateType" : 0,
-                  "SpawnRate_Max" : 0.000000,
-                  "SpawnRate_Min" : 0.000000,
+                  "SpawnRate_Max" : 2.100000,
+                  "SpawnRate_Min" : 2.100000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true

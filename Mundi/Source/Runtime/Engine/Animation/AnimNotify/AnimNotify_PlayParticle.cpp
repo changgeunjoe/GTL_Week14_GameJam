@@ -54,7 +54,7 @@ void UAnimNotify_PlayParticle::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 
     const FQuat OffsetRotation = FQuat::MakeFromEulerZYX(RotationOffset);
     const FTransform OffsetTransform(LocationOffset, OffsetRotation, ScaleOffset);
-    const FTransform SpawnTransform = BaseTransform.GetWorldTransform(OffsetTransform);
+    const FTransform SpawnTransform = bAbsoluteWorld ? OffsetTransform : BaseTransform.GetWorldTransform(OffsetTransform);
 
     UAnimNotifyParticleComponent* ParticleComponent = nullptr;
     AActor* TargetActor = nullptr;
