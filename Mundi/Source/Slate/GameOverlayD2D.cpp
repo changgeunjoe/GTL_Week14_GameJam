@@ -1186,7 +1186,7 @@ void UGameOverlayD2D::DrawPlayerBars(float ScreenW, float ScreenH, float DeltaTi
     float BarSpacing = BarH * 1.0f;  // Vertical spacing between bars
 
     float BarX = Padding;
-    float HPBarY = Padding + 50.0f;  // Move down a bit
+    float HPBarY = Padding + 50.0f + PlayerBarYOffset;  // Move down a bit + Phase 3 offset
     float FocusBarY = HPBarY + BarSpacing;
     float StaminaBarY = FocusBarY + BarSpacing;
 

@@ -21,6 +21,7 @@
 #include "PlayerCharacter.h"
 #include "StatsComponent.h"
 #include "HeightFogComponent.h"
+#include "GameOverlayD2D.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -1034,6 +1035,46 @@ FLuaManager::FLuaManager()
                 }
             }
             return false;
+        });
+
+    // 몽타주 정지 (Lua용) - 보스/적용
+    SharedLib.set_function("StopMontage", [](FGameObject& Obj)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (AEnemyBase* Enemy = Cast<AEnemyBase>(Owner))
+                {
+                    if (USkeletalMeshComponent* Mesh = Enemy->GetMesh())
+                    {
+                        if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                        {
+                            AnimInst->Montage_Stop(0.1f);
+                        }
+                    }
+                }
+            }
+        });
+
+    // 플레이어 몽타주 정지 (Lua용)
+    SharedLib.set_function("StopPlayerMontage", []()
+        {
+            for (TObjectIterator<APlayerCharacter> It; It; ++It)
+            {
+                APlayerCharacter* Player = *It;
+                if (USkeletalMeshComponent* Mesh = Player->GetMesh())
+                {
+                    if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                    {
+                        AnimInst->Montage_Stop(0.1f);
+                    }
+                }
+            }
+        });
+
+    // 플레이어 체력바 Y 오프셋 설정 (Phase 3 레터박스용)
+    SharedLib.set_function("SetPlayerBarYOffset", [](float Offset)
+        {
+            UGameOverlayD2D::Get().SetPlayerBarYOffset(Offset);
         });
     
     // FVector usertype 등록 (메서드와 프로퍼티)

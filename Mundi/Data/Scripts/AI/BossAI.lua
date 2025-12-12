@@ -66,7 +66,7 @@ local ctx = {
 
     -- 궁극기 관련
     last_ultimate_time = -999,          -- 마지막 궁극기 사용 시간
-    ultimate_cooldown = 5.0,            -- 궁극기 쿨다운 (초)
+    ultimate_cooldown = 15.0,           -- 궁극기 쿨다운 (초)
     is_ultimate_active = false,         -- 궁극기 진행 중인지
     ultimate_sword_count = 0,           -- 소환된 칼 개수
     ultimate_max_swords = 5,            -- 소환할 칼 개수
@@ -1491,11 +1491,11 @@ local function CheckPhaseTransition(c)
         local cinematicDistance = 8.0  -- 보스와 플레이어 사이 거리 (미터)
 
         if c.target then
-            -- 플레이어를 보스 앞에 배치
+            -- 플레이어를 보스 앞에 배치 (X, Y만 변경, Z는 플레이어 원래 높이 유지)
             local bossForward = Obj:GetForward()
             local playerX = bossPos.X + bossForward.X * cinematicDistance
             local playerY = bossPos.Y + bossForward.Y * cinematicDistance
-            local playerZ = bossPos.Z  -- 같은 높이
+            local playerZ = c.target.Location.Z  -- 플레이어 원래 높이 유지
 
             c.target.Location = Vector(playerX, playerY, playerZ)
 
@@ -1505,6 +1505,10 @@ local function CheckPhaseTransition(c)
 
             print("[Cinematic] Player repositioned in front of boss")
         end
+
+        -- 1.5. 보스와 플레이어 애니메이션을 Idle 상태로 (몽타주 정지)
+        StopMontage(Obj)           -- 보스 몽타주 정지
+        StopPlayerMontage()        -- 플레이어 몽타주 정지
 
         -- 2. 타임 슬로우 (0.1배속으로 3초간 - 더 느리게)
         SetSlomo(3.0, 0.1)
@@ -1516,11 +1520,14 @@ local function CheckPhaseTransition(c)
             -- 레터박스 (시네마틱 느낌 - 더 길게)
             camMgr:StartLetterBox(4.0, 2.35, 0.1, Color(0, 0, 0, 1))
 
+            -- 플레이어 체력바를 레터박스 아래로 이동 (겹침 방지)
+            SetPlayerBarYOffset(100.0)
+
             print("[Cinematic] Camera effects activated")
         end
 
-        -- 4. 포효 애니메이션 재생 (아주 느린 속도로)
-        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.3)
+        -- 4. 포효 애니메이션 재생
+        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.8)
 
         -- ========================================
         -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
@@ -1775,13 +1782,17 @@ local BossTree = Selector({
     -- 궁극기 브랜치
     -- ========================================================================
 
-    -- 8. [궁극기] Phase 3에서 쿨다운이 돌아오면 궁극기 사용
+    -- 8. [궁극기] Phase 3에서 쿨다운이 돌아오면 궁극기 사용 (첫 사용은 무조건, 이후 50% 확률)
     Sequence({
         Condition(function(c)
             Log("[Branch 8] Ultimate?")
-            -- Phase 3 진입 직후 한 번만 사용 (last_ultimate_time이 초기값일 때만)
-            local neverUsed = c.last_ultimate_time < 0
-            return HasTarget(c) and c.phase >= 3 and neverUsed and IsNotAttacking(c)
+            -- Phase 3에서 쿨다운이 돌아오면 사용
+            local timeSinceUltimate = c.time - c.last_ultimate_time
+            local canUseUltimate = timeSinceUltimate >= c.ultimate_cooldown
+            -- 첫 사용은 무조건, 이후 50% 확률
+            local isFirstUse = c.last_ultimate_time < 0
+            local randomChance = isFirstUse or (math.random() < 0.2)
+            return HasTarget(c) and c.phase >= 3 and canUseUltimate and randomChance and IsNotAttacking(c)
         end),
         Action(DoUltimateAttack)
     }),
