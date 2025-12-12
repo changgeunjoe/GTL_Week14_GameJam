@@ -10,6 +10,7 @@
 #include "GameModeBase.h"
 #include "PlayerController.h"
 #include"Pawn.h"
+#include "EnemyBase.h"
 #include "BossEnemy.h"
 #include "BasicEnemy.h"
 #include "HitboxComponent.h"
@@ -950,9 +951,9 @@ FLuaManager::FLuaManager()
         {
             if (AActor* Owner = Obj.GetOwner())
             {
-                if (ABossEnemy* Boss = Cast<ABossEnemy>(Owner))
+                if (AEnemyBase* Enemy = Cast<AEnemyBase>(Owner))
                 {
-                    if (USkeletalMeshComponent* Mesh = Boss->GetMesh())
+                    if (USkeletalMeshComponent* Mesh = Enemy->GetMesh())
                     {
                         if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
                         {
