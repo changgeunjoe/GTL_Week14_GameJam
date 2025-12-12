@@ -3,8 +3,8 @@
             "LODLevels" : [{
                 "LODIndex" : 0,
                 "Modules" : [{
-                    "Lifetime_Max" : 1.000000,
-                    "Lifetime_Min" : 0.800000,
+                    "Lifetime_Max" : 2.000000,
+                    "Lifetime_Min" : 1.600000,
                     "Lifetime_bUseRange" : true,
                     "Type" : "Lifetime",
                     "bEnabled" : true
@@ -66,6 +66,15 @@
                     "bEnabled" : true,
                     "bUseAlphaOverLife" : true,
                     "bUseColorOverLife" : false
+                  }, {
+                    "InitialRotation_Max" : [0.000000, 0.000000, 0.000000],
+                    "InitialRotation_Min" : [0.000000, 0.000000, 0.000000],
+                    "InitialRotation_bUseRange" : true,
+                    "StartRotationRate_Max" : [50.000000, 0.000000, 0.000000],
+                    "StartRotationRate_Min" : [0.000000, 0.000000, 0.000000],
+                    "StartRotationRate_bUseRange" : true,
+                    "Type" : "RotationRate",
+                    "bEnabled" : true
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 1,
@@ -93,8 +102,8 @@
                 },
                 "SpawnModule" : {
                   "BurstList" : [{
-                      "Count" : 50,
-                      "CountRange" : 0,
+                      "Count" : 70,
+                      "CountRange" : 20,
                       "Time" : 0.010000
                     }],
                   "SpawnRateOverTime_Max" : 50.000000,

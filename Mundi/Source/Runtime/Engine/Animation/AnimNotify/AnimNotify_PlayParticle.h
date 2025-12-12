@@ -27,6 +27,7 @@ public:
     FVector ScaleOffset = FVector::One();
     FName AttachBoneName; // Optional bone sampling (only evaluated at spawn time)
     bool bAttachToOwner = false; // true -> attach component to owning actor, false -> spawn transient actor
+    bool bAbsoluteWorld = false;
     float LifeTime = 0.0f; // Optional forced life span (seconds). <= 0 uses notify duration / particle asset
 
 private:

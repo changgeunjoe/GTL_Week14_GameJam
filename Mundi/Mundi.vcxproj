@@ -521,6 +521,7 @@
     <ClCompile Include="Source\Runtime\Game\Combat\StatsComponent.cpp" />
     <ClCompile Include="Source\Runtime\Game\Enemy\BasicEnemy.cpp" />
     <ClCompile Include="Source\Runtime\Game\Enemy\BossEnemy.cpp" />
+    <ClCompile Include="Source\Runtime\Game\Enemy\BossSword.cpp" />
     <ClCompile Include="Source\Runtime\Game\Enemy\EnemyBase.cpp" />
     <ClCompile Include="Source\Runtime\Game\Player\PlayerCharacter.cpp" />
     <ClCompile Include="Source\Runtime\Renderer\FSkeletalViewerViewportClient.cpp" />
@@ -756,7 +757,7 @@
     <ClCompile Include="Generated\UCamMod_Bloom.generated.cpp" />
     <ClCompile Include="Generated\USkySphereComponent.generated.cpp" />
     <ClCompile Include="Generated\ASkySphereActor.generated.cpp" />
-  <ClCompile Include="Generated\ABasicEnemy.generated.cpp" /></ItemGroup>
+  <ClCompile Include="Generated\ABasicEnemy.generated.cpp" /><ClCompile Include="Generated\ABossSword.generated.cpp" /></ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Common\LightingBuffers.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -1083,6 +1084,7 @@
     <ClInclude Include="Source\Runtime\Game\Combat\StatsComponent.h" />
     <ClInclude Include="Source\Runtime\Game\Enemy\BasicEnemy.h" />
     <ClInclude Include="Source\Runtime\Game\Enemy\BossEnemy.h" />
+    <ClInclude Include="Source\Runtime\Game\Enemy\BossSword.h" />
     <ClInclude Include="Source\Runtime\Game\Enemy\EnemyBase.h" />
     <ClInclude Include="Source\Runtime\Game\Player\PlayerCharacter.h" />
     <ClInclude Include="Source\Runtime\Renderer\FSkeletalViewerViewportClient.h" />
@@ -1292,7 +1294,7 @@
     <ClInclude Include="Generated\UCamMod_Bloom.generated.h" />
     <ClInclude Include="Generated\USkySphereComponent.generated.h" />
     <ClInclude Include="Generated\ASkySphereActor.generated.h" />
-  <ClInclude Include="Generated\ABasicEnemy.generated.h" /></ItemGroup>
+  <ClInclude Include="Generated\ABasicEnemy.generated.h" /><ClInclude Include="Generated\ABossSword.generated.h" /></ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="Tools\CodeGenerator\generate.py" />

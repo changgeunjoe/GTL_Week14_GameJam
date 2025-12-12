@@ -44,6 +44,9 @@ BEGIN_PROPERTIES(ACharacter)
     ADD_PROPERTY(float, WeaponTraceRadius, "Weapon", true)
     ADD_PROPERTY(float, WeaponTraceLength, "Weapon", true)
     ADD_PROPERTY(bool, bDrawWeaponDebug, "Weapon", true)
+    ADD_PROPERTY(int, InitialBloodDecalPoolSize, "VFX", true)
+    ADD_PROPERTY(float, BloodDecalGroundZ, "VFX", true)
+    ADD_PROPERTY(float, BloodDecalLifetime, "VFX", true)
 END_PROPERTIES()
 
 // ===== Lua Binding =====

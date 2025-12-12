@@ -17,7 +17,17 @@
 UDecalComponent::UDecalComponent()
 {
 	UResourceManager::GetInstance().Load<UMaterial>("Shaders/Effects/Decal.hlsl");
-	DecalTexture = UResourceManager::GetInstance().Load<UTexture>(GDataDir + "/Textures/grass.jpg");
+
+	DecalTexture = UResourceManager::GetInstance().Load<UTexture>("Data/Texture/Blood.png");
+	if (!DecalTexture)
+	{
+		DecalTexture = UResourceManager::GetInstance().Load<UTexture>(GDataDir + "/Textures/Blood.png");
+	}
+	if (!DecalTexture)
+	{
+		DecalTexture = UResourceManager::GetInstance().Load<UTexture>(GDataDir + "/Textures/grass.jpg");
+	}
+
 	bTickEnabled = true;
 	bCanEverTick = true;
 }
@@ -203,7 +213,3 @@ FMatrix UDecalComponent::GetDecalProjectionMatrix() const
 
     return DecalViewProj;
 }
-
-
-
-

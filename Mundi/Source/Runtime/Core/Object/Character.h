@@ -7,7 +7,9 @@ class UCapsuleComponent;
 class USkeletalMeshComponent;
 class UCharacterMovementComponent;
 class UParticleSystem;
- 
+class UTexture;
+class ADecalActor;
+
 UCLASS(DisplayName = "캐릭터", Description = "캐릭터 액터")
 class ACharacter : public APawn
 { 
@@ -112,6 +114,16 @@ public:
 	/** 디버그 드로우 활성화 */
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	bool bDrawWeaponDebug = true;
+	
+	//// Decal 관련
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	int InitialBloodDecalPoolSize = 12;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	float BloodDecalGroundZ = -0.f;
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	float BloodDecalLifetime = 8.f;
 
 	// ========================================================================
 	// 무기 디버그 렌더링 데이터 (RenderDebugVolume에서 사용)
@@ -138,6 +150,24 @@ public:
 
 	/** WeaponCollider 오버랩 시 호출 (PhysX 오버랩 콜백) */
 	void OnWeaponColliderOverlap(AActor* OtherActor, const FVector& HitLocation, const FVector& HitNormal);
+
+	UTexture* BloodDecalTexture = nullptr;
+
+	struct FBloodDecalEntry
+	{
+		ADecalActor* Actor;
+		float RemainingLifetime = 0.0f;
+		bool bInUse = false;
+	};
+	TArray<FBloodDecalEntry> BloodDecalPool;
+	TArray<int32> BloodDecalFreeList;
+
+    void InitializeBloodDecalPool();
+	ADecalActor* AcquireBloodDecal();
+	void ReleaseBloodDecal(ADecalActor* DecalActor);
+	void SpawnBloodDecalAt(const FVector& HitLocation, const FVector& HitNormal);
+	void UpdateBloodDecalPool(float DeltaSeconds);
+	void ConfigureBloodDecalActor(ADecalActor* DecalActor);
 
 protected:
 	/** 무기 충돌 시 호출 */

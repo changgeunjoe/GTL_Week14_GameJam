@@ -191,4 +191,10 @@ private:
     bool bWasDownPressed = false;          // 이전 프레임 아래쪽 키 상태
     bool bWasEnterPressed = false;         // 이전 프레임 엔터 키 상태
     int32 LastFlowState = -1;              // 이전 프레임의 GameFlowState (메뉴 변경 감지용)
+
+public:
+    // Player bar Y offset (for Phase 3 letterbox)
+    float PlayerBarYOffset = 0.0f;         // 플레이어 체력바 Y 오프셋 (Phase 3에서 조절)
+    void SetPlayerBarYOffset(float Offset) { PlayerBarYOffset = Offset; }
+    float GetPlayerBarYOffset() const { return PlayerBarYOffset; }
 };

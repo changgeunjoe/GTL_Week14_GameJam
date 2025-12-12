@@ -34,7 +34,7 @@
                     "AlphaPoint1Value" : 1.000000,
                     "AlphaPoint2Time" : 0.835580,
                     "AlphaPoint2Value" : 0.082645,
-                    "ColorOverLife_Max" : [0.000000, 0.000000, 0.000000, 1.000000],
+                    "ColorOverLife_Max" : [0.000000, 0.233479, 0.737452, 1.000000],
                     "ColorOverLife_Min" : [0.397683, 0.727911, 1.000000, 1.000000],
                     "ColorOverLife_bUseRange" : true,
                     "Type" : "ColorOverLife",
@@ -43,7 +43,7 @@
                     "bUseColorOverLife" : true
                   }],
                 "RequiredModule" : {
-                  "BlendMode" : 2,
+                  "BlendMode" : 1,
                   "DiffuseTexture" : "Data/Textures/A_Trace3.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
@@ -115,7 +115,7 @@
                     "AlphaPoint1Value" : 1.000000,
                     "AlphaPoint2Time" : 0.835580,
                     "AlphaPoint2Value" : 0.000000,
-                    "ColorOverLife_Max" : [0.000000, 0.000000, 0.000000, 1.000000],
+                    "ColorOverLife_Max" : [0.137595, 0.153451, 0.548263, 1.000000],
                     "ColorOverLife_Min" : [0.293436, 0.683424, 1.000000, 1.000000],
                     "ColorOverLife_bUseRange" : true,
                     "Type" : "ColorOverLife",
@@ -124,7 +124,7 @@
                     "bUseColorOverLife" : true
                   }],
                 "RequiredModule" : {
-                  "BlendMode" : 2,
+                  "BlendMode" : 1,
                   "DiffuseTexture" : "Data/Textures/A_Trace3.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
