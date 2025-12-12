@@ -366,6 +366,29 @@ void APlayerCharacter::Tick(float DeltaSeconds)
     }
 
     UpdateEffect(DeltaSeconds);
+
+    // 포션 마시기 완료 체크 (상체 분리 모드가 해제되면 HP 회복)
+    if (bIsDrinkingPotion)
+    {
+        USkeletalMeshComponent* Mesh = GetMesh();
+        if (Mesh)
+        {
+            UAnimInstance* AnimInst = Mesh->GetAnimInstance();
+            if (AnimInst && !AnimInst->IsUpperBodySplitEnabled())
+            {
+                // 포션 몽타주가 끝나서 상체 분리가 해제됨 -> HP 회복
+                bIsDrinkingPotion = false;
+
+                UStatsComponent* Stats = Cast<UStatsComponent>(GetComponent(UStatsComponent::StaticClass()));
+                if (Stats)
+                {
+                    Stats->Heal(PotionHealAmount);
+                    UE_LOG("[PlayerCharacter] Potion consumed! Healed %.0f HP (Current: %.0f/%.0f)",
+                           PotionHealAmount, Stats->GetCurrentHealth(), Stats->GetMaxHealth());
+                }
+            }
+        }
+    }
 }
 
 // ============================================================================
@@ -921,6 +944,9 @@ void APlayerCharacter::DrinkPotion()
     // 상체 분리 활성화
     FName BoneName(UpperBodyRootBoneName.c_str());
     AnimInst->EnableUpperBodySplit(BoneName);
+
+    // 포션 마시는 중 플래그 설정
+    bIsDrinkingPotion = true;
 
     // 포션 몽타주 재생 (상체만 적용됨)
     AnimInst->Montage_Play(PotionMontage, 0.1f, 0.2f, 1.0f, false);

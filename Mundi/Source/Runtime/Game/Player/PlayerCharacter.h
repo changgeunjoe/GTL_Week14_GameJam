@@ -392,6 +392,13 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Animation|Potion")
     FString UpperBodyRootBoneName = "Spine1";
 
+    /** 포션 회복량 */
+    UPROPERTY(EditAnywhere, Category = "Animation|Potion")
+    float PotionHealAmount = 30.f;
+
+    /** 포션 마시는 중 여부 */
+    bool bIsDrinkingPotion = false;
+
     /** 차징 중 여부 */
     bool bIsCharging = false;
 
