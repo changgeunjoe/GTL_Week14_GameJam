@@ -64,6 +64,15 @@ local ctx = {
     -- 죽음 관련
     is_death_animation_played = false,  -- 죽음 애니메이션 재생 여부
 
+    -- 궁극기 관련
+    last_ultimate_time = -999,          -- 마지막 궁극기 사용 시간
+    ultimate_cooldown = 15.0,           -- 궁극기 쿨다운 (초)
+    is_ultimate_active = false,         -- 궁극기 진행 중인지
+    ultimate_sword_count = 0,           -- 소환된 칼 개수
+    ultimate_max_swords = 5,            -- 소환할 칼 개수
+    ultimate_spawn_interval = 0.3,      -- 칼 소환 간격
+    ultimate_next_spawn_time = 0,       -- 다음 칼 소환 시간
+
     -- 안개 관련 (Phase 3 선형 보간)
     fog_lerping = false,                -- 안개 보간 중인지
     fog_lerp_time = 0,                  -- 안개 보간 경과 시간
@@ -1275,6 +1284,111 @@ local function DoGapCloser(c)
     return BT_FAILURE
 end
 
+-- 궁극기 공격 (Phase 3 전용) - 이기어검 스타일
+local function DoUltimateAttack(c)
+    Log("  [Action] DoUltimateAttack - Ultimate (Sword Rain)!")
+
+    if IsMontagePlayling(Obj) then
+        return BT_FAILURE
+    end
+
+    -- 이미 궁극기 진행 중이면 스킵
+    if c.is_ultimate_active then
+        return BT_FAILURE
+    end
+
+    -- 타겟 바라보기
+    if c.target then
+        local myPos = Obj.Location
+        local targetPos = c.target.Location
+        local targetYaw = CalcYaw(myPos, targetPos)
+        Obj.Rotation = Vector(0, 0, targetYaw)
+    end
+
+    -- 궁극기 애니메이션 재생 (팔을 위로 드는 모션)
+    local success = PlayMontage(Obj, "Ultimate", 0.1, 0.1, 0.8)
+    if success then
+        SetBossPatternName(Obj, "Ultimate - Sword Rain")
+        SetBossAIState(Obj, "Attacking")
+        StartAttack(c, "Ultimate")
+        c.last_ultimate_time = c.time
+        c.is_ultimate_active = true
+        c.ultimate_sword_count = 0
+        c.ultimate_max_swords = 5           -- 소환할 칼 개수
+        c.ultimate_spawn_interval = 0.3     -- 칼 소환 간격
+        c.ultimate_next_spawn_time = c.time + 0.5  -- 첫 칼 소환까지 대기
+
+        -- 카메라 쉐이크
+        local camMgr = GetCameraManager()
+        if camMgr then
+            camMgr:StartCameraShake(0.5, 0.2, 0.2, 30)
+        end
+
+        print("[Ultimate] Sword Rain started!")
+        return BT_SUCCESS
+    end
+    return BT_FAILURE
+end
+
+-- 궁극기 업데이트 (칼 소환 처리)
+local function UpdateUltimate(c)
+    if not c.is_ultimate_active then
+        return
+    end
+
+    -- 아직 소환할 칼이 남아있는지
+    if c.ultimate_sword_count >= c.ultimate_max_swords then
+        -- 모든 칼 소환 완료
+        c.is_ultimate_active = false
+        SetBossPatternName(Obj, "")
+        print("[Ultimate] All swords spawned!")
+        return
+    end
+
+    -- 소환 시간 체크
+    if c.time >= c.ultimate_next_spawn_time then
+        -- 칼 소환
+        local bossPos = Obj.Location
+        local swordIndex = c.ultimate_sword_count
+
+        -- 칼 위치 계산 (보스 머리 위에 원형으로 넓게 배치)
+        local angle = (swordIndex / c.ultimate_max_swords) * math.pi * 2
+        local radius = 1000  -- 원형 반경 (언리얼 유닛, cm)
+        local height = 2.5 + (swordIndex * 0.2)  -- 높이 (더 낮게)
+
+        local spawnX = bossPos.X + math.cos(angle) * radius
+        local spawnY = bossPos.Y + math.sin(angle) * radius
+        local spawnZ = bossPos.Z + height
+
+        -- 오프셋 계산 (원형 배치, 반경 10미터 = 1000cm)
+        local offsetRadius = 2  -- 언리얼 유닛 (cm)
+        local offsetX = math.cos(angle) * offsetRadius
+        local offsetY = math.sin(angle) * offsetRadius
+
+        -- 칼 프리팹 스폰
+        local sword = SpawnPrefab("Data/Prefabs/BossSword.prefab")
+        if sword then
+            -- C++ ABossSword에 오프셋 설정
+            SetSwordHoverOffset(sword, offsetX, offsetY)
+            SetSwordHoverHeight(sword, 3)  -- 높이 3미터
+
+            -- 순차 발사: 각 칼마다 다른 HoverDuration 설정 (이기어검 효과)
+            -- 첫 번째 칼: 1.5초 후 발사, 두 번째: 1.8초, ... (0.3초 간격)
+            local baseHoverTime = 1.5   -- 기본 대기 시간
+            local delayPerSword = 0.3   -- 칼당 추가 대기 시간
+            local hoverDuration = baseHoverTime + (swordIndex * delayPerSword)
+            SetSwordHoverDuration(sword, hoverDuration)
+
+            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned, will launch in " .. string.format("%.1f", hoverDuration) .. "s")
+        else
+            print("[Ultimate] ERROR: Failed to spawn sword!")
+        end
+
+        c.ultimate_sword_count = c.ultimate_sword_count + 1
+        c.ultimate_next_spawn_time = c.time + c.ultimate_spawn_interval
+    end
+end
+
 local function DoRetreat(c)
     Log("  [Action] DoRetreat")
     if not c.target then
@@ -1366,12 +1480,58 @@ local function CheckPhaseTransition(c)
         c.is_charging = false
         c.is_winding_up = false
         c.is_guard_breaking = false
-        SetBossPatternName(Obj, "")
+        SetBossPatternName(Obj, "Phase 3 Awakening")
 
-        -- Phase 3 이동속도 적용
-        --SetMaxWalkSpeed(Obj, Config.Phase3MoveSpeed)
+        -- ========================================
+        -- 시네마틱 연출: 위치 강제 배치 + 타임 슬로우 + 카메라
+        -- ========================================
 
+        -- 1. 보스와 플레이어 위치 강제 배치 (서로 마주보게)
+        local bossPos = Obj.Location
+        local cinematicDistance = 8.0  -- 보스와 플레이어 사이 거리 (미터)
+
+        if c.target then
+            -- 플레이어를 보스 앞에 배치 (X, Y만 변경, Z는 플레이어 원래 높이 유지)
+            local bossForward = Obj:GetForward()
+            local playerX = bossPos.X + bossForward.X * cinematicDistance
+            local playerY = bossPos.Y + bossForward.Y * cinematicDistance
+            local playerZ = c.target.Location.Z  -- 플레이어 원래 높이 유지
+
+            c.target.Location = Vector(playerX, playerY, playerZ)
+
+            -- 플레이어가 보스를 바라보도록 회전
+            local towardBoss = CalcYaw({X = playerX, Y = playerY, Z = playerZ}, {X = bossPos.X, Y = bossPos.Y, Z = bossPos.Z})
+            c.target.Rotation = Vector(0, 0, towardBoss)
+
+            print("[Cinematic] Player repositioned in front of boss")
+        end
+
+        -- 1.5. 보스와 플레이어 애니메이션을 Idle 상태로 (몽타주 정지)
+        StopMontage(Obj)           -- 보스 몽타주 정지
+        StopPlayerMontage()        -- 플레이어 몽타주 정지
+
+        -- 2. 타임 슬로우 (0.1배속으로 3초간 - 더 느리게)
+        SetSlomo(3.0, 0.1)
+        print("[Cinematic] Time slow activated (0.1x for 3s)")
+
+        -- 3. 카메라 연출
+        local camMgr = GetCameraManager()
+        if camMgr then
+            -- 레터박스 (시네마틱 느낌 - 더 길게)
+            camMgr:StartLetterBox(4.0, 2.35, 0.1, Color(0, 0, 0, 1))
+
+            -- 플레이어 체력바를 레터박스 아래로 이동 (겹침 방지)
+            SetPlayerBarYOffset(100.0)
+
+            print("[Cinematic] Camera effects activated")
+        end
+
+        -- 4. 포효 애니메이션 재생
+        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.8)
+
+        -- ========================================
         -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
+        -- ========================================
         c.fog_lerping = true
         c.fog_lerp_time = 0
         c.fog_lerp_duration = 5.0       -- 5초에 걸쳐 안개가 짙어짐
@@ -1619,66 +1779,85 @@ local BossTree = Selector({
     }),
 
     -- ========================================================================
+    -- 궁극기 브랜치
+    -- ========================================================================
+
+    -- 8. [궁극기] Phase 3에서 쿨다운이 돌아오면 궁극기 사용 (첫 사용은 무조건, 이후 50% 확률)
+    Sequence({
+        Condition(function(c)
+            Log("[Branch 8] Ultimate?")
+            -- Phase 3에서 쿨다운이 돌아오면 사용
+            local timeSinceUltimate = c.time - c.last_ultimate_time
+            local canUseUltimate = timeSinceUltimate >= c.ultimate_cooldown
+            -- 첫 사용은 무조건, 이후 50% 확률
+            local isFirstUse = c.last_ultimate_time < 0
+            local randomChance = isFirstUse or (math.random() < 0.2)
+            return HasTarget(c) and c.phase >= 3 and canUseUltimate and randomChance and IsNotAttacking(c)
+        end),
+        Action(DoUltimateAttack)
+    }),
+
+    -- ========================================================================
     -- 기존 행동 브랜치
     -- ========================================================================
 
-    -- 8. 너무 가까우면 후퇴 (공격 쿨다운 중일 때)
+    -- 9. 너무 가까우면 후퇴 (공격 쿨다운 중일 때)
     Sequence({
         Condition(function(c)
-            Log("[Branch 8] TooClose?")
+            Log("[Branch 9] TooClose?")
             return HasTarget(c) and IsTooClose(c) and IsNotAttacking(c) and not CanAttack(c)
         end),
         Action(DoRetreat)
     }),
 
-    -- 9. 콤보 공격 중이면 계속 진행
+    -- 10. 콤보 공격 중이면 계속 진행
     Sequence({
         Condition(function(c)
-            Log("[Branch 9] ComboAttacking?")
+            Log("[Branch 10] ComboAttacking?")
             return c.is_combo_attacking
         end),
         Action(DoComboAttack)
     }),
 
-    -- 10. 공격 범위 내 + 쿨다운 완료 → 단일 공격 또는 콤보 (50/50)
+    -- 11. 공격 범위 내 + 쿨다운 완료 → 단일 공격 또는 콤보 (50/50)
     Sequence({
         Condition(function(c)
-            Log("[Branch 10] Attack?")
+            Log("[Branch 11] Attack?")
             return HasTarget(c) and IsTargetInAttackRange(c) and CanAttack(c)
         end),
         Action(DoAttackOrCombo)
     }),
 
-    -- 11. 접근 중이면 계속 접근 (공격 범위까지)
-    Sequence({ 
+    -- 12. 접근 중이면 계속 접근 (공격 범위까지)
+    Sequence({
         Condition(function(c)
-            Log("[Branch 11] Approaching?")
+            Log("[Branch 12] Approaching?")
             return HasTarget(c) and IsCurrentlyApproaching(c) and IsNotAttacking(c)
         end),
         Action(DoApproach)
     }),
 
-    -- 12. 일정 거리(4~8m)일 때 좌우 이동 (Strafe)
+    -- 13. 일정 거리(4~8m)일 때 좌우 이동 (Strafe)
     Sequence({
         Condition(function(c)
-            Log("[Branch 12] Strafe?")
+            Log("[Branch 13] Strafe?")
             return HasTarget(c) and IsInStrafeRange(c) and IsNotAttacking(c) and not IsCurrentlyApproaching(c)
         end),
         Action(DoStrafe)
     }),
 
-    -- 13. 추적 (공격 중이 아닐 때만)
+    -- 14. 추적 (공격 중이 아닐 때만)
     Sequence({
         Condition(function(c)
-            Log("[Branch 13] Chase?")
+            Log("[Branch 14] Chase?")
             return HasTarget(c) and IsNotAttacking(c)
         end),
         Action(DoChase)
     }),
 
-    -- 14. 기본 - 대기
+    -- 15. 기본 - 대기
     Action(function(c)
-        Log("[Branch 14] Idle (fallback)")
+        Log("[Branch 15] Idle (fallback)")
         return DoIdle(c)
     end)
 })
@@ -1728,9 +1907,21 @@ function Tick(Delta)
     -- 매 틱마다 stats 갱신 (Lua 캐싱 문제 방지)
     ctx.stats = GetComponent(Obj, "UStatsComponent")
 
+    -- 플레이어 타겟이 없으면 찾기
+    if not ctx.target then
+        ctx.target = GetPlayer()
+        if not ctx.target then
+            ctx.target = FindObjectByName("Player")
+        end
+        -- 타겟을 찾지 못하면 업데이트 건너뛰기
+        if not ctx.target then
+            Log("No target found, skipping Tick update")
+            return
+        end
+    end
+
     -- 보스가 죽었으면 죽음 애니메이션 재생 후 AI 동작 중지
-    -- 타겟이 있을 때만 체크 (게임 시작 시 초기화 방지)
-    if ctx.target and GetCurrentHealth(Obj) <= 0 then
+    if GetCurrentHealth(Obj) <= 0 then
 
         if not ctx.is_death_animation_played then
             print("Boss is dead, playing death animation")
@@ -1758,6 +1949,9 @@ function Tick(Delta)
 
     -- 안개 보간 업데이트
     UpdateFogLerp(ctx)
+
+    -- 궁극기 업데이트 (칼 소환)
+    UpdateUltimate(ctx)
 
     -- 콤보 업데이트
     UpdateCombo(ctx)

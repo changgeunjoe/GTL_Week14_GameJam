@@ -1,0 +1,109 @@
+{
+  "ObjectName" : "BossSword",
+  "OwnedComponents" : [{
+      "BoxExtent" : [2.636337, 64.736305, 13.147297],
+      "CollisionEnabled_Internal" : 2,
+      "Id" : 13354,
+      "ObjectName" : "HitboxComponent",
+      "ParentId" : 13357,
+      "RelativeLocation" : [0.000000, 0.000000, 0.000000],
+      "RelativeRotationEuler" : [0.000000, 0.000000, 0.000000],
+      "RelativeScale" : [1.000000, 1.000000, 1.000000],
+      "Type" : "UHitboxComponent",
+      "bBlockComponent" : false,
+      "bGenerateOverlapEvents" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : false,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bShapeHiddenInGame" : true,
+      "bShapeIsVisible" : true,
+      "bTickEnabled" : true
+    }, {
+      "ObjectName" : "RotatingMovement",
+      "PivotTranslation" : [0.000000, 0.000000, 0.000000],
+      "RotationRate" : [0.000000, 0.000000, 0.000000],
+      "Type" : "URotatingMovementComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bRotationInLocalSpace" : true,
+      "bTickEnabled" : true
+    }, {
+      "AngularDampingOverride" : 0.050000,
+      "BoxExtent" : [50.000000, 0.000000, 0.000000],
+      "CapsuleHalfHeight" : 44.000000,
+      "CapsuleRadius" : 22.000000,
+      "CollisionEnabled_Internal" : 2,
+      "CollisionOffset" : [0.000000, 0.000000, 0.000000],
+      "CollisionRotation" : [0.000000, 0.000000, 0.000000],
+      "CollisionType" : 1,
+      "FrictionCombineModeOverride" : 2,
+      "Id" : 13357,
+      "LinearDampingOverride" : 0.010000,
+      "MassOverride" : 10.000000,
+      "MaterialSlots" : [{
+          "Type" : "None"
+        }, {
+          "Overrides" : {
+            "Scalars" : {
+
+            },
+            "Textures" : {
+              "0" : "Data/FBX/SKM_DKM_Full/M_DKM_Sword_ALB.PNG",
+              "1" : "Data/FBX/SKM_DKM_Full/M_DKM_Sword_NRM.PNG"
+            },
+            "Vectors" : {
+              "EmissiveColor" : [0.050000, 0.050000, 0.150000, 1.000000]
+            }
+          },
+          "ParentPath" : "M_DKM_Sword",
+          "Type" : "UMaterialInstanceDynamic"
+        }],
+      "ObjectName" : "SwordMesh",
+      "ParentId" : 0,
+      "PhysMaterialPreset" : 0,
+      "RelativeLocation" : [4.970350, -11.174191, 2.272919],
+      "RelativeRotationEuler" : [0.000000, -90.000000, 90.000000],
+      "RelativeScale" : [0.025000, 0.025000, 0.025000],
+      "RestitutionCombineModeOverride" : 2,
+      "SphereRadius" : 50.000000,
+      "StaticMesh" : "Data/FBX/SKM_DKM_Full/SM_DKM_Sword.FBX",
+      "Type" : "UStaticMeshComponent",
+      "bBlockComponent" : false,
+      "bCastShadows" : true,
+      "bEnableCollision" : false,
+      "bGenerateOverlapEvents" : false,
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bIsVisible" : true,
+      "bOverrideCollisionSetting" : false,
+      "bSimulatePhysics" : false,
+      "bTickEnabled" : true
+    }, {
+      "Gravity" : 0.000000,
+      "HomingAccelerationMagnitude" : 0.000000,
+      "InitialSpeed" : 0.000000,
+      "MaxSpeed" : 50.000000,
+      "ObjectName" : "ProjectileMovement",
+      "ProjectileLifespan" : 5.000000,
+      "Type" : "UProjectileMovementComponent",
+      "Velocity" : [0.000000, 0.000000, 0.000000],
+      "bAutoDestroyWhenLifespanExceeded" : true,
+      "bHiddenInGame" : false,
+      "bIsActive" : false,
+      "bIsHomingProjectile" : false,
+      "bTickEnabled" : true
+    }, {
+      "ObjectName" : "LuaScript",
+      "ScriptFilePath" : "Data/Scripts/BossSwordProjectile.lua",
+      "Type" : "ULuaScriptComponent",
+      "bHiddenInGame" : false,
+      "bIsActive" : true,
+      "bTickEnabled" : true
+    }],
+  "RootComponentId" : 13357,
+  "Tag" : "BossSwordProjectile",
+  "Type" : "ABossSword",
+  "bActorHiddenInGame" : false,
+  "bActorIsActive" : true
+}

@@ -13,6 +13,7 @@
 #include "EnemyBase.h"
 #include "BossEnemy.h"
 #include "BasicEnemy.h"
+#include "BossSword.h"
 #include "HitboxComponent.h"
 #include "CombatTypes.h"
 #include "SkeletalMeshComponent.h"
@@ -20,6 +21,7 @@
 #include "PlayerCharacter.h"
 #include "StatsComponent.h"
 #include "HeightFogComponent.h"
+#include "GameOverlayD2D.h"
 #include <tuple>
 
 sol::object MakeCompProxy(sol::state_view SolState, void* Instance, UClass* Class) {
@@ -209,6 +211,76 @@ FLuaManager::FLuaManager()
             return NewObject;
         }
     ));
+
+    // BossSword 오프셋 설정 (Lua용)
+    SharedLib.set_function("SetSwordHoverOffset", [](FGameObject& Obj, float X, float Y)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverOffset(X, Y);
+                    UE_LOG("[Lua] SetSwordHoverOffset: (%.1f, %.1f) SUCCESS", X, Y);
+                }
+                else
+                {
+                    UE_LOG("[Lua] SetSwordHoverOffset: Cast to ABossSword FAILED! Actor class: %s", Owner->GetClass()->Name);
+                }
+            }
+        });
+
+    SharedLib.set_function("SetSwordHoverHeight", [](FGameObject& Obj, float Height)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverHeight(Height);
+                }
+            }
+        });
+
+    SharedLib.set_function("SetSwordHoverDuration", [](FGameObject& Obj, float Duration)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverDuration(Duration);
+                    UE_LOG("[Lua] SetSwordHoverDuration: %.2f SUCCESS", Duration);
+                }
+                else
+                {
+                    UE_LOG("[Lua] SetSwordHoverDuration: Cast FAILED! Actor class: %s", Owner->GetClass()->Name);
+                }
+            }
+            else
+            {
+                UE_LOG("[Lua] SetSwordHoverDuration: Owner is NULL!");
+            }
+        });
+
+    SharedLib.set_function("SetSwordIsHovering", [](FGameObject& Obj, bool bHovering)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetIsHovering(bHovering);
+                }
+            }
+        });
+
+    SharedLib.set_function("LaunchSword", [](FGameObject& Obj)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->LaunchTowardPlayer();
+                }
+            }
+        });
     SharedLib.set_function("DeleteObject", sol::overload(
         [](const FGameObject& GameObject)
         {
@@ -963,6 +1035,46 @@ FLuaManager::FLuaManager()
                 }
             }
             return false;
+        });
+
+    // 몽타주 정지 (Lua용) - 보스/적용
+    SharedLib.set_function("StopMontage", [](FGameObject& Obj)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (AEnemyBase* Enemy = Cast<AEnemyBase>(Owner))
+                {
+                    if (USkeletalMeshComponent* Mesh = Enemy->GetMesh())
+                    {
+                        if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                        {
+                            AnimInst->Montage_Stop(0.1f);
+                        }
+                    }
+                }
+            }
+        });
+
+    // 플레이어 몽타주 정지 (Lua용)
+    SharedLib.set_function("StopPlayerMontage", []()
+        {
+            for (TObjectIterator<APlayerCharacter> It; It; ++It)
+            {
+                APlayerCharacter* Player = *It;
+                if (USkeletalMeshComponent* Mesh = Player->GetMesh())
+                {
+                    if (UAnimInstance* AnimInst = Mesh->GetAnimInstance())
+                    {
+                        AnimInst->Montage_Stop(0.1f);
+                    }
+                }
+            }
+        });
+
+    // 플레이어 체력바 Y 오프셋 설정 (Phase 3 레터박스용)
+    SharedLib.set_function("SetPlayerBarYOffset", [](float Offset)
+        {
+            UGameOverlayD2D::Get().SetPlayerBarYOffset(Offset);
         });
     
     // FVector usertype 등록 (메서드와 프로퍼티)
