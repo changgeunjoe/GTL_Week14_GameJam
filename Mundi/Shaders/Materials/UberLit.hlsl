@@ -77,6 +77,24 @@ cbuffer FLightShadowmBufferType : register(b5)
     float2 ShadowPadding;
 };
 
+// b13: Wind Parameters Buffer - Global wind settings for foliage
+cbuffer WindBuffer : register(b13)
+{
+    float3 WindDirection;
+    float WindSpeed;
+    float WindStrength;
+    float GustStrength;
+    float GustFrequency;
+    float WindTime;
+    float PrimaryFrequency;
+    float SecondaryFrequency;
+    float TertiaryFrequency;
+    float HeightFalloffPower;
+    uint bEnableWind;
+    float MeshMaxHeight;
+    float2 _WindPadding;
+};
+
 // --- Material.SpecularColor 지원 매크로 ---
 // LightingCommon.hlsl의 CalculateSpecular에서 Material.SpecularColor를 사용하도록 설정
 // 금속 재질의 컬러 Specular 지원
@@ -175,6 +193,42 @@ struct PS_OUTPUT
 };
 
 //================================================================================================
+// Wind Animation Function
+//================================================================================================
+float3 CalculateWindDisplacement(float3 localPos, float3 worldPos)
+{
+    // Early out if wind is disabled
+    if (bEnableWind == 0 || WindStrength <= 0.001f)
+        return float3(0.0f, 0.0f, 0.0f);
+
+    // Height mask from local Z (Z-up system)
+    // Roots stay fixed, tips sway the most
+    float heightMask = saturate(localPos.z / max(MeshMaxHeight, 0.1f));
+    heightMask = pow(heightMask, HeightFalloffPower);
+
+    // Spatial variation using world position (prevents all trees from swaying in sync)
+    float spatialOffset = frac(dot(worldPos.xy, float2(0.123f, 0.456f))) * 10.0f;
+    float t = WindTime * WindSpeed + spatialOffset;
+
+    // Multi-layered sine waves for natural motion
+    // Primary wave - large trunk sway
+    float primaryWave = sin(t * PrimaryFrequency) * 0.6f;
+    // Secondary wave - branch movement (phase offset for complexity)
+    float secondaryWave = sin(t * SecondaryFrequency + 1.57f) * 0.3f;
+    // Tertiary wave - leaf flutter (high frequency, small amplitude)
+    float tertiaryWave = sin(t * TertiaryFrequency + spatialOffset) * 0.1f;
+
+    float wave = primaryWave + secondaryWave + tertiaryWave;
+
+    // Gust effect - periodic stronger gusts
+    float gustPhase = sin(t * GustFrequency) * 0.5f + 0.5f;
+    float gustMultiplier = 1.0f + gustPhase * GustStrength;
+
+    // Final displacement along wind direction
+    return WindDirection * wave * gustMultiplier * heightMask * WindStrength;
+}
+
+//================================================================================================
 // 버텍스 셰이더 (Vertex Shader)
 //================================================================================================
 PS_INPUT mainVS(VS_INPUT Input)
@@ -192,6 +246,10 @@ PS_INPUT mainVS(VS_INPUT Input)
 #endif
 
     float4 WorldPos = mul(float4(ModelPosition, 1.0f), WorldMatrix);
+
+    // Apply wind displacement in world space
+    WorldPos.xyz += CalculateWindDisplacement(ModelPosition, WorldPos.xyz);
+
     Out.WorldPos = WorldPos.xyz;
 
     float4 ViewPos = mul(WorldPos, ViewMatrix);

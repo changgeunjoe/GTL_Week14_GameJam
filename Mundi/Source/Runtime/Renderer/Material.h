@@ -27,6 +27,10 @@ public:
 	virtual bool HasTexture(EMaterialTextureSlot Slot) const = 0;
 	virtual const FMaterialInfo& GetMaterialInfo() const = 0;
 	virtual const TArray<FShaderMacro> GetShaderMacros() const = 0;
+
+	// Wind Animation
+	virtual bool IsWindAnimationEnabled() const = 0;
+	virtual float GetWindMeshHeight() const = 0;
 };
 
 
@@ -60,6 +64,12 @@ public:
 
 	const TArray<FShaderMacro> GetShaderMacros() const override;
 	void SetShaderMacros(const TArray<FShaderMacro>& InShaderMacro);
+
+	// Wind Animation
+	bool IsWindAnimationEnabled() const override { return MaterialInfo.bUseWindAnimation; }
+	float GetWindMeshHeight() const override { return MaterialInfo.WindMeshHeight; }
+	void SetWindAnimationEnabled(bool bEnabled) { MaterialInfo.bUseWindAnimation = bEnabled; }
+	void SetWindMeshHeight(float Height) { MaterialInfo.WindMeshHeight = Height; }
 
 protected:
 	// 이 머티리얼이 사용할 셰이더 프로그램 (예: UberLit.hlsl)
@@ -106,6 +116,12 @@ public:
 	void SetColorParameterValue(const FString& ParameterName, const FLinearColor& Value);	// 벡터 파라미터 값을 런타임에 변경하는 함수 (실시간 수정 시 사용)
 	void SetOverriddenVectorParameters(const TMap<FString, FLinearColor>& InVectors);	// 덮어쓴 벡터 맵 설정 (로드 시 사용)
 
+	// Wind Animation (MID override)
+	bool IsWindAnimationEnabled() const override;
+	float GetWindMeshHeight() const override;
+	void SetWindAnimationEnabled(bool bEnabled);
+	void SetWindMeshHeight(float Height);
+
 protected:
 	// 생성자에서 부모 머티리얼의 포인터를 저장합니다.
 	UMaterialInstanceDynamic(UMaterialInterface* InParentMaterial);
@@ -122,4 +138,10 @@ private:
 	// 아래 값들로 덮어쓴 뒤 반환하기 위한 캐시 데이터입니다.
 	mutable FMaterialInfo CachedMaterialInfo;
 	mutable bool bIsCachedMaterialInfoDirty = true;
+
+	// Wind Animation overrides
+	bool bOverrideWindAnimation = false;
+	bool bUseWindAnimation = false;
+	bool bOverrideWindMeshHeight = false;
+	float WindMeshHeight = 5.0f;
 };

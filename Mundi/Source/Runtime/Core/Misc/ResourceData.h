@@ -28,6 +28,10 @@ struct FMaterialInfo
     float SpecularExponent = 32.0f; // Ns
     float BumpMultiplier = 1.0f; // map_Bump -bm
 
+    // Wind Animation
+    bool bUseWindAnimation = false;
+    float WindMeshHeight = 5.0f;
+
     FString MaterialName;
 
     friend FArchive& operator<<(FArchive& Ar, FMaterialInfo& Info)

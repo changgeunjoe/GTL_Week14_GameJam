@@ -254,6 +254,10 @@ void UStaticMeshComponent::CollectMeshBatches(TArray<FMeshBatchElement>& OutMesh
 		BatchElement.ObjectID = InternalIndex;
 		BatchElement.PrimitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+		// Wind animation flags (per-material)
+		BatchElement.bUseWindAnimation = MaterialToUse->IsWindAnimationEnabled();
+		BatchElement.WindMeshHeight = MaterialToUse->GetWindMeshHeight();
+
 		OutMeshBatchElements.Add(BatchElement);
 	}
 }
