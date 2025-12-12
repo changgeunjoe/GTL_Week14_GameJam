@@ -14,6 +14,8 @@
 //   2. 애님 노티파이에서 EnableHitbox() / DisableHitbox() 호출
 //   3. 충돌 시 자동으로 TakeDamage 호출
 // ============================================================================
+class UParticleSystem;
+
 UCLASS(DisplayName = "UHitboxComponent", Description = "캐릭터간 히트 컴포넌트 ")
 class UHitboxComponent : public UBoxComponent
 {
@@ -122,6 +124,8 @@ protected:
     void PerformSweepCheck();
 
 private:
+    UParticleSystem* FleshImpactParticle = nullptr;
+
     // 현재 공격 정보
     FDamageInfo CurrentDamageInfo;
 

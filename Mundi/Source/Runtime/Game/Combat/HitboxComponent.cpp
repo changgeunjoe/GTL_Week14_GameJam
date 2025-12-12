@@ -5,11 +5,14 @@
 #include "Collision.h"
 #include "Source/Runtime/Engine/Physics/PhysScene.h"
 #include "Source/Runtime/Game/Player/PlayerCharacter.h"
+#include "Source/Runtime/Engine/GameFramework/PlayerCameraManager.h"
+#include "AnimNotifyParticleComponent.h"
+
 #include "Renderer.h"
 #include "RenderSettings.h"
 #include "StaticMeshActor.h"
 #include "StaticMeshComponent.h"
-
+#include "Source/Runtime/Engine/Particle/ParticleSystem.h"
 
 UHitboxComponent::UHitboxComponent()
 {
@@ -35,6 +38,8 @@ void UHitboxComponent::BeginPlay()
     {
         OwnerActor = GetOwner();
     }
+
+    FleshImpactParticle = RESOURCE.Load<UParticleSystem>("Data/Particle/G_Blood.particle");
 
     // 시작 시 비활성화
     DisableHitbox();
@@ -370,14 +375,53 @@ void UHitboxComponent::PerformSweepCheck()
         // 히트박스에서 피해자 방향으로 피해자 몸쪽에 스폰 (피해자 위치의 80% 지점)
         FVector SpawnLocation = FVector::Lerp(HitboxPos, VictimPos, 0.8f);
 
-        FTransform SpawnTransform;
-        SpawnTransform.Translation = SpawnLocation;
-        AStaticMeshActor* HitMarker = World->SpawnActor<AStaticMeshActor>(SpawnTransform);
-        if (HitMarker)
-        {
-            HitMarker->GetStaticMeshComponent()->SetStaticMesh(GDataDir + "/Model/Sphere8.obj");
-            HitMarker->SetActorScale(FVector(0.1f, 0.1f, 0.1f));  // 작은 구체로 표시
-        }
+        //FTransform SpawnTransform;
+        //SpawnTransform.Translation = SpawnLocation;
+        //AStaticMeshActor* HitMarker = World->SpawnActor<AStaticMeshActor>(SpawnTransform);
+        //if (HitMarker)
+        //{
+        //    HitMarker->GetStaticMeshComponent()->SetStaticMesh(GDataDir + "/Model/Sphere8.obj");
+        //    HitMarker->SetActorScale(FVector(0.1f, 0.1f, 0.1f));  // 작은 구체로 표시
+        //}
+
+        auto SpawnImpactParticle = [&](UParticleSystem* Particle, const FVector& Location, const FVector& Rotation)
+            {
+                if (!Particle || !World)
+                {
+                    return;
+                }
+
+                FTransform SpawnTransform(Location, FQuat(Rotation.X, Rotation.Y, Rotation.Z, 1.0), FVector(1.0, 1.0, 1.0));
+                AActor* EmitterActor = World->SpawnActor<AActor>(SpawnTransform);
+                if (!EmitterActor)
+                {
+                    return;
+                }
+
+                UAnimNotifyParticleComponent* ParticleComp = Cast<UAnimNotifyParticleComponent>(EmitterActor->AddNewComponent(UAnimNotifyParticleComponent::StaticClass()));
+                if (!ParticleComp)
+                {
+                    EmitterActor->Destroy();
+                    return;
+                }
+
+                ParticleComp->SetTemplate(Particle);
+                ParticleComp->SetWorldTransform(SpawnTransform);
+                ParticleComp->SetForcedLifeTime(0.5f);  // 0.5초 후 자동 종료
+                ParticleComp->ResetAndActivate();
+
+                // Set up auto-destroy for the hosting actor (지연 삭제로 iterator 문제 방지)
+                TWeakObjectPtr<AActor> EmitterActorWeak(EmitterActor);
+                ParticleComp->OnParticleSystemFinished.Add([EmitterActorWeak](UParticleSystemComponent* FinishedComp) {
+                    if (EmitterActorWeak.IsValid() && GWorld) {
+                        // 즉시 삭제 대신 안전한 시점에 삭제
+                        GWorld->AddPendingKillActor(EmitterActorWeak.Get());
+                    }
+                    });
+            };
+
+        GetWorld()->GetPlayerCameraManager()->StartCameraShake(0.3, 0.01, 0.01, 10);
+        SpawnImpactParticle(FleshImpactParticle, SpawnLocation, HitInfo.Normal);
 
         // 정확한 충돌 위치와 법선으로 처리
         OnOverlapDetected(HitResult.HitActor, HitResult.ImpactPoint, HitResult.ImpactNormal);
