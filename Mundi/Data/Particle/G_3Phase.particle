@@ -4,7 +4,7 @@
                 "LODIndex" : 0,
                 "Modules" : [{
                     "Lifetime_Max" : 1.000000,
-                    "Lifetime_Min" : 1.000000,
+                    "Lifetime_Min" : 2.000000,
                     "Lifetime_bUseRange" : false,
                     "Type" : "Lifetime",
                     "bEnabled" : true
@@ -24,7 +24,7 @@
                     "bUseRealTime" : false
                   }, {
                     "StartColor_Max" : [1.000000, 1.000000, 1.000000, 1.000000],
-                    "StartColor_Min" : [0.109345, 0.122275, 0.173745, 1.000000],
+                    "StartColor_Min" : [0.501930, 0.705774, 1.000000, 1.000000],
                     "StartColor_bUseRange" : false,
                     "Type" : "Color",
                     "bEnabled" : true
@@ -55,16 +55,16 @@
                 },
                 "SpawnModule" : {
                   "BurstList" : [{
-                      "Count" : 3,
+                      "Count" : 2,
                       "CountRange" : 0,
                       "Time" : 0.010000
                     }],
                   "SpawnRateOverTime_Max" : 50.000000,
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
-                  "SpawnRateType" : 2,
-                  "SpawnRate_Max" : 1.000000,
-                  "SpawnRate_Min" : 1.000000,
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 2.000000,
+                  "SpawnRate_Min" : 2.000000,
                   "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true
