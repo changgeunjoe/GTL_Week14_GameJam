@@ -2,8 +2,6 @@
 -- 보스 이기어검 스타일 칼 투사체
 -- RotatingMovementComponent와 ProjectileMovementComponent 활용
 
-local projectileComp = nil   -- ProjectileMovementComponent
-local rotatingComp = nil     -- RotatingMovementComponent
 local hitboxComp = nil       -- HitboxComponent
 
 local hoverDuration = 0.6    -- 머리 위에서 대기하는 시간
@@ -14,28 +12,40 @@ local hasLaunched = false    -- 발사됐는지
 local damage = 60            -- 데미지
 local speed = 30             -- 발사 속도 (m/s)
 
+local boss = nil             -- 보스 참조
+local hoverHeight = 3.0      -- 보스 머리 위 높이
+local hoverOffset = {X = 0, Y = 0}  -- 개별 칼의 오프셋 (원형 배치용)
+local floatPhase = 0         -- 둥둥 떠다니는 위상
+local launchDir = nil        -- 발사 방향
+
+-- 글로벌 인덱스 카운터
+SwordSpawnCounter = SwordSpawnCounter or 0
+
 function BeginPlay()
     Obj.Tag = "BossSwordProjectile"
     hoverTimer = 0
     isHovering = true
     hasLaunched = false
+    floatPhase = math.random() * math.pi * 2  -- 랜덤 위상으로 시작
 
     -- 컴포넌트 가져오기
-    projectileComp = GetComponent(Obj, "UProjectileMovementComponent")
-    rotatingComp = GetComponent(Obj, "URotatingMovementComponent")
     hitboxComp = GetComponent(Obj, "UHitboxComponent")
 
-    -- 초기 상태: 회전만 활성화, 이동은 비활성화
-    if rotatingComp then
-        rotatingComp.bIsActive = true
-        rotatingComp.RotationRate = Vector(0, 0, 720)  -- 빠른 회전
-    end
+    -- 보스 찾기
+    boss = FindObjectByName("Valthor, Luminous Blacksteel")
 
-    if projectileComp then
-        projectileComp.bIsActive = false
-    end
+    -- 글로벌 테이블에서 오프셋 읽기 (BossAI에서 저장)
+    local myIndex = SwordSpawnCounter
+    SwordSpawnCounter = SwordSpawnCounter + 1
 
-    print("[BossSword] Spawned - hovering")
+    if SwordOffsets and SwordOffsets[myIndex] then
+        hoverOffset.X = SwordOffsets[myIndex].X
+        hoverOffset.Y = SwordOffsets[myIndex].Y
+        hoverHeight = SwordOffsets[myIndex].Height or hoverHeight
+        print("[BossSword] Index " .. myIndex .. " offset (" .. hoverOffset.X .. ", " .. hoverOffset.Y .. ") height=" .. hoverHeight)
+    else
+        print("[BossSword] Index " .. myIndex .. " - no offset found, using default")
+    end
 end
 
 function EndPlay()
@@ -45,16 +55,36 @@ end
 function Tick(dt)
     if isHovering then
         hoverTimer = hoverTimer + dt
+        floatPhase = floatPhase + dt * 3  -- 둥둥 떠다니는 속도
 
-        -- 살짝 위아래 흔들림
-        local wobble = math.sin(hoverTimer * 10) * 0.02
-        local loc = Obj.Location
-        Obj.Location = Vector(loc.X, loc.Y, loc.Z + wobble)
-
-        -- 대기 시간 완료 -> 발사
-        if hoverTimer >= hoverDuration and not hasLaunched then
-            LaunchTowardPlayer()
+        -- 보스 못 찾았으면 다시 찾기
+        if not boss then
+            boss = FindObjectByName("Valthor, Luminous Blacksteel")
+            if boss then
+                print("[BossSword] Boss found!")
+            else
+                print("[BossSword] Boss NOT found!")
+            end
         end
+
+        -- 보스 위치 따라가기 + 둥둥 떠다니기
+        if boss then
+            local bossPos = boss.Location
+            print("[BossSword] Boss pos: " .. bossPos.X .. ", " .. bossPos.Y .. ", " .. bossPos.Z)
+            -- 위아래 둥둥 떠다니는 효과
+            local floatZ = math.sin(floatPhase) * 0.3
+            -- 좌우로도 살짝 흔들림
+            local floatX = math.cos(floatPhase * 0.7) * 0.1
+
+            Obj.Location = Vector(
+                bossPos.X + hoverOffset.X + floatX,
+                bossPos.Y + hoverOffset.Y,
+                bossPos.Z + hoverHeight + floatZ
+            )
+        else
+            print("[BossSword] No boss, staying in place")
+        end
+
     end
 end
 
@@ -81,14 +111,8 @@ function LaunchTowardPlayer()
             dirZ = dirZ / len
         end
 
-        -- ProjectileMovementComponent 활성화 및 발사
-        if projectileComp then
-            projectileComp.bIsActive = true
-            projectileComp.InitialSpeed = speed
-            projectileComp.MaxSpeed = speed
-            projectileComp.Gravity = 0  -- 중력 없음
-            projectileComp:FireInDirection(Vector(dirX, dirY, dirZ))
-        end
+        -- 발사 방향 저장 (Tick에서 이동 처리)
+        launchDir = { X = dirX, Y = dirY, Z = dirZ }
 
         -- 칼 회전 (진행 방향)
         local yaw = math.deg(math.atan2(dirY, dirX))
@@ -100,10 +124,6 @@ function LaunchTowardPlayer()
     -- 히트박스 활성화
     EnableHitbox(Obj, damage, "Heavy", 0.3, 0.3, 1.5)
 
-    -- 발사 후 회전 느리게
-    if rotatingComp then
-        rotatingComp.RotationRate = Vector(0, 0, 180)
-    end
 end
 
 function OnBeginOverlap(OtherActor)
@@ -128,4 +148,13 @@ end
 
 function SetSpeed(newSpeed)
     speed = newSpeed
+end
+
+function SetHoverOffset(x, y)
+    hoverOffset.X = x
+    hoverOffset.Y = y
+end
+
+function SetHoverHeight(height)
+    hoverHeight = height
 end

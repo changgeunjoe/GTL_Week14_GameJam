@@ -12,6 +12,7 @@
 #include"Pawn.h"
 #include "BossEnemy.h"
 #include "BasicEnemy.h"
+#include "BossSword.h"
 #include "HitboxComponent.h"
 #include "CombatTypes.h"
 #include "SkeletalMeshComponent.h"
@@ -208,6 +209,45 @@ FLuaManager::FLuaManager()
             return NewObject;
         }
     ));
+
+    // BossSword 오프셋 설정 (Lua용)
+    SharedLib.set_function("SetSwordHoverOffset", [](FGameObject& Obj, float X, float Y)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverOffset(X, Y);
+                    UE_LOG("[Lua] SetSwordHoverOffset: (%.1f, %.1f) SUCCESS", X, Y);
+                }
+                else
+                {
+                    UE_LOG("[Lua] SetSwordHoverOffset: Cast to ABossSword FAILED! Actor class: %s", Owner->GetClass()->Name);
+                }
+            }
+        });
+
+    SharedLib.set_function("SetSwordHoverHeight", [](FGameObject& Obj, float Height)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverHeight(Height);
+                }
+            }
+        });
+
+    SharedLib.set_function("LaunchSword", [](FGameObject& Obj)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->LaunchTowardPlayer();
+                }
+            }
+        });
     SharedLib.set_function("DeleteObject", sol::overload(
         [](const FGameObject& GameObject)
         {

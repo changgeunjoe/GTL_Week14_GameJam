@@ -1351,20 +1351,29 @@ local function UpdateUltimate(c)
         local bossPos = Obj.Location
         local swordIndex = c.ultimate_sword_count
 
-        -- 칼 위치 계산 (보스 머리 위에 원형으로 배치)
+        -- 칼 위치 계산 (보스 머리 위에 원형으로 넓게 배치)
         local angle = (swordIndex / c.ultimate_max_swords) * math.pi * 2
-        local radius = 1.5  -- 원형 반경
-        local height = 4.0 + (swordIndex * 0.3)  -- 높이 (약간씩 다르게)
+        local radius = 1000  -- 원형 반경 (언리얼 유닛, cm)
+        local height = 2.5 + (swordIndex * 0.2)  -- 높이 (더 낮게)
 
         local spawnX = bossPos.X + math.cos(angle) * radius
         local spawnY = bossPos.Y + math.sin(angle) * radius
         local spawnZ = bossPos.Z + height
 
+        -- 오프셋 계산 (원형 배치, 반경 10미터 = 1000cm)
+        local offsetRadius = 2  -- 언리얼 유닛 (cm)
+        local offsetX = math.cos(angle) * offsetRadius
+        local offsetY = math.sin(angle) * offsetRadius
+
         -- 칼 프리팹 스폰
         local sword = SpawnPrefab("Data/Prefabs/BossSword.prefab")
         if sword then
-            sword.Location = Vector(spawnX, spawnY, spawnZ)
-            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned at height " .. string.format("%.1f", spawnZ))
+            -- C++ ABossSword에 오프셋 설정
+            SetSwordHoverOffset(sword, offsetX, offsetY)
+            SetSwordHoverHeight(sword, 3)  -- 높이 300cm (3미터)
+            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned with offset (" .. string.format("%.1f", offsetX) .. ", " .. string.format("%.1f", offsetY) .. ")")
+        else
+            print("[Ultimate] ERROR: Failed to spawn sword!")
         end
 
         c.ultimate_sword_count = c.ultimate_sword_count + 1
@@ -1466,33 +1475,44 @@ local function CheckPhaseTransition(c)
         SetBossPatternName(Obj, "Phase 3 Awakening")
 
         -- ========================================
-        -- 시네마틱 연출: 타임 슬로우 + 카메라 연출
+        -- 시네마틱 연출: 위치 강제 배치 + 타임 슬로우 + 카메라
         -- ========================================
 
-        -- 1. 타임 슬로우 (0.2배속으로 2초간)
-        SetSlomo(2.0, 0.2)
-        print("[Cinematic] Time slow activated (0.2x for 2s)")
+        -- 1. 보스와 플레이어 위치 강제 배치 (서로 마주보게)
+        local bossPos = Obj.Location
+        local cinematicDistance = 8.0  -- 보스와 플레이어 사이 거리 (미터)
 
-        -- 2. 카메라 연출
+        if c.target then
+            -- 플레이어를 보스 앞에 배치
+            local bossForward = Obj:GetForward()
+            local playerX = bossPos.X + bossForward.X * cinematicDistance
+            local playerY = bossPos.Y + bossForward.Y * cinematicDistance
+            local playerZ = bossPos.Z  -- 같은 높이
+
+            c.target.Location = Vector(playerX, playerY, playerZ)
+
+            -- 플레이어가 보스를 바라보도록 회전
+            local towardBoss = CalcYaw({X = playerX, Y = playerY, Z = playerZ}, {X = bossPos.X, Y = bossPos.Y, Z = bossPos.Z})
+            c.target.Rotation = Vector(0, 0, towardBoss)
+
+            print("[Cinematic] Player repositioned in front of boss")
+        end
+
+        -- 2. 타임 슬로우 (0.1배속으로 3초간 - 더 느리게)
+        SetSlomo(3.0, 0.1)
+        print("[Cinematic] Time slow activated (0.1x for 3s)")
+
+        -- 3. 카메라 연출
         local camMgr = GetCameraManager()
         if camMgr then
-            -- 카메라 쉐이크 (강력하게)
-            camMgr:StartCameraShake(1.5, 0.8, 0.8, 60)
-
-            -- 화면 페이드 효과 (빨간색으로 살짝 플래시)
-            camMgr:StartFade(0.3, 0.0, 0.5, Color(0.8, 0.1, 0.1, 1.0))
-
-            -- 비네트 효과 (화면 가장자리 어둡게)
-            camMgr:StartVignette(2.5, 0.3, 0.4, 0.8, 0.8, Color(0.2, 0.0, 0.0, 1.0))
-
-            -- 레터박스 (시네마틱 느낌)
-            camMgr:StartLetterBox(2.0, 2.35, 0.08, Color(0, 0, 0, 1))
+            -- 레터박스 (시네마틱 느낌 - 더 길게)
+            camMgr:StartLetterBox(4.0, 2.35, 0.1, Color(0, 0, 0, 1))
 
             print("[Cinematic] Camera effects activated")
         end
 
-        -- 3. 포효 애니메이션 재생 (느린 속도로)
-        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.5)
+        -- 4. 포효 애니메이션 재생 (아주 느린 속도로)
+        PlayMontage(Obj, "Roar", 0.1, 0.1, 0.3)
 
         -- ========================================
         -- Phase 3 안개 시작 (선형 보간으로 서서히 짙어짐)
@@ -1751,9 +1771,9 @@ local BossTree = Selector({
     Sequence({
         Condition(function(c)
             Log("[Branch 8] Ultimate?")
-            -- Phase 3 이상, 쿨다운 완료, 공격 가능 상태
-            local cooldownReady = (c.time - c.last_ultimate_time) >= c.ultimate_cooldown
-            return HasTarget(c) and c.phase >= 3 and cooldownReady and IsNotAttacking(c)
+            -- Phase 3 진입 직후 한 번만 사용 (last_ultimate_time이 초기값일 때만)
+            local neverUsed = c.last_ultimate_time < 0
+            return HasTarget(c) and c.phase >= 3 and neverUsed and IsNotAttacking(c)
         end),
         Action(DoUltimateAttack)
     }),
