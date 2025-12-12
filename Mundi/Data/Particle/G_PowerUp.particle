@@ -4,20 +4,20 @@
                 "LODIndex" : 0,
                 "Modules" : [{
                     "Lifetime_Max" : 1.000000,
-                    "Lifetime_Min" : 1.360000,
+                    "Lifetime_Min" : 1.000000,
                     "Lifetime_bUseRange" : false,
                     "Type" : "Lifetime",
                     "bEnabled" : true
                   }, {
-                    "StartSize_Max" : [2.000000, 2.000000, 2.000000],
-                    "StartSize_Min" : [1.000000, 1.000000, 1.000000],
+                    "StartSize_Max" : [0.200000, 0.200000, 0.200000],
+                    "StartSize_Min" : [0.050000, 0.050000, 0.050000],
                     "StartSize_bUseRange" : true,
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "Gravity" : [0.000000, 0.000000, 0.000000],
-                    "StartVelocity_Max" : [5.000000, 5.000000, 10.000000],
-                    "StartVelocity_Min" : [-5.000000, -5.000000, 5.000000],
+                    "Gravity" : [0.000000, 0.000000, -0.200000],
+                    "StartVelocity_Max" : [0.200000, 0.200000, 0.200000],
+                    "StartVelocity_Min" : [-0.200000, -0.200000, -0.200000],
                     "StartVelocity_bUseRange" : true,
                     "Type" : "Velocity",
                     "bEnabled" : true
@@ -44,7 +44,7 @@
                   }],
                 "RequiredModule" : {
                   "BlendMode" : 2,
-                  "DiffuseTexture" : "Data/Textures/A_Flare_A2.PNG",
+                  "DiffuseTexture" : "Data/Textures/A_Flare_D.PNG",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
                   "EmitterLoops" : 0,
@@ -75,10 +75,10 @@
                   "SpawnRateOverTime_Max" : 50.000000,
                   "SpawnRateOverTime_Min" : 10.000000,
                   "SpawnRateOverTime_bUseRange" : true,
-                  "SpawnRateType" : 2,
-                  "SpawnRate_Max" : 50.000000,
-                  "SpawnRate_Min" : 40.000000,
-                  "SpawnRate_bUseRange" : true
+                  "SpawnRateType" : 0,
+                  "SpawnRate_Max" : 20.000000,
+                  "SpawnRate_Min" : 20.000000,
+                  "SpawnRate_bUseRange" : false
                 },
                 "bEnabled" : true
               }],

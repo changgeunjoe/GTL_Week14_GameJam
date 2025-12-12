@@ -34,7 +34,7 @@
                     "bEnabled" : true
                   }],
                 "RequiredModule" : {
-                  "BlendMode" : 1,
+                  "BlendMode" : 2,
                   "DiffuseTexture" : "Data/Textures/A_Trace3.png",
                   "EmitterDelay" : 0.000000,
                   "EmitterDuration" : 1.000000,
