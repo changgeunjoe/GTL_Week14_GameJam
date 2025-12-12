@@ -151,7 +151,7 @@ public:
 	/** WeaponCollider 오버랩 시 호출 (PhysX 오버랩 콜백) */
 	void OnWeaponColliderOverlap(AActor* OtherActor, const FVector& HitLocation, const FVector& HitNormal);
 
-	/*UTexture* BloodDecalTexture = nullptr;
+	UTexture* BloodDecalTexture = nullptr;
 
 	struct FBloodDecalEntry
 	{
@@ -167,7 +167,7 @@ public:
 	void ReleaseBloodDecal(ADecalActor* DecalActor);
 	void SpawnBloodDecalAt(const FVector& HitLocation, const FVector& HitNormal);
 	void UpdateBloodDecalPool(float DeltaSeconds);
-	void ConfigureBloodDecalActor(ADecalActor* DecalActor);*/
+	void ConfigureBloodDecalActor(ADecalActor* DecalActor);
 
 protected:
 	/** 무기 충돌 시 호출 */
