@@ -66,7 +66,7 @@ local ctx = {
 
     -- 궁극기 관련
     last_ultimate_time = -999,          -- 마지막 궁극기 사용 시간
-    ultimate_cooldown = 15.0,           -- 궁극기 쿨다운 (초)
+    ultimate_cooldown = 25.0,           -- 궁극기 쿨다운 (초)
     is_ultimate_active = false,         -- 궁극기 진행 중인지
     ultimate_sword_count = 0,           -- 소환된 칼 개수
     ultimate_max_swords = 5,            -- 소환할 칼 개수

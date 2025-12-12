@@ -15,14 +15,14 @@
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "BeamWidth" : 0.030000,
+                    "BeamWidth" : 0.050000,
                     "NoiseAmplitude" : 1.000000,
                     "NoiseFrequency" : 2.000000,
                     "SourceOffset" : [0.000000, 0.000000, 0.000000],
                     "SourcePoint" : [0.000000, 0.000000, 0.000000],
                     "TargetOffset" : [2.000000, 2.000000, 2.000000],
                     "TargetPoint" : [1.000000, 0.000000, 0.000000],
-                    "TessellationFactor" : 12,
+                    "TessellationFactor" : 3,
                     "Type" : "Beam",
                     "bEnabled" : true,
                     "bUseRandomOffset" : true
@@ -96,14 +96,14 @@
                     "Type" : "Size",
                     "bEnabled" : true
                   }, {
-                    "BeamWidth" : 0.020000,
+                    "BeamWidth" : 0.040000,
                     "NoiseAmplitude" : 0.500000,
                     "NoiseFrequency" : 1.670000,
                     "SourceOffset" : [0.000000, 0.000000, 0.000000],
                     "SourcePoint" : [0.000000, 0.000000, 0.000000],
                     "TargetOffset" : [2.000000, 2.000000, 2.000000],
                     "TargetPoint" : [1.000000, 1.000000, 1.000000],
-                    "TessellationFactor" : 12,
+                    "TessellationFactor" : 3,
                     "Type" : "Beam",
                     "bEnabled" : true,
                     "bUseRandomOffset" : true
