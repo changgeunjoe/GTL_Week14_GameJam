@@ -238,6 +238,37 @@ FLuaManager::FLuaManager()
             }
         });
 
+    SharedLib.set_function("SetSwordHoverDuration", [](FGameObject& Obj, float Duration)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetHoverDuration(Duration);
+                    UE_LOG("[Lua] SetSwordHoverDuration: %.2f SUCCESS", Duration);
+                }
+                else
+                {
+                    UE_LOG("[Lua] SetSwordHoverDuration: Cast FAILED! Actor class: %s", Owner->GetClass()->Name);
+                }
+            }
+            else
+            {
+                UE_LOG("[Lua] SetSwordHoverDuration: Owner is NULL!");
+            }
+        });
+
+    SharedLib.set_function("SetSwordIsHovering", [](FGameObject& Obj, bool bHovering)
+        {
+            if (AActor* Owner = Obj.GetOwner())
+            {
+                if (ABossSword* Sword = Cast<ABossSword>(Owner))
+                {
+                    Sword->SetIsHovering(bHovering);
+                }
+            }
+        });
+
     SharedLib.set_function("LaunchSword", [](FGameObject& Obj)
         {
             if (AActor* Owner = Obj.GetOwner())

@@ -1370,8 +1370,16 @@ local function UpdateUltimate(c)
         if sword then
             -- C++ ABossSword에 오프셋 설정
             SetSwordHoverOffset(sword, offsetX, offsetY)
-            SetSwordHoverHeight(sword, 3)  -- 높이 300cm (3미터)
-            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned with offset (" .. string.format("%.1f", offsetX) .. ", " .. string.format("%.1f", offsetY) .. ")")
+            SetSwordHoverHeight(sword, 3)  -- 높이 3미터
+
+            -- 순차 발사: 각 칼마다 다른 HoverDuration 설정 (이기어검 효과)
+            -- 첫 번째 칼: 1.5초 후 발사, 두 번째: 1.8초, ... (0.3초 간격)
+            local baseHoverTime = 1.5   -- 기본 대기 시간
+            local delayPerSword = 0.3   -- 칼당 추가 대기 시간
+            local hoverDuration = baseHoverTime + (swordIndex * delayPerSword)
+            SetSwordHoverDuration(sword, hoverDuration)
+
+            print("[Ultimate] Sword " .. (swordIndex + 1) .. " spawned, will launch in " .. string.format("%.1f", hoverDuration) .. "s")
         else
             print("[Ultimate] ERROR: Failed to spawn sword!")
         end

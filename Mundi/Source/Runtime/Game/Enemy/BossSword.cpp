@@ -8,11 +8,11 @@
 
 ABossSword::ABossSword()
 {
-    // 기본값 설정
+    // 기본값 설정 (단위: 미터)
     HoverOffset = FVector();
-    HoverHeight = 300.f;
-    HoverDuration = 0.6f;
-    LaunchSpeed = 3000.f;
+    HoverHeight = 3.f;       // 3m 높이
+    HoverDuration = 0.6f;    // 0.6초
+    LaunchSpeed = 3.f;      // 30m/s
     Damage = 60.f;
 }
 
@@ -59,10 +59,19 @@ void ABossSword::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    // Lua에서 모든 위치/이동 처리하므로 C++에서는 아무것도 안함
+    
     if (bIsHovering)
     {
         HoverTimer += DeltaSeconds;
         FloatPhase += DeltaSeconds * 3.f;
+
+        // Hover 시간이 끝나면 플레이어를 향해 발사
+      /*  if (HoverTimer >= HoverDuration)
+        {
+            LaunchTowardPlayer();
+            return;
+        }*/
 
         // 보스 위치 따라가기 + 오프셋 적용
         if (BossActor)
@@ -81,6 +90,7 @@ void ABossSword::Tick(float DeltaSeconds)
             SetActorLocation(NewLocation);
         }
     }
+    /*
     else if (bHasLaunched)
     {
         // 발사 중 - 직선 이동
@@ -88,13 +98,14 @@ void ABossSword::Tick(float DeltaSeconds)
         FVector NewPos = CurrentPos + LaunchDirection * LaunchSpeed * DeltaSeconds;
         SetActorLocation(NewPos);
 
-        // 일정 거리 이동 후 삭제 (10m)
-        static FVector LaunchStartPos = CurrentPos;
-        if ((NewPos - LaunchStartPos).Size() > 1000.f)
+        // 일정 거리 이동 후 삭제 (30m)
+        float TraveledDistance = (NewPos - LaunchStartPos).Size();
+        if (TraveledDistance > 30.f)
         {
             Destroy();
         }
     }
+    */
 }
 
 void ABossSword::SetHoverOffset(float X, float Y)
@@ -115,19 +126,33 @@ void ABossSword::SetHoverHeight(float Height)
     HoverHeight = Height;
 }
 
+void ABossSword::SetHoverDuration(float Duration)
+{
+    HoverDuration = Duration;
+    UE_LOG("[BossSword] HoverDuration set to %.2f", Duration);
+}
+
 void ABossSword::LaunchTowardPlayer()
 {
     bHasLaunched = true;
     bIsHovering = false;
+    LaunchStartPos = GetActorLocation();  // 발사 시작 위치 저장
 
     // 플레이어 방향 계산
     if (UWorld* World = GetWorld())
     {
-        if (APlayerCharacter* Player = Cast<APlayerCharacter>(World->FindActorByName(FName("Player"))))
+        AActor* PlayerActor = World->FindActorByName(FName("플레이어 캐릭터_0"));
+        if (!PlayerActor)
+        {
+            // "Player" 이름으로 못 찾으면 다른 방법 시도
+            PlayerActor = World->FindActorByName(FName("Shinobi"));
+        }
+
+        if (APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerActor))
         {
             FVector MyPos = GetActorLocation();
             FVector TargetPos = Player->GetActorLocation();
-            TargetPos.Z += 100.f; // 플레이어 중심 높이
+            TargetPos.Z += 1.f; // 플레이어 중심 높이 (1m)
 
             LaunchDirection = (TargetPos - MyPos).GetNormalized();
 
@@ -135,7 +160,20 @@ void ABossSword::LaunchTowardPlayer()
             float Yaw = atan2f(LaunchDirection.Y, LaunchDirection.X) * 180.f / 3.14159f;
             SetActorRotation(FVector(0, 90.f, Yaw));
 
-            UE_LOG("[BossSword] Launched toward player!");
+            UE_LOG("[BossSword] Launched toward player at (%.1f, %.1f, %.1f)!", TargetPos.X, TargetPos.Y, TargetPos.Z);
+        }
+        else
+        {
+            UE_LOG("[BossSword] ERROR: Player not found! Launching forward.");
+            // 플레이어를 못 찾으면 보스가 바라보는 방향으로 발사
+            if (BossActor)
+            {
+                LaunchDirection = BossActor->GetActorForward();
+            }
+            else
+            {
+                LaunchDirection = FVector(1.f, 0.f, 0.f);  // 기본값: X축 방향
+            }
         }
     }
 

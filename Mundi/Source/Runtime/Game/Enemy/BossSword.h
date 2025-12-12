@@ -32,11 +32,17 @@ public:
     /** 호버 높이 설정 */
     void SetHoverHeight(float Height);
 
+    /** 호버 지속 시간 설정 (순차 발사용) */
+    void SetHoverDuration(float Duration);
+
     /** 플레이어 방향으로 발사 */
     void LaunchTowardPlayer();
 
     /** 데미지 설정 */
     void SetDamage(float NewDamage) { Damage = NewDamage; }
+
+    /** 호버링 상태 설정 (Lua에서 호출) */
+    void SetIsHovering(bool bHovering) { bIsHovering = bHovering; }
 
 protected:
     // ========== 오프셋 (보스 기준 원형 배치) ==========
@@ -44,7 +50,7 @@ protected:
     FVector HoverOffset = FVector();
 
     UPROPERTY(EditAnywhere, Category = "Hover")
-    float HoverHeight = 300.f;
+    float HoverHeight = 3.f;  // 3m
 
     // ========== 호버링 ==========
     UPROPERTY(EditAnywhere, Category = "Hover")
@@ -57,9 +63,10 @@ protected:
 
     // ========== 발사 ==========
     UPROPERTY(EditAnywhere, Category = "Launch")
-    float LaunchSpeed = 3000.f;
+    float LaunchSpeed = 30.f;  // 30m/s
 
     FVector LaunchDirection = FVector();
+    FVector LaunchStartPos = FVector();  // 발사 시작 위치 (거리 계산용)
 
     // ========== 데미지 ==========
     UPROPERTY(EditAnywhere, Category = "Combat")

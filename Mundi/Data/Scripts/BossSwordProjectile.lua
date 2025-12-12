@@ -4,13 +4,13 @@
 
 local hitboxComp = nil       -- HitboxComponent
 
-local hoverDuration = 0.6    -- 머리 위에서 대기하는 시간
+local hoverDuration = 2.0    -- 머리 위에서 대기하는 시간
 local hoverTimer = 0         -- 대기 타이머
 local isHovering = true      -- 현재 대기 중인지
 local hasLaunched = false    -- 발사됐는지
 
 local damage = 60            -- 데미지
-local speed = 30             -- 발사 속도 (m/s)
+local speed = 15             -- 발사 속도 (m/s)
 
 local boss = nil             -- 보스 참조
 local hoverHeight = 3.0      -- 보스 머리 위 높이
@@ -53,9 +53,27 @@ function EndPlay()
 end
 
 function Tick(dt)
+    -- 발사됐으면 플레이어 방향으로 이동
+    if hasLaunched then
+        if launchDir then
+            local currentPos = Obj.Location
+            local newX = currentPos.X + launchDir.X * speed * dt
+            local newY = currentPos.Y + launchDir.Y * speed * dt
+            local newZ = currentPos.Z + launchDir.Z * speed * dt
+            Obj.Location = Vector(newX, newY, newZ)
+        end
+        return
+    end
+
     if isHovering then
         hoverTimer = hoverTimer + dt
         floatPhase = floatPhase + dt * 3  -- 둥둥 떠다니는 속도
+
+        -- Hover 시간 끝나면 발사
+        if hoverTimer >= hoverDuration then
+            LaunchTowardPlayer()
+            return
+        end
 
         -- 보스 못 찾았으면 다시 찾기
         if not boss then
@@ -70,7 +88,6 @@ function Tick(dt)
         -- 보스 위치 따라가기 + 둥둥 떠다니기
         if boss then
             local bossPos = boss.Location
-            print("[BossSword] Boss pos: " .. bossPos.X .. ", " .. bossPos.Y .. ", " .. bossPos.Z)
             -- 위아래 둥둥 떠다니는 효과
             local floatZ = math.sin(floatPhase) * 0.3
             -- 좌우로도 살짝 흔들림
@@ -81,8 +98,6 @@ function Tick(dt)
                 bossPos.Y + hoverOffset.Y,
                 bossPos.Z + hoverHeight + floatZ
             )
-        else
-            print("[BossSword] No boss, staying in place")
         end
 
     end
@@ -91,6 +106,9 @@ end
 function LaunchTowardPlayer()
     hasLaunched = true
     isHovering = false
+
+    -- C++의 bIsHovering도 false로 설정
+    SetSwordIsHovering(Obj, false)
 
     -- 플레이어 방향 계산
     local player = GetPlayer()
@@ -114,11 +132,13 @@ function LaunchTowardPlayer()
         -- 발사 방향 저장 (Tick에서 이동 처리)
         launchDir = { X = dirX, Y = dirY, Z = dirZ }
 
-        -- 칼 회전 (진행 방향)
-        local yaw = math.deg(math.atan2(dirY, dirX))
-        Obj.Rotation = Vector(0, 90, yaw)  -- 칼날이 진행 방향
+        -- 칼 회전 (칼끝이 플레이어를 향하도록)
+        local yaw = math.deg(math.atan(dirY, dirX))
+        local horizontalDist = math.sqrt(dirX*dirX + dirY*dirY)
+        local pitch = math.deg(math.atan(-dirZ, horizontalDist))  -- 위아래 각도
+        Obj.Rotation = Vector(0, pitch, yaw)
 
-        print("[BossSword] Launched toward player!")
+        print("[BossSword] Launched! Dir=(" .. string.format("%.2f", dirX) .. ", " .. string.format("%.2f", dirY) .. ", " .. string.format("%.2f", dirZ) .. ") Rot=(0, " .. string.format("%.1f", pitch) .. ", " .. string.format("%.1f", yaw) .. ")")
     end
 
     -- 히트박스 활성화
