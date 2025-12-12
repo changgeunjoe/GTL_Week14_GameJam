@@ -60,7 +60,7 @@ ACharacter::~ACharacter()
 void ACharacter::Tick(float DeltaSecond)
 {
 	Super::Tick(DeltaSecond);
-	UpdateBloodDecalPool(DeltaSecond);
+	// UpdateBloodDecalPool(DeltaSecond);
     if (InitFrameCounter < 3) {
         InitFrameCounter++;
         return;
@@ -79,7 +79,7 @@ void ACharacter::BeginPlay()
 {
     Super::BeginPlay();
 
-	InitializeBloodDecalPool();
+	// InitializeBloodDecalPool();
 
     // 파티클 시스템 로드
     FleshImpactParticle = RESOURCE.Load<UParticleSystem>("Data/Particle/G_Blood.particle");
@@ -539,228 +539,228 @@ void ACharacter::PerformWeaponTrace()
 	PrevWeaponBasePos = CurrentBasePos;
 	PrevWeaponTipPos = CurrentTipPos;
 }
-
-void ACharacter::InitializeBloodDecalPool()
-{
-	BloodDecalPool.Empty();
-	BloodDecalFreeList.Empty();
-
-	UWorld* World = GetWorld();
-	if (!World || InitialBloodDecalPoolSize <= 0)
-	{
-		return;
-	}
-
-	BloodDecalTexture = RESOURCE.Load<UTexture>("Data/Textures/Blood.png");
-	if (!BloodDecalTexture)
-	{
-		BloodDecalTexture = RESOURCE.Load<UTexture>(GDataDir + "/Textures/Blood.png");
-	}
-	if (!BloodDecalTexture)
-	{
-		UE_LOG("[Character] WARNING: Failed to load default blood decal texture (Data/Texture/Blood.png)");
-	}
-
-	BloodDecalPool.Reserve(InitialBloodDecalPoolSize);
-	BloodDecalFreeList.Reserve(InitialBloodDecalPoolSize);
-
-	for (int32 Index = 0; Index < InitialBloodDecalPoolSize; ++Index)
-	{
-		ADecalActor* Decal = World->SpawnActor<ADecalActor>(FTransform());
-		if (!Decal)
-		{
-			continue;
-		}
-
-		ConfigureBloodDecalActor(Decal);
-
-		FBloodDecalEntry Entry;
-		Entry.Actor = Decal;
-		Entry.bInUse = false;
-		Entry.RemainingLifetime = 0.0f;
-
-		const int32 NewIndex = BloodDecalPool.Add(Entry);
-		BloodDecalFreeList.Add(NewIndex);
-	}
-}
-
-ADecalActor* ACharacter::AcquireBloodDecal()
-{
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return nullptr;
-	}
-
-	auto TryActivateFromIndex = [&](int32 PoolIndex) -> ADecalActor*
-	{
-		if (PoolIndex < 0 || PoolIndex >= BloodDecalPool.Num())
-		{
-			return nullptr;
-		}
-
-		FBloodDecalEntry Entry;
-		ADecalActor* Replacement = World->SpawnActor<ADecalActor>(FTransform());
-		if (!Replacement)
-		{
-			return nullptr;
-		}
-		ConfigureBloodDecalActor(Replacement);
-		Entry.Actor = Replacement;
-
-		Entry.bInUse = true;
-		Entry.RemainingLifetime = BloodDecalLifetime;
-
-		if (UDecalComponent* DecalComponent = Entry.Actor->GetDecalComponent())
-		{
-			DecalComponent->SetOpacity(1.0f);
-		}
-
-		BloodDecalPool[PoolIndex] = Entry;
-
-		return Entry.Actor;
-	};
-
-	while (!BloodDecalFreeList.IsEmpty())
-	{
-		const int32 PoolIndex = BloodDecalFreeList.Pop();
-		if (ADecalActor* Decal = TryActivateFromIndex(PoolIndex))
-		{
-			return Decal;
-		}
-	}
-
-	ADecalActor* Decal = World->SpawnActor<ADecalActor>(FTransform());
-	if (Decal)
-	{
-		ConfigureBloodDecalActor(Decal);
-
-		FBloodDecalEntry Entry;
-		Entry.Actor = Decal;
-		Entry.bInUse = true;
-		Entry.RemainingLifetime = BloodDecalLifetime;
-		
-		if (UDecalComponent* DecalComponent = Entry.Actor ?
-			Entry.Actor->GetDecalComponent() : nullptr)
-			DecalComponent->SetOpacity(1.0f);
-
-		BloodDecalPool.Add(Entry);
-	}
-	return Decal;
-}
-
-void ACharacter::ReleaseBloodDecal(ADecalActor* DecalActor)
-{
-	if (!DecalActor)
-	{
-		return;
-	}
-
-	for (int32 Index = 0; Index < BloodDecalPool.Num(); ++Index)
-	{
-		FBloodDecalEntry& Entry = BloodDecalPool[Index];
-		if (Entry.Actor == DecalActor)
-		{
-			if (!Entry.bInUse)
-			{
-				return;
-			}
-
-			Entry.bInUse = false;
-			Entry.RemainingLifetime = 0.0f;
-			BloodDecalFreeList.Add(Index);
-
-			DecalActor->SetActorHiddenInGame(true);
-			return;
-		}
-	}
-}
-
-void ACharacter::UpdateBloodDecalPool(float DeltaSeconds)
-{
-	if (BloodDecalLifetime <= KINDA_SMALL_NUMBER)
-	{
-		return;
-	}
-
-	for (int32 Index = 0; Index < BloodDecalPool.Num(); ++Index)
-	{
-		FBloodDecalEntry& Entry = BloodDecalPool[Index];
-		if (!Entry.bInUse || !Entry.Actor)
-		{
-			continue;
-		}
-
-		Entry.RemainingLifetime -= DeltaSeconds;
-		const float NormalizedLifetime = FMath::Clamp(Entry.RemainingLifetime / BloodDecalLifetime, 0.0f, 1.0f);
-
-		if (UDecalComponent* DecalComponent = Entry.Actor->GetDecalComponent())
-		{
-			DecalComponent->SetOpacity(NormalizedLifetime);
-		}
-
-		if (Entry.RemainingLifetime <= 0.0f)
-		{
-			ReleaseBloodDecal(Entry.Actor);
-		}
-	}
-}
-
-void ACharacter::ConfigureBloodDecalActor(ADecalActor* DecalActor)
-{
-	if (!DecalActor)
-	{
-		return;
-	}
-
-	DecalActor->SetActorHiddenInGame(true);
-	DecalActor->SetActorScale(FVector(2.0f, 2.0f, 1.0f));
-
-	if (UDecalComponent* DecalComponent = DecalActor->GetDecalComponent())
-	{
-		if (BloodDecalTexture)
-		{
-			DecalComponent->SetDecalTexture(BloodDecalTexture);
-		}
-		else
-		{
-			DecalComponent->SetDecalTexture("Data/Texture/Blood.png");
-		}
-
-		DecalComponent->SetOpacity(1.0f);
-	}
-}
-void ACharacter::SpawnBloodDecalAt(const FVector& HitLocation, const FVector& HitNormal)
-{
-	ADecalActor* DecalActor = AcquireBloodDecal();
-	if (!DecalActor) return;
-
-	const FVector SpawnLocation(HitLocation.X, HitLocation.Y, BloodDecalGroundZ);
-
-	const FVector SafeNormal = HitNormal.SizeSquared() > KINDA_SMALL_NUMBER? 
-							   HitNormal.GetNormalized() : FVector(0.f, 0.f, 1.f);
-	const FQuat AlignRotation = FQuat::FindBetweenVectors(FVector(0.f, 0.f, 1.f), SafeNormal);
-	const FQuat YAxisQuarterTurn = FQuat::FromAxisAngle(FVector(0.f, 1.f, 0.f), HALF_PI);
-	const FQuat SpawnRotation = YAxisQuarterTurn * AlignRotation;
-
-	DecalActor->SetActorHiddenInGame(false);
-	DecalActor->SetActorLocation(SpawnLocation);
-	DecalActor->SetActorRotation(SpawnRotation);
-
-	for (FBloodDecalEntry& Entry : BloodDecalPool)
-	{
-		if (Entry.Actor == DecalActor)
-		{
-			Entry.bInUse = true;
-			Entry.RemainingLifetime = BloodDecalLifetime;
-			if (UDecalComponent* DecalComponent = Entry.Actor ? Entry.Actor->GetDecalComponent() : nullptr)
-			{
-				DecalComponent->SetOpacity(1.0f);
-			}
-			break;
-		}
-	}
-}
+//
+//void ACharacter::InitializeBloodDecalPool()
+//{
+//	BloodDecalPool.Empty();
+//	BloodDecalFreeList.Empty();
+//
+//	UWorld* World = GetWorld();
+//	if (!World || InitialBloodDecalPoolSize <= 0)
+//	{
+//		return;
+//	}
+//
+//	BloodDecalTexture = RESOURCE.Load<UTexture>("Data/Textures/Blood.png");
+//	if (!BloodDecalTexture)
+//	{
+//		BloodDecalTexture = RESOURCE.Load<UTexture>(GDataDir + "/Textures/Blood.png");
+//	}
+//	if (!BloodDecalTexture)
+//	{
+//		UE_LOG("[Character] WARNING: Failed to load default blood decal texture (Data/Texture/Blood.png)");
+//	}
+//
+//	BloodDecalPool.Reserve(InitialBloodDecalPoolSize);
+//	BloodDecalFreeList.Reserve(InitialBloodDecalPoolSize);
+//
+//	for (int32 Index = 0; Index < InitialBloodDecalPoolSize; ++Index)
+//	{
+//		ADecalActor* Decal = World->SpawnActor<ADecalActor>(FTransform());
+//		if (!Decal)
+//		{
+//			continue;
+//		}
+//
+//		ConfigureBloodDecalActor(Decal);
+//
+//		FBloodDecalEntry Entry;
+//		Entry.Actor = Decal;
+//		Entry.bInUse = false;
+//		Entry.RemainingLifetime = 0.0f;
+//
+//		const int32 NewIndex = BloodDecalPool.Add(Entry);
+//		BloodDecalFreeList.Add(NewIndex);
+//	}
+//}
+//
+//ADecalActor* ACharacter::AcquireBloodDecal()
+//{
+//	UWorld* World = GetWorld();
+//	if (!World)
+//	{
+//		return nullptr;
+//	}
+//
+//	auto TryActivateFromIndex = [&](int32 PoolIndex) -> ADecalActor*
+//	{
+//		if (PoolIndex < 0 || PoolIndex >= BloodDecalPool.Num())
+//		{
+//			return nullptr;
+//		}
+//
+//		FBloodDecalEntry Entry;
+//		ADecalActor* Replacement = World->SpawnActor<ADecalActor>(FTransform());
+//		if (!Replacement)
+//		{
+//			return nullptr;
+//		}
+//		ConfigureBloodDecalActor(Replacement);
+//		Entry.Actor = Replacement;
+//
+//		Entry.bInUse = true;
+//		Entry.RemainingLifetime = BloodDecalLifetime;
+//
+//		if (UDecalComponent* DecalComponent = Entry.Actor->GetDecalComponent())
+//		{
+//			DecalComponent->SetOpacity(1.0f);
+//		}
+//
+//		BloodDecalPool[PoolIndex] = Entry;
+//
+//		return Entry.Actor;
+//	};
+//
+//	while (!BloodDecalFreeList.IsEmpty())
+//	{
+//		const int32 PoolIndex = BloodDecalFreeList.Pop();
+//		if (ADecalActor* Decal = TryActivateFromIndex(PoolIndex))
+//		{
+//			return Decal;
+//		}
+//	}
+//
+//	ADecalActor* Decal = World->SpawnActor<ADecalActor>(FTransform());
+//	if (Decal)
+//	{
+//		ConfigureBloodDecalActor(Decal);
+//
+//		FBloodDecalEntry Entry;
+//		Entry.Actor = Decal;
+//		Entry.bInUse = true;
+//		Entry.RemainingLifetime = BloodDecalLifetime;
+//		
+//		if (UDecalComponent* DecalComponent = Entry.Actor ?
+//			Entry.Actor->GetDecalComponent() : nullptr)
+//			DecalComponent->SetOpacity(1.0f);
+//
+//		BloodDecalPool.Add(Entry);
+//	}
+//	return Decal;
+//}
+//
+//void ACharacter::ReleaseBloodDecal(ADecalActor* DecalActor)
+//{
+//	if (!DecalActor)
+//	{
+//		return;
+//	}
+//
+//	for (int32 Index = 0; Index < BloodDecalPool.Num(); ++Index)
+//	{
+//		FBloodDecalEntry& Entry = BloodDecalPool[Index];
+//		if (Entry.Actor == DecalActor)
+//		{
+//			if (!Entry.bInUse)
+//			{
+//				return;
+//			}
+//
+//			Entry.bInUse = false;
+//			Entry.RemainingLifetime = 0.0f;
+//			BloodDecalFreeList.Add(Index);
+//
+//			DecalActor->SetActorHiddenInGame(true);
+//			return;
+//		}
+//	}
+//}
+//
+//void ACharacter::UpdateBloodDecalPool(float DeltaSeconds)
+//{
+//	if (BloodDecalLifetime <= KINDA_SMALL_NUMBER)
+//	{
+//		return;
+//	}
+//
+//	for (int32 Index = 0; Index < BloodDecalPool.Num(); ++Index)
+//	{
+//		FBloodDecalEntry& Entry = BloodDecalPool[Index];
+//		if (!Entry.bInUse || !Entry.Actor)
+//		{
+//			continue;
+//		}
+//
+//		Entry.RemainingLifetime -= DeltaSeconds;
+//		const float NormalizedLifetime = FMath::Clamp(Entry.RemainingLifetime / BloodDecalLifetime, 0.0f, 1.0f);
+//
+//		if (UDecalComponent* DecalComponent = Entry.Actor->GetDecalComponent())
+//		{
+//			DecalComponent->SetOpacity(NormalizedLifetime);
+//		}
+//
+//		if (Entry.RemainingLifetime <= 0.0f)
+//		{
+//			ReleaseBloodDecal(Entry.Actor);
+//		}
+//	}
+//}
+//
+//void ACharacter::ConfigureBloodDecalActor(ADecalActor* DecalActor)
+//{
+//	if (!DecalActor)
+//	{
+//		return;
+//	}
+//
+//	DecalActor->SetActorHiddenInGame(true);
+//	DecalActor->SetActorScale(FVector(2.0f, 2.0f, 1.0f));
+//
+//	if (UDecalComponent* DecalComponent = DecalActor->GetDecalComponent())
+//	{
+//		if (BloodDecalTexture)
+//		{
+//			DecalComponent->SetDecalTexture(BloodDecalTexture);
+//		}
+//		else
+//		{
+//			DecalComponent->SetDecalTexture("Data/Texture/Blood.png");
+//		}
+//
+//		DecalComponent->SetOpacity(1.0f);
+//	}
+//}
+//void ACharacter::SpawnBloodDecalAt(const FVector& HitLocation, const FVector& HitNormal)
+//{
+//	ADecalActor* DecalActor = AcquireBloodDecal();
+//	if (!DecalActor) return;
+//
+//	const FVector SpawnLocation(HitLocation.X, HitLocation.Y, BloodDecalGroundZ);
+//
+//	const FVector SafeNormal = HitNormal.SizeSquared() > KINDA_SMALL_NUMBER? 
+//							   HitNormal.GetNormalized() : FVector(0.f, 0.f, 1.f);
+//	const FQuat AlignRotation = FQuat::FindBetweenVectors(FVector(0.f, 0.f, 1.f), SafeNormal);
+//	const FQuat YAxisQuarterTurn = FQuat::FromAxisAngle(FVector(0.f, 1.f, 0.f), HALF_PI);
+//	const FQuat SpawnRotation = YAxisQuarterTurn; //*AlignRotation;
+//
+//	DecalActor->SetActorHiddenInGame(false);
+//	DecalActor->SetActorLocation(SpawnLocation);
+//	DecalActor->SetActorRotation(SpawnRotation);
+//
+//	for (FBloodDecalEntry& Entry : BloodDecalPool)
+//	{
+//		if (Entry.Actor == DecalActor)
+//		{
+//			Entry.bInUse = true;
+//			Entry.RemainingLifetime = BloodDecalLifetime;
+//			if (UDecalComponent* DecalComponent = Entry.Actor ? Entry.Actor->GetDecalComponent() : nullptr)
+//			{
+//				DecalComponent->SetOpacity(1.0f);
+//			}
+//			break;
+//		}
+//	}
+//}
 
 void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocation, const FVector& HitNormal)
 {
@@ -841,7 +841,7 @@ void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocatio
 				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.01, 0.01, 10);
 				SpawnImpactParticle(FleshImpactParticle, HitLocation, HitNormal);
 				
-				SpawnBloodDecalAt(HitLocation, HitNormal);
+				// SpawnBloodDecalAt(HitLocation, HitNormal);
 			}
 		}
 		else if (Cast<ABossEnemy>(HitActor))
@@ -858,7 +858,7 @@ void ACharacter::OnWeaponHitDetected(AActor* HitActor, const FVector& HitLocatio
 				GWorld->GetPlayerCameraManager()->StartCameraShake(0.3, 0.01, 0.01, 10);
 				SpawnImpactParticle(FleshImpactParticle, HitLocation, HitNormal);
 
-				SpawnBloodDecalAt(HitLocation, HitNormal);
+				// SpawnBloodDecalAt(HitLocation, HitNormal);
 			}
 		}
 	}
