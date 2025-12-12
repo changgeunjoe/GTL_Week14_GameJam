@@ -8,10 +8,17 @@
 
 ADecalActor::ADecalActor()
 {
-	ObjectName = "Static Mesh Actor";
+	ObjectName = "Decal Actor";
 	DecalComponent = CreateDefaultSubobject<UDecalComponent>("DecalComponent");
 
-	RootComponent = DecalComponent;
+	if (DecalComponent)
+	{
+		SetRootComponent(DecalComponent);
+	}
+	else
+	{
+		UE_LOG("[DecalActor] WARNING: Failed to create DecalComponent for %s", GetName().c_str());
+	}
 }
 
 ADecalActor::~ADecalActor()
