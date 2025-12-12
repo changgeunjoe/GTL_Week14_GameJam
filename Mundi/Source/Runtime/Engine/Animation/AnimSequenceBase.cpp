@@ -396,6 +396,7 @@ bool UAnimSequenceBase::SaveMeta(const FString& MetaPathUTF8) const
             Data["ScaleOffset"] = FJsonSerializer::VectorToJson(ParticleNotify->ScaleOffset);
             Data["AttachBone"] = ParticleNotify->AttachBoneName.ToString().c_str();
             Data["AttachToOwner"] = ParticleNotify->bAttachToOwner;
+            Data["AbsoluteWorld"] = ParticleNotify->bAbsoluteWorld;
             Data["LifeTime"] = ParticleNotify->LifeTime;
         }
 
@@ -610,6 +611,7 @@ bool UAnimSequenceBase::LoadMeta(const FString& MetaPathUTF8)
                 FJsonSerializer::ReadVector(*DataPtr, "RotationOffset", ParticleNotify->RotationOffset, ParticleNotify->RotationOffset, false);
                 FJsonSerializer::ReadVector(*DataPtr, "ScaleOffset", ParticleNotify->ScaleOffset, ParticleNotify->ScaleOffset, false);
                 FJsonSerializer::ReadBool(*DataPtr, "AttachToOwner", ParticleNotify->bAttachToOwner, ParticleNotify->bAttachToOwner, false);
+                FJsonSerializer::ReadBool(*DataPtr, "AbsoluteWorld", ParticleNotify->bAbsoluteWorld, ParticleNotify->bAbsoluteWorld, false);
                 FJsonSerializer::ReadFloat(*DataPtr, "LifeTime", ParticleNotify->LifeTime, ParticleNotify->LifeTime, false);
 
                 if (DataPtr->hasKey("AttachBone"))

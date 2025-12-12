@@ -3062,6 +3062,10 @@ void SSkeletalMeshViewerWindow::DrawAnimationPanel(ViewerState* State)
                         {
                             MarkNotifiesDirty(State);
                         }
+                        if (ImGui::Checkbox("World Absolue Position", &ParticleNotify->bAbsoluteWorld))
+                        {
+                            MarkNotifiesDirty(State);
+                        }
 
                         static char AttachBoneBuffer[64];
                         static UAnimNotify_PlayParticle* LastParticleEdit = nullptr;
@@ -4658,7 +4662,7 @@ void SSkeletalMeshViewerWindow::PreviewParticleNotify(ViewerState* State, int32 
 
     FQuat OffsetRotation = FQuat::MakeFromEulerZYX(ParticleNotify->RotationOffset);
     FTransform OffsetTransform(ParticleNotify->LocationOffset, OffsetRotation, ParticleNotify->ScaleOffset);
-    FTransform SpawnTransform = BaseTransform.GetWorldTransform(OffsetTransform);
+    FTransform SpawnTransform = ParticleNotify->bAbsoluteWorld ? OffsetTransform : BaseTransform.GetWorldTransform(OffsetTransform);
 
     USceneComponent* ParentToAttach = ParticleNotify->bAttachToOwner ? MeshComp : State->PreviewActor->GetRootComponent();
     UAnimNotifyParticleComponent* PreviewComp = Cast<UAnimNotifyParticleComponent>(

@@ -230,8 +230,11 @@ void SParticleViewerWindow::OnRender()
 
 						FString currentMaterialPath = RequiredModule->Material ? RequiredModule->Material->GetFilePath() : "None";
 						ImGui::SetNextItemWidth(-1);
+						
+						static char materialSearch[128] = "";
 						if (ImGui::BeginCombo("##MaterialCombo", currentMaterialPath.c_str()))
 						{
+							ImGui::InputText("Search", materialSearch, IM_ARRAYSIZE(materialSearch));
 							// None 옵션
 							if (ImGui::Selectable("None##MatNone", RequiredModule->Material == nullptr))
 							{
@@ -250,22 +253,26 @@ void SParticleViewerWindow::OnRender()
 									UMaterial* Mat = AllMaterials[i];
 									if (Mat)
 									{
-										ImGui::PushID(i);
-										bool isSelected = (RequiredModule->Material == Mat);
-
-										// 텍스처 미리보기 + 이름
-										UTexture* MatTexture = Mat->GetTexture(EMaterialTextureSlot::Diffuse);
-										if (MatTexture && MatTexture->GetShaderResourceView())
+										if (materialSearch[0] == '\0' ||
+											FString(Mat->GetFilePath()).find(materialSearch) != FString::npos)
 										{
-											ImGui::Image((void*)MatTexture->GetShaderResourceView(), ImVec2(30, 30));
-											ImGui::SameLine();
-										}
+											ImGui::PushID(i);
+											bool isSelected = (RequiredModule->Material == Mat);
 
-										if (ImGui::Selectable(Mat->GetFilePath().c_str(), isSelected))
-										{
-											RequiredModule->Material = Mat;
+											// 텍스처 미리보기 + 이름
+											UTexture* MatTexture = Mat->GetTexture(EMaterialTextureSlot::Diffuse);
+											if (MatTexture && MatTexture->GetShaderResourceView())
+											{
+												ImGui::Image((void*)MatTexture->GetShaderResourceView(), ImVec2(30, 30));
+												ImGui::SameLine();
+											}
+
+											if (ImGui::Selectable(Mat->GetFilePath().c_str(), isSelected))
+											{
+												RequiredModule->Material = Mat;
+											}
+											ImGui::PopID();
 										}
-										ImGui::PopID();
 									}
 								}
 							}
@@ -344,8 +351,13 @@ void SParticleViewerWindow::OnRender()
 									}
 									FString DiffTexPath = DiffTex ? DiffTex->GetFilePath() : "None";
 									ImGui::SetNextItemWidth(-1);
+
+									// 검색창 추가
+									static char textureSearch[128] = "";
 									if (ImGui::BeginCombo("##DiffuseTexture", DiffTexPath.c_str()))
 									{
+										ImGui::InputText("Search", textureSearch, IM_ARRAYSIZE(textureSearch));
+
 										// None 옵션
 										if (ImGui::Selectable("None##DiffNone", DiffTex == nullptr))
 										{
@@ -361,23 +373,28 @@ void SParticleViewerWindow::OnRender()
 											UTexture* Tex = AllTextures[i];
 											if (Tex)
 											{
-												ImGui::PushID(i);
-												bool isSelected = (DiffTex == Tex);
-
-												if (Tex->GetShaderResourceView())
+												// 검색어 필터링
+												if (textureSearch[0] == '\0' ||
+													FString(Tex->GetFilePath()).find(textureSearch) != FString::npos)
 												{
-													ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
-													ImGui::SameLine();
-												}
+													ImGui::PushID(i);
+													bool isSelected = (DiffTex == Tex);
 
-												if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
-												{
-													if (UMaterialInstanceDynamic* MID = EnsureMID())
+													if (Tex->GetShaderResourceView())
 													{
-														MID->SetTextureParameterValue(EMaterialTextureSlot::Diffuse, Tex);
+														ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
+														ImGui::SameLine();
 													}
+
+													if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
+													{
+														if (UMaterialInstanceDynamic* MID = EnsureMID())
+														{
+															MID->SetTextureParameterValue(EMaterialTextureSlot::Diffuse, Tex);
+														}
+													}
+													ImGui::PopID();
 												}
-												ImGui::PopID();
 											}
 										}
 										ImGui::EndCombo();
@@ -397,8 +414,13 @@ void SParticleViewerWindow::OnRender()
 									}
 									FString NormTexPath = NormTex ? NormTex->GetFilePath() : "None";
 									ImGui::SetNextItemWidth(-1);
+
+									// 검색창 추가
+									static char textureSearchNormal[128] = "";
 									if (ImGui::BeginCombo("##NormalTexture", NormTexPath.c_str()))
 									{
+										ImGui::InputText("Search", textureSearchNormal, IM_ARRAYSIZE(textureSearchNormal));
+
 										// None 옵션
 										if (ImGui::Selectable("None##NormNone", NormTex == nullptr))
 										{
@@ -414,23 +436,28 @@ void SParticleViewerWindow::OnRender()
 											UTexture* Tex = AllTextures[i];
 											if (Tex)
 											{
-												ImGui::PushID(1000 + i); // Diffuse와 ID 충돌 방지
-												bool isSelected = (NormTex == Tex);
-
-												if (Tex->GetShaderResourceView())
+												// 검색어 필터링
+												if (textureSearchNormal[0] == '\0' ||
+													FString(Tex->GetFilePath()).find(textureSearchNormal) != FString::npos)
 												{
-													ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
-													ImGui::SameLine();
-												}
+													ImGui::PushID(1000 + i); // Diffuse와 ID 충돌 방지
+													bool isSelected = (NormTex == Tex);
 
-												if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
-												{
-													if (UMaterialInstanceDynamic* MID = EnsureMID())
+													if (Tex->GetShaderResourceView())
 													{
-														MID->SetTextureParameterValue(EMaterialTextureSlot::Normal, Tex);
+														ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
+														ImGui::SameLine();
 													}
+
+													if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
+													{
+														if (UMaterialInstanceDynamic* MID = EnsureMID())
+														{
+															MID->SetTextureParameterValue(EMaterialTextureSlot::Normal, Tex);
+														}
+													}
+													ImGui::PopID();
 												}
-												ImGui::PopID();
 											}
 										}
 										ImGui::EndCombo();
@@ -1620,7 +1647,6 @@ void SParticleViewerWindow::OnRender()
                         if (ImGui::IsItemHovered()) ImGui::SetTooltip("파티클로 사용할 3D 메시\nStaticMesh 에셋 선택");
                         ImGui::NextColumn();
 
-						// 현재 선택된 메쉬의 파일명만 추출
 						FString currentMeshName = "None";
 						if (MeshModule->Mesh)
 						{
@@ -1637,8 +1663,10 @@ void SParticleViewerWindow::OnRender()
 						}
 
 						ImGui::SetNextItemWidth(-1);
+						static char meshSearch[128] = "";
 						if (ImGui::BeginCombo("##MeshCombo", currentMeshName.c_str()))
 						{
+							ImGui::InputText("Search", meshSearch, IM_ARRAYSIZE(meshSearch));
 							// None
 							if (ImGui::Selectable("None##MeshNone", MeshModule->Mesh == nullptr))
 							{
@@ -1655,11 +1683,6 @@ void SParticleViewerWindow::OnRender()
 								UStaticMesh* Mesh = AllMeshes[i];
 								if (!Mesh) continue;
 
-								ImGui::PushID(i);
-
-								bool isSelected = (MeshModule->Mesh == Mesh);
-
-								// 파일 경로에서 파일명만 추출
 								FString fullPath = Mesh->GetAssetPathFileName();
 								FString displayName = fullPath;
 								size_t lastSlash = fullPath.find_last_of("/\\");
@@ -1668,25 +1691,34 @@ void SParticleViewerWindow::OnRender()
 									displayName = fullPath.substr(lastSlash + 1);
 								}
 
-								if (ImGui::Selectable(displayName.c_str(), isSelected))
+								if (meshSearch[0] == '\0' ||
+									displayName.find(meshSearch) != FString::npos)
 								{
-									MeshModule->SetMesh(Mesh, SelectedEmitter);
+									ImGui::PushID(i);
 
-									// PreviewComponent 재시작 (EmitterInstance를 다시 초기화)
-									if (PreviewComponent && CurrentParticleSystem)
+									bool isSelected = (MeshModule->Mesh == Mesh);
+
+
+									if (ImGui::Selectable(displayName.c_str(), isSelected))
 									{
-										CurrentParticleSystem->BuildRuntimeCache();
-										PreviewComponent->ResetAndActivate();
+										MeshModule->SetMesh(Mesh, SelectedEmitter);
+
+										// PreviewComponent 재시작 (EmitterInstance를 다시 초기화)
+										if (PreviewComponent && CurrentParticleSystem)
+										{
+											CurrentParticleSystem->BuildRuntimeCache();
+											PreviewComponent->ResetAndActivate();
+										}
 									}
-								}
 
-								// 툴팁에 전체 경로 표시
-								if (ImGui::IsItemHovered())
-								{
-									ImGui::SetTooltip("%s", fullPath.c_str());
-								}
+									// 툴팁에 전체 경로 표시
+									if (ImGui::IsItemHovered())
+									{
+										ImGui::SetTooltip("%s", fullPath.c_str());
+									}
 
-								ImGui::PopID();
+									ImGui::PopID();
+								}
 							}
 
 							ImGui::EndCombo();
@@ -1750,8 +1782,10 @@ void SParticleViewerWindow::OnRender()
 
 							FString currentMaterialPath = MeshModule->OverrideMaterial ? MeshModule->OverrideMaterial->GetFilePath() : "None";
 							ImGui::SetNextItemWidth(-1);
+							static char materialSearchMesh[128] = "";
 							if (ImGui::BeginCombo("##MeshMaterialCombo", currentMaterialPath.c_str()))
 							{
+								ImGui::InputText("Search", materialSearchMesh, IM_ARRAYSIZE(materialSearchMesh));
 								// None 옵션
 								if (ImGui::Selectable("None##MeshMatNone", MeshModule->OverrideMaterial == nullptr))
 								{
@@ -1770,29 +1804,33 @@ void SParticleViewerWindow::OnRender()
 										UMaterial* Mat = AllMaterials[i];
 										if (Mat)
 										{
-											ImGui::PushID(i + 2000); // ID 충돌 방지
-											bool isSelected = (MeshModule->OverrideMaterial == Mat);
-
-											// 텍스처 미리보기 + 이름
-											UTexture* MatTexture = Mat->GetTexture(EMaterialTextureSlot::Diffuse);
-											if (MatTexture && MatTexture->GetShaderResourceView())
+											if (materialSearchMesh[0] == '\0' ||
+												FString(Mat->GetFilePath()).find(materialSearchMesh) != FString::npos)
 											{
-												ImGui::Image((void*)MatTexture->GetShaderResourceView(), ImVec2(30, 30));
-												ImGui::SameLine();
-											}
+												ImGui::PushID(i + 2000); // ID 충돌 방지
+												bool isSelected = (MeshModule->OverrideMaterial == Mat);
 
-											if (ImGui::Selectable(Mat->GetFilePath().c_str(), isSelected))
-											{
-												MeshModule->SetOverrideMaterial(Mat, SelectedEmitter);
-
-												// PreviewComponent 재시작
-												if (PreviewComponent && CurrentParticleSystem)
+												// 텍스처 미리보기 + 이름
+												UTexture* MatTexture = Mat->GetTexture(EMaterialTextureSlot::Diffuse);
+												if (MatTexture && MatTexture->GetShaderResourceView())
 												{
-													CurrentParticleSystem->BuildRuntimeCache();
-													PreviewComponent->ResetAndActivate();
+													ImGui::Image((void*)MatTexture->GetShaderResourceView(), ImVec2(30, 30));
+													ImGui::SameLine();
 												}
+
+												if (ImGui::Selectable(Mat->GetFilePath().c_str(), isSelected))
+												{
+													MeshModule->SetOverrideMaterial(Mat, SelectedEmitter);
+
+													// PreviewComponent 재시작
+													if (PreviewComponent && CurrentParticleSystem)
+													{
+														CurrentParticleSystem->BuildRuntimeCache();
+														PreviewComponent->ResetAndActivate();
+													}
+												}
+												ImGui::PopID();
 											}
-											ImGui::PopID();
 										}
 									}
 								}
@@ -1870,8 +1908,11 @@ void SParticleViewerWindow::OnRender()
 										}
 										FString DiffTexPath = DiffTex ? DiffTex->GetFilePath() : "None";
 										ImGui::SetNextItemWidth(-1);
+										
+										static char textureSearchMeshDiffuse[128] = "";
 										if (ImGui::BeginCombo("##MeshDiffuseTexture", DiffTexPath.c_str()))
 										{
+											ImGui::InputText("Search", textureSearchMeshDiffuse, IM_ARRAYSIZE(textureSearchMeshDiffuse));
 											// None 옵션
 											if (ImGui::Selectable("None##MeshDiffNone", DiffTex == nullptr))
 											{
@@ -1887,23 +1928,27 @@ void SParticleViewerWindow::OnRender()
 												UTexture* Tex = AllTextures[i];
 												if (Tex)
 												{
-													ImGui::PushID(i + 3000);
-													bool isSelected = (DiffTex == Tex);
-
-													if (Tex->GetShaderResourceView())
+													if (textureSearchMeshDiffuse[0] == '\0' ||
+														FString(Tex->GetFilePath()).find(textureSearchMeshDiffuse) != FString::npos)
 													{
-														ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
-														ImGui::SameLine();
-													}
+														ImGui::PushID(i + 3000);
+														bool isSelected = (DiffTex == Tex);
 
-													if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
-													{
-														if (UMaterialInstanceDynamic* MID = EnsureMeshMID())
+														if (Tex->GetShaderResourceView())
 														{
-															MID->SetTextureParameterValue(EMaterialTextureSlot::Diffuse, Tex);
+															ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
+															ImGui::SameLine();
 														}
+
+														if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
+														{
+															if (UMaterialInstanceDynamic* MID = EnsureMeshMID())
+															{
+																MID->SetTextureParameterValue(EMaterialTextureSlot::Diffuse, Tex);
+															}
+														}
+														ImGui::PopID();
 													}
-													ImGui::PopID();
 												}
 											}
 											ImGui::EndCombo();
@@ -1923,8 +1968,11 @@ void SParticleViewerWindow::OnRender()
 										}
 										FString NormTexPath = NormTex ? NormTex->GetFilePath() : "None";
 										ImGui::SetNextItemWidth(-1);
+										
+										static char textureSearchMeshNormal[128] = "";
 										if (ImGui::BeginCombo("##MeshNormalTexture", NormTexPath.c_str()))
 										{
+											ImGui::InputText("Search", textureSearchMeshNormal, IM_ARRAYSIZE(textureSearchMeshNormal));
 											// None 옵션
 											if (ImGui::Selectable("None##MeshNormNone", NormTex == nullptr))
 											{
@@ -1940,23 +1988,27 @@ void SParticleViewerWindow::OnRender()
 												UTexture* Tex = AllTextures[i];
 												if (Tex)
 												{
-													ImGui::PushID(i + 4000);
-													bool isSelected = (NormTex == Tex);
-
-													if (Tex->GetShaderResourceView())
+													if (textureSearchMeshNormal[0] == '\0' ||
+														FString(Tex->GetFilePath()).find(textureSearchMeshNormal) != FString::npos)
 													{
-														ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
-														ImGui::SameLine();
-													}
+														ImGui::PushID(i + 4000);
+														bool isSelected = (NormTex == Tex);
 
-													if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
-													{
-														if (UMaterialInstanceDynamic* MID = EnsureMeshMID())
+														if (Tex->GetShaderResourceView())
 														{
-															MID->SetTextureParameterValue(EMaterialTextureSlot::Normal, Tex);
+															ImGui::Image((void*)Tex->GetShaderResourceView(), ImVec2(24, 24));
+															ImGui::SameLine();
 														}
+
+														if (ImGui::Selectable(Tex->GetFilePath().c_str(), isSelected))
+														{
+															if (UMaterialInstanceDynamic* MID = EnsureMeshMID())
+															{
+																MID->SetTextureParameterValue(EMaterialTextureSlot::Normal, Tex);
+															}
+														}
+														ImGui::PopID();
 													}
-													ImGui::PopID();
 												}
 											}
 											ImGui::EndCombo();
@@ -2479,6 +2531,12 @@ void SParticleViewerWindow::OnRender()
                 		ImGui::SameLine();
         
                 		static char CollisionEventNameBuffer[256] = "";
+						static UParticleModule* lastSelectedModuleForCollision = nullptr;
+						if (lastSelectedModuleForCollision != SelectedModule)
+						{
+							strncpy_s(CollisionEventNameBuffer, sizeof(CollisionEventNameBuffer), CollisionModule->EventName.c_str(), _TRUNCATE);
+							lastSelectedModuleForCollision = SelectedModule;
+						}
                 		if (ImGui::InputText("##CollisionEventName", CollisionEventNameBuffer, IM_ARRAYSIZE(CollisionEventNameBuffer)))
                 		{
                 			CollisionModule->EventName = FString(CollisionEventNameBuffer);
@@ -2500,6 +2558,12 @@ void SParticleViewerWindow::OnRender()
 					ImGui::SameLine();
 
 					static char EventNameBuffer[256] = "";
+					static UParticleModule* lastSelectedModuleForEventReceiver = nullptr;
+					if (lastSelectedModuleForEventReceiver != SelectedModule)
+					{
+						strncpy_s(EventNameBuffer, sizeof(EventNameBuffer), EventReceiverModule->EventName.ToString().c_str(), _TRUNCATE);
+						lastSelectedModuleForEventReceiver = SelectedModule;
+					}
 					if (ImGui::InputText("##EventName", EventNameBuffer, IM_ARRAYSIZE(EventNameBuffer)))
 					{
 						EventReceiverModule->EventName = FName(EventNameBuffer);
