@@ -300,6 +300,34 @@ void UMeshComponent::SetMaterialScalarByUser(const uint32 InMaterialSlotIndex, c
 	MID->SetScalarParameterValue(ParameterName, Value);
 }
 
+void UMeshComponent::SetMaterialWindAnimationByUser(const uint32 InMaterialSlotIndex, bool bEnabled)
+{
+	UMaterialInterface* CurrentMaterial = GetMaterial(InMaterialSlotIndex);
+	UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(CurrentMaterial);
+	if (MID == nullptr)
+	{
+		MID = CreateAndSetMaterialInstanceDynamic(InMaterialSlotIndex);
+	}
+	if (MID)
+	{
+		MID->SetWindAnimationEnabled(bEnabled);
+	}
+}
+
+void UMeshComponent::SetMaterialWindMeshHeightByUser(const uint32 InMaterialSlotIndex, float Height)
+{
+	UMaterialInterface* CurrentMaterial = GetMaterial(InMaterialSlotIndex);
+	UMaterialInstanceDynamic* MID = Cast<UMaterialInstanceDynamic>(CurrentMaterial);
+	if (MID == nullptr)
+	{
+		MID = CreateAndSetMaterialInstanceDynamic(InMaterialSlotIndex);
+	}
+	if (MID)
+	{
+		MID->SetWindMeshHeight(Height);
+	}
+}
+
 void UMeshComponent::ClearDynamicMaterials()
 {
 	// 1. 생성된 동적 머티리얼 인스턴스 해제

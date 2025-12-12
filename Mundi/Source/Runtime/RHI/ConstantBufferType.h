@@ -299,6 +299,28 @@ struct alignas(16) FSkyConstantBuffer
 };  // Total: 96 bytes
 static_assert(sizeof(FSkyConstantBuffer) % 16 == 0, "FSkyConstantBuffer must be 16-byte aligned");
 
+// b13: Wind Parameters Buffer (VS) - Global wind settings for foliage
+struct alignas(16) FWindBufferType
+{
+    FVector WindDirection;      // Normalized wind direction (X, Y in Z-up system)
+    float WindSpeed;            // Animation speed multiplier
+
+    float WindStrength;         // Overall displacement magnitude (units)
+    float GustStrength;         // Gust intensity multiplier (0-1)
+    float GustFrequency;        // Gust wave frequency
+    float Time;                 // Global time in seconds
+
+    float PrimaryFrequency;     // Main sway frequency (~1.2 Hz)
+    float SecondaryFrequency;   // Branch movement frequency (~2.5 Hz)
+    float TertiaryFrequency;    // Leaf flutter frequency (~6.0 Hz)
+    float HeightFalloffPower;   // Height mask curve power (2.0 = quadratic)
+
+    uint32 bEnableWind;         // Per-mesh enable flag (0 or 1)
+    float MeshMaxHeight;        // Per-mesh height reference
+    FVector2D _Padding;         // 16-byte alignment
+};
+static_assert(sizeof(FWindBufferType) % 16 == 0, "FWindBufferType must be 16-byte aligned");
+
 #define CONSTANT_BUFFER_INFO(TYPE, SLOT, VS, PS) \
 constexpr uint32 TYPE##Slot = SLOT;\
 constexpr bool TYPE##IsVS = VS;\
@@ -329,7 +351,8 @@ MACRO(FTileCullingBufferType)       \
 MACRO(FPointLightShadowBufferType)  \
 MACRO(FSubUVBufferType) \
 MACRO(FParticleEmitterType) \
-MACRO(FSkyConstantBuffer)
+MACRO(FSkyConstantBuffer) \
+MACRO(FWindBufferType)
 
 // 16 ë°”ì´íŠ¸ íŒ¨ë”© ì–´ì°íŠ¸
 #define STATIC_ASSERT_CBUFFER_ALIGNMENT(Type) \
@@ -362,6 +385,5 @@ CONSTANT_BUFFER_INFO(FPointLightShadowBufferType, 12, true, true)  // b12, VS+PS
 CONSTANT_BUFFER_INFO(FSubUVBufferType, 2, true, true)  // b2, VS+PS (ParticleSprite.hlslìš©)
 CONSTANT_BUFFER_INFO(FParticleEmitterType, 3, true, true)  // b3, VS+PS (ParticleSprite.hlsl
 CONSTANT_BUFFER_INFO(FSkyConstantBuffer, 9, true, true)    // b9, VS+PS (Sky.hlslìš©)
-
-
+CONSTANT_BUFFER_INFO(FWindBufferType, 13, true, false)     // b13, VS only (Wind animation)
 

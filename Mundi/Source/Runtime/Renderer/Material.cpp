@@ -327,6 +327,24 @@ void UMaterialInstanceDynamic::Serialize(const bool bInIsLoading, JSON& InOutHan
 				}
 				SetOverriddenVectorParameters(LoadedVectors);
 			}
+
+			// 2-4. Wind Animation 로드
+			JSON WindJson;
+			if (FJsonSerializer::ReadObject(OverridesJson, "WindAnimation", WindJson, JSON::Make(JSON::Class::Object), false))
+			{
+				bool bWindEnabled = false;
+				float windHeight = 5.0f;
+				FJsonSerializer::ReadBool(WindJson, "Enabled", bWindEnabled, false, false);
+				FJsonSerializer::ReadFloat(WindJson, "MeshHeight", windHeight, 5.0f, false);
+
+				if (bWindEnabled || windHeight != 5.0f)
+				{
+					bOverrideWindAnimation = true;
+					bUseWindAnimation = bWindEnabled;
+					bOverrideWindMeshHeight = true;
+					WindMeshHeight = windHeight;
+				}
+			}
 		}
 
 		// 인스턴스 파일 경로는 부모 기반으로 설정 (디버깅/에디터용)
@@ -376,6 +394,15 @@ void UMaterialInstanceDynamic::Serialize(const bool bInIsLoading, JSON& InOutHan
 		}
 		OverridesJson["Vectors"] = VectorsJson;
 
+		// 2-4. Wind Animation 저장
+		if (bOverrideWindAnimation || bOverrideWindMeshHeight)
+		{
+			JSON WindJson = JSON::Make(JSON::Class::Object);
+			WindJson["Enabled"] = bUseWindAnimation;
+			WindJson["MeshHeight"] = WindMeshHeight;
+			OverridesJson["WindAnimation"] = WindJson;
+		}
+
 		InOutHandle["Overrides"] = OverridesJson;
 	}
 }
@@ -391,6 +418,12 @@ void UMaterialInstanceDynamic::CopyParametersFrom(const UMaterialInstanceDynamic
 	this->OverriddenTextures = Other->OverriddenTextures;
 	this->OverriddenScalarParameters = Other->OverriddenScalarParameters;
 	this->OverriddenColorParameters = Other->OverriddenColorParameters;
+
+	// Wind Animation 복사
+	this->bOverrideWindAnimation = Other->bOverrideWindAnimation;
+	this->bUseWindAnimation = Other->bUseWindAnimation;
+	this->bOverrideWindMeshHeight = Other->bOverrideWindMeshHeight;
+	this->WindMeshHeight = Other->WindMeshHeight;
 
 	this->bIsCachedMaterialInfoDirty = true;
 }
@@ -594,4 +627,44 @@ void UMaterialInstanceDynamic::SetOverriddenVectorParameters(const TMap<FString,
 {
 	OverriddenColorParameters = InVectors;
 	bIsCachedMaterialInfoDirty = true; // 벡터 값이 변경되었으므로 캐시를 갱신해야 함
+}
+
+bool UMaterialInstanceDynamic::IsWindAnimationEnabled() const
+{
+	if (bOverrideWindAnimation)
+	{
+		return bUseWindAnimation;
+	}
+	// Fall back to parent material
+	if (ParentMaterial)
+	{
+		return ParentMaterial->IsWindAnimationEnabled();
+	}
+	return false;
+}
+
+float UMaterialInstanceDynamic::GetWindMeshHeight() const
+{
+	if (bOverrideWindMeshHeight)
+	{
+		return WindMeshHeight;
+	}
+	// Fall back to parent material
+	if (ParentMaterial)
+	{
+		return ParentMaterial->GetWindMeshHeight();
+	}
+	return 5.0f;
+}
+
+void UMaterialInstanceDynamic::SetWindAnimationEnabled(bool bEnabled)
+{
+	bOverrideWindAnimation = true;
+	bUseWindAnimation = bEnabled;
+}
+
+void UMaterialInstanceDynamic::SetWindMeshHeight(float Height)
+{
+	bOverrideWindMeshHeight = true;
+	WindMeshHeight = Height;
 }

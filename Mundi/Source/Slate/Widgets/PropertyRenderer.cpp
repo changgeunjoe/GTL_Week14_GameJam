@@ -1814,6 +1814,25 @@ bool UPropertyRenderer::RenderSingleMaterialSlot(const char* Label, UMaterialInt
 			bElementChanged = true;
 		}
 
+		ImGui::Separator();
+
+		// --- Wind Animation ---
+		bool bWindEnabled = CurrentMaterial->IsWindAnimationEnabled();
+		FString WindCheckboxLabel = "Wind Animation##" + FString(Label);
+		if (ImGui::Checkbox(WindCheckboxLabel.c_str(), &bWindEnabled))
+		{
+			MeshComponent->SetMaterialWindAnimationByUser(MaterialIndex, bWindEnabled);
+			bElementChanged = true;
+		}
+
+		float WindHeight = CurrentMaterial->GetWindMeshHeight();
+		FString WindHeightLabel = "Wind Mesh Height##" + FString(Label);
+		if (ImGui::DragFloat(WindHeightLabel.c_str(), &WindHeight, 0.1f, 0.1f, 100.0f))
+		{
+			MeshComponent->SetMaterialWindMeshHeightByUser(MaterialIndex, WindHeight);
+			bElementChanged = true;
+		}
+
 		ImGui::Unindent();
 	}
 

@@ -36,7 +36,11 @@ public:
     void SetMaterialColorByUser(const uint32 InMaterialSlotIndex, const FString& ParameterName, const FLinearColor& Value);
     UFUNCTION(LuaBind, DisplayName="SetScalar", Tooltip="Set material scalar parameter")
     void SetMaterialScalarByUser(const uint32 InMaterialSlotIndex, const FString& ParameterName, float Value);
-    
+
+    // Wind animation per-material slot
+    void SetMaterialWindAnimationByUser(const uint32 InMaterialSlotIndex, bool bEnabled);
+    void SetMaterialWindMeshHeightByUser(const uint32 InMaterialSlotIndex, float Height);
+
 protected:
     void ClearDynamicMaterials();
     

@@ -1972,6 +1972,28 @@ void FSceneRenderer::DrawMeshBatches(TArray<FMeshBatchElement>& InMeshBatches, b
 		RHIDevice->SetAndUpdateConstantBuffer(ModelBufferType(Batch.WorldMatrix, Batch.WorldMatrix.InverseAffine().Transpose()));
 		RHIDevice->SetAndUpdateConstantBuffer(ColorBufferType(Batch.InstanceColor, Batch.ObjectID));
 
+		// Wind animation constant buffer (per-batch enable flag)
+		{
+			static auto sWindStart = std::chrono::high_resolution_clock::now();
+			auto now = std::chrono::high_resolution_clock::now();
+			float windTime = std::chrono::duration<float>(now - sWindStart).count();
+
+			FWindBufferType WindCB{};
+			WindCB.WindDirection = FVector(1.0f, 0.3f, 0.0f).GetSafeNormal();
+			WindCB.WindSpeed = 1.0f;
+			WindCB.WindStrength = 0.5f;
+			WindCB.GustStrength = 0.5f;
+			WindCB.GustFrequency = 0.2f;
+			WindCB.Time = windTime;
+			WindCB.PrimaryFrequency = 1.2f;
+			WindCB.SecondaryFrequency = 2.5f;
+			WindCB.TertiaryFrequency = 6.0f;
+			WindCB.HeightFalloffPower = 2.0f;
+			WindCB.bEnableWind = Batch.bUseWindAnimation ? 1 : 0;
+			WindCB.MeshMaxHeight = Batch.WindMeshHeight;
+			RHIDevice->SetAndUpdateConstantBuffer(WindCB);
+		}
+
 		// SubUV 파라미터 설정 (파티클에서만 필요)
 		if (Batch.SubImages_Horizontal > 1 || Batch.SubImages_Vertical > 1)
 		{
