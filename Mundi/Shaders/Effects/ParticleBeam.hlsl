@@ -52,14 +52,25 @@ PSInput mainVS(VSInput input)
 float4 mainPS(PSInput input) : SV_TARGET
 {
     // 텍스처 샘플링
-    float4 texColor = BeamTexture.Sample(BeamSampler, input.UV);
+    float4 TexColor = BeamTexture.Sample(BeamSampler, input.UV);
 
-    float beamDist = abs(input.UV.x - 0.5f);
-    float softFalloff = exp(-25.0f * beamDist * beamDist); // bell curve falloff across width
+    float BeamDist = abs(input.UV.x - 0.5f);
+    float SoftFalloff = exp(-25.0f * BeamDist * BeamDist); // bell curve falloff across width
 
     // 파티클 색상과 곱하기
-    float4 finalColor = texColor * input.Color;
-    finalColor.a *= softFalloff;
+    float CoreWidth = 0.15f;
+    float CoreFactor = saturate(1.0f - BeamDist / CoreWidth);
+    CoreFactor *= CoreFactor;
+    
+    float3 CoreColor = float3(1.0f, 1.0f, 1.0f);
+    float3 EdgeColor = input.Color.rgb;
+        
+    float3 BeamColor = lerp(EdgeColor, CoreColor, CoreFactor);
+    
+    float3 FinalRgb = BeamColor * TexColor.rgb;
+    float Alpha = TexColor.a * input.Color.a * SoftFalloff;
 
-    return finalColor;
+    return float4(FinalRgb, Alpha);
 }
+
+
