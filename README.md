@@ -4,7 +4,3 @@
 **Engine**
 - DirectX 11 (Custom Framework)
 
-**Highlights**
-- Custom Camera System
-- Collision & Ray Picking
-- Rendering Pipeline Implementation
